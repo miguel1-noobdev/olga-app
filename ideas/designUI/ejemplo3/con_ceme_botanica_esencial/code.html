@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Conóceme - Botánica Esencial OB</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary": "#ffffff",
+                      "on-error": "#ffffff",
+                      "surface-bright": "#fef9ef",
+                      "primary-fixed": "#c6efa1",
+                      "tertiary-container": "#8c6f2c",
+                      "error-container": "#ffdad6",
+                      "on-tertiary-fixed-variant": "#5b4300",
+                      "on-primary": "#ffffff",
+                      "on-primary-fixed-variant": "#2f4f13",
+                      "surface-container-high": "#ede8de",
+                      "on-background": "#1d1c16",
+                      "on-error-container": "#93000a",
+                      "outline-variant": "#c3c8b9",
+                      "sage-dark": "#46602E",
+                      "on-tertiary-container": "#fff9f4",
+                      "on-surface-variant": "#43493d",
+                      "inverse-surface": "#32302a",
+                      "on-secondary-fixed-variant": "#4e3f69",
+                      "surface-tint": "#466729",
+                      "outline": "#74796b",
+                      "gold-soft": "#E8DCC8",
+                      "secondary-fixed": "#ebdcff",
+                      "surface-dim": "#dedad0",
+                      "on-surface": "#1d1c16",
+                      "background": "#fef9ef",
+                      "surface-variant": "#e7e2d8",
+                      "secondary-fixed-dim": "#d1bef0",
+                      "surface-container-lowest": "#ffffff",
+                      "on-secondary": "#ffffff",
+                      "surface-container-highest": "#e7e2d8",
+                      "tertiary-fixed": "#ffdf9c",
+                      "tertiary": "#715715",
+                      "primary-fixed-dim": "#abd287",
+                      "on-primary-container": "#f2ffe0",
+                      "inverse-on-surface": "#f5f0e6",
+                      "primary-container": "#5a7d3c",
+                      "on-primary-fixed": "#0c2000",
+                      "surface-container": "#f2ede3",
+                      "on-tertiary-fixed": "#251a00",
+                      "inverse-primary": "#abd287",
+                      "primary": "#426426",
+                      "text-dark": "#3E2C22",
+                      "surface": "#fef9ef",
+                      "on-secondary-container": "#64547f",
+                      "secondary": "#675782",
+                      "lavender-soft": "#E8E3F0",
+                      "error": "#ba1a1a",
+                      "earth": "#6B4423",
+                      "cream-light": "#FAF8F2",
+                      "coffee": "#8B5A2B",
+                      "surface-container-low": "#f8f3e9",
+                      "tertiary-fixed-dim": "#e5c276",
+                      "secondary-container": "#dfccff",
+                      "on-secondary-fixed": "#22133b"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-desktop": "48px",
+                      "section-padding-mobile": "80px",
+                      "gutter": "32px",
+                      "margin-mobile": "16px",
+                      "section-padding-desktop": "120px",
+                      "container-max": "1280px"
+              },
+              "fontFamily": {
+                      "headline-lg": [
+                              "Playfair Display"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "headline-lg-mobile": [
+                              "Playfair Display"
+                      ],
+                      "headline-sm": [
+                              "Playfair Display"
+                      ],
+                      "label-caps": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Playfair Display"
+                      ]
+              },
+              "fontSize": {
+                      "headline-lg": [
+                              "56px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.7",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "36px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-sm": [
+                              "28px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-caps": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "letterSpacing": "0.1em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "40px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+        }
+        .ambient-shadow {
+            box-shadow: 0 4px 24px rgba(62, 44, 34, 0.08);
+        }
+        .hover-lift {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .hover-lift:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(62, 44, 34, 0.12);
+        }
+        .floral-divider {
+            width: 100%;
+            height: 24px;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='24' viewBox='0 0 100 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 12H40M60 12H100' stroke='%23E8DCC8' stroke-width='1'/%3E%3Cpath d='M50 4C52 8 54 10 50 16C46 10 48 8 50 4Z' fill='%2346602E' fill-opacity='0.2'/%3E%3C/svg%3E");
+            background-repeat: repeat-x;
+            background-position: center;
+        }
+    </style>
+</head>
+<body class="antialiased flex flex-col min-h-screen">
+<!-- TopAppBar -->
+<header class="bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-md fixed top-0 w-full z-50 shadow-sm transition-all duration-300 ease-in-out">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex justify-between items-center h-20">
+<button aria-label="Menu" class="md:hidden text-primary dark:text-primary-fixed-dim p-2" id="mobile-menu-btn">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">menu</span>
+</button>
+<div class="hidden md:flex gap-8 items-center h-full">
+<a class="text-on-surface-variant dark:text-on-surface hover:text-primary transition-colors font-label-caps text-label-caps h-full flex items-center px-2 hover:bg-cream-light/50 dark:hover:bg-surface-container-high transition-all duration-300 ease-in-out" href="#">Inicio</a>
+<a class="text-on-surface-variant dark:text-on-surface hover:text-primary transition-colors font-label-caps text-label-caps h-full flex items-center px-2 hover:bg-cream-light/50 dark:hover:bg-surface-container-high transition-all duration-300 ease-in-out" href="#">Productos</a>
+<a class="text-sage-dark dark:text-primary-fixed font-bold border-b-2 border-sage-dark font-label-caps text-label-caps h-full flex items-center px-2 hover:bg-cream-light/50 dark:hover:bg-surface-container-high transition-all duration-300 ease-in-out" href="#">Conóceme</a>
+<a class="text-on-surface-variant dark:text-on-surface hover:text-primary transition-colors font-label-caps text-label-caps h-full flex items-center px-2 hover:bg-cream-light/50 dark:hover:bg-surface-container-high transition-all duration-300 ease-in-out" href="#">Blog</a>
+<a class="text-on-surface-variant dark:text-on-surface hover:text-primary transition-colors font-label-caps text-label-caps h-full flex items-center px-2 hover:bg-cream-light/50 dark:hover:bg-surface-container-high transition-all duration-300 ease-in-out" href="#">Contacto</a>
+</div>
+<h1 class="font-headline-md text-headline-md text-primary dark:text-primary-fixed-dim tracking-tight absolute left-1/2 -translate-x-1/2 md:static md:translate-x-0">Botánica Esencial OB</h1>
+<button aria-label="Shopping Bag" class="text-primary dark:text-primary-fixed-dim p-2 hover:bg-cream-light/50 dark:hover:bg-surface-container-high rounded-full transition-all duration-300 ease-in-out">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">shopping_bag</span>
+</button>
+</div>
+</header>
+<!-- Mobile Navigation Drawer (Hidden by default) -->
+<div class="fixed inset-y-0 left-0 z-[60] flex flex-col bg-surface dark:bg-surface-dim shadow-2xl rounded-r-xl h-full w-80 -translate-x-full transition-transform duration-300 md:hidden" id="mobile-drawer">
+<div class="p-6 border-b border-surface-container-low dark:border-surface-container-high flex justify-between items-center">
+<h2 class="font-headline-sm text-headline-sm text-earth dark:text-tertiary-fixed">Menú Botánico</h2>
+<button class="text-on-surface-variant p-2" id="close-drawer-btn">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<nav class="flex flex-col py-4 font-label-caps text-label-caps text-primary dark:text-primary-fixed-dim">
+<a class="flex items-center gap-4 text-on-surface-variant dark:text-on-surface px-4 py-3 hover:bg-lavender-soft/30 dark:hover:bg-secondary-container/20 transition-colors" href="#">
+<span class="material-symbols-outlined">home</span>
+                Inicio
+            </a>
+<a class="flex items-center gap-4 text-on-surface-variant dark:text-on-surface px-4 py-3 hover:bg-lavender-soft/30 dark:hover:bg-secondary-container/20 transition-colors" href="#">
+<span class="material-symbols-outlined">spa</span>
+                Productos
+            </a>
+<a class="flex items-center gap-4 bg-primary-container text-on-primary-container rounded-full mx-2 my-1 px-4 py-3" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person_search</span>
+                Conóceme
+            </a>
+<a class="flex items-center gap-4 text-on-surface-variant dark:text-on-surface px-4 py-3 hover:bg-lavender-soft/30 dark:hover:bg-secondary-container/20 transition-colors" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+                Blog
+            </a>
+<a class="flex items-center gap-4 text-on-surface-variant dark:text-on-surface px-4 py-3 hover:bg-lavender-soft/30 dark:hover:bg-secondary-container/20 transition-colors" href="#">
+<span class="material-symbols-outlined">mail</span>
+                Contacto
+            </a>
+</nav>
+</div>
+<!-- Overlay for Drawer -->
+<div class="fixed inset-0 bg-black/20 z-[55] hidden md:hidden" id="drawer-overlay"></div>
+<main class="flex-grow pt-20">
+<!-- Hero Section -->
+<section class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-section-padding-mobile md:py-section-padding-desktop">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter items-center">
+<div class="space-y-8 order-2 md:order-1">
+<span class="inline-block px-4 py-2 bg-lavender-soft text-secondary rounded-full font-label-caps text-label-caps tracking-widest">NUESTRA HISTORIA</span>
+<h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-text-dark">La belleza de lo natural, hecha a mano.</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant leading-relaxed">
+                        Soy Olivia, fundadora de Botánica Esencial OB. Mi viaje comenzó con una profunda conexión con la tierra y un deseo de crear formulaciones puras y efectivas que honren tanto a la piel como a la naturaleza. Cada producto es un testimonio de la alquimia botánica, elaborado con intención y cuidado artesanal.
+                    </p>
+<div class="pt-4">
+<img class="w-24 h-24 rounded-full object-cover shadow-md mx-auto md:mx-0" data-alt="A macro shot of a delicate hand pressing fresh lavender sprigs onto a pristine white marble table, soft natural sunlight streaming in, high-key bright lighting, modern botanical aesthetic, subtle shadows, organic textures, warm cream and sage tones dominating the scene." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCe4y-cEVCY6r2ReAOYQK0Hv7wr_17E4qYKcO1ipwq_Z-Vqzfbacs4ANLwP9UGA3SqaJjq-tp8gca8kVeD8JEcnHDCamph64M1NU2aSfJJzoVnIMd8Qq6cutN9aSLPTND_z3A2GPWGPgbrcFMahArF2Z4e0vHt2OTiqVEGl4l9brs5snMSXBjAMDHomNAu0bNJaqFK12QFB9iNqtwsoZ15jlwbA_ye8PXlYAxQGlQtxASEP8pKR8VKNGuOwP4Qu9qtTIIJg4K-qzc1Q"/>
+<p class="font-label-caps text-label-caps text-coffee mt-4 md:text-left text-center">Olivia B. - Fundadora</p>
+</div>
+</div>
+<div class="order-1 md:order-2 h-[50vh] md:h-[70vh] rounded-2xl overflow-hidden shadow-lg ambient-shadow">
+<img alt="Lavanda" class="w-full h-full object-cover object-center hover:scale-105 transition-transform duration-700 ease-in-out" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD7-UpyVs1lhfwpT3IMg61IbXkxIUk2eg1Q7rlOpC6IiTogC3US3YzK3Fx4e3CSnCDtiD1vnBzoDUsevwE9iC5NftQyh-T8ygzoRO4CGdtVWsAnxGypyHIQiTkD7FxMpUzdB6Ek7Xl_1yZ_MXMT1AqV7Al30ayF3Rh5tdJ4r9nu5Ldyc22V9O_N2Cr5uMbpdFX9rMQLGgqbwriBUHCZoEALS0AS4pWb_1oKRRFDWcnGic4ISt5RdCjI7X2Tx2zXDO5uFlKP_FI4SUC6"/>
+</div>
+</div>
+</section>
+<!-- Divider -->
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+<div class="floral-divider"></div>
+</div>
+<!-- Bento Grid Section: Filosofía -->
+<section class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-section-padding-mobile md:py-section-padding-desktop bg-surface-container-low mt-16 rounded-[2rem]">
+<div class="text-center max-w-2xl mx-auto mb-16">
+<h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-text-dark mb-6">Nuestra Filosofía</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Creemos en el poder transformador de las plantas. Nuestro proceso se basa en tres pilares fundamentales que guían cada creación en nuestro taller artesanal.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Card 1: Quién soy -->
+<div class="bg-cream-light rounded-2xl p-8 hover-lift border border-gold-soft flex flex-col items-center text-center">
+<div class="w-16 h-16 rounded-full bg-surface flex items-center justify-center mb-6 text-sage-dark shadow-sm">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 0;">psychology</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-earth mb-4">Quién Soy</h3>
+<p class="font-body-md text-body-md text-on-surface-variant flex-grow">
+                        Una apasionada herbolaria y formuladora, dedicada a descifrar los secretos terapéuticos de la flora para crear rutinas de cuidado consciente y respetuoso.
+                    </p>
+</div>
+<!-- Card 2: Qué hago -->
+<div class="bg-cream-light rounded-2xl p-8 hover-lift border border-gold-soft flex flex-col items-center text-center md:-translate-y-8">
+<div class="w-16 h-16 rounded-full bg-surface flex items-center justify-center mb-6 text-sage-dark shadow-sm">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 0;">science</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-earth mb-4">Qué Hago</h3>
+<p class="font-body-md text-body-md text-on-surface-variant flex-grow">
+                        Destilo, macero y combino ingredientes botánicos de la más alta calidad para formular elixires, bálsamos y sueros que nutren la piel desde el exterior hacia el interior.
+                    </p>
+<div class="mt-6 w-full h-32 rounded-xl overflow-hidden">
+<img alt="Tomillo" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDW6lyTeobWlUN8cluVNfm8k_RRBHzxjUEDtTpv0k9CTCUaNI5BOkZdtPJf-NaCZYq9OpTDjixFgsIm_ARkQEHOAfwxDvJY9NoiqXx8-I3SHUmS884eM8loOq7lxBHX8EE78U5tAw_OhzbTACwbc7pnFIhBYpM24JFKaXEbu3cSlvJuGssFDmjcazlUSEULVn2LgMloNOyQnbHUMLY-hpg-H3kIX5TKxmRfLBJIzQHMya7CclfI2fMQX0YG38whZHLdVrQZSheFDlEr"/>
+</div>
+</div>
+<!-- Card 3: Cómo lo hago -->
+<div class="bg-cream-light rounded-2xl p-8 hover-lift border border-gold-soft flex flex-col items-center text-center">
+<div class="w-16 h-16 rounded-full bg-surface flex items-center justify-center mb-6 text-sage-dark shadow-sm">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 0;">handshake</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-earth mb-4">Cómo lo Hago</h3>
+<p class="font-body-md text-body-md text-on-surface-variant flex-grow">
+                        Mediante métodos de extracción en frío, respeto por los ciclos lunares y una producción en pequeños lotes para garantizar la máxima frescura y potencia de cada activo.
+                    </p>
+</div>
+</div>
+</section>
+<!-- Asymmetric Image Gallery -->
+<section class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-section-padding-mobile md:py-section-padding-desktop">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter items-center">
+<div class="md:col-span-5 space-y-6 md:pr-12">
+<h2 class="font-headline-sm text-headline-sm text-text-dark">Ingredientes que Cuentan Historias</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                        Seleccionamos cuidadosamente cada flor, hoja y raíz, priorizando el cultivo orgánico y silvestre. Las rosas aportan antioxidantes, la lavanda calma, y el tomillo purifica. Cada ingrediente es un regalo de la tierra, preparado con devoción en nuestro estudio.
+                    </p>
+<button class="mt-8 px-8 py-3 bg-sage-dark text-on-primary rounded-full font-label-caps text-label-caps tracking-widest hover:bg-primary-container hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300">
+                        DESCUBRE LOS INGREDIENTES
+                    </button>
+</div>
+<div class="md:col-span-7 grid grid-cols-2 gap-4 h-[60vh]">
+<div class="rounded-2xl overflow-hidden shadow-md mt-12">
+<img alt="Pétalos de rosa" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDm6a_N9DffE2fW1qjxjqDqiu-zYzyhqZVMfWIWn5-juZsafE7AetsvS_5mBuTGDn_A4qs0DT54CjVklJc9BJ1i1SD4brdcQ4_5wdoq9W_z_OouNSy_S5bSjRPCLpgdBY84dcFAO17MwWc4U4chQxj2GoRiW6u7yEW7M1ktD6U2F50zl5QURd6NOuY8m-qnA7qV3pKISdE-vQ8JwfHPjwGdSW2D_HHDD4rT1n4pMCoAwRgHEQzfuBLKcfGi2F_gtDPcpPNPMvaPlpok"/>
+</div>
+<div class="rounded-2xl overflow-hidden shadow-md mb-12">
+<img alt="Pétalos de rosa detalle" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBvGFAZxIRhMsP0qfAUYf1pqx7O64oigW2NUBHEj-XyIzhTeNXUvZMDbsXP8a_i8WOw8bmaHjj2K5poTgph84zzAL4r63FKDnBuvIhOeawViIm2914r7KRnU9_elM91yDZn1Xo1-aGUDHUK_DgyYgqNZXssoC1F7j9xhdh3cpyY3R5XPvmLUhUTeJVBLxjkDf2GhJLgbMQELZq-lbGXOJzXQ0QqdQRUyIV8iL_sUkdKCwoUOEYSNxA9xGgbeDmokDn4VFB5e5grVBMJ"/>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-high dark:bg-surface-container-highest border-t border-gold-soft dark:border-outline-variant w-full transition-all duration-200">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-section-padding-mobile md:py-section-padding-desktop flex flex-col md:flex-row justify-between gap-gutter items-center md:items-start">
+<div class="text-center md:text-left mb-8 md:mb-0">
+<h3 class="font-headline-sm text-headline-sm text-sage-dark dark:text-primary-fixed mb-4">Botánica Esencial OB</h3>
+<p class="font-body-md text-body-md text-earth dark:text-tertiary-fixed-dim">
+                    © 2024 Botánica Esencial OB. Hecho a mano con intención.
+                </p>
+</div>
+<div class="flex flex-col md:flex-row gap-6 md:gap-12 text-center md:text-left font-body-md text-body-md">
+<div class="flex flex-col gap-3">
+<a class="text-on-surface-variant dark:text-on-surface hover:text-earth hover:translate-y-[-2px] transition-transform" href="#">Privacidad</a>
+<a class="text-on-surface-variant dark:text-on-surface hover:text-earth hover:translate-y-[-2px] transition-transform" href="#">Términos</a>
+<a class="text-on-surface-variant dark:text-on-surface hover:text-earth hover:translate-y-[-2px] transition-transform" href="#">Envíos</a>
+</div>
+<div class="flex flex-col gap-3">
+<a class="text-on-surface-variant dark:text-on-surface hover:text-earth hover:translate-y-[-2px] transition-transform" href="#">Newsletter</a>
+<a class="text-on-surface-variant dark:text-on-surface hover:text-earth hover:translate-y-[-2px] transition-transform" href="#">Redes Sociales</a>
+</div>
+</div>
+</div>
+</footer>
+<script>
+        // Mobile Drawer Logic
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const closeDrawerBtn = document.getElementById('close-drawer-btn');
+        const mobileDrawer = document.getElementById('mobile-drawer');
+        const drawerOverlay = document.getElementById('drawer-overlay');
+
+        function toggleDrawer() {
+            const isClosed = mobileDrawer.classList.contains('-translate-x-full');
+            if (isClosed) {
+                mobileDrawer.classList.remove('-translate-x-full');
+                drawerOverlay.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            } else {
+                mobileDrawer.classList.add('-translate-x-full');
+                drawerOverlay.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+        }
+
+        mobileMenuBtn.addEventListener('click', toggleDrawer);
+        closeDrawerBtn.addEventListener('click', toggleDrawer);
+        drawerOverlay.addEventListener('click', toggleDrawer);
+
+        // Header Scroll Effect
+        const header = document.querySelector('header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 20) {
+                header.classList.add('shadow-md');
+                header.classList.replace('bg-surface/80', 'bg-surface/95');
+            } else {
+                header.classList.remove('shadow-md');
+                header.classList.replace('bg-surface/95', 'bg-surface/80');
+            }
+        });
+    </script>
+</body></html>

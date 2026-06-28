@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Catálogo - Botánica Esencial OB</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Playfair+Display:wght@600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "surface-bright": "#fef9ef",
+                        "primary-fixed": "#c6efa1",
+                        "tertiary-container": "#8c6f2c",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-fixed-variant": "#5b4300",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed-variant": "#2f4f13",
+                        "surface-container-high": "#ede8de",
+                        "on-background": "#1d1c16",
+                        "on-error-container": "#93000a",
+                        "outline-variant": "#c3c8b9",
+                        "sage-dark": "#46602E",
+                        "on-tertiary-container": "#fff9f4",
+                        "on-surface-variant": "#43493d",
+                        "inverse-surface": "#32302a",
+                        "on-secondary-fixed-variant": "#4e3f69",
+                        "surface-tint": "#466729",
+                        "outline": "#74796b",
+                        "gold-soft": "#E8DCC8",
+                        "secondary-fixed": "#ebdcff",
+                        "surface-dim": "#dedad0",
+                        "on-surface": "#1d1c16",
+                        "background": "#fef9ef",
+                        "surface-variant": "#e7e2d8",
+                        "secondary-fixed-dim": "#d1bef0",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "surface-container-highest": "#e7e2d8",
+                        "tertiary-fixed": "#ffdf9c",
+                        "tertiary": "#715715",
+                        "primary-fixed-dim": "#abd287",
+                        "on-primary-container": "#f2ffe0",
+                        "inverse-on-surface": "#f5f0e6",
+                        "primary-container": "#5a7d3c",
+                        "on-primary-fixed": "#0c2000",
+                        "surface-container": "#f2ede3",
+                        "on-tertiary-fixed": "#251a00",
+                        "inverse-primary": "#abd287",
+                        "primary": "#426426",
+                        "text-dark": "#3E2C22",
+                        "surface": "#fef9ef",
+                        "on-secondary-container": "#64547f",
+                        "secondary": "#675782",
+                        "lavender-soft": "#E8E3F0",
+                        "error": "#ba1a1a",
+                        "earth": "#6B4423",
+                        "cream-light": "#FAF8F2",
+                        "coffee": "#8B5A2B",
+                        "surface-container-low": "#f8f3e9",
+                        "tertiary-fixed-dim": "#e5c276",
+                        "secondary-container": "#dfccff",
+                        "on-secondary-fixed": "#22133b"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "margin-desktop": "48px",
+                        "section-padding-mobile": "80px",
+                        "gutter": "32px",
+                        "margin-mobile": "16px",
+                        "section-padding-desktop": "120px",
+                        "container-max": "1280px"
+                    },
+                    fontFamily: {
+                        "headline-lg": ["Playfair Display"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-lg-mobile": ["Playfair Display"],
+                        "headline-sm": ["Playfair Display"],
+                        "label-caps": ["Inter"],
+                        "headline-md": ["Playfair Display"]
+                    },
+                    fontSize: {
+                        "headline-lg": ["56px", { lineHeight: "1.1", fontWeight: "600" }],
+                        "body-lg": ["18px", { lineHeight: "1.7", fontWeight: "400" }],
+                        "body-md": ["16px", { lineHeight: "1.6", fontWeight: "400" }],
+                        "headline-lg-mobile": ["36px", { lineHeight: "1.2", fontWeight: "600" }],
+                        "headline-sm": ["28px", { lineHeight: "1.3", fontWeight: "600" }],
+                        "label-caps": ["14px", { lineHeight: "1.4", letterSpacing: "0.1em", fontWeight: "600" }],
+                        "headline-md": ["40px", { lineHeight: "1.2", fontWeight: "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.surface');
+            color: theme('colors.on-surface');
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .ambient-shadow {
+            box-shadow: 0 10px 40px -10px rgba(62, 44, 34, 0.08);
+        }
+        .hover-lift {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .hover-lift:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px -15px rgba(62, 44, 34, 0.12);
+        }
+        
+        .product-card {
+            background: linear-gradient(145deg, theme('colors.cream-light'), theme('colors.surface-bright'));
+            border: 1px solid theme('colors.gold-soft');
+        }
+        
+        .filter-chip {
+            transition: all 0.2s ease;
+        }
+        .filter-chip.active {
+            background-color: theme('colors.sage-dark');
+            color: theme('colors.cream-light');
+            border-color: theme('colors.sage-dark');
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md border-b border-gold-soft shadow-sm transition-all duration-300 ease-in-out">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex justify-between items-center h-20">
+<button class="text-primary hover:bg-cream-light/50 p-2 rounded-full transition-all md:hidden">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">menu</span>
+</button>
+<a class="font-headline-md text-headline-md text-primary tracking-tight" href="#">Botánica Esencial OB</a>
+<nav class="hidden md:flex gap-8 items-center">
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors py-2" href="#">Inicio</a>
+<a class="font-label-caps text-label-caps text-sage-dark font-bold border-b-2 border-sage-dark py-2" href="#">Productos</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors py-2" href="#">Conóceme</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors py-2" href="#">Blog</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors py-2" href="#">Contacto</a>
+</nav>
+<button class="text-primary hover:bg-cream-light/50 p-2 rounded-full transition-all">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">shopping_bag</span>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow pt-28 pb-section-padding-mobile md:pb-section-padding-desktop">
+<!-- Hero Section for Catalog -->
+<section class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop mb-16 text-center">
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-text-dark mb-6">Colección Botánica</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">
+                Descubre nuestra gama de productos artesanales, formulados con ingredientes naturales para nutrir tu piel y cabello en armonía con la tierra.
+            </p>
+</section>
+<!-- Filters Section -->
+<section class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop mb-12">
+<div class="flex flex-wrap justify-center gap-4">
+<button class="filter-chip active px-6 py-2 rounded-full border border-gold-soft font-label-caps text-label-caps text-on-surface-variant hover:bg-surface-container-high">Todos</button>
+<button class="filter-chip px-6 py-2 rounded-full border border-gold-soft font-label-caps text-label-caps text-on-surface-variant hover:bg-surface-container-high">Cuidado Facial</button>
+<button class="filter-chip px-6 py-2 rounded-full border border-gold-soft font-label-caps text-label-caps text-on-surface-variant hover:bg-surface-container-high">Cuidado Corporal</button>
+<button class="filter-chip px-6 py-2 rounded-full border border-gold-soft font-label-caps text-label-caps text-on-surface-variant hover:bg-surface-container-high">Cuidado Capilar</button>
+</div>
+</section>
+<!-- Products Bento Grid -->
+<section class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<!-- Product Card 1 -->
+<article class="product-card rounded-[16px] overflow-hidden hover-lift flex flex-col">
+<div class="relative h-80 w-full overflow-hidden bg-surface-container">
+<img alt="Suero Facial Iluminador" class="w-full h-full object-cover transition-transform duration-700 hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBY2ujVn4BegNxCQh0paPLlnp03svcO3z948J0az9240s3yAmjYXRkdEsPY8buF6yn8DJe9256uB5h4l_SfX28QzpDbB__7y2XadjWDpuBdLXmTjv3sx9LBN0Rdxc9Ukd9IExtfIvwqZ0mE9OkY17P2_ZRfNCW_nonoODpu8RCBDRUit3TfLQLs1aXjciRKZE1fvmZ_jvAYBv_mRFuiyYfRAJPAePL283T60_pdkToTcFS46vsxA0mBmz7fTQg8fkYkWbSUvC92ADNm"/>
+<div class="absolute top-4 left-4">
+<span class="bg-lavender-soft text-secondary font-label-caps text-[10px] px-3 py-1 rounded-full uppercase tracking-wider">Facial</span>
+</div>
+</div>
+<div class="p-6 flex flex-col flex-grow">
+<h3 class="font-headline-sm text-headline-sm text-text-dark mb-2">Suero Facial Iluminador</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4 flex-grow">Con rosa mosqueta y vitamina C. Revitaliza e ilumina la tez de forma natural.</p>
+<div class="flex justify-between items-center mt-auto pt-4 border-t border-gold-soft/50">
+<span class="font-body-lg text-body-lg text-text-dark font-semibold">$34.00</span>
+<button class="bg-sage-dark text-cream-light font-label-caps text-label-caps px-6 py-2 rounded-full hover:bg-primary hover:-translate-y-0.5 transition-all flex items-center gap-2">
+                                Añadir
+                            </button>
+</div>
+</div>
+</article>
+<!-- Product Card 2 (Featured/Wider in MD) -->
+<article class="product-card rounded-[16px] overflow-hidden hover-lift flex flex-col md:col-span-2 lg:col-span-1">
+<div class="relative h-80 w-full overflow-hidden bg-surface-container">
+<img alt="Crema Corporal Nutritiva" class="w-full h-full object-cover transition-transform duration-700 hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8lHFDx1eKrRsz6ahL075EWIxbuS7JO2oEqYGFCK52KIAxfakQ9arC34fNR-Ba1caQMjQNqp2Yyny57cYL7wQ8U7Q6VWOVV_Muci1s4wvn7jA8Qz3ihYXheztm-Hy-cyOOALEH7d9r9FUHFCYTgClvBYBCIGVUHxmFsczNZIdODC2r-BT1ynlEsyL2c0QrUqN_TS_nMzcGi2u2ImLGXIwui4IOxS9hxfPah0VOfW_Sfh7MvcUZHth1uyNifhKpYR_yX-DpWeXw7OOV"/>
+<div class="absolute top-4 left-4">
+<span class="bg-lavender-soft text-secondary font-label-caps text-[10px] px-3 py-1 rounded-full uppercase tracking-wider">Corporal</span>
+</div>
+</div>
+<div class="p-6 flex flex-col flex-grow">
+<h3 class="font-headline-sm text-headline-sm text-text-dark mb-2">Manteca Corporal de Karité</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4 flex-grow">Hidratación profunda con manteca de karité cruda y aceites esenciales relajantes.</p>
+<div class="flex justify-between items-center mt-auto pt-4 border-t border-gold-soft/50">
+<span class="font-body-lg text-body-lg text-text-dark font-semibold">$28.00</span>
+<button class="bg-sage-dark text-cream-light font-label-caps text-label-caps px-6 py-2 rounded-full hover:bg-primary hover:-translate-y-0.5 transition-all flex items-center gap-2">
+                                Añadir
+                            </button>
+</div>
+</div>
+</article>
+<!-- Product Card 3 -->
+<article class="product-card rounded-[16px] overflow-hidden hover-lift flex flex-col">
+<div class="relative h-80 w-full overflow-hidden bg-surface-container">
+<img alt="Aceite Capilar Reparador" class="w-full h-full object-cover transition-transform duration-700 hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBH1JW_n7RtAk6UQKIWnqte0v8jGA6hXOz8NiRi0-Lo4NE2d_v2ybtWxQTJluULNZdPoQQP1Ggq6pNEtapHLPG9fZcOpDB7G8KfGlB4jL-w1yCBCP7CJEIbhT73wsPvm5KYDsP9DWz7gTCE2DynpR_eg6JIcgCfJmZXgXme8lN3Xp_aP20sbIB0IoZWluxkrq-IjZDpfPq0SVhWUKD34n0FpxSKojOTBfBH2Y553xfV1UQdUlWhoPvAEtOtBmhU5czR6sLUa1bcD2sB"/>
+<div class="absolute top-4 left-4">
+<span class="bg-lavender-soft text-secondary font-label-caps text-[10px] px-3 py-1 rounded-full uppercase tracking-wider">Capilar</span>
+</div>
+</div>
+<div class="p-6 flex flex-col flex-grow">
+<h3 class="font-headline-sm text-headline-sm text-text-dark mb-2">Elixir Capilar Botánico</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4 flex-grow">Mezcla de aceites preciosos para restaurar el brillo y fortalecer las puntas.</p>
+<div class="flex justify-between items-center mt-auto pt-4 border-t border-gold-soft/50">
+<span class="font-body-lg text-body-lg text-text-dark font-semibold">$22.00</span>
+<button class="bg-sage-dark text-cream-light font-label-caps text-label-caps px-6 py-2 rounded-full hover:bg-primary hover:-translate-y-0.5 transition-all flex items-center gap-2">
+                                Añadir
+                            </button>
+</div>
+</div>
+</article>
+<!-- Product Card 4 -->
+<article class="product-card rounded-[16px] overflow-hidden hover-lift flex flex-col">
+<div class="relative h-80 w-full overflow-hidden bg-surface-container">
+<img alt="Bálsamo Labial" class="w-full h-full object-cover transition-transform duration-700 hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYn6knZiA5PsY6U-SqBvB3DT3NNSwRwcrtQc-f-hXd-bX8UjW_95WLWQFnB5yNSV7kxIMUIZA7KnZTtttXw34TEHHpH0GIPq3ti68rc3O__78l4rSdcgpdIyQLJsmfLnUWcTY1DL-eVFqGStAM9P04kNJ6f9YTV6c7Ps5a7WXFkEGyLgleUmHlad7XsPfI8yOVatbYkEfj6pjQwymohajY6VWfeo2URevIngEi7aOZKXpMpdKdYhOy_TY83qR_2dHM3siJrSPsmYEd"/>
+<div class="absolute top-4 left-4">
+<span class="bg-lavender-soft text-secondary font-label-caps text-[10px] px-3 py-1 rounded-full uppercase tracking-wider">Facial</span>
+</div>
+</div>
+<div class="p-6 flex flex-col flex-grow">
+<h3 class="font-headline-sm text-headline-sm text-text-dark mb-2">Bálsamo Labial Reparador</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4 flex-grow">Cera de abejas local y caléndula para labios suaves y protegidos del clima.</p>
+<div class="flex justify-between items-center mt-auto pt-4 border-t border-gold-soft/50">
+<span class="font-body-lg text-body-lg text-text-dark font-semibold">$12.00</span>
+<button class="bg-sage-dark text-cream-light font-label-caps text-label-caps px-6 py-2 rounded-full hover:bg-primary hover:-translate-y-0.5 transition-all flex items-center gap-2">
+                                Añadir
+                            </button>
+</div>
+</div>
+</article>
+<!-- Product Card 5 (Banner Style) -->
+<article class="product-card rounded-[16px] overflow-hidden hover-lift flex flex-col md:col-span-2 lg:col-span-2 relative group">
+<div class="absolute inset-0 z-0">
+<img alt="Kit Esencial" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-1000" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9GAupci5BHHRnp4KUoVShBtOt9zZdZg5zpVUm4ahYmZefPZ2zNR76kvLzIzM_rQjJZ-BTusj1f3z_mjA6JYFqzIipxZIfV2Nhdr1R8pJ1fIqa9w5-w6BLurcmCx9bHhtRDr0I5owGKepwY2DsASe_LJSGLte5vd7T8SnQtQH6nDZaVnCPaH2EHpnNqBLCXMf3Iqps9ypwCimaRij21sigMD3W3d7p8als_9JDeptowo4zCBLSJbZ1RJyN5yYREMbL_27esaUFtJk3"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+</div>
+<div class="relative z-10 p-8 flex flex-col justify-end h-[400px]">
+<div class="mb-4">
+<span class="bg-surface/90 text-text-dark font-label-caps text-[10px] px-3 py-1 rounded-full uppercase tracking-wider backdrop-blur-sm">Kit Completo</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-primary mb-2">Ritual Botánico Esencial</h3>
+<p class="font-body-lg text-body-lg text-surface-container-low mb-6 max-w-md">La experiencia completa: limpieza, tonificación e hidratación en nuestro kit insignia.</p>
+<div class="flex items-center gap-6">
+<span class="font-headline-sm text-headline-sm text-on-primary font-semibold">$85.00</span>
+<button class="bg-primary text-cream-light font-label-caps text-label-caps px-8 py-3 rounded-full hover:bg-sage-dark hover:-translate-y-1 transition-all ambient-shadow flex items-center gap-2">
+                                Comprar Kit <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+</article>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-high w-full border-t border-gold-soft py-section-padding-mobile md:py-section-padding-desktop">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex flex-col md:flex-row justify-between gap-gutter items-start md:items-center">
+<div class="mb-8 md:mb-0">
+<h2 class="font-headline-sm text-headline-sm text-sage-dark mb-4">Botánica Esencial OB</h2>
+<p class="font-body-md text-body-md text-earth">© 2024 Botánica Esencial OB. Hecho a mano con intención.</p>
+</div>
+<nav class="flex flex-wrap gap-6">
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-earth transition-all duration-200 hover:translate-y-[-2px]" href="#">Privacidad</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-earth transition-all duration-200 hover:translate-y-[-2px]" href="#">Términos</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-earth transition-all duration-200 hover:translate-y-[-2px]" href="#">Envíos</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-earth transition-all duration-200 hover:translate-y-[-2px]" href="#">Newsletter</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-earth transition-all duration-200 hover:translate-y-[-2px]" href="#">Redes Sociales</a>
+</nav>
+</div>
+</footer>
+<script>
+        // Simple filter logic for demonstration
+        document.querySelectorAll('.filter-chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active', 'bg-sage-dark', 'text-cream-light'));
+                this.classList.add('active', 'bg-sage-dark', 'text-cream-light');
+            });
+        });
+    </script>
+</body></html>

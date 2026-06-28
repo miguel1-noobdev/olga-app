@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Botánica Esencial OB | Alquimia Natural</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&amp;family=Inter:wght@300;400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "text-dark": "#3E2C22",
+                "primary-fixed": "#c6efa1",
+                "surface-container": "#f2ede3",
+                "gold-soft": "#E8DCC8",
+                "on-primary-container": "#f2ffe0",
+                "error": "#ba1a1a",
+                "on-error-container": "#93000a",
+                "surface-variant": "#e7e2d8",
+                "surface": "#fef9ef",
+                "primary": "#426426",
+                "primary-fixed-dim": "#abd287",
+                "earth": "#6B4423",
+                "inverse-on-surface": "#f5f0e6",
+                "on-surface-variant": "#43493d",
+                "inverse-primary": "#abd287",
+                "primary-container": "#5a7d3c",
+                "tertiary-fixed-dim": "#e5c276",
+                "on-tertiary": "#ffffff",
+                "coffee": "#8B5A2B",
+                "on-secondary-container": "#64547f",
+                "on-background": "#1d1c16",
+                "lavender-soft": "#E8E3F0",
+                "surface-container-highest": "#e7e2d8",
+                "on-error": "#ffffff",
+                "surface-bright": "#fef9ef",
+                "surface-container-low": "#f8f3e9",
+                "tertiary": "#715715",
+                "tertiary-container": "#8c6f2c",
+                "inverse-surface": "#32302a",
+                "surface-container-high": "#ede8de",
+                "error-container": "#ffdad6",
+                "outline": "#74796b",
+                "background": "#fef9ef",
+                "tertiary-fixed": "#ffdf9c",
+                "on-primary": "#ffffff",
+                "on-secondary-fixed": "#22133b",
+                "cream-light": "#FAF8F2",
+                "on-surface": "#1d1c16",
+                "secondary-container": "#dfccff",
+                "on-primary-fixed": "#0c2000",
+                "outline-variant": "#c3c8b9",
+                "on-tertiary-container": "#fff9f4",
+                "on-primary-fixed-variant": "#2f4f13",
+                "on-secondary": "#ffffff",
+                "surface-tint": "#466729",
+                "secondary": "#675782",
+                "sage-dark": "#46602E",
+                "surface-dim": "#dedad0",
+                "on-secondary-fixed-variant": "#4e3f69",
+                "secondary-fixed-dim": "#d1bef0",
+                "on-tertiary-fixed-variant": "#5b4300",
+                "surface-container-lowest": "#ffffff",
+                "on-tertiary-fixed": "#251a00",
+                "secondary-fixed": "#ebdcff"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+            },
+            "spacing": {
+                "container-max": "1280px",
+                "margin-desktop": "48px",
+                "gutter": "32px",
+                "section-padding-mobile": "80px",
+                "section-padding-desktop": "120px",
+                "margin-mobile": "16px"
+            },
+            "fontFamily": {
+                "headline-sm": ["Playfair Display"],
+                "headline-lg": ["Playfair Display"],
+                "headline-md": ["Playfair Display"],
+                "body-md": ["Inter"],
+                "body-lg": ["Inter"],
+                "label-caps": ["Inter"],
+                "headline-lg-mobile": ["Playfair Display"]
+            },
+            "fontSize": {
+                "headline-sm": ["28px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                "headline-lg": ["56px", {"lineHeight": "1.1", "fontWeight": "600"}],
+                "headline-md": ["40px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                "body-lg": ["18px", {"lineHeight": "1.7", "fontWeight": "400"}],
+                "label-caps": ["14px", {"lineHeight": "1.4", "letterSpacing": "0.1em", "fontWeight": "600"}],
+                "headline-lg-mobile": ["36px", {"lineHeight": "1.2", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .organic-radius {
+            border-radius: 63% 37% 54% 46% / 45% 48% 52% 55%;
+        }
+        .hero-gradient {
+            background: radial-gradient(circle at top left, #fef9ef 0%, #E8DCC8 40%, #fef9ef 100%);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body class="bg-surface font-body-md text-on-surface">
+<!-- TopAppBar -->
+<nav class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md border-b border-gold-soft shadow-sm">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex justify-between items-center h-20">
+<div class="flex items-center gap-4">
+<button class="md:hidden p-2 text-primary" onclick="toggleDrawer()">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-headline-md text-headline-md text-primary tracking-tight">Botánica Esencial OB</h1>
+</div>
+<div class="hidden md:flex gap-8 items-center">
+<a class="text-sage-dark font-bold border-b-2 border-sage-dark py-1" href="#">Inicio</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors py-1" href="#">Productos</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors py-1" href="#">Conóceme</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors py-1" href="#">Blog</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-primary hover:bg-cream-light/50 rounded-full transition-all">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button class="p-2 text-primary hover:bg-cream-light/50 rounded-full transition-all relative">
+<span class="material-symbols-outlined">shopping_bag</span>
+<span class="absolute top-1 right-1 w-2 h-2 bg-tertiary rounded-full"></span>
+</button>
+</div>
+</div>
+</nav>
+<!-- NavigationDrawer (Mobile) -->
+<div class="fixed inset-0 z-[60] pointer-events-none overflow-hidden" id="drawer">
+<div class="absolute inset-0 bg-black/20 opacity-0 transition-opacity duration-300" id="drawer-overlay" onclick="toggleDrawer()"></div>
+<aside class="fixed inset-y-0 left-0 w-80 bg-surface -translate-x-full transition-transform duration-300 shadow-2xl flex flex-col" id="drawer-content">
+<div class="p-6 border-b border-gold-soft">
+<h2 class="font-headline-sm text-headline-sm text-earth">Menú Botánico</h2>
+</div>
+<nav class="flex-1 py-4 overflow-y-auto">
+<a class="flex items-center gap-4 bg-primary-container text-on-primary-container rounded-full mx-2 my-1 px-4 py-3" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-caps text-label-caps">Inicio</span>
+</a>
+<a class="flex items-center gap-4 text-on-surface-variant px-6 py-3 hover:bg-lavender-soft/30 transition-all" href="#">
+<span class="material-symbols-outlined">spa</span>
+<span class="font-label-caps text-label-caps">Productos</span>
+</a>
+<a class="flex items-center gap-4 text-on-surface-variant px-6 py-3 hover:bg-lavender-soft/30 transition-all" href="#">
+<span class="material-symbols-outlined">person_search</span>
+<span class="font-label-caps text-label-caps">Conóceme</span>
+</a>
+<a class="flex items-center gap-4 text-on-surface-variant px-6 py-3 hover:bg-lavender-soft/30 transition-all" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="font-label-caps text-label-caps">Blog</span>
+</a>
+<a class="flex items-center gap-4 text-on-surface-variant px-6 py-3 hover:bg-lavender-soft/30 transition-all" href="#">
+<span class="material-symbols-outlined">mail</span>
+<span class="font-label-caps text-label-caps">Contacto</span>
+</a>
+</nav>
+</aside>
+</div>
+<main class="pt-20">
+<!-- Hero Section -->
+<section class="relative overflow-hidden hero-gradient min-h-[85vh] flex items-center">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop grid md:grid-cols-2 gap-gutter items-center py-section-padding-mobile md:py-16">
+<div class="z-10 order-2 md:order-1">
+<span class="font-label-caps text-label-caps text-sage-dark mb-4 block">ALQUIMIA BOTÁNICA ARTESANAL</span>
+<h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-text-dark mb-6 leading-tight">
+                        Cuidado honesto para una <span class="italic text-primary">piel radiante</span>
+</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-10 max-w-lg">
+                        Descubre fórmulas ancestrales potenciadas por la ciencia moderna. Ingredientes puros recolectados con respeto y procesados a mano.
+                    </p>
+<div class="flex flex-wrap gap-4">
+<button class="bg-sage-dark text-on-primary-container px-8 py-4 rounded-full font-label-caps text-label-caps hover:bg-primary transition-all hover:-translate-y-1 shadow-lg">
+                            EXPLORAR COLECCIÓN
+                        </button>
+<button class="border-2 border-sage-dark text-sage-dark px-8 py-4 rounded-full font-label-caps text-label-caps hover:bg-sage-dark hover:text-on-primary-container transition-all">
+                            NUESTRA HISTORIA
+                        </button>
+</div>
+</div>
+<div class="relative order-1 md:order-2 flex justify-center">
+<div class="absolute -top-10 -right-10 w-64 h-64 bg-lavender-soft/30 blur-3xl rounded-full"></div>
+<img alt="Hero image showing botanical ingredients" class="organic-radius w-full max-w-md shadow-2xl z-10 aspect-square object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCjBlsFpJWCf9M-VZRhkyB1R37ZxqTbidbdbKtXw9E82eFUO0KThK2j1df9Yq0CX88SMI34QEkX-wOagEAJ90hnhYBsMUh4eA_FvHwhPWkM5Is4L27nNkAEol6tiR9B6pXsBnOtg0Dqi0fz5f1gXSY_o2giYTrgkl1YCqMWeiiFfnDRzGy5F25FV1WrpJib_68qcucQy_SSEeof__uWebCx8VksVUrU8PvYzYq9SOduoq61AYgmmMipbtfWiCoISa-npZe7v2IcvnM1"/>
+</div>
+</div>
+</section>
+<!-- Nuestros Productos Section -->
+<section class="py-section-padding-mobile md:py-section-padding-desktop bg-surface-container-low">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+<div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+<div>
+<h3 class="font-headline-md text-headline-md text-text-dark">Esenciales de Temporada</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2">Fórmulas frescas de nuestro taller a tu hogar.</p>
+</div>
+<a class="text-primary font-label-caps text-label-caps flex items-center gap-2 group" href="#">
+                        VER TODOS LOS PRODUCTOS 
+                        <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Product Card 1 -->
+<div class="group relative bg-cream-light p-6 rounded-xl border border-gold-soft shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all">
+<div class="aspect-[4/5] rounded-lg overflow-hidden mb-6 bg-lavender-soft/20">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A premium close-up shot of a small dark glass apothecary bottle with a minimalist label, surrounded by dried lavender sprigs on a warm cream surface. The lighting is soft and natural, emphasizing the amber texture of the glass and the organic details of the herbs. Modern botanical aesthetic for a luxury skincare brand." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4MnRsUxNOU5qeVgs9VjIA6_xzyjEwCArzGhct39p_CrziU1KNkp3fQeGzABbu13UMoxa_JkCQ0kqTxDFS-sZ-U7x5aBn3eHvUgLUZqTARqW0sRcV5X2-P-Wmr_gPfi2ldYVLOM1hy2L9tNZOm8a2YrLKmOOP_awB2Qz3cU-hyjt2Ojwi2jGq1o6y4GrYCvijhfv6t2A_JiwIlLn9qzcpCqB-eJaw6fxN9zW8sVX_kIQk4gjjntipuMdY2hnH_xekAPYRbQF9UXDuI"/>
+</div>
+<span class="text-xs font-label-caps text-lavender-soft bg-sage-dark px-3 py-1 rounded-full mb-3 inline-block">MÁS VENDIDO</span>
+<h4 class="font-headline-sm text-headline-sm text-text-dark mb-2">Suero de Lavanda Nocturna</h4>
+<p class="text-on-surface-variant font-body-md mb-4 line-clamp-2">Reparación profunda con aceites esenciales destilados en frío para una piel descansada.</p>
+<div class="flex justify-between items-center">
+<span class="text-coffee font-bold text-xl">34,00 €</span>
+<button class="p-3 bg-primary text-white rounded-full hover:bg-sage-dark transition-colors">
+<span class="material-symbols-outlined">add_shopping_cart</span>
+</button>
+</div>
+</div>
+<!-- Product Card 2 -->
+<div class="group relative bg-cream-light p-6 rounded-xl border border-gold-soft shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all">
+<div class="aspect-[4/5] rounded-lg overflow-hidden mb-6 bg-lavender-soft/20">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A luxurious aesthetic photography of a ceramic jar containing thick, creamy face moisturizer. Beside the jar lies a sprig of fresh green rosemary and some golden raw honey. The setting is bright and airy with soft shadows, reflecting a high-end natural pharmacy style. Warm tones and premium textures." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6UsgWUxiGWFSGku_KLVMJfjQX5n4Ni0lf-vONxRW-gMUyc0mSq4y5O3eHj7n2tEfRtmX_MWc2SyrmSwaCHGfl4QZ1OPxrXzX5h48dgLNgF2mok_YqVox9W01uhE5Us4UN2B_nugq2X1_Ey9nMq15EdTuAEsgP4LgKQAPPHAce6brjXhAsOIWf87mml_NMlW-IfgeOAlOQdCi_RAPTSq4McENOG91VFy9E6sMjVczuVeBYwKQtLHP6Asw9eWNjCKnKK0nXmawE6UTf"/>
+</div>
+<span class="text-xs font-label-caps text-lavender-soft bg-tertiary px-3 py-1 rounded-full mb-3 inline-block">ARTESANAL</span>
+<h4 class="font-headline-sm text-headline-sm text-text-dark mb-2">Bálsamo Calmante Caléndula</h4>
+<p class="text-on-surface-variant font-body-md mb-4 line-clamp-2">Hidratación intensiva para pieles sensibles con extractos botánicos puros y miel cruda.</p>
+<div class="flex justify-between items-center">
+<span class="text-coffee font-bold text-xl">28,00 €</span>
+<button class="p-3 bg-primary text-white rounded-full hover:bg-sage-dark transition-colors">
+<span class="material-symbols-outlined">add_shopping_cart</span>
+</button>
+</div>
+</div>
+<!-- Product Card 3 -->
+<div class="group relative bg-cream-light p-6 rounded-xl border border-gold-soft shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all">
+<div class="aspect-[4/5] rounded-lg overflow-hidden mb-6 bg-lavender-soft/20">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A sleek glass dropper bottle containing a golden herbal oil. The bottle sits next to a pile of Himalayan pink salt and botanical petals on a marble surface. Elegant high-key lighting creates a sophisticated, clinical yet natural feeling. Professional product photography with a focus on purity and transparency." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXBT4rxIh5eSUQb0oBRFud9jI3r9a0Dt7cxHvz2kiLzfHCx98fDpDNoj7A9O3ARZ1D_SYdP3Zz5n_ixVTJ42B4EdpLiAJ_CnZtO6o9oxqdZH9elz1M-9aENBaIhge7ongGx94XjYWdXnngnyskhrILwMbMFpczDc_gSzWFeNKFHLhTO5XUQgXlPaDNH-tmCGGBSbvNavBB7mLhjTDM8NAcAX4lA4RzcpkUoN0tFtNTwCu0oVRbgXzNVQZ7IB0VGUnpGPSk14hpKiqu"/>
+</div>
+<span class="text-xs font-label-caps text-sage-dark bg-lavender-soft px-3 py-1 rounded-full mb-3 inline-block">LIMITADO</span>
+<h4 class="font-headline-sm text-headline-sm text-text-dark mb-2">Elixir Iluminador Rosa</h4>
+<p class="text-on-surface-variant font-body-md mb-4 line-clamp-2">Combinación potente de vitamina C natural y aceites florales para un brillo saludable.</p>
+<div class="flex justify-between items-center">
+<span class="text-coffee font-bold text-xl">42,00 €</span>
+<button class="p-3 bg-primary text-white rounded-full hover:bg-sage-dark transition-colors">
+<span class="material-symbols-outlined">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Proceso Artesanal (Bento-style & Glassmorphism) -->
+<section class="py-section-padding-mobile md:py-section-padding-desktop bg-surface relative overflow-hidden">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop relative z-10">
+<div class="text-center max-w-2xl mx-auto mb-20">
+<h3 class="font-headline-md text-headline-md text-text-dark mb-4">Pureza en cada Gota</h3>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Nuestro compromiso es con la tierra y con tu bienestar. Sin químicos sintéticos, sin prisas, solo naturaleza.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-6 h-auto md:h-[600px]">
+<!-- Bento Item 1: Large Image -->
+<div class="md:col-span-2 md:row-span-2 relative rounded-3xl overflow-hidden group">
+<img alt="Lavanda botánica" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLpCxRAB9puSroGq3lQ3ueOtIDNB2WNoYo_-XPMIygzt3VFSr3tWN0jYQCn9SK4VQ_b0ttqEMShWsNCZIl84M8DwNZ1q8etvUCdbcp9Q9Rkau6IQFDZT_z2nvB2IHD-Jnm7DzsSmvP6rk9f0Er47vg1qb0c4h1zNJa7pPFphLjE8efKh-bYSPdLVUcYppc8YwQrj3VFNLpE_EZ2Gabz-neGgN3ggaucl97kAiWqtInZyi0NCHXhsUPWgBekSmzk89HA34n1CTAY4n2"/>
+<div class="absolute inset-0 bg-gradient-to-t from-earth/80 to-transparent flex flex-col justify-end p-8">
+<h4 class="font-headline-sm text-headline-sm text-white mb-2">Cosecha Sostenible</h4>
+<p class="text-cream-light font-body-md">Seleccionamos solo plantas en su punto óptimo de madurez para preservar sus propiedades activas.</p>
+</div>
+</div>
+<!-- Bento Item 2: Glass Info Box -->
+<div class="md:col-span-2 glass-effect rounded-3xl p-8 flex flex-col justify-center border-gold-soft shadow-lg">
+<div class="flex items-center gap-4 mb-4">
+<div class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">science</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-text-dark">Destilación Lenta</h4>
+</div>
+<p class="font-body-md text-on-surface-variant">Utilizamos métodos de extracción a baja temperatura para que los aceites esenciales conserven su alma y potencia terapéutica.</p>
+</div>
+<!-- Bento Item 3: Image with curve -->
+<div class="md:col-span-1 rounded-3xl overflow-hidden shadow-md">
+<img alt="Tomillo botánico" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUDGdyrkI50ozYJoUkpZGFnRiHwtq-4SdGAisyW-xTeeuQpsm8h-GWqUblmq_jTWIqseiqkS8IT1AE7NXcWX51O3fjWdkS00lRvvfm-Lgb7bbNST-RI6--0RDBhHcG80ZoaN3iuBdO5ktwdovuqbz5mytUXYp7v3tjzhfFsfBQy6YFudjqIe0nNWct79Fj1b1xeNdHgtPH9EV4mlIz_OPDdsh0kCh7mRP72t1SHENnwyFDuZlTWTjUh9RB7Y_3c7hCd3UH-k1xXnPw"/>
+</div>
+<!-- Bento Item 4: Dark Accent -->
+<div class="md:col-span-1 bg-sage-dark rounded-3xl p-8 flex flex-col items-center justify-center text-center text-on-primary-container shadow-md">
+<span class="material-symbols-outlined text-4xl mb-4">eco</span>
+<span class="font-headline-sm text-headline-sm">100%</span>
+<span class="font-label-caps text-label-caps opacity-80 uppercase">Orgánico</span>
+</div>
+</div>
+</div>
+<!-- Background Decorative Elements -->
+<div class="absolute top-1/4 -left-20 w-80 h-80 bg-lavender-soft/20 rounded-full blur-3xl -z-0"></div>
+<div class="absolute bottom-1/4 -right-20 w-96 h-96 bg-gold-soft/20 rounded-full blur-3xl -z-0"></div>
+</section>
+<!-- Newsletter / Transparency Section -->
+<section class="py-section-padding-mobile md:py-24 bg-surface-container-low border-t border-gold-soft">
+<div class="max-w-3xl mx-auto px-margin-mobile text-center">
+<div class="mb-8 inline-block">
+<span class="material-symbols-outlined text-coffee text-5xl">auto_awesome</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-text-dark mb-6">Únete a nuestra comunidad botánica</h3>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-10">
+                    Recibe consejos sobre cuidado natural, lanzamientos exclusivos y un 10% de descuento en tu primer pedido.
+                </p>
+<form class="flex flex-col md:flex-row gap-4">
+<input class="flex-1 bg-cream-light border border-gold-soft rounded-xl px-6 py-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none font-body-md" placeholder="Tu correo electrónico" type="email"/>
+<button class="bg-earth text-white px-10 py-4 rounded-xl font-label-caps text-label-caps hover:bg-text-dark transition-all shadow-md" type="submit">
+                        SUSCRIBIRME
+                    </button>
+</form>
+<p class="mt-6 text-xs text-on-surface-variant/70 font-body-md">Respetamos tu privacidad. Puedes darte de baja en cualquier momento.</p>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-earth text-inverse-on-surface">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-section-padding-mobile md:py-16">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter mb-12">
+<div class="md:col-span-5">
+<h2 class="font-headline-sm text-headline-sm text-primary-fixed mb-6">Botánica Esencial OB</h2>
+<p class="font-body-md text-on-surface-variant/80 max-w-sm mb-8 leading-relaxed">
+                        Creamos puentes entre la sabiduría de la tierra y el bienestar cotidiano. Cada producto es una pequeña ofrenda de cuidado y respeto por la vida.
+                    </p>
+<div class="flex gap-4">
+<a class="w-10 h-10 rounded-full border border-primary-fixed/30 flex items-center justify-center hover:bg-primary-fixed hover:text-earth transition-all" href="#">
+<span class="material-symbols-outlined text-sm">public</span>
+</a>
+<a class="w-10 h-10 rounded-full border border-primary-fixed/30 flex items-center justify-center hover:bg-primary-fixed hover:text-earth transition-all" href="#">
+<span class="material-symbols-outlined text-sm">camera</span>
+</a>
+<a class="w-10 h-10 rounded-full border border-primary-fixed/30 flex items-center justify-center hover:bg-primary-fixed hover:text-earth transition-all" href="#">
+<span class="material-symbols-outlined text-sm">mail</span>
+</a>
+</div>
+</div>
+<div class="md:col-span-2">
+<h4 class="font-label-caps text-label-caps text-primary-fixed mb-6">EXPLORAR</h4>
+<ul class="space-y-4 font-body-md">
+<li><a class="hover:text-primary-fixed transition-colors" href="#">Productos</a></li>
+<li><a class="hover:text-primary-fixed transition-colors" href="#">Kits de Regalo</a></li>
+<li><a class="hover:text-primary-fixed transition-colors" href="#">Ingredientes</a></li>
+<li><a class="hover:text-primary-fixed transition-colors" href="#">Blog Botánico</a></li>
+</ul>
+</div>
+<div class="md:col-span-2">
+<h4 class="font-label-caps text-label-caps text-primary-fixed mb-6">AYUDA</h4>
+<ul class="space-y-4 font-body-md">
+<li><a class="hover:text-primary-fixed transition-colors" href="#">Envíos</a></li>
+<li><a class="hover:text-primary-fixed transition-colors" href="#">Términos</a></li>
+<li><a class="hover:text-primary-fixed transition-colors" href="#">Privacidad</a></li>
+<li><a class="hover:text-primary-fixed transition-colors" href="#">FAQ</a></li>
+</ul>
+</div>
+<div class="md:col-span-3">
+<h4 class="font-label-caps text-label-caps text-primary-fixed mb-6">NUESTRO TALLER</h4>
+<ul class="space-y-4 font-body-md">
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary-fixed text-sm">location_on</span>
+<span>Calle de la Lavanda, 12<br/>Taller Artesanal, Madrid</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary-fixed text-sm">schedule</span>
+<span>Cita previa obligatoria<br/>Lun - Vie, 10:00 - 18:00</span>
+</li>
+</ul>
+</div>
+</div>
+<div class="pt-12 border-t border-primary-fixed/20 flex flex-col md:flex-row justify-between items-center gap-6">
+<p class="font-body-md text-sm opacity-70 text-center md:text-left">
+                    © 2024 Botánica Esencial OB. Hecho a mano con intención.
+                </p>
+<div class="flex items-center gap-6">
+<span class="material-symbols-outlined opacity-50">payments</span>
+<span class="material-symbols-outlined opacity-50">verified_user</span>
+</div>
+</div>
+</div>
+</footer>
+<script>
+        function toggleDrawer() {
+            const drawerContent = document.getElementById('drawer-content');
+            const drawerOverlay = document.getElementById('drawer-overlay');
+            const drawerContainer = document.getElementById('drawer');
+            
+            if (drawerContent.classList.contains('-translate-x-full')) {
+                drawerContainer.classList.remove('pointer-events-none');
+                drawerContent.classList.remove('-translate-x-full');
+                drawerOverlay.classList.remove('opacity-0');
+                drawerOverlay.classList.add('opacity-100');
+            } else {
+                drawerContent.classList.add('-translate-x-full');
+                drawerOverlay.classList.remove('opacity-100');
+                drawerOverlay.classList.add('opacity-0');
+                setTimeout(() => {
+                    drawerContainer.classList.add('pointer-events-none');
+                }, 300);
+            }
+        }
+
+        // Simple scroll behavior for navbar transparency
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 20) {
+                nav.classList.add('shadow-md');
+                nav.classList.remove('bg-surface/80');
+                nav.classList.add('bg-surface/95');
+            } else {
+                nav.classList.remove('shadow-md');
+                nav.classList.add('bg-surface/80');
+                nav.classList.remove('bg-surface/95');
+            }
+        });
+    </script>
+</body></html>

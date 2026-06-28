@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Botanical Ether | Belleza Consciente</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: Playfair Display for Serifs, Inter for Sans -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&amp;family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-dim": "#d8dbd4",
+                    "on-tertiary-fixed": "#111f0a",
+                    "on-surface-variant": "#434840",
+                    "inverse-surface": "#2d312c",
+                    "tertiary-fixed": "#d6e8c6",
+                    "on-tertiary-fixed-variant": "#3c4b32",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary-container": "#c2e4b4",
+                    "surface": "#f7faf3",
+                    "on-tertiary-container": "#cde0be",
+                    "error": "#ba1a1a",
+                    "outline-variant": "#c3c8bd",
+                    "primary-fixed-dim": "#afd0a1",
+                    "outline": "#73796f",
+                    "on-secondary": "#ffffff",
+                    "secondary-container": "#e5e2dd",
+                    "on-primary-fixed-variant": "#324e2a",
+                    "on-error-container": "#93000a",
+                    "primary-container": "#4a6741",
+                    "secondary": "#5f5e5b",
+                    "on-secondary-container": "#656461",
+                    "tertiary-container": "#546449",
+                    "on-tertiary": "#ffffff",
+                    "on-surface": "#191d18",
+                    "inverse-primary": "#afd0a1",
+                    "surface-container-low": "#f2f5ed",
+                    "tertiary": "#3c4c33",
+                    "on-secondary-fixed": "#1c1c19",
+                    "on-primary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "primary": "#334f2b",
+                    "secondary-fixed": "#e5e2dd",
+                    "secondary-fixed-dim": "#c9c6c2",
+                    "background": "#f7faf3",
+                    "surface-bright": "#f7faf3",
+                    "on-secondary-fixed-variant": "#474743",
+                    "surface-container-highest": "#e0e4dc",
+                    "primary-fixed": "#caecbc",
+                    "surface-container": "#ecefe7",
+                    "inverse-on-surface": "#eff2ea",
+                    "error-container": "#ffdad6",
+                    "on-primary-fixed": "#062104",
+                    "surface-variant": "#e0e4dc",
+                    "on-background": "#191d18",
+                    "surface-tint": "#496640",
+                    "surface-container-high": "#e6e9e2",
+                    "tertiary-fixed-dim": "#baccab"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "unit": "8px",
+                    "margin-mobile": "20px",
+                    "margin-desktop": "64px",
+                    "container-max": "1280px",
+                    "gutter": "24px"
+            },
+            "fontFamily": {
+                    "headline-xl": ["Playfair Display"],
+                    "body-md": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "headline-lg-mobile": ["Playfair Display"],
+                    "body-lg": ["Inter"],
+                    "headline-lg": ["Playfair Display"]
+            },
+            "fontSize": {
+                    "headline-xl": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "label-sm": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .glass-panel {
+            background-color: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04);
+        }
+        
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .bg-botanical-gradient {
+            background: linear-gradient(135deg, #f7faf3 0%, #e0e4dc 100%);
+        }
+
+        .hero-gradient {
+            background: radial-gradient(circle at 50% 50%, rgba(175, 208, 161, 0.2) 0%, rgba(247, 250, 243, 0) 70%);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md overflow-x-hidden">
+<!-- Top Navigation Bar -->
+<nav class="fixed top-0 w-full bg-white/40 dark:bg-surface-container/40 backdrop-blur-xl border-b border-white/20 shadow-sm z-50">
+<div class="flex justify-between items-center h-20 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<span class="font-headline-lg text-headline-lg text-primary dark:text-primary-fixed tracking-tight">Botanical Ether</span>
+<div class="hidden md:flex gap-8 items-center">
+<a class="text-primary font-bold border-b-2 border-primary pb-1 font-body-md text-body-md" href="#">Shop</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-md text-body-md" href="#">Rituals</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-md text-body-md" href="#">About</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-md text-body-md" href="#">Ethics</a>
+</div>
+<div class="flex gap-4 items-center">
+<button class="scale-95 active:opacity-80 transition-transform p-2">
+<span class="material-symbols-outlined text-primary">shopping_bag</span>
+</button>
+<button class="scale-95 active:opacity-80 transition-transform p-2">
+<span class="material-symbols-outlined text-primary">person</span>
+</button>
+<button class="md:hidden p-2">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</div>
+</nav>
+<main class="pt-20">
+<!-- Hero Section -->
+<section class="relative min-h-[90vh] flex items-center overflow-hidden bg-botanical-gradient">
+<div class="hero-gradient absolute inset-0 z-0"></div>
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop grid grid-cols-1 md:grid-cols-12 gap-12 items-center relative z-10">
+<div class="md:col-span-6 space-y-8 animate-in fade-in slide-in-from-left duration-1000">
+<div class="space-y-4">
+<span class="text-primary font-label-sm text-label-sm uppercase tracking-widest bg-primary-fixed/30 px-4 py-1 rounded-full">Esencia Orgánica</span>
+<h1 class="font-headline-xl text-headline-xl md:text-[64px] leading-tight text-primary">
+                            Botanical Ether:<br/>Belleza Consciente
+                        </h1>
+<p class="text-body-lg text-body-lg text-on-surface-variant max-w-lg">
+                            Descubre el equilibrio perfecto entre la ciencia botánica y la pureza etérea. Ingredientes orgánicos cultivados con respeto para nutrir tu alma.
+                        </p>
+</div>
+<div class="flex gap-4">
+<button class="bg-primary text-white px-8 py-4 rounded-xl font-bold hover:opacity-90 transition-all shadow-lg">
+                            Explorar Colección
+                        </button>
+<button class="glass-panel text-primary px-8 py-4 rounded-xl font-bold hover:bg-white/50 transition-all">
+                            Nuestra Ética
+                        </button>
+</div>
+</div>
+<div class="md:col-span-6 relative flex justify-center items-center">
+<!-- Glass Container for Hero Image -->
+<div class="relative w-full aspect-square md:w-[500px] glass-panel rounded-[2rem] p-6 animate-in zoom-in duration-1000 delay-200 overflow-hidden">
+<img alt="Botanical product showcase" class="w-full h-full object-cover rounded-2xl shadow-inner" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDe0wQfiBDw6mmX4E395ipkHb-oyRX2-1SX_cevIRQGwhZq-WOG5tjdI-DgOfVLBvpf2by7TU491HcBvKj3L9XgJxfHpo_eCFm1P_MgyJMihv6SLXxZBEyAtwDmBc6vXwU3-pnDNYcnjGrn46XLINHh_SX_MzJdbeLoEKxQyHCIAb9vg9jHF2qmp0cg4nxcxOaf7pYzqn8LHv-4_DuAVwfCQS9yWyMQGM4S6Rzj8ZGwFHuLvc7G8PH78fOR2-wRC91UqoCV4JRNUso"/>
+<!-- Floating Glass Badge -->
+<div class="absolute -bottom-6 -left-6 glass-panel p-6 rounded-2xl max-w-[200px] hidden md:block">
+<span class="material-symbols-outlined text-primary mb-2">spa</span>
+<p class="font-label-sm text-label-sm text-on-surface-variant">100% Extractos Naturales y Veganos</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Product Grid Section -->
+<section class="py-24 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<div class="text-center mb-16 space-y-4">
+<h2 class="font-headline-lg text-headline-lg text-primary">Nuestros Esenciales</h2>
+<p class="text-on-surface-variant max-w-2xl mx-auto">Rituales diarios diseñados para elevar tu rutina de cuidado personal con el toque más suave de la naturaleza.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Product Card 1 -->
+<div class="glass-panel p-6 rounded-[2rem] flex flex-col group hover:-translate-y-2 transition-transform duration-500">
+<div class="relative h-72 w-full mb-6 overflow-hidden rounded-2xl bg-surface-container">
+<img alt="Luna Botanicals Organic Face Cream" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJPZsiT_tj83qAY9zXu5OinFTH39dUqkYXszPFBBulasMzvOKLqIkQxYNGBOEsABEFtUcKX0Bsq1j6ZGArrxRJaVpe0pXYxuokM-3BfVaSOsDqxWeXdD3HiyTkS38Rtn7T9pF8wIeHKsOyizwe51qge9pbYMa0y5l4KO0bw-QCwACkNweedM57KYdWwUnV4ARQn70xF9RGCEB7RJ0AQzWZpSaO-6Csi88n83-nP2eZ5XDiLRdCVHuwx_8SwaqKudso6u-25Ug8Swk"/>
+<div class="absolute top-4 right-4">
+<span class="bg-primary/10 backdrop-blur-md border border-white/30 text-primary text-label-sm px-3 py-1 rounded-full">Nuevo</span>
+</div>
+</div>
+<div class="flex flex-col flex-grow">
+<h3 class="font-headline-lg text-headline-lg text-primary mb-2">Luna Botanicals</h3>
+<p class="text-on-surface-variant mb-6 flex-grow">Crema facial orgánica enriquecida con eucalipto y flores silvestres para una hidratación profunda.</p>
+<div class="flex justify-between items-center mt-auto">
+<span class="text-primary font-bold text-lg">€45.00</span>
+<button class="bg-primary text-white p-3 rounded-full hover:scale-105 transition-transform">
+<span class="material-symbols-outlined">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Product Card 2 -->
+<div class="glass-panel p-6 rounded-[2rem] flex flex-col group hover:-translate-y-2 transition-transform duration-500">
+<div class="relative h-72 w-full mb-6 overflow-hidden rounded-2xl bg-surface-container">
+<div class="w-full h-full bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="A macro studio photograph of a premium amber glass bottle with a minimalist label. The setting is a clean, bright, white-toned marble surface with soft natural light streaming from a side window, reflecting small botanical shadows. Elegant, high-end skincare aesthetic with a focus on liquid clarity and soft textures." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCI2flNXTgRtesLkTkrD9uK5StyJX2bXRFojfB8o2sqS8RiNBZ4MYZuJ7oqoJmlUHnHmUUEMEIOga7OyWF4T10_rJemiYtMtFSjPkF3SZ3hx5z-wgHxUgHVM3Ok2Tc32T1xhcLa_Pod5q3XY3srvbQljvIA8kWYxHU8q8kMEkhBR6HHKT07RfgTuKDR-qBLEX161prA8LV9QCaKRo0hE_qvdxkxyVxkgQ1pcJQdKo927c4xP4HjW7hYxYfNz_WU0H_6kttgByPBmsM')"></div>
+<div class="absolute top-4 right-4">
+<span class="bg-secondary/10 backdrop-blur-md border border-white/30 text-secondary text-label-sm px-3 py-1 rounded-full">Ritual</span>
+</div>
+</div>
+<div class="flex flex-col flex-grow">
+<h3 class="font-headline-lg text-headline-lg text-primary mb-2">Ether Serum</h3>
+<p class="text-on-surface-variant mb-6 flex-grow">Concentrado de vitalidad con aceites esenciales para iluminar tu rostro de forma natural.</p>
+<div class="flex justify-between items-center mt-auto">
+<span class="text-primary font-bold text-lg">€58.00</span>
+<button class="bg-primary text-white p-3 rounded-full hover:scale-105 transition-transform">
+<span class="material-symbols-outlined">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Product Card 3 -->
+<div class="glass-panel p-6 rounded-[2rem] flex flex-col group hover:-translate-y-2 transition-transform duration-500">
+<div class="relative h-72 w-full mb-6 overflow-hidden rounded-2xl bg-surface-container">
+<div class="w-full h-full bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="Close-up artistic shot of botanical skincare ingredients like sage leaves and lavender buds scattered gracefully next to a frosted glass jar. The lighting is soft and airy, typical of a luxury organic beauty brand. Soft green and cream background tones emphasize the natural and pure brand identity of Botanical Ether." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCnUt31l_5zdwPGQ1Zg6G7L4jP9gYixVRmhx1zs3LRHIevK75LwB8NfP7aIFeEyOI2i6XAgQFjODVG1gxYctBu6AtU9jjGvYK8sUT1AotCV5eqxGMMRQPbxum_iQh9yabQ-Nq-GbGlI5nJP1KJNPpvg-WFvXI7YpH6yWFw2Q9tNRYY49PuTSduXYAELtJRByvXV4QGSwzU3mKDx497Ok-OxT0dXmXHw0xZkd3y8wuN5cId_jp1QGTXT8puyTeLOW5PVqJX5xLGUuLM')"></div>
+<div class="absolute top-4 right-4">
+<span class="bg-tertiary/10 backdrop-blur-md border border-white/30 text-tertiary text-label-sm px-3 py-1 rounded-full">Orgánico</span>
+</div>
+</div>
+<div class="flex flex-col flex-grow">
+<h3 class="font-headline-lg text-headline-lg text-primary mb-2">Mist Floral</h3>
+<p class="text-on-surface-variant mb-6 flex-grow">Tónico refrescante de rosas y lavanda para equilibrar el pH y calmar la piel sensible.</p>
+<div class="flex justify-between items-center mt-auto">
+<span class="text-primary font-bold text-lg">€32.00</span>
+<button class="bg-primary text-white p-3 rounded-full hover:scale-105 transition-transform">
+<span class="material-symbols-outlined">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Feature Section with Asymmetric Layout -->
+<section class="py-24 bg-surface-container-low/50">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+<div class="order-2 md:order-1 relative h-[500px]">
+<div class="absolute top-0 left-0 w-4/5 h-4/5 glass-panel rounded-3xl overflow-hidden shadow-2xl">
+<div class="w-full h-full bg-cover bg-center" data-alt="Minimalist laboratory scene with glass beakers filled with botanical infusions and fresh green herbs. Soft morning sunlight filtering through a large window, creating long shadows. The atmosphere is clean, professional, yet deeply connected to nature, reflecting the sophisticated scientific approach to organic cosmetics." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBpu84dXyt_zryPT-Wr6_jY2lu4axAb-QdPflwwApDc4mrDRGrytT0JSfb6mFYjGRCmBeVV9EwpUu7dZlzuRg0oHGVwZILHAViTtJ1oiBbdCAu0GeNMvil875RPo-m1gEjjXxvofBuRXhNYBrhwx-LWx8RtrIpiMHRV7DaNJu41qkurT4mMWbaXbcADSkkddwR879i5UceRVs36qFgbTUprRDa37pRRoedeaFyXiphXJmP871I80RsFp0Wm0Q23DH-V4I1wZ4pkSl0')"></div>
+</div>
+<div class="absolute bottom-0 right-0 w-3/5 h-3/5 glass-panel rounded-3xl overflow-hidden shadow-xl translate-x-4 -translate-y-4">
+<div class="w-full h-full bg-cover bg-center" data-alt="Top down view of a woman's hands gently massaging a luxurious, white cream into her skin. The aesthetic is serene and focused on self-care rituals. Soft neutral lighting, high-end skincare photography style, clean and ethereal aesthetic with natural skin textures visible." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCMAtN5WpM7eB2Oeou_niq1lhMvkPyKyToYbGXtQjZCk2w9t8zzLWP0huNIT5U60tV82ZJmpcefeBNiBTX3X2zIAyWRqDKvMQZV5oyVSKFJwjgghaLgz3iwXm90OIMdJpLaM6Yizd92ks2CuXj2EGKVjTdhptKD5dUjLkxmxYuWNpB5UDfwOcUi7J6AamJF6IhzsX8Ycm_fJCBQqkbbpKFyPnzKK4HwlrqtlPhKYZsel5aqAMLICcrZcdyi-yESLKoPhF5H1we34pk')"></div>
+</div>
+</div>
+<div class="order-1 md:order-2 space-y-6">
+<h2 class="font-headline-xl text-headline-xl text-primary">Nuestra Filosofía</h2>
+<div class="space-y-4">
+<div class="flex gap-4 items-start">
+<span class="material-symbols-outlined text-primary p-2 bg-primary/10 rounded-lg">eco</span>
+<div>
+<h4 class="font-bold text-primary">Ingredientes Éticos</h4>
+<p class="text-on-surface-variant">Solo trabajamos con proveedores que garantizan prácticas de comercio justo y cultivo sostenible.</p>
+</div>
+</div>
+<div class="flex gap-4 items-start">
+<span class="material-symbols-outlined text-primary p-2 bg-primary/10 rounded-lg">science</span>
+<div>
+<h4 class="font-bold text-primary">Biotecnología Verde</h4>
+<p class="text-on-surface-variant">Extraemos los principios más potentes de las plantas sin usar químicos sintéticos agresivos.</p>
+</div>
+</div>
+<div class="flex gap-4 items-start">
+<span class="material-symbols-outlined text-primary p-2 bg-primary/10 rounded-lg">recycling</span>
+<div>
+<h4 class="font-bold text-primary">Empaque Minimalista</h4>
+<p class="text-on-surface-variant">Frascos de vidrio reciclable y tapas de bambú para reducir nuestra huella en el planeta.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Newsletter / CTA Section -->
+<section class="py-24">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+<div class="glass-panel p-12 md:p-20 rounded-[3rem] text-center space-y-8 relative overflow-hidden">
+<!-- Atmospheric Effect -->
+<div class="absolute -top-24 -left-24 w-64 h-64 bg-primary/5 blur-[100px]"></div>
+<div class="absolute -bottom-24 -right-24 w-64 h-64 bg-tertiary/10 blur-[100px]"></div>
+<div class="relative z-10 space-y-4">
+<h2 class="font-headline-xl text-headline-xl text-primary">Únete a nuestra comunidad etérea</h2>
+<p class="text-on-surface-variant max-w-xl mx-auto">Suscríbete para recibir consejos sobre rituales de belleza, preventas exclusivas y un 10% en tu primera compra.</p>
+</div>
+<div class="max-w-md mx-auto relative z-10">
+<form class="flex flex-col md:flex-row gap-4">
+<input class="flex-grow bg-white/50 border-white/40 focus:border-primary focus:ring-primary rounded-xl px-6 py-4 text-body-md placeholder:text-outline outline-none transition-all" placeholder="Tu correo electrónico" type="email"/>
+<button class="bg-primary text-white px-8 py-4 rounded-xl font-bold hover:opacity-90 transition-all" type="submit">Suscribirme</button>
+</form>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-inverse-surface dark:bg-surface-container-lowest w-full py-16 border-t border-white/10 text-center">
+<div class="flex flex-col items-center gap-8 px-margin-desktop max-w-container-max mx-auto">
+<span class="font-headline-lg text-headline-lg text-inverse-on-surface">Botanical Ether</span>
+<div class="flex flex-wrap justify-center gap-8">
+<a class="text-surface-variant dark:text-outline hover:text-white transition-colors font-body-md text-body-md" href="#">Privacy Policy</a>
+<a class="text-surface-variant dark:text-outline hover:text-white transition-colors font-body-md text-body-md" href="#">Terms of Service</a>
+<a class="text-surface-variant dark:text-outline hover:text-white transition-colors font-body-md text-body-md" href="#">Shipping &amp; Returns</a>
+<a class="text-surface-variant dark:text-outline hover:text-white transition-colors font-body-md text-body-md" href="#">Contact Us</a>
+</div>
+<div class="flex gap-6">
+<a class="text-surface-variant hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined">public</span>
+</a>
+<a class="text-surface-variant hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined">local_florist</span>
+</a>
+<a class="text-surface-variant hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined">filter_vintage</span>
+</a>
+</div>
+<p class="text-surface-variant dark:text-outline text-body-md font-body-md">© 2024 Botanical Ether. Conscious Beauty for the Ethereal Soul.</p>
+</div>
+</footer>
+<script>
+        // Smooth reveal on scroll interaction
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('opacity-100', 'translate-y-0');
+                    entry.target.classList.remove('opacity-0', 'translate-y-10');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('section').forEach(section => {
+            section.classList.add('transition-all', 'duration-1000', 'opacity-0', 'translate-y-10');
+            observer.observe(section);
+        });
+
+        // Ensure Hero is visible immediately
+        document.querySelector('section').classList.remove('opacity-0', 'translate-y-10');
+    </script>
+</body></html>

@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Botánica Esencial OB | Cosmética Natural Artesanal</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Playfair+Display:wght@100..900&display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-primary": "#ffffff",
+                    "secondary-container": "#dfccff",
+                    "on-tertiary-fixed": "#251a00",
+                    "surface-container-highest": "#e7e2d8",
+                    "primary-fixed-dim": "#abd287",
+                    "on-tertiary-container": "#fff9f4",
+                    "on-secondary-container": "#64547f",
+                    "tertiary-fixed-dim": "#e5c276",
+                    "tertiary-fixed": "#ffdf9c",
+                    "outline-variant": "#c3c8b9",
+                    "surface-container": "#f2ede3",
+                    "surface": "#fef9ef",
+                    "on-secondary": "#ffffff",
+                    "cream-light": "#FAF8F2",
+                    "surface-container-high": "#ede8de",
+                    "on-primary-fixed-variant": "#2f4f13",
+                    "on-primary-fixed": "#0c2000",
+                    "on-secondary-fixed-variant": "#4e3f69",
+                    "tertiary": "#715715",
+                    "on-background": "#1d1c16",
+                    "outline": "#74796b",
+                    "secondary-fixed-dim": "#d1bef0",
+                    "gold-soft": "#E8DCC8",
+                    "secondary": "#675782",
+                    "surface-dim": "#dedad0",
+                    "coffee": "#8B5A2B",
+                    "surface-tint": "#466729",
+                    "surface-container-low": "#f8f3e9",
+                    "primary": "#426426",
+                    "error": "#ba1a1a",
+                    "surface-container-lowest": "#ffffff",
+                    "sage-dark": "#46602E",
+                    "inverse-primary": "#abd287",
+                    "error-container": "#ffdad6",
+                    "primary-container": "#5a7d3c",
+                    "on-tertiary": "#ffffff",
+                    "on-primary-container": "#f2ffe0",
+                    "inverse-surface": "#32302a",
+                    "tertiary-container": "#8c6f2c",
+                    "on-error-container": "#93000a",
+                    "lavender-soft": "#E8E3F0",
+                    "on-secondary-fixed": "#22133b",
+                    "on-surface": "#1d1c16",
+                    "text-dark": "#3E2C22",
+                    "earth": "#6B4423",
+                    "surface-variant": "#e7e2d8",
+                    "on-surface-variant": "#43493d",
+                    "primary-fixed": "#c6efa1",
+                    "on-tertiary-fixed-variant": "#5b4300",
+                    "inverse-on-surface": "#f5f0e6",
+                    "on-error": "#ffffff",
+                    "background": "#fef9ef",
+                    "secondary-fixed": "#ebdcff",
+                    "surface-bright": "#fef9ef"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "section-padding-desktop": "120px",
+                    "margin-mobile": "16px",
+                    "margin-desktop": "48px",
+                    "gutter": "32px",
+                    "container-max": "1280px",
+                    "section-padding-mobile": "80px"
+            },
+            "fontFamily": {
+                    "label-caps": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "headline-sm": ["Playfair Display"],
+                    "headline-md": ["Playfair Display"],
+                    "headline-lg-mobile": ["Playfair Display"],
+                    "headline-lg": ["Playfair Display"],
+                    "body-md": ["Inter"]
+            },
+            "fontSize": {
+                    "label-caps": ["14px", {"lineHeight": "1.4", "letterSpacing": "0.1em", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "1.7", "fontWeight": "400"}],
+                    "headline-sm": ["28px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "headline-md": ["40px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["36px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                    "headline-lg": ["56px", {"lineHeight": "1.1", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 
+                0 4px 6px -1px rgba(62, 44, 34, 0.05),
+                0 10px 15px -3px rgba(62, 44, 34, 0.08),
+                0 20px 25px -5px rgba(62, 44, 34, 0.03);
+        }
+        .glass-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 
+                0 10px 20px -2px rgba(62, 44, 34, 0.1),
+                0 25px 40px -5px rgba(62, 44, 34, 0.12);
+        }
+        .hero-gradient {
+            background: radial-gradient(circle at top right, #eef5e9 0%, #fef9ef 60%);
+        }
+        .paper-texture {
+            background-image: url("https://www.transparenttextures.com/patterns/handmade-paper.png");
+        }
+        .scroll-reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease-out;
+        }
+        .scroll-reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface paper-texture selection:bg-primary-fixed-dim selection:text-on-primary-fixed">
+<!-- 1. TopAppBar (Navbar) -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-md shadow-sm border-b border-gold-soft transition-all duration-300 h-20">
+<nav class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex justify-between items-center h-full">
+<div class="flex items-center gap-8">
+<a class="font-headline-md text-headline-md text-primary tracking-tight" href="#">Botánica Esencial OB</a>
+<div class="hidden md:flex items-center gap-6">
+<a class="text-sage-dark font-bold border-b-2 border-sage-dark font-label-caps text-label-caps" href="#">Inicio</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-label-caps text-label-caps" href="#productos">Productos</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-label-caps text-label-caps" href="#proceso">Conóceme</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-label-caps text-label-caps" href="#blog">Blog</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 hover:bg-cream-light/50 rounded-full transition-all text-primary">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button class="p-2 hover:bg-cream-light/50 rounded-full transition-all text-primary relative">
+<span class="material-symbols-outlined">shopping_bag</span>
+<span class="absolute top-1 right-1 bg-primary text-on-primary text-[10px] w-4 h-4 flex items-center justify-center rounded-full">0</span>
+</button>
+<button class="md:hidden p-2 hover:bg-cream-light/50 rounded-full transition-all text-primary">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</nav>
+</header>
+<!-- 2. Hero Section -->
+<section class="hero-gradient pt-32 pb-section-padding-mobile md:pb-section-padding-desktop">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex flex-col md:flex-row items-center gap-gutter">
+<div class="flex-1 space-y-8">
+<div class="inline-flex items-center px-4 py-2 rounded-full bg-lavender-soft text-secondary font-label-caps text-label-caps">
+<span class="material-symbols-outlined mr-2 scale-75">eco</span>
+                    Sostenibilidad Certificada
+                </div>
+<h1 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-text-dark leading-tight">
+                    Cosmética Natural que Cuida tu Piel y el <span class="text-primary italic">Planeta</span>
+</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-xl">
+                    Descubre una rutina de cuidado consciente. Formulaciones artesanales con ingredientes botánicos puros, diseñadas para nutrir tu piel sin comprometer el futuro de la Tierra.
+                </p>
+<div class="flex flex-wrap gap-4">
+<button class="px-8 py-4 rounded-full bg-primary-container text-on-primary-container font-label-caps text-label-caps hover:bg-sage-dark transition-all duration-300 hover:-translate-y-1 shadow-lg">
+                        Ver Catálogo
+                    </button>
+<button class="px-8 py-4 rounded-full border-2 border-primary text-primary font-label-caps text-label-caps hover:bg-primary hover:text-white transition-all duration-300">
+                        Nuestra Filosofía
+                    </button>
+</div>
+</div>
+<div class="flex-1 relative">
+<div class="absolute -inset-4 bg-primary/5 rounded-[40px] blur-3xl -z-10"></div>
+<img alt="Hero Image" class="w-full h-auto rounded-[32px] shadow-2xl object-cover transform hover:scale-[1.02] transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuApCjI1h1zuUTFiU2d5X5LvUquj2ZzbPQk09D5i3rnJNXI2u4Z3Vq2HvhAWToWRGUWSeH-UiYEI7PC7PReeepCeoPPrG5p8sTW1z8ZsirHvXWBzU0kuVm5o0gdToSbH-rEqwFfIWAC0Tbr1ChM67jDALaBpOXONISL1lrQMDoveH1V9qzDjkMlU6zxn7Cob4hguk_G89Peghd4ZJt00OeDkpiRmUNvwAYXqIHgYnKFb7a9BYabD0noCnSJLvQecJ1XL5pfCHaCGmWCv"/>
+</div>
+</div>
+</section>
+<!-- 3. Productos (3 tarjetas) -->
+<section class="py-section-padding-mobile md:py-section-padding-desktop bg-surface" id="productos">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+<div class="text-center mb-16 space-y-4">
+<h2 class="font-headline-md text-headline-md text-earth">Nuestros Imprescindibles</h2>
+<div class="flex justify-center">
+<div class="w-24 h-px bg-gold-soft relative">
+<span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-primary">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">spa</span>
+</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Product Card 1 -->
+<div class="glass-card rounded-[24px] overflow-hidden p-6 transition-all duration-500 group">
+<div class="relative overflow-hidden rounded-[16px] mb-6 aspect-square">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="A premium glass bottle of facial serum on a polished wooden surface, surrounded by soft dried chamomile flowers. The lighting is warm and golden, highlighting the amber liquid inside. The overall mood is luxurious, apothecary-style, and deeply connected to nature with soft shadows." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSfPBw6DnZ-pTDagYeY37rgIVqQRP8WxndMCAsleRlPkRmY7jg3NivXsh__QryxcttfSeSA3D9iKIn0dP5OZpUafd3YTl224UPLn-3hERbXbrgGowK4BMhkp9R1E7XfQ7ofEW33c4m9I8tkjVBcAR6Blqulz7MwxmvS6We3QAtegzNIOXUfEjHz7AU4v5r5A2fJqNq9YwgDIZQxr_1j0KcVgCl2nA8oT-XY6O9wZSg3WM282DEu3FKgRWt27JwppsnTT4OKkkWh0H0"/>
+<span class="absolute top-4 left-4 bg-primary/90 text-white px-3 py-1 rounded-full font-label-caps text-[12px]">Más Vendido</span>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between items-start">
+<h3 class="font-headline-sm text-headline-sm text-text-dark">Suero Facial Iluminador</h3>
+<p class="font-bold text-primary">35€</p>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Con Vitamina C estable y extracto de Rosa Mosqueta silvestre.</p>
+<button class="w-full py-3 mt-4 rounded-full border border-gold-soft text-sage-dark font-label-caps text-label-caps hover:bg-lavender-soft transition-colors flex items-center justify-center gap-2">
+                            Añadir al Carrito
+                            <span class="material-symbols-outlined text-sm">add_shopping_cart</span>
+</button>
+</div>
+</div>
+<!-- Product Card 2 -->
+<div class="glass-card rounded-[24px] overflow-hidden p-6 transition-all duration-500 group">
+<div class="relative overflow-hidden rounded-[16px] mb-6 aspect-square">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="A minimalist white ceramic jar of body butter opened to reveal a rich, creamy texture with swirls. Beside it lies a sprig of fresh lavender on a textured linen cloth. The aesthetic is clean, bright, and organic with soft morning sunlight casting gentle shadows." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC31AzYUuSmoObfnJ4LTGvXoarTmPIcPLbHW5jNdFaknvvW9nP4sD_VceOz6FmlCIJDxRbLYroK3vm7xixx_sOHj0OX1yul-wnt8AtXI38UbzD8Aly98--T-OY-Il-Ld38cG8YMY2wnwux6c06Re7uXpcI0uj4AmFygx2L5QlAvhXI7ptz0C19f1decSfM3FHYwqk8n49vvlmW_wxvfCpJwbh8lkYqt8dK6r2eBPrXYwggi36VZ34spc6Q62V3SUX9GlMgX-evi6QzD"/>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between items-start">
+<h3 class="font-headline-sm text-headline-sm text-text-dark">Manteca Corporal Nutritiva</h3>
+<p class="font-bold text-primary">28€</p>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Base de Karité pura y aceites esenciales de lavanda y cítricos.</p>
+<button class="w-full py-3 mt-4 rounded-full border border-gold-soft text-sage-dark font-label-caps text-label-caps hover:bg-lavender-soft transition-colors flex items-center justify-center gap-2">
+                            Añadir al Carrito
+                            <span class="material-symbols-outlined text-sm">add_shopping_cart</span>
+</button>
+</div>
+</div>
+<!-- Product Card 3 -->
+<div class="glass-card rounded-[24px] overflow-hidden p-6 transition-all duration-500 group">
+<div class="relative overflow-hidden rounded-[16px] mb-6 aspect-square">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="A dark green dropper bottle of hair elixir placed on a slate stone background with water droplets. Artistic lighting from the side emphasizes the botanical purity and scientific effectiveness of the herbal infusion. Sophisticated and artisan apothecary vibes." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBnnbhKVRlLRweMEcUj_bWOV--ZfHW-oPCj1xCPA_Q8Z--f_OyjMrV1hLq-sHQH4V2TuhiCfInkEfJvTOgIrx_7x9JW2ImVfFdl_nL2hKQ5-738MYa7Kww1Hf9wvH7kP58ZvNGsh8zAavUElqecCpuuBuDQCCzLiedf09-P87HpEtK6GGxkYeYOSL_Acu0jGALJ-IU_vdiDa9VkGosYYYFRbw5_5Hwf9HzpTUXGBiOaEwT3qaTeBnHfMZQzDb17xA3cO3GKggyokJpV"/>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between items-start">
+<h3 class="font-headline-sm text-headline-sm text-text-dark">Elixir Capilar Botánico</h3>
+<p class="font-bold text-primary">42€</p>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Tratamiento intensivo con Romero y Aceite de Argán prensado en frío.</p>
+<button class="w-full py-3 mt-4 rounded-full border border-gold-soft text-sage-dark font-label-caps text-label-caps hover:bg-lavender-soft transition-colors flex items-center justify-center gap-2">
+                            Añadir al Carrito
+                            <span class="material-symbols-outlined text-sm">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 4. Ingredientes (Glass Gallery) -->
+<section class="py-section-padding-mobile md:py-section-padding-desktop bg-surface-container-low relative overflow-hidden">
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl"></div>
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+<div class="mb-16">
+<span class="font-label-caps text-label-caps text-primary block mb-2">Puro & Transparente</span>
+<h2 class="font-headline-md text-headline-md text-earth">Ingredientes de la Tierra</h2>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+<!-- Lavender -->
+<div class="relative aspect-[3/4] group cursor-pointer">
+<div class="absolute inset-0 rounded-[20px] overflow-hidden">
+<img class="w-full h-full object-cover grayscale-[30%] group-hover:grayscale-0 transition-all duration-700" data-alt="A macro close-up of a vibrant purple lavender field at dawn. The morning dew is visible on the buds, reflecting soft, cool light. The focus is sharp on a few sprigs while the background melts into a beautiful bokeh. Natural, botanical, and serene aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwU12nhQBqWKN5vS4JjxA7Kz5d_DYoMSpzWdwg9CXiA34iGufoZL8K65RpB4cW4jbUDKCZvIsFgcMjjPdjgTtEtks1qZ3FFXo9rQHrlweo8jZ0TF5aY8DAtJ2re47ymeaAc_HBPwJQ5yd26J55WC5VTBWvYk3EUDjj55AaZ5TgoGxm5cD8_5juHqVmfMOMHUmfJW3VvvXWzFgFxda_BEf5H7EddqCB5ZMMBhXowrF_oavdpR9To079F49-EGnd819PoOaGtT4Oq7U0"/>
+</div>
+<div class="absolute inset-0 glass-card m-3 flex flex-col justify-end p-4 transition-transform duration-500 group-hover:-translate-y-2">
+<p class="font-label-caps text-label-caps text-on-surface">Lavanda</p>
+<p class="text-[10px] uppercase tracking-widest text-primary font-bold">Relajante</p>
+</div>
+</div>
+<!-- Calendula -->
+<div class="relative aspect-[3/4] group cursor-pointer translate-y-8">
+<div class="absolute inset-0 rounded-[20px] overflow-hidden">
+<img class="w-full h-full object-cover grayscale-[30%] group-hover:grayscale-0 transition-all duration-700" data-alt="Close-up of bright orange and yellow calendula petals drying on a rustic wooden tray. Warm afternoon sunlight creates long shadows and highlights the fine texture of the flowers. Deeply organic, tactile, and sunny atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkfQP5D6p4KDEcnQ8imYPun0kO_i3j3SgQgOQT0naxsnno2T0rnNqubzSyno8u7XVUDwYcuHN3sLqdYUgEQwgTi0XlXW5Ix3xqCMg3W60QGGZPFL7NvcEmESV2ipoLh-iiqbe9pRhrtCdm7p1l_ITZ58k4P_OGsRWJZ9eeEv9yTdVGCsMq0Bj0gciuJnpfp2DpvIMTBIuuRkhIhuu3mcsbNbc1U9OeGQOArEPnjrQ74pnvUQjh1R8CVNYJKSjMPKLW7Hc3vc-bA_fO"/>
+</div>
+<div class="absolute inset-0 glass-card m-3 flex flex-col justify-end p-4 transition-transform duration-500 group-hover:-translate-y-2">
+<p class="font-label-caps text-label-caps text-on-surface">Caléndula</p>
+<p class="text-[10px] uppercase tracking-widest text-primary font-bold">Calmante</p>
+</div>
+</div>
+<!-- Aloe -->
+<div class="relative aspect-[3/4] group cursor-pointer">
+<div class="absolute inset-0 rounded-[20px] overflow-hidden">
+<img class="w-full h-full object-cover grayscale-[30%] group-hover:grayscale-0 transition-all duration-700" data-alt="Cross-section of a thick, juicy Aloe Vera leaf on a clean white surface. Clear gel is oozing out, looking fresh and cooling. Minimalist, scientific, and clean aesthetic with high-key lighting and soft shadows." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnfN3Xrfnd8s4a6pLX1_jcHK3LSNSDKg9umBxRKpt57NW00UFaudzOUy0ceNJrWZenVLD_m_OAFZ-9Ml1Htqckyxq87-3a02q17jnOEOB9kReLHhKQRXua4qGHPrf6YWlZ7q41IOmhecg4ZpS8AqJ_HcYkIYjj1rTZF_fSLylFaD1aj1D_pzAOThQbwYdls1v3x8k2_6NbAzV4EFu-EysCEfAfJRzM9DgR65HE-_8ICJz_ilm8rqbhE30q0dWmLekQnbQEjPdSIJ1v"/>
+</div>
+<div class="absolute inset-0 glass-card m-3 flex flex-col justify-end p-4 transition-transform duration-500 group-hover:-translate-y-2">
+<p class="font-label-caps text-label-caps text-on-surface">Aloe Vera</p>
+<p class="text-[10px] uppercase tracking-widest text-primary font-bold">Hidratante</p>
+</div>
+</div>
+<!-- Coffee -->
+<div class="relative aspect-[3/4] group cursor-pointer translate-y-8">
+<div class="absolute inset-0 rounded-[20px] overflow-hidden">
+<img class="w-full h-full object-cover grayscale-[30%] group-hover:grayscale-0 transition-all duration-700" data-alt="Handful of whole dark roasted coffee beans on a burlap cloth. The beans are oily and rich in color. The shot is moody and high contrast, evoking energy and artisan craftsmanship. Earthy and aromatic visual style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNdzrqdrsoMCRKjr4zhqaHvoZ0M0g58qRGswj5K6u8yWSxJzB946Zi3ZXHPnsakzLCxnP22bpa3KgMReLJ-A4eNFc85clroeNy7-8ZZ0ct9D3p4QgQudWc9lPbb2PwRlpAQBK7IacqGbZn3CFg9GFSuD_MMfyxWLh6VPitj54A4C4Mo_v2Sx-3ce3dovxvKhrA6edZhge031_sOsIUuFe7m1hshL7-qOeCBUtANKPut-XKuYA5V9J3u-6wTeOsjRKhwhVfzMqnSTiD"/>
+</div>
+<div class="absolute inset-0 glass-card m-3 flex flex-col justify-end p-4 transition-transform duration-500 group-hover:-translate-y-2">
+<p class="font-label-caps text-label-caps text-on-surface">Café</p>
+<p class="text-[10px] uppercase tracking-widest text-primary font-bold">Antioxidante</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 5. Proceso (2 columnas) -->
+<section class="py-section-padding-mobile md:py-section-padding-desktop bg-surface overflow-hidden" id="proceso">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex flex-col md:flex-row items-center gap-20">
+<div class="flex-1 order-2 md:order-1">
+<div class="space-y-8">
+<div class="space-y-4">
+<h2 class="font-headline-md text-headline-md text-earth leading-tight">La Belleza del Proceso Lento y Artesanal</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Cada producto de Botánica Esencial nace en nuestro pequeño taller, donde el tiempo se detiene para dejar que la naturaleza actúe. No somos una fábrica; somos artesanos del bienestar.</p>
+</div>
+<ul class="space-y-6">
+<li class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary bg-primary/10 p-3 rounded-full">handyman</span>
+<div>
+<h4 class="font-bold text-text-dark font-label-caps text-label-caps">Hecho a Mano</h4>
+<p class="text-on-surface-variant font-body-md text-body-md">Lotes pequeños para garantizar la máxima frescura y potencia de cada ingrediente.</p>
+</div>
+</li>
+<li class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary bg-primary/10 p-3 rounded-full">science</span>
+<div>
+<h4 class="font-bold text-text-dark font-label-caps text-label-caps">Ciencia Botánica</h4>
+<p class="text-on-surface-variant font-body-md text-body-md">Fusionamos saberes ancestrales con métodos modernos de extracción ecológica.</p>
+</div>
+</li>
+<li class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary bg-primary/10 p-3 rounded-full">recycling</span>
+<div>
+<h4 class="font-bold text-text-dark font-label-caps text-label-caps">Sin Huella</h4>
+<p class="text-on-surface-variant font-body-md text-body-md">Envases de vidrio infinitamente reciclables y embalajes libres de plástico.</p>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="flex-1 order-1 md:order-2">
+<div class="relative">
+<div class="absolute -top-10 -right-10 w-40 h-40 border border-gold-soft rounded-full -z-10 opacity-50"></div>
+<img class="w-full h-auto rounded-[40px] shadow-xl rotate-2 hover:rotate-0 transition-all duration-500" data-alt="Hands of an artisan mixing raw botanical ingredients in a ceramic bowl. Various dried herbs, oils, and mortars are visible on a wooden workbench. The scene is shot with warm, shallow depth of field, emphasizing the tactile and human element of the production process." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAh_nP1yecGnKz7jaGsTgtIiNLPty1bvg1qNEd5PbXszbbX6Sw72CQyF3gmeDxvBUa83UE1tRu3abwiWtB552uRwjJkoY51ZUUvg6vV85qkLlI_S3Q_2cy6geeRE4jADgpVl0nE45G2rsV7eU7Pt-l7gF8T88vwS3spCNhZEDTRFr9bhzQ5DXbs_DDeyUTuib4l030XV4iLchxh6kk_X2atVFViJvuDiXZRJ73ffERq6o9Mq2wH7JARCa1mzJYLZeEQT5fP5cIg6UbU"/>
+<div class="absolute bottom-10 -left-10 glass-card p-6 rounded-2xl max-w-[240px]">
+<p class="font-headline-sm text-primary text-2xl italic">"Desde la semilla hasta tu piel"</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 6. Blog (3 tarjetas glass) -->
+<section class="py-section-padding-mobile md:py-section-padding-desktop bg-surface-container-low" id="blog">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+<div class="flex justify-between items-end mb-12">
+<div class="space-y-2">
+<span class="font-label-caps text-label-caps text-primary">Diario Botánico</span>
+<h2 class="font-headline-md text-headline-md text-earth">Sabiduría Natural</h2>
+</div>
+<a class="text-primary font-bold hover:underline font-label-caps text-label-caps flex items-center gap-2 mb-2" href="#">
+                    Leer Todo <span class="material-symbols-outlined scale-75">arrow_forward</span>
+</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Blog 1 -->
+<article class="glass-card rounded-[32px] p-4 flex flex-col group h-full">
+<div class="overflow-hidden rounded-[24px] mb-6">
+<img class="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700" data-alt="A tranquil morning skincare ritual scene with sunlight filtering through a window, illuminating a bathroom shelf with plants and glass bottles. Serene, aspirational, and high-end lifestyle photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYqiQpaYAEsNnwmkwNBqBeNjEfSiWBDpspmMFhyhU-Ylb6id2gsKWJH0pWVkr2gDRz2yfezy9MbgXBqTtJ08m-kKBIq9PRkHDOOk7fSUw1WCCQ79fFY3V7rOlXRh0FzwRsAsEjfwIC_1HnE4Kr0KSIuNVJiMYhGQLji18Umu2Xd3FDv4UbuqjDpTmyhsuz2d4FPsgNrNnjjXqMVgTGFPCaQL_zfOXgGPNsXrDlqevkFmlHUDrAN9oJ24d-hMmRGbzAbUeOyHy7eVGO"/>
+</div>
+<div class="px-2 pb-4 flex flex-col flex-grow">
+<div class="flex gap-2 mb-3">
+<span class="text-[10px] bg-gold-soft/50 px-2 py-1 rounded text-earth font-bold">RITUALES</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-text-dark mb-4 leading-tight group-hover:text-primary transition-colors">Cómo crear tu ritual matutino de 5 minutos</h3>
+<p class="text-on-surface-variant font-body-md text-body-md line-clamp-2 mb-6">Pequeños pasos que transforman tu despertar y preparan tu piel para el día...</p>
+<div class="mt-auto pt-4 border-t border-gold-soft flex justify-between items-center text-xs text-outline italic">
+<span>Marzo 12, 2024</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">schedule</span> 4 min read</span>
+</div>
+</div>
+</article>
+<!-- Blog 2 -->
+<article class="glass-card rounded-[32px] p-4 flex flex-col group h-full">
+<div class="overflow-hidden rounded-[24px] mb-6">
+<img class="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700" data-alt="Artistic flat lay of various plant-based oils in small glass vials next to fresh green leaves and nuts. Scientific but aesthetic look at natural ingredients." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAl5auNKA8pp0hUNTEjLLajqhtYpKA92QmvSzUIP3RLUbQR_a-vg_T9sVQLjUUXTKniAnBaJp4vEvD0ciB2UNuaMX5PVECDwkH-ZkQE744CEfLQveVVs3Bo8NjBWCAhHLNYioOCz5m_1qi_j-IZkfLcDBbeg1igHdYEbP7gPvDr7sj-769ABzeEL66oJtw-wGUV9TSCEChXOnKx38uB422pyrQq4aX6v1gP1aFvxXpERc5ADJUKrXco0hxQ0hTC4zs8qEU-37fDVJwD"/>
+</div>
+<div class="px-2 pb-4 flex flex-col flex-grow">
+<div class="flex gap-2 mb-3">
+<span class="text-[10px] bg-gold-soft/50 px-2 py-1 rounded text-earth font-bold">INGREDIENTES</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-text-dark mb-4 leading-tight group-hover:text-primary transition-colors">Aceites prensados en frío: ¿Por qué son mejores?</h3>
+<p class="text-on-surface-variant font-body-md text-body-md line-clamp-2 mb-6">La diferencia crucial entre un aceite refinado y uno virgen para la nutrición celular...</p>
+<div class="mt-auto pt-4 border-t border-gold-soft flex justify-between items-center text-xs text-outline italic">
+<span>Febrero 28, 2024</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">schedule</span> 6 min read</span>
+</div>
+</div>
+</article>
+<!-- Blog 3 -->
+<article class="glass-card rounded-[32px] p-4 flex flex-col group h-full">
+<div class="overflow-hidden rounded-[24px] mb-6">
+<img class="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700" data-alt="A hand holding a wooden comb and a bottle of herbal oil in a bathroom filled with steam and soft lighting. Focus on natural hair care rituals." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfBwbFzBxqOkjEZvevhWb4fv-kOvTPwyBVUtram_9uC1w3e8plwiUj1RbtGDu3nNu-SrZuaJYSCVX4i3pNpR6KvxJSLGMczLYHpae8cl5OdWs-Fhsc47WOZK4ZfBjk8V5XrK20YDqKtRiAEu45mP0d5v_yFEzH4OtbeeZA7aJq1SxhALfvJwR2gJGLTGJGt8zf7kOjvsqP8bAB66AsSliZ2KUZ1SokKnSqKE2UpUEQOrPWiQezPmCXNcV-YVDEkGgs9a8euBxxxESi"/>
+</div>
+<div class="px-2 pb-4 flex flex-col flex-grow">
+<div class="flex gap-2 mb-3">
+<span class="text-[10px] bg-gold-soft/50 px-2 py-1 rounded text-earth font-bold">CABELLO</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-text-dark mb-4 leading-tight group-hover:text-primary transition-colors">Dile adiós a los sulfatos: Guía de transición</h3>
+<p class="text-on-surface-variant font-body-md text-body-md line-clamp-2 mb-6">Todo lo que necesitas saber para pasar al champú natural sin dramas ni residuos...</p>
+<div class="mt-auto pt-4 border-t border-gold-soft flex justify-between items-center text-xs text-outline italic">
+<span>Febrero 15, 2024</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">schedule</span> 5 min read</span>
+</div>
+</div>
+</article>
+</div>
+</div>
+</section>
+<!-- 7. Footer -->
+<footer class="bg-earth text-gold-soft py-section-padding-mobile md:py-section-padding-desktop">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter mb-16">
+<div class="col-span-1 md:col-span-2 space-y-6">
+<h2 class="font-headline-sm text-headline-sm text-primary-fixed">Botánica Esencial OB</h2>
+<p class="max-w-md font-body-md text-body-md text-gold-soft/80">Creemos en una belleza que no grita, sino que susurra. Fórmulas honestas, procesos lentos y respeto absoluto por la vida.</p>
+<div class="flex gap-4">
+<a class="w-10 h-10 rounded-full border border-gold-soft/30 flex items-center justify-center hover:bg-gold-soft hover:text-earth transition-all" href="#"><span class="material-symbols-outlined scale-75">public</span></a>
+<a class="w-10 h-10 rounded-full border border-gold-soft/30 flex items-center justify-center hover:bg-gold-soft hover:text-earth transition-all" href="#"><span class="material-symbols-outlined scale-75">alternate_email</span></a>
+<a class="w-10 h-10 rounded-full border border-gold-soft/30 flex items-center justify-center hover:bg-gold-soft hover:text-earth transition-all" href="#"><span class="material-symbols-outlined scale-75">share</span></a>
+</div>
+</div>
+<div class="space-y-6">
+<h4 class="font-label-caps text-label-caps text-white">Navegación</h4>
+<ul class="space-y-3 font-body-md text-body-md text-gold-soft/70">
+<li><a class="hover:text-gold-soft transition-colors" href="#">Productos</a></li>
+<li><a class="hover:text-gold-soft transition-colors" href="#">Nuestros Ingredientes</a></li>
+<li><a class="hover:text-gold-soft transition-colors" href="#">Puntos de Venta</a></li>
+<li><a class="hover:text-gold-soft transition-colors" href="#">Suscripción Mensual</a></li>
+</ul>
+</div>
+<div class="space-y-6">
+<h4 class="font-label-caps text-label-caps text-white">Ayuda</h4>
+<ul class="space-y-3 font-body-md text-body-md text-gold-soft/70">
+<li><a class="hover:text-gold-soft transition-colors" href="#">Envíos y Devoluciones</a></li>
+<li><a class="hover:text-gold-soft transition-colors" href="#">Términos y Condiciones</a></li>
+<li><a class="hover:text-gold-soft transition-colors" href="#">Privacidad</a></li>
+<li><a class="hover:text-gold-soft transition-colors" href="#">Contacto</a></li>
+</ul>
+</div>
+</div>
+<!-- Newsletter area -->
+<div class="border-t border-gold-soft/20 pt-10 pb-4 flex flex-col md:flex-row justify-between items-center gap-8">
+<div class="text-center md:text-left">
+<h4 class="font-label-caps text-label-caps text-white mb-2">Únete al Jardín</h4>
+<p class="text-sm text-gold-soft/60">Recibe consejos de bienestar y ofertas exclusivas.</p>
+</div>
+<div class="flex w-full md:w-auto">
+<input class="bg-white/5 border border-gold-soft/20 rounded-l-full px-6 py-3 text-gold-soft focus:outline-none focus:border-primary-fixed w-full md:w-64" placeholder="Tu email" type="email"/>
+<button class="bg-primary text-white px-8 py-3 rounded-r-full font-label-caps text-label-caps hover:bg-sage-dark transition-colors">Unirme</button>
+</div>
+</div>
+<div class="text-center pt-12">
+<p class="text-xs text-gold-soft/40">© 2024 Botánica Esencial OB. Hecho a mano con intención.</p>
+</div>
+</div>
+</footer>
+<!-- Floating Action Button (Only on main content) -->
+<div class="fixed bottom-8 right-8 z-40 md:hidden">
+<button class="w-16 h-16 bg-primary text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">shopping_cart</span>
+</button>
+</div>
+<script>
+        // Simple Scroll Reveal Animation
+        document.addEventListener('DOMContentLoaded', () => {
+            const observerOptions = {
+                threshold: 0.1
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                    }
+                });
+            }, observerOptions);
+
+            // Add scroll-reveal class to sections and observe
+            const elementsToReveal = document.querySelectorAll('section > div, .glass-card');
+            elementsToReveal.forEach(el => {
+                el.classList.add('scroll-reveal');
+                observer.observe(el);
+            });
+        });
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('header');
+            if (window.scrollY > 20) {
+                nav.classList.add('h-16', 'shadow-md');
+                nav.classList.remove('h-20');
+            } else {
+                nav.classList.remove('h-16', 'shadow-md');
+                nav.classList.add('h-20');
+            }
+        });
+    </script>
+</body></html>
