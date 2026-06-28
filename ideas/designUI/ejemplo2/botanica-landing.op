@@ -1,0 +1,3433 @@
+{
+  "variables": {
+    "earth": {
+      "type": "color",
+      "value": "#6B4423"
+    },
+    "sage": {
+      "type": "color",
+      "value": "#5A7D3C"
+    },
+    "cream-light": {
+      "type": "color",
+      "value": "#FAF8F2"
+    },
+    "coffee": {
+      "type": "color",
+      "value": "#8B5A2B"
+    },
+    "error": {
+      "type": "color",
+      "value": "#B54A4A"
+    },
+    "gold-soft": {
+      "type": "color",
+      "value": "#E8DCC8"
+    },
+    "sage-dark": {
+      "type": "color",
+      "value": "#46602E"
+    },
+    "gold": {
+      "type": "color",
+      "value": "#C4A35A"
+    },
+    "cream": {
+      "type": "color",
+      "value": "#F5F0E6"
+    },
+    "lavender-soft": {
+      "type": "color",
+      "value": "#E8E3F0"
+    },
+    "text-light": {
+      "type": "color",
+      "value": "#FAF8F2"
+    },
+    "success": {
+      "type": "color",
+      "value": "#4A7C59"
+    },
+    "lavender": {
+      "type": "color",
+      "value": "#8B7AA8"
+    },
+    "text-dark": {
+      "type": "color",
+      "value": "#3E2C22"
+    }
+  },
+  "name": "Botanica Esencial OB - Landing",
+  "version": "1.0.0",
+  "children": [],
+  "pages": [
+    {
+      "name": "Landing Page",
+      "children": [
+        {
+          "id": "K-Ijy-6aBOrBe8hL1O-iT",
+          "type": "frame",
+          "name": "Botánica Esencial OB - Landing",
+          "width": 1200,
+          "height": 0,
+          "layout": "vertical",
+          "gap": 0,
+          "fill": [
+            {
+              "type": "solid",
+              "color": "$cream"
+            }
+          ],
+          "children": [
+            {
+              "id": "K_Rxfe11U5-WgjYLVnhT_",
+              "type": "frame",
+              "name": "Navbar",
+              "width": "fill_container",
+              "height": 80,
+              "layout": "horizontal",
+              "children": [
+                {
+                  "fill": [
+                    {
+                      "color": "$cream",
+                      "type": "solid"
+                    }
+                  ],
+                  "height": "fit_content",
+                  "layout": "horizontal",
+                  "name": "Navbar Content",
+                  "role": "navbar",
+                  "type": "frame",
+                  "width": "fill_container",
+                  "id": "O1T3BIFdXb9wwJCyNeZAk"
+                },
+                {
+                  "type": "frame",
+                  "name": "Logo",
+                  "role": "row",
+                  "layout": "horizontal",
+                  "gap": 8,
+                  "alignItems": "center",
+                  "width": "fit_content",
+                  "height": "fit_content",
+                  "children": [
+                    {
+                      "type": "image",
+                      "src": "C:\\IA_Solutions\\proyectos\\todoApp\\olga-app\\img\\logo.jpeg",
+                      "width": 36,
+                      "height": 36,
+                      "cornerRadius": 18,
+                      "name": "Logo Img",
+                      "id": "4LMpZ8Vjmw8mV6vlmngUN"
+                    },
+                    {
+                      "type": "text",
+                      "content": "Botánica OB",
+                      "fontSize": 20,
+                      "fontWeight": 700,
+                      "fontFamily": "Playfair Display",
+                      "fill": [
+                        {
+                          "type": "solid",
+                          "color": "$earth"
+                        }
+                      ],
+                      "id": "2trO_rTRkAkdARE8ki_7g"
+                    }
+                  ],
+                  "id": "wXQhPHzDeQDWACEra6sbp"
+                },
+                {
+                  "type": "frame",
+                  "name": "Nav Links",
+                  "role": "nav-links",
+                  "layout": "horizontal",
+                  "gap": 32,
+                  "width": "fit_content",
+                  "height": "fit_content",
+                  "children": [
+                    {
+                      "type": "text",
+                      "role": "nav-link",
+                      "content": "Inicio",
+                      "fontSize": 15,
+                      "fontWeight": 500,
+                      "fontFamily": "Inter",
+                      "fill": [
+                        {
+                          "type": "solid",
+                          "color": "$text-dark"
+                        }
+                      ],
+                      "id": "zrtYYwd5nrANOuoJctsTI"
+                    },
+                    {
+                      "type": "text",
+                      "role": "nav-link",
+                      "content": "Productos",
+                      "fontSize": 15,
+                      "fontWeight": 500,
+                      "fontFamily": "Inter",
+                      "fill": [
+                        {
+                          "type": "solid",
+                          "color": "$text-dark"
+                        }
+                      ],
+                      "id": "phm_uTiyPdYq_9pXLvTHn"
+                    },
+                    {
+                      "type": "text",
+                      "role": "nav-link",
+                      "content": "Proceso",
+                      "fontSize": 15,
+                      "fontWeight": 500,
+                      "fontFamily": "Inter",
+                      "fill": [
+                        {
+                          "type": "solid",
+                          "color": "$text-dark"
+                        }
+                      ],
+                      "id": "AfGuW7kOFD0zyCwpoCR3q"
+                    },
+                    {
+                      "type": "text",
+                      "role": "nav-link",
+                      "content": "Blog",
+                      "fontSize": 15,
+                      "fontWeight": 500,
+                      "fontFamily": "Inter",
+                      "fill": [
+                        {
+                          "type": "solid",
+                          "color": "$text-dark"
+                        }
+                      ],
+                      "id": "tYLXWgAJBJb7VDMtF6BfY"
+                    },
+                    {
+                      "type": "text",
+                      "role": "nav-link",
+                      "content": "Contacto",
+                      "fontSize": 15,
+                      "fontWeight": 500,
+                      "fontFamily": "Inter",
+                      "fill": [
+                        {
+                          "type": "solid",
+                          "color": "$text-dark"
+                        }
+                      ],
+                      "id": "xE_rJ2bBQbce2RR_Q2tke"
+                    }
+                  ],
+                  "id": "7Ii2ahSf9K25nBTjxfi1m"
+                },
+                {
+                  "type": "rectangle",
+                  "role": "button",
+                  "name": "CTA Unirme",
+                  "padding": [
+                    10,
+                    24
+                  ],
+                  "cornerRadius": 9999,
+                  "stroke": {
+                    "thickness": 2,
+                    "fill": [
+                      {
+                        "type": "solid",
+                        "color": "$sage"
+                      }
+                    ]
+                  },
+                  "fill": [
+                    {
+                      "type": "solid",
+                      "color": "transparent"
+                    }
+                  ],
+                  "layout": "horizontal",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "content": "Unirme",
+                      "fontSize": 15,
+                      "fontWeight": 600,
+                      "fontFamily": "Inter",
+                      "fill": [
+                        {
+                          "type": "solid",
+                          "color": "$sage"
+                        }
+                      ],
+                      "id": "rX86gjz9xFpUALBGW4MNq"
+                    }
+                  ],
+                  "id": "eRLXMn5s6cgLF1ChPcCm_",
+                  "effects": [
+                    {
+                      "blur": 12,
+                      "color": "rgba(90,125,60,0.15)",
+                      "offsetY": 8,
+                      "type": "shadow"
+                    },
+                    {
+                      "blur": 4,
+                      "color": "rgba(90,125,60,0.08)",
+                      "offsetY": 2,
+                      "type": "shadow"
+                    }
+                  ]
+                }
+              ],
+              "padding": [
+                0,
+                48
+              ],
+              "fill": [
+                {
+                  "opacity": 0.85,
+                  "type": "solid",
+                  "color": "$cream-light"
+                }
+              ],
+              "role": "navbar",
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "effects": [
+                {
+                  "blur": 20,
+                  "color": "rgba(90,125,60,0.08)",
+                  "offsetY": 4,
+                  "type": "shadow"
+                }
+              ]
+            },
+            {
+              "id": "LHMURAoDD5b3wrEQs8PS7",
+              "type": "frame",
+              "name": "Hero Section",
+              "width": "fill_container",
+              "height": 600,
+              "layout": "vertical",
+              "children": [
+                {
+                  "alignItems": "center",
+                  "fill": [
+                    {
+                      "color": "$cream",
+                      "type": "solid"
+                    }
+                  ],
+                  "height": "fit_content",
+                  "layout": "vertical",
+                  "name": "Hero Content",
+                  "role": "hero",
+                  "type": "frame",
+                  "width": "fill_container",
+                  "id": "sgQJUhuLfv6WgB9EcMK7e"
+                },
+                {
+                  "type": "text",
+                  "content": "COSMÉTICA ARTESANAL",
+                  "fontSize": 14,
+                  "fontWeight": 500,
+                  "fontFamily": "Inter",
+                  "letterSpacing": 2,
+                  "fill": [
+                    {
+                      "type": "solid",
+                      "color": "$gold"
+                    }
+                  ],
+                  "textAlign": "center",
+                  "id": "dhh_ttq6NuSE51z2vZuOZ"
+                },
+                {
+                  "type": "text",
+                  "content": "Cosmética Natural que Cuida tu Piel y el Planeta",
+                  "fontSize": 52,
+                  "fontWeight": 600,
+                  "fontFamily": "Playfair Display",
+                  "lineHeight": 1.1,
+                  "letterSpacing": -1,
+                  "textAlign": "center",
+                  "textGrowth": "fixed-width",
+                  "width": 900,
+                  "fill": [
+                    {
+                      "type": "solid",
+                      "color": "$earth"
+                    }
+                  ],
+                  "id": "iiouAoFirNzNwin0KiMRs"
+                },
+                {
+                  "type": "text",
+                  "content": "Fórmulas hechas a mano con ingredientes botánicos seleccionados. Sin químicos agresivos, sin crueldad animal.",
+                  "fontSize": 18,
+                  "fontWeight": 400,
+                  "fontFamily": "Inter",
+                  "lineHeight": 1.7,
+                  "textAlign": "center",
+                  "textGrowth": "fixed-width",
+                  "width": 600,
+                  "fill": [
+                    {
+                      "type": "solid",
+                      "color": "$coffee"
+                    }
+                  ],
+                  "id": "iIBU25ulDNXTXFiy8kYwd"
+                },
+                {
+                  "type": "frame",
+                  "layout": "horizontal",
+                  "gap": 16,
+                  "width": "fit_content",
+                  "height": "fit_content",
+                  "name": "Hero Buttons",
+                  "children": [
+                    {
+                      "type": "rectangle",
+                      "role": "button",
+                      "name": "Btn Descubrir",
+                      "padding": [
+                        16,
+                        32
+                      ],
+                      "cornerRadius": 9999,
+                      "fill": [
+                        {
+                          "type": "solid",
+                          "color": "$sage"
+                        }
+                      ],
+                      "layout": "horizontal",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "content": "Descubrir Productos",
+                          "fontSize": 16,
+                          "fontWeight": 600,
+                          "fontFamily": "Inter",
+                          "fill": [
+                            {
+                              "type": "solid",
+                              "color": "$text-light"
+                            }
+                          ],
+                          "id": "9uk6EwCGPC1tqLb8u1Et5"
+                        }
+                      ],
+                      "id": "zDV-oC_p-AEgMR9sPBTmx",
+                      "effects": [
+                        {
+                          "blur": 8,
+                          "color": "rgba(90,125,60,0.25)",
+                          "offsetY": 4,
+                          "type": "shadow"
+                        },
+                        {
+                          "blur": 2,
+                          "color": "rgba(90,125,60,0.15)",
+                          "offsetY": 1,
+                          "type": "shadow"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "rectangle",
+                      "role": "button",
+                      "name": "Btn Proceso",
+                      "padding": [
+                        16,
+                        32
+                      ],
+                      "cornerRadius": 9999,
+                      "stroke": {
+                        "thickness": 2,
+                        "fill": [
+                          {
+                            "type": "solid",
+                            "color": "$sage"
+                          }
+                        ]
+                      },
+                      "fill": [
+                        {
+                          "type": "solid",
+                          "color": "transparent"
+                        }
+                      ],
+                      "layout": "horizontal",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "content": "Conocer el Proceso",
+                          "fontSize": 16,
+                          "fontWeight": 600,
+                          "fontFamily": "Inter",
+                          "fill": [
+                            {
+                              "type": "solid",
+                              "color": "$sage"
+                            }
+                          ],
+                          "id": "D2LDxjI4vMvV8d5CwPcCW"
+                        }
+                      ],
+                      "id": "CdtwXwabWfEn00CYxaDHB",
+                      "effects": [
+                        {
+                          "blur": 8,
+                          "color": "rgba(90,125,60,0.2)",
+                          "offsetY": 4,
+                          "type": "shadow"
+                        }
+                      ]
+                    }
+                  ],
+                  "id": "K-TcM8j4KlEFCXJYvXIM5"
+                },
+                {
+                  "type": "image",
+                  "src": "C:\\IA_Solutions\\proyectos\\todoApp\\olga-app\\img\\hero-img.jpeg",
+                  "width": 1104,
+                  "height": 280,
+                  "cornerRadius": 24,
+                  "name": "Hero Image",
+                  "role": "screenshot-frame",
+                  "id": "QVZIAVf5RyHboZnfJRyXg",
+                  "effects": [
+                    {
+                      "blur": 24,
+                      "color": "rgba(90,125,60,0.12)",
+                      "offsetY": 8,
+                      "type": "shadow"
+                    },
+                    {
+                      "blur": 8,
+                      "color": "rgba(90,125,60,0.06)",
+                      "offsetY": 2,
+                      "type": "shadow"
+                    }
+                  ]
+                }
+              ],
+              "padding": [
+                120,
+                48
+              ],
+              "fill": [
+                {
+                  "stops": [
+                    {
+                      "color": "$cream",
+                      "offset": 0
+                    },
+                    {
+                      "color": "$cream-light",
+                      "offset": 1
+                    }
+                  ],
+                  "type": "linear_gradient",
+                  "angle": 180
+                }
+              ],
+              "role": "hero",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "effects": [
+                {
+                  "blur": 60,
+                  "color": "rgba(139,122,168,0.12)",
+                  "offsetY": 20,
+                  "type": "shadow"
+                },
+                {
+                  "blur": 20,
+                  "color": "rgba(90,125,60,0.08)",
+                  "offsetY": 8,
+                  "type": "shadow"
+                }
+              ]
+            },
+            {
+              "id": "Fi51aE0_h_Q4kIMCy93oA",
+              "type": "frame",
+              "name": "Productos Section",
+              "width": "fill_container",
+              "height": 0,
+              "layout": "vertical",
+              "children": [
+                {
+                  "alignItems": "center",
+                  "height": "fit_content",
+                  "layout": "vertical",
+                  "name": "Productos Content",
+                  "type": "frame",
+                  "width": "fill_container",
+                  "gap": 48,
+                  "id": "a65QH6YlUGn2BiaqvLolh"
+                },
+                {
+                  "type": "text",
+                  "content": "Nuestros Productos",
+                  "fontSize": 40,
+                  "fontWeight": 600,
+                  "fontFamily": "Playfair Display",
+                  "lineHeight": 1.2,
+                  "textAlign": "center",
+                  "fill": [
+                    {
+                      "type": "solid",
+                      "color": "$earth"
+                    }
+                  ],
+                  "id": "b9NXpJWbxUsg5Tg327YsL"
+                },
+                {
+                  "type": "text",
+                  "content": "Tres líneas pensadas para cuidarte de forma natural, desde el rostro hasta el cuerpo.",
+                  "fontSize": 18,
+                  "fontFamily": "Inter",
+                  "lineHeight": 1.6,
+                  "textAlign": "center",
+                  "textGrowth": "fixed-width",
+                  "width": 600,
+                  "fill": [
+                    {
+                      "type": "solid",
+                      "color": "$coffee"
+                    }
+                  ],
+                  "id": "zUgaLX5ifsfFIcxF5tar_"
+                },
+                {
+                  "type": "frame",
+                  "role": "feature-grid",
+                  "layout": "horizontal",
+                  "gap": 32,
+                  "width": "fill_container",
+                  "name": "Products Grid",
+                  "children": [
+                    {
+                      "type": "rectangle",
+                      "role": "image-card",
+                      "name": "Línea Facial",
+                      "width": "fill_container",
+                      "height": "fill_container",
+                      "layout": "vertical",
+                      "cornerRadius": 16,
+                      "fill": [
+                        {
+                          "opacity": 0.7,
+                          "type": "solid",
+                          "color": "$cream-light"
+                        }
+                      ],
+                      "stroke": {
+                        "thickness": 1,
+                        "fill": [
+                          {
+                            "type": "solid",
+                            "color": "$gold-soft"
+                          }
+                        ]
+                      },
+                      "clipContent": true,
+                      "children": [
+                        {
+                          "type": "image",
+                          "src": "C:\\IA_Solutions\\proyectos\\todoApp\\olga-app\\img\\prd\\presentacion-producto-1.jpeg",
+                          "width": "fill_container",
+                          "height": 220,
+                          "name": "Facial Img",
+                          "id": "HSzUZqwGoiv5LuwnSkBRf"
+                        },
+                        {
+                          "type": "frame",
+                          "layout": "vertical",
+                          "gap": 8,
+                          "padding": 24,
+                          "width": "fill_container",
+                          "height": "fit_content",
+                          "children": [
+                            {
+                              "type": "text",
+                              "content": "Línea Facial",
+                              "fontSize": 22,
+                              "fontWeight": 600,
+                              "fontFamily": "Playfair Display",
+                              "fill": [
+                                {
+                                  "type": "solid",
+                                  "color": "$earth"
+                                }
+                              ],
+                              "id": "gYFY2SDj8uuZQ7BWQdpq5"
+                            },
+                            {
+                              "type": "text",
+                              "content": "Limpieza, hidratación y cuidado delicado para tu rostro.",
+                              "fontSize": 16,
+                              "fontFamily": "Inter",
+                              "lineHeight": 1.6,
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "fill": [
+                                {
+                                  "type": "solid",
+                                  "color": "$coffee"
+                                }
+                              ],
+                              "id": "3ekUKtAzfdGN6o9TGzNb7"
+                            },
+                            {
+                              "type": "text",
+                              "content": "Ver productos →",
+                              "fontSize": 15,
+                              "fontWeight": 600,
+                              "fontFamily": "Inter",
+                              "fill": [
+                                {
+                                  "type": "solid",
+                                  "color": "$sage"
+                                }
+                              ],
+                              "id": "yv5PW1JnG-qYRTMwyou6f"
+                            }
+                          ],
+                          "id": "4gx4jCivXXvTBspUzSjN1"
+                        }
+                      ],
+                      "id": "kBvplGmhWa7FetseNvk8_",
+                      "effects": [
+                        {
+                          "blur": 24,
+                          "color": "rgba(90,125,60,0.12)",
+                          "offsetY": 8,
+                          "type": "shadow"
+                        },
+                        {
+                          "blur": 8,
+                          "color": "rgba(90,125,60,0.06)",
+                          "offsetY": 2,
+                          "type": "shadow"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "rectangle",
+                      "role": "image-card",
+                      "name": "Para el Cabello",
+                      "width": "fill_container",
+                      "height": "fill_container",
+                      "layout": "vertical",
+                      "cornerRadius": 16,
+                      "fill": [
+                        {
+                          "opacity": 0.7,
+                          "type": "solid",
+                          "color": "$cream-light"
+                        }
+                      ],
+                      "stroke": {
+                        "thickness": 1,
+                        "fill": [
+                          {
+                            "type": "solid",
+                            "color": "$gold-soft"
+                          }
+                        ]
+                      },
+                      "clipContent": true,
+                      "children": [
+                        {
+                          "type": "image",
+                          "src": "C:\\IA_Solutions\\proyectos\\todoApp\\olga-app\\img\\prd\\presentacion-producto-2.jpeg",
+                          "width": "fill_container",
+                          "height": 220,
+                          "name": "Hair Img",
+                          "id": "muFd4hDxkTEGBPYONeUaG"
+                        },
+                        {
+                          "type": "frame",
+                          "layout": "vertical",
+                          "gap": 8,
+                          "padding": 24,
+                          "width": "fill_container",
+                          "height": "fit_content",
+                          "children": [
+                            {
+                              "type": "text",
+                              "content": "Para el Cabello",
+                              "fontSize": 22,
+                              "fontWeight": 600,
+                              "fontFamily": "Playfair Display",
+                              "fill": [
+                                {
+                                  "type": "solid",
+                                  "color": "$earth"
+                                }
+                              ],
+                              "id": "W3FdCBGaeAcga5T4RYTRQ"
+                            },
+                            {
+                              "type": "text",
+                              "content": "Shampoos, acondicionadores y tratamientos naturales.",
+                              "fontSize": 16,
+                              "fontFamily": "Inter",
+                              "lineHeight": 1.6,
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "fill": [
+                                {
+                                  "type": "solid",
+                                  "color": "$coffee"
+                                }
+                              ],
+                              "id": "CK2PChKKuN_qbGmIxHDpr"
+                            },
+                            {
+                              "type": "text",
+                              "content": "Ver productos →",
+                              "fontSize": 15,
+                              "fontWeight": 600,
+                              "fontFamily": "Inter",
+                              "fill": [
+                                {
+                                  "type": "solid",
+                                  "color": "$sage"
+                                }
+                              ],
+                              "id": "jOmCILqkfOzIRiU8faC55"
+                            }
+                          ],
+                          "id": "kLdltfp1uowvpVmkp-z16"
+                        }
+                      ],
+                      "id": "qKQV45RiVa_fmxD0WACmi",
+                      "effects": [
+                        {
+                          "blur": 24,
+                          "color": "rgba(90,125,60,0.12)",
+                          "offsetY": 8,
+                          "type": "shadow"
+                        },
+                        {
+                          "blur": 8,
+                          "color": "rgba(90,125,60,0.06)",
+                          "offsetY": 2,
+                          "type": "shadow"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "rectangle",
+                      "role": "image-card",
+                      "name": "Línea Corporal",
+                      "width": "fill_container",
+                      "height": "fill_container",
+                      "layout": "vertical",
+                      "cornerRadius": 16,
+                      "fill": [
+                        {
+                          "opacity": 0.7,
+                          "type": "solid",
+                          "color": "$cream-light"
+                        }
+                      ],
+                      "stroke": {
+                        "thickness": 1,
+                        "fill": [
+                          {
+                            "type": "solid",
+                            "color": "$gold-soft"
+                          }
+                        ]
+                      },
+                      "clipContent": true,
+                      "children": [
+                        {
+                          "type": "image",
+                          "src": "C:\\IA_Solutions\\proyectos\\todoApp\\olga-app\\img\\prd\\presentacion-producto-3.jpeg",
+                          "width": "fill_container",
+                          "height": 220,
+                          "name": "Body Img",
+                          "id": "ip9QMq9Siv6OoymNn0Kzk"
+                        },
+                        {
+                          "type": "frame",
+                          "layout": "vertical",
+                          "gap": 8,
+                          "padding": 24,
+                          "width": "fill_container",
+                          "height": "fit_content",
+                          "children": [
+                            {
+                              "type": "text",
+                              "content": "Línea Corporal",
+                              "fontSize": 22,
+                              "fontWeight": 600,
+                              "fontFamily": "Playfair Display",
+                              "fill": [
+                                {
+                                  "type": "solid",
+                                  "color": "$earth"
+                                }
+                              ],
+                              "id": "J7875shRdMtaXkzuy_UHX"
+                            },
+                            {
+                              "type": "text",
+                              "content": "Aceites, cremas y exfoliantes para cuidar tu piel.",
+                              "fontSize": 16,
+                              "fontFamily": "Inter",
+                              "lineHeight": 1.6,
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "fill": [
+                                {
+                                  "type": "solid",
+                                  "color": "$coffee"
+                                }
+                              ],
+                              "id": "bRJZkKuz3Ql3PL96vXA2a"
+                            },
+                            {
+                              "type": "text",
+                              "content": "Ver productos →",
+                              "fontSize": 15,
+                              "fontWeight": 600,
+                              "fontFamily": "Inter",
+                              "fill": [
+                                {
+                                  "type": "solid",
+                                  "color": "$sage"
+                                }
+                              ],
+                              "id": "xyomrrba97GokJqDzMWXy"
+                            }
+                          ],
+                          "id": "137x1XAHxAQ-d2pebdyaC"
+                        }
+                      ],
+                      "id": "C6ZF3xBPaw96piTG7a3Lu",
+                      "effects": [
+                        {
+                          "blur": 24,
+                          "color": "rgba(90,125,60,0.12)",
+                          "offsetY": 8,
+                          "type": "shadow"
+                        },
+                        {
+                          "blur": 8,
+                          "color": "rgba(90,125,60,0.06)",
+                          "offsetY": 2,
+                          "type": "shadow"
+                        }
+                      ]
+                    }
+                  ],
+                  "id": "kIG4P0aZQxGUfwv2GH1eK"
+                },
+                {
+                  "type": "rectangle",
+                  "role": "card",
+                  "name": "Cestas de Regalo",
+                  "width": "fill_container",
+                  "height": "fit_content",
+                  "layout": "horizontal",
+                  "cornerRadius": 16,
+                  "fill": [
+                    {
+                      "opacity": 0.7,
+                      "type": "solid",
+                      "color": "$cream-light"
+                    }
+                  ],
+                  "stroke": {
+                    "thickness": 1,
+                    "fill": [
+                      {
+                        "type": "solid",
+                        "color": "$gold-soft"
+                      }
+                    ]
+                  },
+                  "padding": 24,
+                  "gap": 24,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "image",
+                      "src": "C:\\IA_Solutions\\proyectos\\todoApp\\olga-app\\img\\prd\\cesta-regalo-1.jpeg",
+                      "width": 280,
+                      "height": 180,
+                      "cornerRadius": 12,
+                      "name": "Gift Img",
+                      "id": "KpHK92zh0QDuIGV4u1CYB"
+                    },
+                    {
+                      "type": "frame",
+                      "layout": "vertical",
+                      "gap": 8,
+                      "width": "fill_container",
+                      "height": "fit_content",
+                      "children": [
+                        {
+                          "type": "text",
+                          "content": "Cestas y Packs de Regalo",
+                          "fontSize": 28,
+                          "fontWeight": 600,
+                          "fontFamily": "Playfair Display",
+                          "fill": [
+                            {
+                              "type": "solid",
+                              "color": "$earth"
+                            }
+                          ],
+                          "id": "oSHqc4OD49NDvgqqIeJrO"
+                        },
+                        {
+                          "type": "text",
+                          "content": "Regalá bienestar con nuestras cestas armadas a mano.",
+                          "fontSize": 16,
+                          "fontFamily": "Inter",
+                          "lineHeight": 1.6,
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "fill": [
+                            {
+                              "type": "solid",
+                              "color": "$coffee"
+                            }
+                          ],
+                          "id": "qLULcbwEG0NQmzcnH0qJM"
+                        },
+                        {
+                          "type": "rectangle",
+                          "role": "button",
+                          "name": "Btn Ver Opciones",
+                          "padding": [
+                            12,
+                            24
+                          ],
+                          "cornerRadius": 9999,
+                          "fill": [
+                            {
+                              "type": "solid",
+                              "color": "$sage"
+                            }
+                          ],
+                          "layout": "horizontal",
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "width": "fit_content",
+                          "children": [
+                            {
+                              "type": "text",
+                              "content": "Ver opciones",
+                              "fontSize": 15,
+                              "fontWeight": 600,
+                              "fontFamily": "Inter",
+                              "fill": [
+                                {
+                                  "type": "solid",
+                                  "color": "$text-light"
+                                }
+                              ],
+                              "id": "MtNG-v3vVXG3Yihlz26u-"
+                            }
+                          ],
+                          "id": "OCWTxHI5snhH8KSE_mb5Q"
+                        }
+                      ],
+                      "id": "EBlWlJXQpl6PQ4HH8zUIA"
+                    }
+                  ],
+                  "id": "fhc4Vu0tv_ZAhKUZhJg2K",
+                  "effects": [
+                    {
+                      "blur": 32,
+                      "color": "rgba(90,125,60,0.15)",
+                      "offsetY": 12,
+                      "type": "shadow"
+                    },
+                    {
+                      "blur": 12,
+                      "color": "rgba(90,125,60,0.08)",
+                      "offsetY": 4,
+                      "type": "shadow"
+                    }
+                  ]
+                }
+              ],
+              "padding": [
+                120,
+                48
+              ],
+              "fill": [
+                {
+                  "type": "solid",
+                  "color": "$cream"
+                }
+              ],
+              "role": "section",
+              "justifyContent": "center",
+              "alignItems": "center"
+            },
+            {
+              "id": "o9QHFpxeFOQdffs2YntsY",
+              "type": "frame",
+              "name": "Ingredientes Section",
+              "width": "fill_container",
+              "height": 0,
+              "layout": "vertical",
+              "children": [
+                {
+                  "alignItems": "center",
+                  "gap": 48,
+                  "height": "fit_content",
+                  "layout": "vertical",
+                  "name": "Ingredientes Content",
+                  "type": "frame",
+                  "width": "fill_container",
+                  "id": "r1bYjZPVs9GQmUi5hVrx_"
+                },
+                {
+                  "content": "Ingredientes que se ven y se sienten",
+                  "fill": [
+                    {
+                      "color": "$earth",
+                      "type": "solid"
+                    }
+                  ],
+                  "fontFamily": "Playfair Display",
+                  "fontSize": 40,
+                  "fontWeight": 600,
+                  "lineHeight": 1.2,
+                  "textAlign": "center",
+                  "type": "text",
+                  "id": "6KnwAOSxxwMlAjjJl1kxE"
+                },
+                {
+                  "content": "Trabajamos con materias primas seleccionadas y documentadas en cada fórmula.",
+                  "fill": [
+                    {
+                      "color": "$coffee",
+                      "type": "solid"
+                    }
+                  ],
+                  "fontFamily": "Inter",
+                  "fontSize": 18,
+                  "lineHeight": 1.6,
+                  "textAlign": "center",
+                  "textGrowth": "fixed-width",
+                  "type": "text",
+                  "width": 600,
+                  "id": "hvkkB-0D762AurJ0gyKnE"
+                },
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "cornerRadius": 12,
+                          "height": 200,
+                          "name": "Lavanda",
+                          "src": "C:\\IA_Solutions\\proyectos\\todoApp\\olga-app\\img\\plts\\lanvanda.jpeg",
+                          "type": "image",
+                          "width": "fill_container",
+                          "id": "_MQusqwKkTm1q1x7_B8fi"
+                        }
+                      ],
+                      "clipContent": true,
+                      "cornerRadius": 16,
+                      "fill": [
+                        {
+                          "opacity": 0.6,
+                          "type": "solid",
+                          "color": "$cream"
+                        }
+                      ],
+                      "height": "fill_container",
+                      "layout": "vertical",
+                      "name": "Ing Card 1",
+                      "role": "image-card",
+                      "type": "rectangle",
+                      "width": "fill_container",
+                      "id": "hs9J1UJyN-WgkHr6c_4Pl",
+                      "effects": [
+                        {
+                          "blur": 20,
+                          "color": "rgba(90,125,60,0.1)",
+                          "offsetY": 6,
+                          "type": "shadow"
+                        },
+                        {
+                          "blur": 6,
+                          "color": "rgba(90,125,60,0.05)",
+                          "offsetY": 2,
+                          "type": "shadow"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "cornerRadius": 12,
+                          "height": 200,
+                          "name": "Tomillo",
+                          "src": "C:\\IA_Solutions\\proyectos\\todoApp\\olga-app\\img\\plts\\tomillo.jpeg",
+                          "type": "image",
+                          "width": "fill_container",
+                          "id": "Y4FgS6MKE8fheKmzdudLx"
+                        }
+                      ],
+                      "clipContent": true,
+                      "cornerRadius": 16,
+                      "fill": [
+                        {
+                          "opacity": 0.6,
+                          "type": "solid",
+                          "color": "$cream"
+                        }
+                      ],
+                      "height": "fill_container",
+                      "layout": "vertical",
+                      "name": "Ing Card 2",
+                      "role": "image-card",
+                      "type": "rectangle",
+                      "width": "fill_container",
+                      "id": "nblzbIHE2AWk8iLMZ1oxQ",
+                      "effects": [
+                        {
+                          "blur": 20,
+                          "color": "rgba(90,125,60,0.1)",
+                          "offsetY": 6,
+                          "type": "shadow"
+                        },
+                        {
+                          "blur": 6,
+                          "color": "rgba(90,125,60,0.05)",
+                          "offsetY": 2,
+                          "type": "shadow"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "cornerRadius": 12,
+                          "height": 200,
+                          "name": "Materias Primas",
+                          "src": "C:\\IA_Solutions\\proyectos\\todoApp\\olga-app\\img\\lab\\materias-primas-1.jpeg",
+                          "type": "image",
+                          "width": "fill_container",
+                          "id": "iskbBy_as8nEWrxbdLLtu"
+                        }
+                      ],
+                      "clipContent": true,
+                      "cornerRadius": 16,
+                      "fill": [
+                        {
+                          "opacity": 0.6,
+                          "type": "solid",
+                          "color": "$cream"
+                        }
+                      ],
+                      "height": "fill_container",
+                      "layout": "vertical",
+                      "name": "Ing Card 3",
+                      "role": "image-card",
+                      "type": "rectangle",
+                      "width": "fill_container",
+                      "id": "hQ-6J5SJJGMHPTK01Hpgt",
+                      "effects": [
+                        {
+                          "blur": 20,
+                          "color": "rgba(90,125,60,0.1)",
+                          "offsetY": 6,
+                          "type": "shadow"
+                        },
+                        {
+                          "blur": 6,
+                          "color": "rgba(90,125,60,0.05)",
+                          "offsetY": 2,
+                          "type": "shadow"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "cornerRadius": 12,
+                          "height": 200,
+                          "name": "Proceso Lab",
+                          "src": "C:\\IA_Solutions\\proyectos\\todoApp\\olga-app\\img\\lab\\materias-primas-2.jpeg",
+                          "type": "image",
+                          "width": "fill_container",
+                          "id": "Wu0DpbQJhYVjKErDTmqS6"
+                        }
+                      ],
+                      "clipContent": true,
+                      "cornerRadius": 16,
+                      "fill": [
+                        {
+                          "opacity": 0.6,
+                          "type": "solid",
+                          "color": "$cream"
+                        }
+                      ],
+                      "height": "fill_container",
+                      "layout": "vertical",
+                      "name": "Ing Card 4",
+                      "role": "image-card",
+                      "type": "rectangle",
+                      "width": "fill_container",
+                      "id": "OpV9hog-yW4T7rcvIqeBI",
+                      "effects": [
+                        {
+                          "blur": 20,
+                          "color": "rgba(90,125,60,0.1)",
+                          "offsetY": 6,
+                          "type": "shadow"
+                        },
+                        {
+                          "blur": 6,
+                          "color": "rgba(90,125,60,0.05)",
+                          "offsetY": 2,
+                          "type": "shadow"
+                        }
+                      ]
+                    }
+                  ],
+                  "gap": 24,
+                  "layout": "horizontal",
+                  "name": "Ingredients Grid",
+                  "role": "feature-grid",
+                  "type": "frame",
+                  "width": "fill_container",
+                  "id": "zopyM3iQwufUCmY_j-AbT"
+                }
+              ],
+              "padding": [
+                120,
+                48
+              ],
+              "fill": [
+                {
+                  "angle": 180,
+                  "stops": [
+                    {
+                      "color": "$cream-light",
+                      "offset": 0
+                    },
+                    {
+                      "color": "$cream",
+                      "offset": 1
+                    }
+                  ],
+                  "type": "linear_gradient"
+                }
+              ],
+              "role": "section",
+              "justifyContent": "center",
+              "alignItems": "center"
+            },
+            {
+              "id": "-RRjPxaab4AMuW--hong5",
+              "type": "frame",
+              "name": "Proceso Artesanal",
+              "width": "fill_container",
+              "height": 0,
+              "layout": "vertical",
+              "children": [
+                {
+                  "alignItems": "center",
+                  "gap": 48,
+                  "height": "fit_content",
+                  "layout": "vertical",
+                  "name": "Proceso Content",
+                  "type": "frame",
+                  "width": "fill_container",
+                  "id": "VlsEJeU7UYF-fB3rGv4RE"
+                },
+                {
+                  "content": "Hecho a mano, pensado en detalle",
+                  "fill": [
+                    {
+                      "color": "$earth",
+                      "type": "solid"
+                    }
+                  ],
+                  "fontFamily": "Playfair Display",
+                  "fontSize": 40,
+                  "fontWeight": 600,
+                  "lineHeight": 1.2,
+                  "textAlign": "center",
+                  "type": "text",
+                  "id": "TqQDyz8OVw7_gtP30n3PA"
+                },
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "cornerRadius": 24,
+                          "height": 400,
+                          "name": "Proceso Img",
+                          "src": "C:\\IA_Solutions\\proyectos\\todoApp\\olga-app\\img\\lab\\deco-1.jpeg",
+                          "type": "image",
+                          "width": "fill_container",
+                          "id": "xbiIIQKU0AOHIvQvYPHr0",
+                          "effects": [
+                            {
+                              "blur": 40,
+                              "color": "rgba(90,125,60,0.18)",
+                              "offsetY": 16,
+                              "type": "shadow"
+                            },
+                            {
+                              "blur": 16,
+                              "color": "rgba(90,125,60,0.1)",
+                              "offsetY": 6,
+                              "type": "shadow"
+                            }
+                          ]
+                        }
+                      ],
+                      "clipContent": true,
+                      "cornerRadius": 24,
+                      "effects": [
+                        {
+                          "blur": 20,
+                          "color": "rgba(62,44,34,0.08)",
+                          "offsetX": 0,
+                          "offsetY": 4,
+                          "type": "shadow"
+                        }
+                      ],
+                      "height": "fill_container",
+                      "layout": "vertical",
+                      "name": "Proceso Image",
+                      "type": "frame",
+                      "width": "fill_container",
+                      "id": "XPO8DLkoy91qqjci3CU8E"
+                    },
+                    {
+                      "children": [
+                        {
+                          "content": "Selección",
+                          "fill": [
+                            {
+                              "color": "$sage",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": 600,
+                          "letterSpacing": 1,
+                          "type": "text",
+                          "id": "aT1xDq1JPTXFAchSs6zO4"
+                        },
+                        {
+                          "content": "Ingredientes botánicos de origen responsable",
+                          "fill": [
+                            {
+                              "color": "$earth",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Playfair Display",
+                          "fontSize": 22,
+                          "fontWeight": 600,
+                          "lineHeight": 1.3,
+                          "type": "text",
+                          "id": "hFciv4xMjux07UdPYT2lp"
+                        },
+                        {
+                          "content": "Cada ingrediente es cuidadosamente seleccionado por su pureza y origen sostenible.",
+                          "fill": [
+                            {
+                              "color": "$coffee",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 16,
+                          "lineHeight": 1.6,
+                          "textGrowth": "fixed-width",
+                          "type": "text",
+                          "width": "fill_container",
+                          "id": "wg0mxzih4Dca45jXSoHe5"
+                        },
+                        {
+                          "content": "Formulación",
+                          "fill": [
+                            {
+                              "color": "$sage",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": 600,
+                          "letterSpacing": 1,
+                          "type": "text",
+                          "id": "C2XvUs8t5dcGMnZtqqWRL"
+                        },
+                        {
+                          "content": "Cada fórmula se documenta en nuestra app de producción",
+                          "fill": [
+                            {
+                              "color": "$earth",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Playfair Display",
+                          "fontSize": 22,
+                          "fontWeight": 600,
+                          "lineHeight": 1.3,
+                          "type": "text",
+                          "id": "Q2yuilyBWbvVntykG7JDZ"
+                        },
+                        {
+                          "content": "Trazabilidad completa desde la materia prima hasta el producto final.",
+                          "fill": [
+                            {
+                              "color": "$coffee",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 16,
+                          "lineHeight": 1.6,
+                          "textGrowth": "fixed-width",
+                          "type": "text",
+                          "width": "fill_container",
+                          "id": "wnuy40dXbFFmRpvxxWYFo"
+                        }
+                      ],
+                      "gap": 16,
+                      "height": "fill_container",
+                      "layout": "vertical",
+                      "name": "Proceso Text",
+                      "type": "frame",
+                      "width": "fill_container",
+                      "id": "_SpeQeW8nK1tElk_i1g47"
+                    }
+                  ],
+                  "gap": 48,
+                  "layout": "horizontal",
+                  "name": "Proceso Two Cols",
+                  "type": "frame",
+                  "width": "fill_container",
+                  "id": "FCAKvx5xfC1uUu9fNjF3Q"
+                }
+              ],
+              "padding": [
+                120,
+                48
+              ],
+              "fill": [
+                {
+                  "type": "solid",
+                  "color": "$cream"
+                }
+              ],
+              "role": "section",
+              "justifyContent": "center",
+              "alignItems": "center"
+            },
+            {
+              "id": "p4YUZUGqqAzCCwHxk7pE_",
+              "type": "frame",
+              "name": "Conóceme Section",
+              "width": "fill_container",
+              "height": 0,
+              "layout": "vertical",
+              "children": [
+                {
+                  "alignItems": "center",
+                  "gap": 48,
+                  "height": "fit_content",
+                  "layout": "vertical",
+                  "name": "Conoceme Content",
+                  "type": "frame",
+                  "width": "fill_container",
+                  "id": "tMqBqQZXWkyMfDMXNN2TG"
+                },
+                {
+                  "content": "Quién está detrás de Botánica OB",
+                  "fill": [
+                    {
+                      "color": "$earth",
+                      "type": "solid"
+                    }
+                  ],
+                  "fontFamily": "Playfair Display",
+                  "fontSize": 40,
+                  "fontWeight": 600,
+                  "lineHeight": 1.2,
+                  "textAlign": "center",
+                  "type": "text",
+                  "id": "Ws2bcNYf_n1eoWg7oPpsT"
+                },
+                {
+                  "content": "Una apuesta por la cosmética consciente.",
+                  "fill": [
+                    {
+                      "color": "$coffee",
+                      "type": "solid"
+                    }
+                  ],
+                  "fontFamily": "Inter",
+                  "fontSize": 18,
+                  "lineHeight": 1.6,
+                  "textAlign": "center",
+                  "textGrowth": "fixed-width",
+                  "type": "text",
+                  "width": 500,
+                  "id": "gbbBite2cjnMscEN-_-B9"
+                },
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "content": "Quién soy",
+                          "fill": [
+                            {
+                              "color": "$sage",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": 600,
+                          "letterSpacing": 1,
+                          "type": "text",
+                          "id": "cn2i0TOhxFudy10vrPtHe"
+                        },
+                        {
+                          "content": "Una historia de conexión con la naturaleza",
+                          "fill": [
+                            {
+                              "color": "$earth",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Playfair Display",
+                          "fontSize": 22,
+                          "fontWeight": 600,
+                          "lineHeight": 1.3,
+                          "type": "text",
+                          "id": "g907TAilOl8EcmccV3ivV"
+                        },
+                        {
+                          "content": "Mi pasión por la cosmética natural nació de la necesidad de crear productos limpios y transparentes para el cuidado de la piel.",
+                          "fill": [
+                            {
+                              "color": "$coffee",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 16,
+                          "lineHeight": 1.6,
+                          "textGrowth": "fixed-width",
+                          "type": "text",
+                          "width": "fill_container",
+                          "id": "5A21H8oJ_JWgCp3baV1WP"
+                        },
+                        {
+                          "content": "Qué hago",
+                          "fill": [
+                            {
+                              "color": "$sage",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": 600,
+                          "letterSpacing": 1,
+                          "type": "text",
+                          "id": "oJ2F1LY4EW2H-ZRwiC6er"
+                        },
+                        {
+                          "content": "Productos limpios, respetuosos con la piel y el planeta.",
+                          "fill": [
+                            {
+                              "color": "$coffee",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 16,
+                          "lineHeight": 1.6,
+                          "textGrowth": "fixed-width",
+                          "type": "text",
+                          "width": "fill_container",
+                          "id": "e_-WodqZvw_hUm99HF33I"
+                        }
+                      ],
+                      "gap": 16,
+                      "height": "fill_container",
+                      "layout": "vertical",
+                      "name": "Conoceme Text",
+                      "type": "frame",
+                      "width": "fill_container",
+                      "id": "LqqnyMSla80Lkh6QgLBxK"
+                    },
+                    {
+                      "children": [
+                        {
+                          "cornerRadius": 24,
+                          "height": 400,
+                          "name": "Conoceme Img",
+                          "src": "C:\\IA_Solutions\\proyectos\\todoApp\\olga-app\\img\\lab\\deco-2.jpeg",
+                          "type": "image",
+                          "width": "fill_container",
+                          "id": "rgZeXM5WNLEp7dONbOqMe",
+                          "effects": [
+                            {
+                              "blur": 40,
+                              "color": "rgba(90,125,60,0.18)",
+                              "offsetY": 16,
+                              "type": "shadow"
+                            },
+                            {
+                              "blur": 16,
+                              "color": "rgba(90,125,60,0.1)",
+                              "offsetY": 6,
+                              "type": "shadow"
+                            }
+                          ]
+                        }
+                      ],
+                      "clipContent": true,
+                      "cornerRadius": 24,
+                      "effects": [
+                        {
+                          "blur": 20,
+                          "color": "rgba(62,44,34,0.08)",
+                          "offsetX": 0,
+                          "offsetY": 4,
+                          "type": "shadow"
+                        }
+                      ],
+                      "height": "fill_container",
+                      "layout": "vertical",
+                      "name": "Conoceme Image",
+                      "type": "frame",
+                      "width": "fill_container",
+                      "id": "RUJl7sV6fPfVrKYfg-px1"
+                    }
+                  ],
+                  "gap": 48,
+                  "layout": "horizontal",
+                  "name": "Conoceme Two Cols",
+                  "type": "frame",
+                  "width": "fill_container",
+                  "id": "Dcr_3Gjf3ISIgBTpv45JS"
+                }
+              ],
+              "padding": [
+                120,
+                48
+              ],
+              "fill": [
+                {
+                  "angle": 180,
+                  "stops": [
+                    {
+                      "color": "$cream",
+                      "offset": 0
+                    },
+                    {
+                      "color": "$cream-light",
+                      "offset": 1
+                    }
+                  ],
+                  "type": "linear_gradient"
+                }
+              ],
+              "role": "section",
+              "justifyContent": "center",
+              "alignItems": "center"
+            },
+            {
+              "id": "tuqYvOKoMzdyQfxD6b60t",
+              "type": "frame",
+              "name": "Comunidad Section",
+              "width": "fill_container",
+              "height": 0,
+              "layout": "vertical",
+              "children": [
+                {
+                  "content": "Únete a nuestra comunidad",
+                  "fill": [
+                    {
+                      "color": "$text-light",
+                      "type": "solid"
+                    }
+                  ],
+                  "fontFamily": "Playfair Display",
+                  "fontSize": 40,
+                  "fontWeight": 600,
+                  "lineHeight": 1.2,
+                  "textAlign": "center",
+                  "textGrowth": "fixed-width",
+                  "type": "text",
+                  "width": "fill_container",
+                  "id": "mX9fcbAklldFbMRmVS-ar"
+                },
+                {
+                  "content": "Recibí tips de cuidado natural, lanzamientos exclusivos y descuentos especiales.",
+                  "fill": [
+                    {
+                      "color": "$text-light",
+                      "type": "solid"
+                    }
+                  ],
+                  "fontFamily": "Inter",
+                  "fontSize": 18,
+                  "lineHeight": 1.6,
+                  "textAlign": "center",
+                  "textGrowth": "fixed-width",
+                  "type": "text",
+                  "width": 500,
+                  "id": "G6JDoV_9Pq-GJ4Le-ZYWj"
+                },
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "content": "✓  Acceso anticipado a nuevos productos",
+                          "fill": [
+                            {
+                              "color": "$text-light",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 16,
+                          "type": "text",
+                          "id": "qnEpLLDu7cnqyGf2sXq38"
+                        },
+                        {
+                          "content": "✓  Guías de rutinas naturales",
+                          "fill": [
+                            {
+                              "color": "$text-light",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 16,
+                          "type": "text",
+                          "id": "5_7qvabMDeWfwuhUPTJHd"
+                        },
+                        {
+                          "content": "✓  Descuentos solo para miembros",
+                          "fill": [
+                            {
+                              "color": "$text-light",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 16,
+                          "type": "text",
+                          "id": "WHOFfG0AwgM2KSs8AmVNa"
+                        }
+                      ],
+                      "gap": 12,
+                      "height": "fit_content",
+                      "layout": "vertical",
+                      "name": "Benefits List",
+                      "type": "frame",
+                      "width": "fill_container",
+                      "id": "Kb7pj9Rr3ku4rXSyISzPO"
+                    },
+                    {
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "content": "Continuar con Google",
+                          "fill": [
+                            {
+                              "color": "$earth",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 15,
+                          "fontWeight": 600,
+                          "type": "text",
+                          "id": "YIm76SYvLIJBJLwaINPDn"
+                        }
+                      ],
+                      "cornerRadius": 12,
+                      "fill": [
+                        {
+                          "color": "$cream-light",
+                          "opacity": 0.9,
+                          "type": "solid"
+                        }
+                      ],
+                      "height": 48,
+                      "justifyContent": "center",
+                      "layout": "horizontal",
+                      "name": "Google Btn",
+                      "role": "button",
+                      "type": "rectangle",
+                      "width": "fill_container",
+                      "id": "XJXBX_o0DxDyP0dsU6qx1"
+                    },
+                    {
+                      "cornerRadius": 12,
+                      "fill": [
+                        {
+                          "color": "$cream-light",
+                          "opacity": 0.85,
+                          "type": "solid"
+                        }
+                      ],
+                      "height": 44,
+                      "layout": "horizontal",
+                      "name": "Name Input",
+                      "padding": [
+                        0,
+                        16
+                      ],
+                      "role": "form-input",
+                      "stroke": {
+                        "fill": [
+                          {
+                            "color": "rgba(255,255,255,0.3)",
+                            "type": "solid"
+                          }
+                        ],
+                        "thickness": 1
+                      },
+                      "type": "rectangle",
+                      "width": "fill_container",
+                      "id": "Dx3TtJpwXImtHEKu0lwqL"
+                    },
+                    {
+                      "cornerRadius": 12,
+                      "fill": [
+                        {
+                          "color": "$cream-light",
+                          "opacity": 0.85,
+                          "type": "solid"
+                        }
+                      ],
+                      "height": 44,
+                      "layout": "horizontal",
+                      "name": "Email Input",
+                      "padding": [
+                        0,
+                        16
+                      ],
+                      "role": "form-input",
+                      "stroke": {
+                        "fill": [
+                          {
+                            "color": "rgba(255,255,255,0.3)",
+                            "type": "solid"
+                          }
+                        ],
+                        "thickness": 1
+                      },
+                      "type": "rectangle",
+                      "width": "fill_container",
+                      "id": "xXREK2MqV9izsMN96Tv42"
+                    },
+                    {
+                      "cornerRadius": 12,
+                      "fill": [
+                        {
+                          "color": "$cream-light",
+                          "opacity": 0.85,
+                          "type": "solid"
+                        }
+                      ],
+                      "height": 44,
+                      "layout": "horizontal",
+                      "name": "Pass Input",
+                      "padding": [
+                        0,
+                        16
+                      ],
+                      "role": "form-input",
+                      "stroke": {
+                        "fill": [
+                          {
+                            "color": "rgba(255,255,255,0.3)",
+                            "type": "solid"
+                          }
+                        ],
+                        "thickness": 1
+                      },
+                      "type": "rectangle",
+                      "width": "fill_container",
+                      "id": "qYK2HHcb1aLiBi8BUZDZG"
+                    },
+                    {
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "content": "Crear cuenta",
+                          "fill": [
+                            {
+                              "color": "$text-light",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 16,
+                          "fontWeight": 600,
+                          "type": "text",
+                          "id": "A_kLq4fPK7Xu2NKnYjhOQ"
+                        }
+                      ],
+                      "cornerRadius": 12,
+                      "fill": [
+                        {
+                          "angle": 135,
+                          "stops": [
+                            {
+                              "color": "$sage-dark",
+                              "offset": 0
+                            },
+                            {
+                              "color": "$earth",
+                              "offset": 1
+                            }
+                          ],
+                          "type": "linear_gradient"
+                        }
+                      ],
+                      "height": 48,
+                      "justifyContent": "center",
+                      "layout": "horizontal",
+                      "name": "Submit Btn",
+                      "role": "button",
+                      "type": "rectangle",
+                      "width": "fill_container",
+                      "id": "1UPgrheqqWI60ktCF5VjB",
+                      "effects": [
+                        {
+                          "blur": 12,
+                          "color": "rgba(90,125,60,0.3)",
+                          "offsetY": 6,
+                          "type": "shadow"
+                        },
+                        {
+                          "blur": 4,
+                          "color": "rgba(90,125,60,0.15)",
+                          "offsetY": 2,
+                          "type": "shadow"
+                        }
+                      ]
+                    }
+                  ],
+                  "gap": 48,
+                  "layout": "horizontal",
+                  "name": "Comunidad Two Cols",
+                  "type": "frame",
+                  "width": "fill_container",
+                  "id": "aBCWKqq1kVN7nNdXWr9CW"
+                }
+              ],
+              "padding": [
+                120,
+                48
+              ],
+              "fill": [
+                {
+                  "angle": 180,
+                  "stops": [
+                    {
+                      "color": "$sage",
+                      "offset": 0
+                    },
+                    {
+                      "color": "$sage-dark",
+                      "offset": 1
+                    }
+                  ],
+                  "type": "linear_gradient"
+                }
+              ],
+              "role": "section",
+              "justifyContent": "center",
+              "alignItems": "center"
+            },
+            {
+              "id": "HXsphBX_mRmSBThzrsAi2",
+              "type": "frame",
+              "name": "Blog Section",
+              "width": "fill_container",
+              "height": 0,
+              "layout": "vertical",
+              "children": [
+                {
+                  "alignItems": "center",
+                  "gap": 48,
+                  "height": "fit_content",
+                  "layout": "vertical",
+                  "name": "Blog Content",
+                  "type": "frame",
+                  "width": "fill_container",
+                  "id": "uTzHaB-t--Iks9n8KCBke"
+                },
+                {
+                  "content": "Nuestro Blog",
+                  "fill": [
+                    {
+                      "color": "$earth",
+                      "type": "solid"
+                    }
+                  ],
+                  "fontFamily": "Playfair Display",
+                  "fontSize": 40,
+                  "fontWeight": 600,
+                  "lineHeight": 1.2,
+                  "textAlign": "center",
+                  "type": "text",
+                  "id": "pPcjJGlDylvXNTz7Ip6Bh"
+                },
+                {
+                  "content": "Tips, rutinas y todo sobre cosmética natural.",
+                  "fill": [
+                    {
+                      "color": "$coffee",
+                      "type": "solid"
+                    }
+                  ],
+                  "fontFamily": "Inter",
+                  "fontSize": 18,
+                  "lineHeight": 1.6,
+                  "textAlign": "center",
+                  "textGrowth": "fixed-width",
+                  "type": "text",
+                  "width": 500,
+                  "id": "Ytlc1IsfP1auImum0rBU_"
+                },
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "cornerRadius": 12,
+                          "height": 180,
+                          "name": "Blog Img 1",
+                          "src": "C:\\IA_Solutions\\proyectos\\todoApp\\olga-app\\img\\plts\\rosas-petalo.jpeg",
+                          "type": "image",
+                          "width": "fill_container",
+                          "id": "7i9IZ7ANlfKQdazYP3K0M"
+                        },
+                        {
+                          "children": [
+                            {
+                              "content": "Cuidado de piel",
+                              "fill": [
+                                {
+                                  "color": "$lavender",
+                                  "type": "solid"
+                                }
+                              ],
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": 600,
+                              "letterSpacing": 1,
+                              "type": "text",
+                              "id": "q-_YNW-EZ1hA6UvYYfonZ"
+                            },
+                            {
+                              "content": "5 ingredientes naturales para una piel radiante",
+                              "fill": [
+                                {
+                                  "color": "$earth",
+                                  "type": "solid"
+                                }
+                              ],
+                              "fontFamily": "Playfair Display",
+                              "fontSize": 20,
+                              "fontWeight": 600,
+                              "lineHeight": 1.3,
+                              "type": "text",
+                              "id": "Bc1HzkDDw6foQqYSsl-wo"
+                            },
+                            {
+                              "content": "Descubrí los activos botánicos que transforman tu rutina de cuidado facial.",
+                              "fill": [
+                                {
+                                  "color": "$coffee",
+                                  "type": "solid"
+                                }
+                              ],
+                              "fontFamily": "Inter",
+                              "fontSize": 15,
+                              "lineHeight": 1.6,
+                              "textGrowth": "fixed-width",
+                              "type": "text",
+                              "width": "fill_container",
+                              "id": "aZ_fYYd1b9P7755oECeL6"
+                            },
+                            {
+                              "content": "Leer más →",
+                              "fill": [
+                                {
+                                  "color": "$sage",
+                                  "type": "solid"
+                                }
+                              ],
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": 600,
+                              "type": "text",
+                              "id": "lPgXq-AdgKXf-UjaOEdUr"
+                            }
+                          ],
+                          "gap": 8,
+                          "height": "fit_content",
+                          "layout": "vertical",
+                          "padding": 20,
+                          "type": "frame",
+                          "width": "fill_container",
+                          "id": "KbGQzL2IK_1v7Y0R5igvR"
+                        }
+                      ],
+                      "clipContent": true,
+                      "cornerRadius": 16,
+                      "fill": [
+                        {
+                          "opacity": 0.75,
+                          "type": "solid",
+                          "color": "$cream-light"
+                        }
+                      ],
+                      "height": "fill_container",
+                      "layout": "vertical",
+                      "name": "Blog Card 1",
+                      "role": "card",
+                      "type": "rectangle",
+                      "width": "fill_container",
+                      "id": "9KUjJtJqqzGS5RZ6lmmCp",
+                      "effects": [
+                        {
+                          "blur": 28,
+                          "color": "rgba(90,125,60,0.12)",
+                          "offsetY": 10,
+                          "type": "shadow"
+                        },
+                        {
+                          "blur": 10,
+                          "color": "rgba(90,125,60,0.06)",
+                          "offsetY": 3,
+                          "type": "shadow"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "cornerRadius": 12,
+                          "height": 180,
+                          "name": "Blog Img 2",
+                          "src": "C:\\IA_Solutions\\proyectos\\todoApp\\olga-app\\img\\plts\\lavanda-tomillo.jpeg",
+                          "type": "image",
+                          "width": "fill_container",
+                          "id": "5txHNRqVOuJqEL9K1pCZL"
+                        },
+                        {
+                          "children": [
+                            {
+                              "content": "Cabello",
+                              "fill": [
+                                {
+                                  "color": "$lavender",
+                                  "type": "solid"
+                                }
+                              ],
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": 600,
+                              "letterSpacing": 1,
+                              "type": "text",
+                              "id": "GmadWRN_buN7e7I3I_ZkH"
+                            },
+                            {
+                              "content": "Cómo armar tu rutina capilar con productos botánicos",
+                              "fill": [
+                                {
+                                  "color": "$earth",
+                                  "type": "solid"
+                                }
+                              ],
+                              "fontFamily": "Playfair Display",
+                              "fontSize": 20,
+                              "fontWeight": 600,
+                              "lineHeight": 1.3,
+                              "type": "text",
+                              "id": "k_PauKgIbUDPPHPRqzUX9"
+                            },
+                            {
+                              "content": "Una guía paso a paso para cuidar tu cabello de forma natural.",
+                              "fill": [
+                                {
+                                  "color": "$coffee",
+                                  "type": "solid"
+                                }
+                              ],
+                              "fontFamily": "Inter",
+                              "fontSize": 15,
+                              "lineHeight": 1.6,
+                              "textGrowth": "fixed-width",
+                              "type": "text",
+                              "width": "fill_container",
+                              "id": "0yCqaKQ3zUlEEjw8Ba7r8"
+                            },
+                            {
+                              "content": "Leer más →",
+                              "fill": [
+                                {
+                                  "color": "$sage",
+                                  "type": "solid"
+                                }
+                              ],
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": 600,
+                              "type": "text",
+                              "id": "2n0n_6O5H0B_noCe2WUck"
+                            }
+                          ],
+                          "gap": 8,
+                          "height": "fit_content",
+                          "layout": "vertical",
+                          "padding": 20,
+                          "type": "frame",
+                          "width": "fill_container",
+                          "id": "-HmtUqrIyqAIUOpnRVpeF"
+                        }
+                      ],
+                      "clipContent": true,
+                      "cornerRadius": 16,
+                      "fill": [
+                        {
+                          "opacity": 0.75,
+                          "type": "solid",
+                          "color": "$cream-light"
+                        }
+                      ],
+                      "height": "fill_container",
+                      "layout": "vertical",
+                      "name": "Blog Card 2",
+                      "role": "card",
+                      "type": "rectangle",
+                      "width": "fill_container",
+                      "id": "ExR1ulMJIP3ttdVOtUmMC",
+                      "effects": [
+                        {
+                          "blur": 28,
+                          "color": "rgba(90,125,60,0.12)",
+                          "offsetY": 10,
+                          "type": "shadow"
+                        },
+                        {
+                          "blur": 10,
+                          "color": "rgba(90,125,60,0.06)",
+                          "offsetY": 3,
+                          "type": "shadow"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "cornerRadius": 12,
+                          "height": 180,
+                          "name": "Blog Img 3",
+                          "src": "C:\\IA_Solutions\\proyectos\\todoApp\\olga-app\\img\\aimg\\IA-1.jpeg",
+                          "type": "image",
+                          "width": "fill_container",
+                          "id": "lwCGwnJ51vfX82UcA3XJ-"
+                        },
+                        {
+                          "children": [
+                            {
+                              "content": "Ingredientes",
+                              "fill": [
+                                {
+                                  "color": "$lavender",
+                                  "type": "solid"
+                                }
+                              ],
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": 600,
+                              "letterSpacing": 1,
+                              "type": "text",
+                              "id": "shs4EuS8ZOeyfbwYdDfoE"
+                            },
+                            {
+                              "content": "El poder del aloe vera en la cosmética artesanal",
+                              "fill": [
+                                {
+                                  "color": "$earth",
+                                  "type": "solid"
+                                }
+                              ],
+                              "fontFamily": "Playfair Display",
+                              "fontSize": 20,
+                              "fontWeight": 600,
+                              "lineHeight": 1.3,
+                              "type": "text",
+                              "id": "QCnERFogt8YaFsW9p6jZU"
+                            },
+                            {
+                              "content": "Todo sobre este ingrediente estrella de la cosmética natural.",
+                              "fill": [
+                                {
+                                  "color": "$coffee",
+                                  "type": "solid"
+                                }
+                              ],
+                              "fontFamily": "Inter",
+                              "fontSize": 15,
+                              "lineHeight": 1.6,
+                              "textGrowth": "fixed-width",
+                              "type": "text",
+                              "width": "fill_container",
+                              "id": "EpMd-b0jyCWwK-Zd4BMDQ"
+                            },
+                            {
+                              "content": "Leer más →",
+                              "fill": [
+                                {
+                                  "color": "$sage",
+                                  "type": "solid"
+                                }
+                              ],
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": 600,
+                              "type": "text",
+                              "id": "K8zE1j4z1k2M1jOSAdwpj"
+                            }
+                          ],
+                          "gap": 8,
+                          "height": "fit_content",
+                          "layout": "vertical",
+                          "padding": 20,
+                          "type": "frame",
+                          "width": "fill_container",
+                          "id": "a9ApKEDd11TICvsJVxtcz"
+                        }
+                      ],
+                      "clipContent": true,
+                      "cornerRadius": 16,
+                      "fill": [
+                        {
+                          "opacity": 0.75,
+                          "type": "solid",
+                          "color": "$cream-light"
+                        }
+                      ],
+                      "height": "fill_container",
+                      "layout": "vertical",
+                      "name": "Blog Card 3",
+                      "role": "card",
+                      "type": "rectangle",
+                      "width": "fill_container",
+                      "id": "0O-mpu7PnzS5zVoXcsyFU",
+                      "effects": [
+                        {
+                          "blur": 28,
+                          "color": "rgba(90,125,60,0.12)",
+                          "offsetY": 10,
+                          "type": "shadow"
+                        },
+                        {
+                          "blur": 10,
+                          "color": "rgba(90,125,60,0.06)",
+                          "offsetY": 3,
+                          "type": "shadow"
+                        }
+                      ]
+                    }
+                  ],
+                  "gap": 24,
+                  "layout": "horizontal",
+                  "name": "Blog Grid",
+                  "role": "feature-grid",
+                  "type": "frame",
+                  "width": "fill_container",
+                  "id": "vp2Wh-Akm3Bfo3Zz42CTl"
+                },
+                {
+                  "content": "Ver todos los artículos →",
+                  "fill": [
+                    {
+                      "color": "$sage",
+                      "type": "solid"
+                    }
+                  ],
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": 600,
+                  "textAlign": "center",
+                  "type": "text",
+                  "id": "xtT0la63_kYS1-ckdA-tO"
+                }
+              ],
+              "padding": [
+                120,
+                48
+              ],
+              "fill": [
+                {
+                  "type": "solid",
+                  "color": "$cream"
+                }
+              ],
+              "role": "section",
+              "justifyContent": "center",
+              "alignItems": "center"
+            },
+            {
+              "id": "_q6I6eSDQhzX7ujpET03s",
+              "type": "frame",
+              "name": "Redes Sociales",
+              "width": "fill_container",
+              "height": 0,
+              "layout": "vertical",
+              "children": [
+                {
+                  "alignItems": "center",
+                  "gap": 40,
+                  "height": "fit_content",
+                  "layout": "vertical",
+                  "name": "Redes Content",
+                  "type": "frame",
+                  "width": "fill_container",
+                  "id": "R9y4yqeieD3wb2_jvDl-5"
+                },
+                {
+                  "content": "Seguinos en redes",
+                  "fill": [
+                    {
+                      "color": "$earth",
+                      "type": "solid"
+                    }
+                  ],
+                  "fontFamily": "Playfair Display",
+                  "fontSize": 40,
+                  "fontWeight": 600,
+                  "lineHeight": 1.2,
+                  "textAlign": "center",
+                  "type": "text",
+                  "id": "Ejs3eElMLKvCGH7E9lNWy"
+                },
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "content": "Facebook",
+                          "fill": [
+                            {
+                              "color": "$earth",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 18,
+                          "fontWeight": 600,
+                          "type": "text",
+                          "id": "6cjs8D9OdAh6RXxnDk6X_"
+                        },
+                        {
+                          "content": "Síguenos en Facebook",
+                          "fill": [
+                            {
+                              "color": "$coffee",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "type": "text",
+                          "id": "r-ONvS9G529LM8KncHEzz"
+                        }
+                      ],
+                      "gap": 8,
+                      "height": "fill_container",
+                      "layout": "vertical",
+                      "padding": 24,
+                      "role": "card",
+                      "type": "rectangle",
+                      "width": "fill_container",
+                      "id": "reZGDLhoomNnnDP8nRDZE",
+                      "effects": [
+                        {
+                          "blur": 16,
+                          "color": "rgba(90,125,60,0.08)",
+                          "offsetY": 6,
+                          "type": "shadow"
+                        },
+                        {
+                          "blur": 4,
+                          "color": "rgba(90,125,60,0.04)",
+                          "offsetY": 2,
+                          "type": "shadow"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "content": "YouTube",
+                          "fill": [
+                            {
+                              "color": "$earth",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 18,
+                          "fontWeight": 600,
+                          "type": "text",
+                          "id": "0sGi-XIaVjR-QVylK_2BP"
+                        },
+                        {
+                          "content": "Mirá nuestros videos",
+                          "fill": [
+                            {
+                              "color": "$coffee",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "type": "text",
+                          "id": "Ej9bLMPwS9WNf5XjMHVy5"
+                        }
+                      ],
+                      "gap": 8,
+                      "height": "fill_container",
+                      "layout": "vertical",
+                      "padding": 24,
+                      "role": "card",
+                      "type": "rectangle",
+                      "width": "fill_container",
+                      "id": "4x6EcPsMqO4lbH6gku0wn",
+                      "effects": [
+                        {
+                          "blur": 16,
+                          "color": "rgba(90,125,60,0.08)",
+                          "offsetY": 6,
+                          "type": "shadow"
+                        },
+                        {
+                          "blur": 4,
+                          "color": "rgba(90,125,60,0.04)",
+                          "offsetY": 2,
+                          "type": "shadow"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "content": "TikTok",
+                          "fill": [
+                            {
+                              "color": "$earth",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 18,
+                          "fontWeight": 600,
+                          "type": "text",
+                          "id": "ht4jpLvgoj1GmWoJYwMsq"
+                        },
+                        {
+                          "content": "Unite a nuestra comunidad",
+                          "fill": [
+                            {
+                              "color": "$coffee",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "type": "text",
+                          "id": "axrSLK8nEYrS5xoT-gR5V"
+                        }
+                      ],
+                      "gap": 8,
+                      "height": "fill_container",
+                      "layout": "vertical",
+                      "padding": 24,
+                      "role": "card",
+                      "type": "rectangle",
+                      "width": "fill_container",
+                      "id": "exbRe0-eKPp2BlmIxwmov",
+                      "effects": [
+                        {
+                          "blur": 16,
+                          "color": "rgba(90,125,60,0.08)",
+                          "offsetY": 6,
+                          "type": "shadow"
+                        },
+                        {
+                          "blur": 4,
+                          "color": "rgba(90,125,60,0.04)",
+                          "offsetY": 2,
+                          "type": "shadow"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "content": "Instagram",
+                          "fill": [
+                            {
+                              "color": "$earth",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 18,
+                          "fontWeight": 600,
+                          "type": "text",
+                          "id": "9Ti553LwtlTeP6qkLe-lN"
+                        },
+                        {
+                          "content": "Descubrí nuestro día a día",
+                          "fill": [
+                            {
+                              "color": "$coffee",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "type": "text",
+                          "id": "LYPSAjeqa50izPee5yH8a"
+                        }
+                      ],
+                      "gap": 8,
+                      "height": "fill_container",
+                      "layout": "vertical",
+                      "padding": 24,
+                      "role": "card",
+                      "type": "rectangle",
+                      "width": "fill_container",
+                      "id": "JS-8SsTv6f9UYAbtr_zrh",
+                      "effects": [
+                        {
+                          "blur": 16,
+                          "color": "rgba(90,125,60,0.08)",
+                          "offsetY": 6,
+                          "type": "shadow"
+                        },
+                        {
+                          "blur": 4,
+                          "color": "rgba(90,125,60,0.04)",
+                          "offsetY": 2,
+                          "type": "shadow"
+                        }
+                      ]
+                    }
+                  ],
+                  "gap": 24,
+                  "layout": "horizontal",
+                  "name": "Social Grid",
+                  "type": "frame",
+                  "width": "fill_container",
+                  "id": "LQtg50Jo-VRTEM1LGjGJ_"
+                }
+              ],
+              "padding": [
+                80,
+                48
+              ],
+              "fill": [
+                {
+                  "type": "solid",
+                  "color": "$cream-light"
+                }
+              ],
+              "role": "section",
+              "justifyContent": "center",
+              "alignItems": "center"
+            },
+            {
+              "id": "Nt5JggsbC2Q08PSAjGgKa",
+              "type": "frame",
+              "name": "Contacto Section",
+              "width": "fill_container",
+              "height": 0,
+              "layout": "vertical",
+              "children": [
+                {
+                  "alignItems": "center",
+                  "gap": 48,
+                  "height": "fit_content",
+                  "layout": "vertical",
+                  "name": "Contacto Content",
+                  "type": "frame",
+                  "width": "fill_container",
+                  "id": "8TOTUvpYOHdI2pEEMfkog"
+                },
+                {
+                  "content": "Contacto",
+                  "fill": [
+                    {
+                      "color": "$earth",
+                      "type": "solid"
+                    }
+                  ],
+                  "fontFamily": "Playfair Display",
+                  "fontSize": 40,
+                  "fontWeight": 600,
+                  "lineHeight": 1.2,
+                  "textAlign": "center",
+                  "type": "text",
+                  "id": "sq1bha8Sh6Q7Sxes3UeMO"
+                },
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "content": "Envianos un mensaje",
+                          "fill": [
+                            {
+                              "color": "$earth",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Playfair Display",
+                          "fontSize": 28,
+                          "fontWeight": 600,
+                          "lineHeight": 1.3,
+                          "type": "text",
+                          "id": "QKzXkdgbJ3F_kzuE80WXH"
+                        },
+                        {
+                          "cornerRadius": 12,
+                          "fill": [
+                            {
+                              "color": "$cream-light",
+                              "type": "solid"
+                            }
+                          ],
+                          "height": 48,
+                          "layout": "horizontal",
+                          "name": "Name Input",
+                          "padding": [
+                            0,
+                            16
+                          ],
+                          "role": "form-input",
+                          "stroke": {
+                            "fill": [
+                              {
+                                "color": "$gold-soft",
+                                "type": "solid"
+                              }
+                            ],
+                            "thickness": 1
+                          },
+                          "type": "rectangle",
+                          "width": "fill_container",
+                          "id": "PNm3IHjwbMKu00WrXN5OT"
+                        },
+                        {
+                          "cornerRadius": 12,
+                          "fill": [
+                            {
+                              "color": "$cream-light",
+                              "type": "solid"
+                            }
+                          ],
+                          "height": 48,
+                          "layout": "horizontal",
+                          "name": "Email Input",
+                          "padding": [
+                            0,
+                            16
+                          ],
+                          "role": "form-input",
+                          "stroke": {
+                            "fill": [
+                              {
+                                "color": "$gold-soft",
+                                "type": "solid"
+                              }
+                            ],
+                            "thickness": 1
+                          },
+                          "type": "rectangle",
+                          "width": "fill_container",
+                          "id": "CEi_DL4P2s2BciAPg5G9-"
+                        },
+                        {
+                          "cornerRadius": 12,
+                          "fill": [
+                            {
+                              "color": "$cream-light",
+                              "type": "solid"
+                            }
+                          ],
+                          "height": 120,
+                          "layout": "vertical",
+                          "name": "Msg Input",
+                          "padding": 16,
+                          "role": "form-input",
+                          "stroke": {
+                            "fill": [
+                              {
+                                "color": "$gold-soft",
+                                "type": "solid"
+                              }
+                            ],
+                            "thickness": 1
+                          },
+                          "type": "rectangle",
+                          "width": "fill_container",
+                          "id": "4NtIpI8Yd-bBbCFLbuTy1"
+                        },
+                        {
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "content": "Enviar mensaje",
+                              "fill": [
+                                {
+                                  "color": "$text-light",
+                                  "type": "solid"
+                                }
+                              ],
+                              "fontFamily": "Inter",
+                              "fontSize": 16,
+                              "fontWeight": 600,
+                              "type": "text",
+                              "id": "J0yLmw1hgO7-1UsLlGHNn"
+                            }
+                          ],
+                          "cornerRadius": 9999,
+                          "fill": [
+                            {
+                              "color": "$sage",
+                              "type": "solid"
+                            }
+                          ],
+                          "height": 48,
+                          "justifyContent": "center",
+                          "layout": "horizontal",
+                          "name": "Send Btn",
+                          "role": "button",
+                          "type": "rectangle",
+                          "width": "fill_container",
+                          "id": "3mfLKQU1fgBWERq7orASs"
+                        }
+                      ],
+                      "gap": 16,
+                      "height": "fill_container",
+                      "layout": "vertical",
+                      "name": "Contact Form",
+                      "type": "frame",
+                      "width": "fill_container",
+                      "id": "hxErdiisfixYJgCpa__-D"
+                    },
+                    {
+                      "children": [
+                        {
+                          "content": "Información de contacto",
+                          "fill": [
+                            {
+                              "color": "$earth",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Playfair Display",
+                          "fontSize": 22,
+                          "fontWeight": 600,
+                          "type": "text",
+                          "id": "VxS9sfd5bmwDd8Xqy7WPb"
+                        },
+                        {
+                          "content": "✉  hola@botanicaesencialob.com",
+                          "fill": [
+                            {
+                              "color": "$coffee",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 16,
+                          "type": "text",
+                          "id": "Bor1VpwWkG-CIfPEpNT6_"
+                        },
+                        {
+                          "content": "✆  +54 9 11 0000 0000",
+                          "fill": [
+                            {
+                              "color": "$coffee",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 16,
+                          "type": "text",
+                          "id": "UnV_wQC1pLusOv2prxkeJ"
+                        },
+                        {
+                          "content": "📍  Buenos Aires, Argentina",
+                          "fill": [
+                            {
+                              "color": "$coffee",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 16,
+                          "type": "text",
+                          "id": "yD4TGnSerDBFO9ZESbDfi"
+                        },
+                        {
+                          "cornerRadius": 16,
+                          "fill": [
+                            {
+                              "color": "$cream-light",
+                              "type": "solid"
+                            }
+                          ],
+                          "height": 200,
+                          "name": "Map Placeholder",
+                          "role": "screenshot-frame",
+                          "stroke": {
+                            "fill": [
+                              {
+                                "color": "$gold-soft",
+                                "type": "solid"
+                              }
+                            ],
+                            "thickness": 1
+                          },
+                          "type": "rectangle",
+                          "width": "fill_container",
+                          "id": "YqIrJ-m3MNhvlB2YVfc9e"
+                        }
+                      ],
+                      "gap": 16,
+                      "height": "fill_container",
+                      "layout": "vertical",
+                      "name": "Contact Info",
+                      "type": "frame",
+                      "width": "fill_container",
+                      "id": "-AyctILRwX36XvTZyZgCY"
+                    }
+                  ],
+                  "gap": 48,
+                  "layout": "horizontal",
+                  "name": "Contacto Two Cols",
+                  "type": "frame",
+                  "width": "fill_container",
+                  "id": "xr0huRO8pXAdnZjvZ9fpA"
+                }
+              ],
+              "padding": [
+                120,
+                48
+              ],
+              "fill": [
+                {
+                  "type": "solid",
+                  "color": "$cream"
+                }
+              ],
+              "role": "section",
+              "justifyContent": "center",
+              "alignItems": "center"
+            },
+            {
+              "id": "FwjzhuSMkJxG_cffs7qLD",
+              "type": "frame",
+              "name": "Footer",
+              "width": "fill_container",
+              "height": 0,
+              "layout": "vertical",
+              "children": [
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "content": "Botánica Esencial OB",
+                          "fill": [
+                            {
+                              "color": "$text-light",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Playfair Display",
+                          "fontSize": 20,
+                          "fontWeight": 700,
+                          "type": "text",
+                          "id": "MRZkaBRHVPV2iMQr3kyo0"
+                        },
+                        {
+                          "content": "Cosmética natural que cuida tu piel y el planeta.",
+                          "fill": [
+                            {
+                              "color": "$gold-soft",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "lineHeight": 1.6,
+                          "textGrowth": "fixed-width",
+                          "type": "text",
+                          "width": "fill_container",
+                          "id": "n75FgRDkYWDw5ztbPrg6G"
+                        }
+                      ],
+                      "gap": 12,
+                      "height": "fit_content",
+                      "layout": "vertical",
+                      "name": "Footer Brand",
+                      "type": "frame",
+                      "width": "fill_container",
+                      "id": "EVC5BTSfqnAeiHbPt8W2L"
+                    },
+                    {
+                      "children": [
+                        {
+                          "content": "Navegación",
+                          "fill": [
+                            {
+                              "color": "$text-light",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": 600,
+                          "type": "text",
+                          "id": "DZtWxOetuttYVYPOJe008"
+                        },
+                        {
+                          "content": "Inicio",
+                          "fill": [
+                            {
+                              "color": "$gold-soft",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "type": "text",
+                          "id": "Ij9_QWE-OrUPH8nXCjI7n"
+                        },
+                        {
+                          "content": "Productos",
+                          "fill": [
+                            {
+                              "color": "$gold-soft",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "type": "text",
+                          "id": "8YLcq0mpF7C6OttgT4Kp_"
+                        },
+                        {
+                          "content": "Proceso",
+                          "fill": [
+                            {
+                              "color": "$gold-soft",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "type": "text",
+                          "id": "fG3MglAfI3h6tSN8QvlW3"
+                        },
+                        {
+                          "content": "Blog",
+                          "fill": [
+                            {
+                              "color": "$gold-soft",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "type": "text",
+                          "id": "bHmlEcdFkXnV9xgW4ugBY"
+                        },
+                        {
+                          "content": "Contacto",
+                          "fill": [
+                            {
+                              "color": "$gold-soft",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "type": "text",
+                          "id": "jRQ6rHw9rY_-eoMDkas-a"
+                        }
+                      ],
+                      "gap": 10,
+                      "height": "fit_content",
+                      "layout": "vertical",
+                      "name": "Footer Links",
+                      "type": "frame",
+                      "width": "fit_content",
+                      "id": "3D8eexNU5Bjc-T0QQJ4rP"
+                    },
+                    {
+                      "children": [
+                        {
+                          "content": "Productos",
+                          "fill": [
+                            {
+                              "color": "$text-light",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": 600,
+                          "type": "text",
+                          "id": "QFxD623Dk_5z-6WXeoHxu"
+                        },
+                        {
+                          "content": "Línea Facial",
+                          "fill": [
+                            {
+                              "color": "$gold-soft",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "type": "text",
+                          "id": "T3XruQEKsLKLt2Cuav9vx"
+                        },
+                        {
+                          "content": "Para el Cabello",
+                          "fill": [
+                            {
+                              "color": "$gold-soft",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "type": "text",
+                          "id": "SWPQhPwFUUEacDRZ8dcQx"
+                        },
+                        {
+                          "content": "Línea Corporal",
+                          "fill": [
+                            {
+                              "color": "$gold-soft",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "type": "text",
+                          "id": "6X8y6iIBsK8QIkYRrWdti"
+                        },
+                        {
+                          "content": "Cestas de Regalo",
+                          "fill": [
+                            {
+                              "color": "$gold-soft",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "type": "text",
+                          "id": "LTsa1h1Z2Ypq3Ozhoin_C"
+                        }
+                      ],
+                      "gap": 10,
+                      "height": "fit_content",
+                      "layout": "vertical",
+                      "name": "Footer Products",
+                      "type": "frame",
+                      "width": "fit_content",
+                      "id": "rzUNn6Y__7bClmZbUKnrs"
+                    },
+                    {
+                      "children": [
+                        {
+                          "content": "Contacto",
+                          "fill": [
+                            {
+                              "color": "$text-light",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": 600,
+                          "type": "text",
+                          "id": "wFaXIcNnbETtdm3pIpt9w"
+                        },
+                        {
+                          "content": "hola@botanicaesencialob.com",
+                          "fill": [
+                            {
+                              "color": "$gold-soft",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "type": "text",
+                          "id": "ANkZzh0L0M9Hc6ZyeVRyd"
+                        },
+                        {
+                          "content": "+54 9 11 0000 0000",
+                          "fill": [
+                            {
+                              "color": "$gold-soft",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "type": "text",
+                          "id": "r8DNfx7wAnh5mmxRAjwf_"
+                        },
+                        {
+                          "content": "Buenos Aires, Argentina",
+                          "fill": [
+                            {
+                              "color": "$gold-soft",
+                              "type": "solid"
+                            }
+                          ],
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "type": "text",
+                          "id": "R1OpP9rFtjeXWuXPph-DC"
+                        }
+                      ],
+                      "gap": 10,
+                      "height": "fit_content",
+                      "layout": "vertical",
+                      "name": "Footer Contact",
+                      "type": "frame",
+                      "width": "fit_content",
+                      "id": "zMiTycvHXfV0WQmszmJbd"
+                    }
+                  ],
+                  "gap": 48,
+                  "layout": "horizontal",
+                  "name": "Footer Columns",
+                  "type": "frame",
+                  "width": "fill_container",
+                  "id": "_fAYwRC6tT1Y9f8QVL5vq"
+                },
+                {
+                  "height": 1,
+                  "stroke": {
+                    "fill": [
+                      {
+                        "color": "rgba(255,255,255,0.15)",
+                        "type": "solid"
+                      }
+                    ],
+                    "thickness": 1
+                  },
+                  "type": "line",
+                  "width": "fill_container",
+                  "id": "wy3jADT8Eacw9JWkHvR1Y"
+                },
+                {
+                  "content": "© 2026 Botánica Esencial OB. Todos los derechos reservados.",
+                  "fill": [
+                    {
+                      "color": "$gold-soft",
+                      "type": "solid"
+                    }
+                  ],
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "textAlign": "center",
+                  "textGrowth": "fixed-width",
+                  "type": "text",
+                  "width": "fill_container",
+                  "id": "Cx0ds01UhYOUW6EmCoNLa"
+                }
+              ],
+              "padding": [
+                48,
+                48
+              ],
+              "fill": [
+                {
+                  "angle": 180,
+                  "stops": [
+                    {
+                      "color": "$earth",
+                      "offset": 0
+                    },
+                    {
+                      "color": "#4A3219",
+                      "offset": 1
+                    }
+                  ],
+                  "type": "linear_gradient"
+                }
+              ],
+              "role": "footer"
+            }
+          ],
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "id": "page-1"
+    }
+  ]
+}
