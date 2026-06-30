@@ -1,0 +1,50 @@
+schema: spec-driven
+
+context: |
+  Project: Botánica Esencial OB (olga-app)
+  Type: Single-tenant informational platform (not e-commerce)
+  Stack: Next.js 14+ App Router, TypeScript, Tailwind CSS, MongoDB, NextAuth.js
+  Hosting: VPS Ubuntu 24.04 (botanicasob.duckdns.org), PM2 + Nginx + acme.sh
+  Auth: Email/password + Google OAuth, roles: suscriptora, productora, admin
+  Approach: Build landing section-by-section; strict TDD; conventional commits
+
+rules:
+  proposal:
+    - Include rollback plan for risky changes
+    - Keep under 450 words
+  specs:
+    - Use Given/When/Then for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+    - Focus on behavior, not implementation
+  design:
+    - Document architecture decisions with rationale
+    - Include file paths and component relationships
+  tasks:
+    - Group by phase, use hierarchical numbering
+    - Keep tasks completable in one session
+    - Reference concrete file paths
+  apply:
+    - Follow existing code patterns
+    - One commit per completed task
+    - Push after each commit
+    tdd: true
+    test_command: "npm test"
+  verify:
+    test_command: "npm test"
+    build_command: "npm run build"
+    coverage_threshold: 0
+  archive:
+    - Warn before merging destructive deltas
+
+testing:
+  strict_tdd: true
+  runner: To be configured (Jest or Vitest recommended for Next.js + TypeScript)
+  layers:
+    unit: planned
+    integration: planned
+    e2e: planned
+  coverage: planned
+  quality:
+    linter: ESLint (planned)
+    type_checker: TypeScript compiler (planned)
+    formatter: Prettier (planned)
