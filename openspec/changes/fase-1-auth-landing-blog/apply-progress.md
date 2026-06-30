@@ -11,6 +11,7 @@
 | T-002 | Configure Vitest | done | `8350fdb` | Smoke test green. GGA passed. |
 | T-003 | Glassmorphism design tokens | done | `a7723c2` | 31 design-token tests green; build still 4/4. |
 | T-004 | Atomic JSON file store | done | `e6e1d69` | 20 unit tests green; path-traversal hardened. |
+| T-005 | UserRepository MongoDB + bcrypt | done | `66583a0` | 15 TDD tests green; GGA initially rejected (wrong stack), reimplemented with Mongoose. |
 
 ## T-001 — Scaffold Next.js 14 + Tailwind
 
@@ -125,3 +126,29 @@
 
 ### Bundle size
 - `src/lib/db/json-store.ts`: 64 lines. `tests/json-store.test.ts`: 145 lines. `.gitignore`: +2 lines. Net: ~211 lines of project code. Well under the 400-line chained-PR budget.
+
+## T-005 — UserRepository MongoDB + bcrypt
+
+### What landed
+- `src/lib/db/models/user.ts` — Mongoose `IUser` interface + `UserModel` using `UserSchema` with email (unique, lowercase, trim), passwordHash, role (enum: suscriptora/productora/admin, default: suscriptora), timestamps. Exports `UserModel` as singleton (prevents re-registration warning).
+- `src/lib/db/repository/user.ts` — `createUserRepository()` factory returning `UserRepository` interface. Uses Mongoose for all persistence. First-user-admin rule: `countDocuments() === 0` -> role: admin, else suscriptora. Email validation (regex), password validation (min 8 chars), bcrypt hash (salt 10). Functions: create, findByEmail, findById, verifyPassword, count, updateRole.
+- `tests/user-repository.test.ts` — 15 TDD assertions across 5 suites: create (hashed password, first-user-admin, subsequent-suscriptora, email normalization, duplicate rejection, password length, email format), findByEmail (found, case-insensitive, null), verifyPassword (correct, wrong), count (0, N), updateRole. Uses `mongodb-memory-server` for isolated MongoDB instance per test.
+- `package.json` — deps: `mongoose`, `next-auth`; devDeps: `mongodb-memory-server`.
+
+### Verification
+- `npx vitest run tests/user-repository.test.ts` — 15/15 passed. 12.56s test time.
+- TDD order respected: tests written first (Red), then implementation made them Green.
+- `npm run build` — still 4/4 static pages.
+
+### Decisions / infra notes
+- **Mongoose over JsonStore** — original T-005 used JsonStore + bcryptjs (built on T-004). GGA rejected the commit as a violation of the project stack (MongoDB mandated, not JSON file store). Reimplemented using Mongoose to align with AGENTS.md stack requirements.
+- **`mongoose.models.User ?? mongoose.model<IUser>('User', UserSchema)`** — Next.js hot-reloads in dev; without this guard, `mongoose.model('User')` would throw "Cannot overwrite model" on the second hot-reload. The singleton pattern prevents it.
+- **`role: Role` enum validation** — Mongoose enum validator ensures only valid roles enter the DB. Undefined roles would throw a Mongoose ValidationError, not a silent bad state.
+- **bcrypt with salt 10** — industry standard. Salt rounds beyond 12 are too slow for this use case; 10 is the sweet spot for 2024.
+- **first-user-admin via `countDocuments() === 0`** — checked at create time. Could be a DB trigger or a separate bootstrap step in the future, but at this project scale the in-app check is sufficient and visible in tests.
+
+### Outstanding risks
+- `mongodb-memory-server` adds significant test startup time (~8-12s per suite). Acceptable for now; if TDD feedback loop degrades significantly, consider a Jest-level setup with `mongodb-memory-server-global` for reuse across tests.
+
+### Bundle size
+- `src/lib/db/models/user.ts`: 31 lines. `src/lib/db/repository/user.ts`: 115 lines. Test: +121 lines. Net: ~267 lines. Under 400-line budget.
