@@ -10,7 +10,7 @@
 | T-001 | Scaffold Next.js 14 + Tailwind | done | `af79a1c` | Build verified. See notes below. |
 | T-002 | Configure Vitest | done | `8350fdb` | Smoke test green. GGA passed. |
 | T-003 | Glassmorphism design tokens | done | `a7723c2` | 31 design-token tests green; build still 4/4. |
-| T-004 | Atomic JSON file store | done | see commit | 20 unit tests green; path-traversal hardened. |
+| T-004 | Atomic JSON file store | done | `e6e1d69` | 20 unit tests green; path-traversal hardened. |
 
 ## T-001 — Scaffold Next.js 14 + Tailwind
 
