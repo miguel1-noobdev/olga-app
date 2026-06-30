@@ -28,7 +28,7 @@ Dependencies are implicit: tasks within a phase run top-to-bottom; later phases 
 
 ## Phase 1: Project Foundation
 
-- [ ] **T-001** Scaffold Next.js 14 + Tailwind; create package.json, tsconfig.json, tailwind.config.ts, postcss.config.js, next.config.mjs, src/app/layout.tsx; verify `npm run build`; commit `chore: scaffold Next.js project`.
+- [x] **T-001** Scaffold Next.js 14 + Tailwind; create package.json, tsconfig.json, tailwind.config.ts, postcss.config.js, next.config.mjs, src/app/layout.tsx; verify `npm run build`; commit `chore: scaffold Next.js project`.
 - [ ] **T-002** Configure Vitest for Next.js + TypeScript; add smoke test; verify `npm test`; commit `chore: add Vitest test runner`.
 - [ ] **T-003** Add glassmorphism tokens to tailwind.config.ts and src/styles/globals.css; verify color/utility classes; commit `feat: add glassmorphism design tokens`.
 
