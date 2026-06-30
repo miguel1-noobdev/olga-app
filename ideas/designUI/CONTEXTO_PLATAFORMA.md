@@ -119,7 +119,15 @@ Plataforma single-tenant con dos roles diferenciados.
   - `aimg/`: imágenes auxiliares (IA, logo transparente, naturaleza)
 - Las carpetas `ideas/designUI/ejemplo3/*.jpeg/screen.png` son **referencias de galería** (inspiración), no assets finales
 - 13 landing pages HTML exportadas de Stitch están disponibles como referencia visual
+- 4 sistemas de diseño (DESIGN.md) con paletas comparadas
 - Mapa completo en `ideas/designUI/ejemplo3/INDEX.md`
+
+## Carpeta `ideas/` (planificación, NO se deploya)
+
+- **Contiene**: CONTEXTO_PLATAFORMA.md, ejemplos de Stitch, OpenPencil, diseños previos
+- **NO se deploya al VPS** — es solo para trabajo de planificación
+- **Se elimina cuando todo esté funcionando** (temporal)
+- En el proceso de deploy hay que **excluir esta carpeta** del upload al servidor
 
 ---
 
