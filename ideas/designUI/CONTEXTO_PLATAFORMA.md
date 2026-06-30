@@ -364,6 +364,60 @@ Plataforma single-tenant con dos roles diferenciados.
 
 ---
 
+## Reglas de trabajo
+
+### Estructura del SDD
+- **Spec**: qué tiene que hacer (requisitos, escenarios)
+- **Design**: cómo lo hace (arquitectura, archivos, decisiones técnicas)
+- **Tasks**: tareas pequeñas y verificables (chequeables una a una)
+- **Apply**: implementación paso a paso
+
+### Commits y versionado
+- **Conventional commits**: `feat:`, `fix:`, `docs:`, `chore:`, `style:`, `refactor:`
+- **Sin atribución de IA** (regla del repo)
+- **Un commit por tarea** completada (no megacomits)
+- Push después de cada commit
+
+### Trabajo atómico
+- **Una tarea a la vez**, no empezar la siguiente sin cerrar la anterior
+- **Si algo falla, se corrige antes de seguir** (no acumular deuda)
+- **Tareas pequeñas** que se completen en una sesión
+
+### Calidad de código
+- **Código y archivos limpios y bien estructurados**
+- **Se delega cuando es necesario** (sub-agentes cuando aplique)
+- **Nada de parches temporales** — si algo se hace, se hace bien desde el inicio
+- **Los problemas se solucionan y se archivan** (memoria persistente)
+
+### Documentación
+- **Todo en `CONTEXTO_PLATAFORMA.md`** (es la fuente de verdad)
+- **Session summary al cerrar sesión** (memoria persistente)
+- **Comentarios en código solo cuando agreguen valor** (no narrar lo obvio)
+- **Sin emoji en código** (regla del repo)
+
+### Feedback bidireccional
+- Yo aviso si algo no tiene sentido técnico
+- Vos podés parar, ajustar o cambiar el scope en cualquier momento
+- Decisiones de scope: **vos decidís**, yo propongo con razones
+
+### Validación antes de avanzar
+- **Yo valido** que cada fase se completó (no vos)
+- **Vos aprobás** el resultado antes de pasar a la siguiente
+- **Cero megafeatures** sin tu confirmación
+
+### Deploy
+- **Local primero**, deploy al VPS solo cuando algo esté cerrado
+- **Server block de nginx + SSL** se configura al deploy final
+- **PM2** para mantener la app corriendo
+
+### Comunicación
+- **Una pregunta a la vez** (no bombardear)
+- **Pasito a pasito**, no correr
+- **Validar tu visión** antes de proponer
+- Si hay bucle, me frenas
+
+---
+
 ## Próximas tareas
 
 ### Fases de producción (propuesta)
