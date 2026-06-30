@@ -58,16 +58,51 @@ Plataforma single-tenant con dos roles diferenciados.
 
 ## Stack técnico
 
-**Base de datos**: MongoDB (flexibilidad para datos variables)
+**Decisión**: Next.js 14+ (App Router) + MongoDB en VPS propio
 
-**Justificación**: Las plantas tienen datos semi-estructurados (campos fijos + listas variables + texto libre), el laboratorio de Olga tiene lotes con fases, ingredientes, seguimiento temporal, imágenes y campos que pueden variar. La app es escalable según el peso total de cada producto.
+### Stack completo
 
-**Tres colecciones MongoDB:**
+| Capa | Tecnología | Razón |
+|------|-----------|-------|
+| Frontend + Backend | Next.js 14+ (App Router) | SSR/SSG para SEO, ecosistema maduro, popular |
+| Base de datos | MongoDB | Flexibilidad para datos variables (plantas, laboratorio) |
+| Auth | NextAuth.js | Email/contraseña + Google OAuth resuelto en pocas líneas |
+| Hosting | VPS propio (Ubuntu 24.04) | botanicasob.duckdns.org |
+| Process manager | PM2 | Ya instalado en el VPS |
+| Reverse proxy | Nginx 1.24 | Ya instalado en el VPS |
+| SSL | acme.sh | Ya instalado en el VPS |
+| Imágenes | Estáticas en /img | Ya disponibles, no se busca ni genera nada |
+| Emails | Por definir (SMTP) | Pendiente |
+
+### Specs del VPS
+
+- **OS**: Ubuntu 24.04.4 LTS
+- **RAM**: 3.8GB total, 2.1GB disponible
+- **CPU**: 2 cores
+- **Disco**: 116GB, 87GB disponible
+- **Ya instalado**: Node.js, PM2, Docker, Nginx, acme.sh
+
+### Estado de la infraestructura
+
+✅ DNS: `botanicasob.duckdns.org` → IP del VPS (212.227.149.125)
+✅ Nginx respondiendo (redirige HTTP a HTTPS)
+✅ Otros subdominios funcionando: clau-app.duckdns.org, engram-cloud.duckdns.org, jessnails
+❌ Falta: server block específico para botanicasob en nginx
+❌ Falta: certificado SSL para botanicasob.duckdns.org
+❌ Falta: deploy de la app Next.js
+
+### Justificación del stack
+
+- **Next.js** sobre alternativas: más popular, mejor documentación, NextAuth maduro, deploy simple con PM2
+- **MongoDB** sobre PostgreSQL+JSONB: las plantas tienen datos semi-estructurados (campos fijos + listas variables + texto libre), el laboratorio tiene campos que varían por lote
+- **VPS propio** sobre cloud: el usuario quiere tener todo alojado en su servidor
+- **Sin Docker obligatorio**: se puede deployar con PM2 directamente, Docker queda como opción para futuro
+
+### Colecciones MongoDB
+
 1. `plantas` — fichas técnicas (NotebookLM)
 2. `usuarios` — auth y roles
 3. `laboratorio` — producción de Olga (lotes, extractos, observaciones, fases)
-
-**Pendiente**: framework frontend, hosting, proveedor de emails
 
 ---
 
@@ -176,7 +211,8 @@ Plataforma single-tenant con dos roles diferenciados.
 
 **Acceso**: `botanicaob.com/laboratorio` (mismo patrón que `/admin` para Miguel)
 
-**Visualización**: Tablero **Kanban vitaminado** — sin estadísticas, enfocado al flujo de trabajo
+**Visualización**: Tablero **Kanban vitaminado** (idea, no religión — puede evolucionar)
+- Prioridad: **rapidez de carga**
 - **NO** dashboard con números grandes
 - **SÍ** tablero donde cada tarjeta es un lote y se mueve entre columnas según su estado
 - Cada tarjeta muestra: nombre del producto, lote, último seguimiento, próximo seguimiento
