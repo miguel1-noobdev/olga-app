@@ -14,6 +14,7 @@
 | T-005 | UserRepository MongoDB + bcrypt | done | `66583a0` | 15 TDD tests green; GGA initially rejected (wrong stack), reimplemented with Mongoose. |
 | T-006 | NextAuth credentials provider | done | `1bb045f` | 73 tests pass; build 5/5 routes; session includes id/email/role. |
 | T-007 | Login page | done | `dd21355` | Login page renders; Suspense boundary for useSearchParams; glass-card styling. |
+| T-008 | Registration page + API | done | `7a25cb8` | Registration page + POST /api/auth/register; first-user-admin rule via UserRepository. |
 
 ## T-001 — Scaffold Next.js 14 + Tailwind
 
