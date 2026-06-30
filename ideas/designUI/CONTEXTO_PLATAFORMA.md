@@ -11,12 +11,12 @@ Plataforma single-tenant con dos roles diferenciados.
 
 **Acceso por capas:**
 
-| Capa | Quién | Qué ve | Estado |
-|------|-------|--------|--------|
-| Pública | Visitantes anónimos | Landing completa, pueden registrarse | Diseño y estructura → se concreta después |
-| Restringida | Usuarios registrados (suscriptores) | Blog (parte de la landing) + emails informativos | Se diseña con la landing |
-| Privada | Olga (cuenta staff) | Dashboard de producción — su "laboratorio" | Se crea después, paso a paso |
-| Privada | Miguel (admin) | Dashboard admin — operación digital, publicación, administración | Se crea después, paso a paso |
+| Capa | Quién | Qué ve |
+|------|-------|--------|
+| Pública | Visitantes anónimos | Landing completa, pueden registrarse |
+| Restringida | Usuarios registrados (suscriptores) | Blog (parte de la landing) + emails informativos |
+| Privada | Olga (cuenta staff) | Dashboard de producción — su "laboratorio" |
+| Privada | Miguel (admin) | Dashboard admin — operación digital, publicación, administración |
 
 **Reglas de acceso:**
 - Visitantes anónimos: ven la landing completa, NO acceden al blog
@@ -40,29 +40,99 @@ Plataforma single-tenant con dos roles diferenciados.
 ### Olga (rol: productora / staff)
 - Carga datos de producción desde su casa a través de **su dashboard privado**
 - Datos típicos: productos, recetas, procesos, fotos, materia prima
-- No publica directamente en el blog (pendiente confirmar)
+- No publica directamente en el blog
 
 ### Miguel (rol: admin / operador digital / staff)
 - Extrae datos de la base
 - Curación, redacción, publicación de artículos del blog
 - Administración de la plataforma (usuarios, BD, automatizaciones, datos, redes)
 
-**Decisión arquitectónica clave**: Single-tenant. NO multi-tenant.
-
-**Pregunta abierta crítica**: ¿Cómo se crean las cuentas de Olga y Miguel? Opciones:
-- (a) Se registran por la web pública como cualquier otro y un admin les cambia el rol
-- (b) Son cuentas pre-creadas / invitadas por un super-admin (no se registran por la web)
-- (c) Hay un proceso de invitación por email con link de setup
+### Registro / autenticación
+- **Un solo flujo de registro** para todos los usuarios (suscriptores, Olga, Miguel)
+- Registro con **email/contraseña** o **Google OAuth**
+- **Primer usuario registrado = admin automáticamente** (Miguel)
+- Admin asigna roles después: `suscriptora` → `productora` (Olga)
+- Olga puede usar el blog desde el día 1, sin esperar su dashboard
 
 ---
 
 ## Stack técnico
-*Pendiente definir*
+
+**Base de datos**: MongoDB (flexibilidad para datos variables)
+
+**Justificación**: Las plantas tienen datos semi-estructurados (campos fijos + listas variables + texto libre), el laboratorio de Olga tiene lotes con fases, ingredientes, seguimiento temporal, imágenes y campos que pueden variar. La app es escalable según el peso total de cada producto.
+
+**Tres colecciones MongoDB:**
+1. `plantas` — fichas técnicas (NotebookLM)
+2. `usuarios` — auth y roles
+3. `laboratorio` — producción de Olga (lotes, extractos, observaciones, fases)
+
+**Pendiente**: framework frontend, hosting, proveedor de emails
+
+---
+
+## Imágenes y assets
+- **Todas las imágenes del proyecto están en `/img`** (galería oficial)
+- **NO se buscan ni generan imágenes adicionales** — solo se usa lo que hay
+- Organización:
+  - `hero/`: 2 opciones para el hero
+  - `logo/`: 4 versiones del logo (con fondo, transparente, con borde)
+  - `prd/`: productos (crema, gotas, cestas regalo, presentaciones)
+  - `plts/`: plantas (lavanda, tomillo, rosas, planta extra)
+  - `lab/`: laboratorio (materias primas, deco)
+  - `etk/`: etiquetas (7 etiquetas + 2 extras)
+  - `aimg/`: imágenes auxiliares (IA, logo transparente, naturaleza)
+- Las carpetas `ideas/designUI/ejemplo3/*.jpeg/screen.png` son **referencias de galería** (inspiración), no assets finales
+- 13 landing pages HTML exportadas de Stitch están disponibles como referencia visual
+- Mapa completo en `ideas/designUI/ejemplo3/INDEX.md`
 
 ---
 
 ## Pieza por pieza (decisiones del usuario)
-*Se va completando a medida que el usuario describe cada parte*
+
+### Landing page
+**Base elegida**: `ideas/designUI/ejemplo3/bot_nica_esencial_ob_landing_page_glassmorphism/code.html`
+
+**Estilo visual**: Glassmorphism (vidrio esmerilado, blur, transparencias)
+- **Paleta**: Verde botánico (#334537), dorado (#e9c349), crema (#f4fbf2)
+- **Tipografía**: Playfair Display (headlines) + Plus Jakarta Sans (body)
+- **Efectos**: Parallax en hero, hover en cards, navbar que cambia con scroll
+
+**Estructura definitiva (9 secciones en orden):**
+1. **Hero**: imagen espectacular
+2. **Productos**: preview de 3-4 destacados + enlace "Ver colección completa" → **páginas separadas**
+3. **Nuestros métodos**: proceso de Olga (de los ejemplos)
+4. **Journal**: 3 tarjetas con últimas entradas del blog → **página aparte** (solo registrados)
+5. **Glosario botánico**: preview de 3-4 ingredientes con tarjetas → acceso al glosario completo (solo registrados)
+6. **Presentación**: "Detrás de la marca" con foto circular de Olga + cita
+7. **Únete**: registro de usuarios
+8. **Acceso a redes**: botones grandes o tarjetas que enlacen a redes sociales
+9. **Footer**: grande y bonito, contenido a decidir durante la construcción
+
+**Páginas separadas (no en la landing):**
+- Productos (página informativa)
+- Blog (solo registrados)
+- Glosario botánico (solo registrados)
+
+**Presentacion de Olga (seccion en la landing)**
+- **Formato**: "Detrás de la marca" con foto circular de Olga
+- Título tipo: "Soy Olga, tu alquimista botánica"
+- Texto descriptivo sobre su pasión y proceso
+- Cita destacada con borde lateral (estilo warm, más personal que el glassmorphism)
+
+**Acceso a redes (seccion en la landing)**
+- **Formato**: botones grandes o tarjetas que enlacen a las redes sociales
+- Diseño simple y directo
+
+**Footer**
+- **Formato**: grande y bonito
+- Contenido a decidir durante la construcción (navegación, contacto, redes, legal, etc.)
+
+**Referencias adicionales para la construcción**
+- `ideas/designUI/ejemplo3/landing_page_premium_botanica_esencial/code.html` (2º puesto en votaciones)
+- Se usará como fuente de ideas generales para ir incorporando secciones bonitas durante la construcción paso a paso de la landing
+
+---
 
 ### Blog (página separada)
 - **Acceso**: solo usuarios registrados
@@ -92,1948 +162,185 @@ Plataforma single-tenant con dos roles diferenciados.
 - Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
 - Categorías: Recursos, Blog (fijas por ahora, escalables)
 
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
-
-**Estructura visual** (adaptada de davidzamora.blog):
-- Hero con presentación de Olga + newsletter
-- Artículos destacados (3-4 tarjetas grandes)
-- Grid de últimos artículos con filtros por categoría
-- Newsletter CTA
-- Footer (mismo que landing)
-
-**Categorías:**
-- **Recursos**: contenido educativo, curado, guías, referencias externas. "Aprendé sobre este mundo"
-- **Blog**: diario personal, trabajo de Olga, productos, ingredientes. "Detrás de escena"
-
-**Funcionalidades:**
-- **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
-- **Imágenes destacadas**: siempre obligatorias
-- **Búsqueda**: habilitada
-- **Newsletter**: integrado
-
-**Modelo de datos:**
-- Artículos: título, contenido, imagen destacada, categoría (Recursos/Blog), autor, fecha, tags
-- Comentarios: texto, autor (usuario registrado), artículo, fecha, estado (activo/eliminado)
-- Categorías: Recursos, Blog (fijas por ahora, escalables)
+---
 
 ### Glosario botánico (página separada)
 - **Acceso**: solo usuarios registrados
 - En la landing: 3-4 tarjetas informativas + acceso al glosario completo
 - Página completa con todas las entradas del glosario
 
-### Presentación de Olga (sección en la landing)
-- **Formato**: "Detrás de la marca" con foto circular de Olga
-- Título tipo: "Soy Olga, tu alquimista botánica"
-- Texto descriptivo sobre su pasión y proceso
-- Cita destacada con borde lateral (estilo warm, más personal que el glassmorphism)
-- **Referencia visual**: imagen proporcionada por el usuario (formato Olivia/alquimista)
+---
 
-### Acceso a redes (sección en la landing)
-- **Formato**: botones grandes o tarjetas que enlacen a las redes sociales
-- Diseño simple y directo
+### Dashboard de Olga (laboratorio)
+*En construcción con el usuario*
 
-### Footer
-- **Formato**: grande y bonito
-- Contenido a decidir durante la construcción (navegación, contacto, redes, legal, etc.)
+**Acceso**: `botanicaob.com/laboratorio` (mismo patrón que `/admin` para Miguel)
 
-### Referencias adicionales para la construcción
-- `ideas/designUI/ejemplo3/landing_page_premium_botanica_esencial/code.html` (2º puesto en votaciones)
-- Se usará como fuente de ideas generales para ir incorporando secciones bonitas durante la construcción paso a paso de la landing
+**Visualización**: Tablero **Kanban vitaminado** — sin estadísticas, enfocado al flujo de trabajo
+- **NO** dashboard con números grandes
+- **SÍ** tablero donde cada tarjeta es un lote y se mueve entre columnas según su estado
+- Cada tarjeta muestra: nombre del producto, lote, último seguimiento, próximo seguimiento
+- Calendario/vista de seguimiento integrado
 
-### Landing page
-**Base elegida**: `ideas/designUI/ejemplo3/bot_nica_esencial_ob_landing_page_glassmorphism/code.html`
+**Estructura del Kanban (3 columnas):**
+1. **En producción** — lotes en F.A. + F.O. con seguimiento activo
+2. **En stock** — lotes aptos para uso, con seguimiento post-uso
+3. **Archivados** — lotes sin seguimiento activo
 
-**Estilo visual**: Glassmorphism (vidrio esmerilado, blur, transparencias)
-- **Paleta**: Verde botánico (#334537), dorado (#e9c349), crema (#f4fbf2)
-- **Tipografía**: Playfair Display (headlines) + Plus Jakarta Sans (body)
-- **Efectos**: Parallax en hero, hover en cards, navbar que cambia con scroll
+*Detalles finales se concretarán en la fase de creación*
 
-**Estructura definitiva (9 secciones en orden):**
-1. **Hero**: imagen espectacular
-2. **Productos**: preview de 3-4 destacados + enlace "Ver colección completa" → **páginas separadas**
-3. **Nuestros métodos**: proceso de Olga (de los ejemplos)
-4. **Journal**: 3 tarjetas con últimas entradas del blog → acceso al blog completo (solo registrados)
-5. **Glosario botánico**: preview de 3-4 ingredientes con tarjetas → acceso al glosario completo (solo registrados)
-6. **Presentación**: "Detrás de la marca" con foto circular de Olga + cita
-7. **Únete**: registro de usuarios
-8. **Acceso a redes**: botones grandes o tarjetas que enlacen a redes sociales
-9. **Footer**: grande y bonito, contenido a decidir durante la construcción
+**Flujo real de Olga (basado en su cuaderno):**
+- Cada producto se identifica por un **LOTE** único (ej: Lote 100100620261)
+- La APP es escalable (poder crecer, añadir fases, funcionalidades, productos)
+- Cada lote tiene **FASES** definidas por polaridad de ingredientes:
+  - **F.A. (Fase Acuosa)**: ingredientes solubles en agua (hidrolatos, aloe, glicerina)
+  - **F.O. (Fase Oleosa)**: ingredientes solubles en aceite (oleatos, mantecas, aceites)
+  - (Si surgen más, se añadirán después)
+- Cada fase tiene **INGREDIENTES con PORCENTAJES** (deben sumar 100%)
+- Cada lote tiene **SEGUIMIENTO TEMPORAL** con fechas y observaciones:
+  - Color, textura, olor
+  - Separación, burbujas
+  - Notas libres
+  - Puede haber campos variables según lo que Olga quiera anotar
+- **Siempre hay imagen/URL** del cuaderno original o del producto fabricado
 
-**Páginas separadas (no en la landing):**
-- Productos (página informativa)
-- Blog (solo registrados)
-- Glosario botánico (solo registrados)
+**Workflow completo del lote:**
+1. Crear lote (F.A. + F.O. con ingredientes y porcentajes)
+2. Seguimiento temporal (días/semanas con observaciones)
+3. **Antes de terminar el seguimiento**: Olga debe dejar **modo de uso y beneficios** como nota/observación
+4. **Pasa a stock** (cambio de estado: producto apto para uso, no finalizado)
+5. **Seguimiento post-stock** (en el mismo documento): beneficios a largo plazo, problemas derivados del uso, cambios por el paso del tiempo
 
-**Pendiente definir:**
-- Contenido exacto del footer
+**Estados del lote:**
+- `en_seguimiento` — en producción y pruebas
+- `en_stock` — apto para uso, sigue registrándose (estado vivo, no final)
 
-### Blog
-*Pendiente*
+**Estructura del documento `laboratorio`:**
+```json
+{
+  "lote": "100100620261",
+  "producto": { "nombre": "Crema Facial Hidratante", "tipo": "Crema", "peso_total": "100gr" },
+  "fecha_creacion": "2026-06-05",
+  "autora": "Olga",
+  "estado": "en_seguimiento",
+  "fases": [
+    {
+      "nombre": "F.A. (Fase Acuosa)",
+      "ingredientes": [
+        { "nombre": "Hidrolato Rosa", "porcentaje": 55, "gramos": 55 },
+        { "nombre": "Aloe Vera", "porcentaje": 10, "gramos": 10 },
+        { "nombre": "Glicerina", "porcentaje": 5, "gramos": 5 }
+      ]
+    },
+    {
+      "nombre": "F.O. (Fase Oleosa)",
+      "ingredientes": [
+        { "nombre": "Oleato Rosas", "porcentaje": 8, "gramos": 8 },
+        { "nombre": "Rosa Mosqueta", "porcentaje": 5, "gramos": 5 },
+        { "nombre": "Manteca Karité", "porcentaje": 5, "gramos": 5 },
+        { "nombre": "Aceite Lavanda", "porcentaje": 5, "gramos": 5 },
+        { "nombre": "Oleato Aguacate", "porcentaje": 4, "gramos": 4 }
+      ]
+    }
+  ],
+  "seguimiento": [
+    {
+      "fecha": "2026-06-11",
+      "observaciones": {
+        "color": "bien",
+        "textura": "sin grumos",
+        "olor": "normal",
+        "nota": "Siento la piel hidratada, funciona"
+      }
+    },
+    {
+      "fecha": "2026-06-12",
+      "observaciones": {
+        "color": "estable",
+        "textura": "bolitas diminutas de aceite",
+        "nota": "Sudor, pero por lo demás bien"
+      }
+    },
+    {
+      "fecha": "2026-06-15",
+      "observaciones": {
+        "separacion": "aceite",
+        "burbujas": "pequeñas"
+      }
+    },
+    {
+      "fecha": "2026-06-19",
+      "observaciones": {
+        "color": "mismo",
+        "textura": "ha mejorado",
+        "burbujas": "estables"
+      }
+    }
+  ],
+  "instrucciones_uso": {
+    "modo_de_uso": "Aplicar sobre el rostro limpio, mañana y noche",
+    "beneficios": "Hidratación profunda, piel suave, sin grumos",
+    "fecha_documento": "2026-06-19"
+  },
+  "imagenes": [
+    { "tipo": "cuaderno_original", "url": "/img/lab/cuaderno_100100620261.jpg", "fecha": "2026-06-05" },
+    { "tipo": "producto_fabricado", "url": "/img/lab/crema_100100620261.jpg", "fecha": "2026-06-19" }
+  ]
+}
+```
 
-### Dashboard de Olga
-*Pendiente*
+**Ejemplo de planta (colección `plantas`):**
+```json
+{
+  "nombre_comun": "Lavanda / Espliego",
+  "especie": "Lavandula angustifolia Mill.",
+  "familia": "Lamiaceae",
+  "partes_usadas": ["Flores", "Sumidades floridas"],
+  "compuestos": [
+    { "nombre": "Linalool", "porcentaje": "25-38%" },
+    { "nombre": "Acetato de linalilo", "porcentaje": "25-45%" },
+    { "nombre": "Lavandulol" },
+    { "nombre": "Terpinen-4-ol" }
+  ],
+  "propiedades": {
+    "oral": ["Ansiolítico", "Sedante", "Neuroprotector"],
+    "topico": ["Antiinflamatorio", "Cicatrizante", "Antiséptico", "Regenerador cutáneo"]
+  },
+  "contraindicaciones": [
+    "Hipersensibilidad a la planta",
+    "No baños con heridas abiertas",
+    "No oral en embarazo/lactancia/niños <12"
+  ],
+  "extractos_disponibles": [
+    { "tipo": "Aceite Esencial", "metodo": "Destilación por arrastre de vapor", "descripcion": "100% puro" },
+    { "tipo": "Hidrolato", "descripcion": "Agua floral rica en polifenoles" },
+    { "tipo": "Extracto CO2", "descripcion": "Alta estabilidad y pureza de activos" }
+  ]
+}
+```
+
+**Conexión con plantas:** Cada ingrediente puede tener un `planta_id` que lo conecta con la colección `plantas` (ej: "Aceite Lavanda" → planta Lavandula angustifolia)
+
+---
 
 ### Dashboard de Miguel (admin)
 *Pendiente*
 
-### Registro / autenticación
-- **Un solo flujo de registro** para todos los usuarios (suscriptores, Olga, Miguel)
-- Registro con **email/contraseña** o **Google OAuth**
-- **Primer usuario registrado = admin automáticamente** (Miguel)
-- Admin asigna roles después: `suscriptora` → `productora` (Olga)
-- **NO** cuentas pre-creadas manualmente
-- **NO** sistema de invitaciones por email
-- Olga puede usar el blog desde el día 1, sin esperar su dashboard
+---
 
-### Emails
-- Informativos de nuevas creaciones/productos
-*Pendiente definir proveedor, frecuencia, plantilla*
+## Próximas tareas
+
+1. **Dashboard de Olga** (primera tarea) — UI del laboratorio
+2. Dashboard de Miguel (admin)
+3. Definir stack frontend (pendiente)
+4. Definir hosting y emails
+5. Consolidar contexto y lanzar SDD formal
 
 ---
 
-## Imágenes y assets
-- **Todas las imágenes del proyecto están en `/img`** (galería oficial)
-- **NO se buscan ni generan imágenes adicionales** — solo se usa lo que hay
-- Organización:
-  - `hero/`: 2 opciones para el hero
-  - `logo/`: 4 versiones del logo (con fondo, transparente, con borde)
-  - `prd/`: productos (crema, gotas, cestas regalo, presentaciones)
-  - `plts/`: plantas (lavanda, tomillo, rosas, planta extra)
-  - `lab/`: laboratorio (materias primas, deco)
-  - `etk/`: etiquetas (7 etiquetas + 2 extras)
-  - `aimg/`: imágenes auxiliares (IA, logo transparente, naturaleza)
-- Las carpetas `ideas/designUI/ejemplo3/*.jpeg/screen.png` son **referencias de galería** (inspiración), no assets finales
-- Solo **3 imágenes** pasarán al producto final (ya incluidas en `/img`)
-- 13 landing pages HTML exportadas de Stitch están disponibles como referencia visual
-- 4 sistemas de diseño (DESIGN.md) con paletas comparadas
-- Mapa completo en `ideas/designUI/ejemplo3/INDEX.md`
-
----
-
-## Preguntas abiertas
-- ~~¿El blog es público para todos o solo para registrados?~~ → **Resuelto**: solo registrados
-- ~~¿Hay contenido premium?~~ → **No definido aún**
-- ¿Olga puede publicar directo o siempre pasa por Miguel?
-- ¿Cómo se crean las cuentas staff (Olga, Miguel)? (auto-registro con cambio de rol, pre-creadas, o invitación por email)
-- ¿Qué hace exactamente Olga en su "centro de trabajo"? (recetas, inventario, clientes, agenda...)
-- ¿Stack técnico preferido? (Next.js, Astro, etc.)
-- ¿Proveedor de emails? (Resend, SendGrid, etc.)
-- ¿Hospedaje? (Vercel, Netlify, VPS propio)
-- ¿Las "automatizaciones" son emails, o también algo más?
-- Las "redes" — ¿integración con Instagram/TikTok, o solo gestión de contenido?
+## Preguntas pendientes
+- ¿Olga puede duplicar un lote como base para uno nuevo?
+- ¿Necesita ver histórico de lotes?
+- ¿Necesita alertas? (materia prima baja, lote sin seguimiento)
+- ¿Hay más fases además de F.A. y F.O.?
+- ¿Quién puede editar qué en el laboratorio? (¿Olga sola o Miguel también?)
