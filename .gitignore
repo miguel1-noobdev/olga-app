@@ -14,8 +14,14 @@ out/
 build/
 next-env.d.ts
 
+# TypeScript incremental build cache
+*.tsbuildinfo
+
 # Testing
 coverage/
+
+# Runtime data (JsonStore base directory)
+.data/
 
 # Environment
 .env*.local

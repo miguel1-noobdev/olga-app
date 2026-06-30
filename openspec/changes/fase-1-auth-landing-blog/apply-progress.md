@@ -10,6 +10,7 @@
 | T-001 | Scaffold Next.js 14 + Tailwind | done | `af79a1c` | Build verified. See notes below. |
 | T-002 | Configure Vitest | done | `8350fdb` | Smoke test green. GGA passed. |
 | T-003 | Glassmorphism design tokens | done | `a7723c2` | 31 design-token tests green; build still 4/4. |
+| T-004 | Atomic JSON file store | done | see commit | 20 unit tests green; path-traversal hardened. |
 
 ## T-001 — Scaffold Next.js 14 + Tailwind
 
@@ -95,3 +96,32 @@
 
 ### Bundle size
 - `tailwind.config.ts`: 14 -> 56 lines (+42). `globals.css`: 3 -> 54 lines (+51). Test: +208 lines (31 assertions). Net: ~301 lines of project code. Under the 400-line chained-PR budget for the Fase 1 work unit.
+
+## T-004 — Atomic JSON file store
+
+### What landed
+- `src/lib/db/json-store.ts` — `JsonStore` class. Constructor takes an optional `baseDir` (defaults to `<cwd>/.data`). Four methods: `read<T>(file)`, `write<T>(file, data)`, `exists(file)`, `delete(file)`. Atomic write is `fs.writeFile` to `${file}.tmp` then `fs.rename` to the target. `read` returns `null` on `ENOENT`, throws on parse error. `delete` is a no-op on `ENOENT`. Path-traversal protection: rejects filenames whose segments contain `..` or `.`, rejects absolute paths (POSIX `/...` and Windows `C:\...` / `C:/...`), and verifies the resolved path stays inside `baseDir` as defense in depth.
+- `tests/json-store.test.ts` — 20 TDD assertions across 5 suites: `read` (null on missing, parse-error throw, nested shapes round-trip), `write` (round-trip, replace, intermediate dirs, `.tmp` cleanup), `exists` (false/true/false lifecycle), `delete` (removes file, no-op on missing), path-traversal protection (`..`, nested `..`, lone `.`, empty filename, POSIX absolute, Windows-style absolute), and a constructor test for custom base dirs. Each test uses `os.tmpdir()` + `fs.mkdtempSync` for isolation and cleans up in `afterEach`.
+- `.gitignore` — added `.data/` so the runtime data dir (default `baseDir`) is never committed.
+
+### Verification
+- `npx vitest run` — 52/52 passed (20 new + 31 design-tokens + 1 smoke). 3.4s total.
+- `npm run build` — 4/4 static pages, no regressions on size (`/` still 138 B + 87.4 kB shared JS).
+- TDD order respected: tests written first and failed on the missing-module import (Red), then the implementation flipped them Green. No refactor pass needed.
+
+### Decisions / infra notes
+- **Class, not module of free functions** — the design says "swappable" for Fase 2; a class is the natural injection point for `UserRepository` / `CommentRepository`. `new JsonStore(tempDir)` is the test seam, `new JsonStore()` is the production default.
+- **Default baseDir = `path.resolve(process.cwd(), '.data')`** — `process.cwd()` is the project root when Next.js runs, so the production default lands at `<repo>/.data`. The `tsconfig.json` `baseUrl: "."` + `paths: { "@/*": ["./src/*"] }` means the path alias already used by `src/` works for tests too (`@/lib/db/json-store`).
+- **Atomic write = `tmp` + `rename`** — Node 14+ `fs.rename` overwrites on Windows (Win32 `MoveFileEx` with `MOVEFILE_REPLACE_EXISTING`), so the same code path is correct on Linux and Windows. The `.tmp` file lives next to the target, so the rename stays within the same filesystem (required for atomicity).
+- **Three-layer traversal defense** — (1) reject filenames with `..` or `.` segments (matches the spec literally and gives a clear error), (2) reject absolute paths via `path.isAbsolute` and a Windows drive-letter regex, (3) verify the resolved path stays inside `baseDir` via `path.relative`. The first layer is what the test asserts on; the second and third are belt-and-braces in case a future caller passes a path I didn't anticipate.
+- **`JSON.stringify(data, null, 2)`** — pretty-printed output. The JSON files are tiny (users, comments) and humans will read them when debugging, so readability beats the 30% byte saving of compact JSON.
+- **`exists` uses `fs.access` not `fs.stat`** — `fs.access` is the standard "does this path exist for the current process?" probe and is what the docs recommend; `fs.stat` would also work but pulls a full `Stats` object we don't need.
+- **`delete` is idempotent** — `fs.unlink` on a missing file throws `ENOENT`, which we swallow and return. Callers don't need to `exists`-check before deleting.
+- **Single-process assumption held** — no in-process locking needed. PM2 runs 1 instance for Fase 1, and Node is single-threaded, so two simultaneous `write` calls to the same file would only race on the temp + rename pair (last writer wins), which is the documented behavior.
+
+### Outstanding risks
+- None for T-004. The store is a leaf module with no I/O beyond the filesystem, no concurrency invariants beyond the documented single-process model, and the path-traversal tests cover the realistic attack surface.
+- The `npm audit` count from T-002 (9 vulnerabilities, all in dev deps) is unchanged. `fs/promises` is a Node built-in, so no new deps were added.
+
+### Bundle size
+- `src/lib/db/json-store.ts`: 64 lines. `tests/json-store.test.ts`: 145 lines. `.gitignore`: +2 lines. Net: ~211 lines of project code. Well under the 400-line chained-PR budget.
