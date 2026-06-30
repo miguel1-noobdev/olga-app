@@ -40,7 +40,7 @@ Dependencies are implicit: tasks within a phase run top-to-bottom; later phases 
 - [x] **T-007** Build login page at src/app/(auth)/login/page.tsx with client form and errors; verify valid/invalid flows; commit `feat: add login page`.
 - [x] **T-008** Build registration page at src/app/(auth)/register/page.tsx with password validation and duplicate email handling; verify first user becomes admin; commit `feat: add registration page`.
 - [ ] **T-009** Add Google OAuth provider to NextAuth options; create user via UserRepository on first OAuth sign-in; verify callback; commit `feat: add Google OAuth provider`.
-- [ ] **T-010** Implement guard.ts and middleware.ts protecting /blog/** with redirect to /login?callbackUrl; verify anonymous redirect; commit `feat: add auth guard and middleware`.
+- [x] **T-010** Implement guard.ts and middleware.ts protecting /blog/** with redirect to /login?callbackUrl; verify anonymous redirect; commit `feat: add auth guard and middleware`.
 
 ## Phase 3: Landing Page
 

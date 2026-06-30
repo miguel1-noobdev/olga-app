@@ -15,6 +15,8 @@
 | T-006 | NextAuth credentials provider | done | `1bb045f` | 73 tests pass; build 5/5 routes; session includes id/email/role. |
 | T-007 | Login page | done | `dd21355` | Login page renders; Suspense boundary for useSearchParams; glass-card styling. |
 | T-008 | Registration page + API | done | `7a25cb8` | Registration page + POST /api/auth/register; first-user-admin rule via UserRepository. |
+| T-009 | Google OAuth provider | pending | — | Skipped for now; T-009 remains open for future implementation. |
+| T-010 | Auth guard middleware | done | `9116fc0` | Middleware protects /blog/** using jose JWT verify; redirects unauthenticated users to /login?callbackUrl. |
 
 ## T-001 — Scaffold Next.js 14 + Tailwind
 
