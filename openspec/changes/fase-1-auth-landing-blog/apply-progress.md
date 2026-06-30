@@ -13,6 +13,7 @@
 | T-004 | Atomic JSON file store | done | `e6e1d69` | 20 unit tests green; path-traversal hardened. |
 | T-005 | UserRepository MongoDB + bcrypt | done | `66583a0` | 15 TDD tests green; GGA initially rejected (wrong stack), reimplemented with Mongoose. |
 | T-006 | NextAuth credentials provider | done | `1bb045f` | 73 tests pass; build 5/5 routes; session includes id/email/role. |
+| T-007 | Login page | done | `dd21355` | Login page renders; Suspense boundary for useSearchParams; glass-card styling. |
 
 ## T-001 — Scaffold Next.js 14 + Tailwind
 
