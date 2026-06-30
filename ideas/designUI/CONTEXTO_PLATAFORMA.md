@@ -383,6 +383,12 @@ Plataforma single-tenant con dos roles diferenciados.
 - **Si algo falla, se corrige antes de seguir** (no acumular deuda)
 - **Tareas pequeñas** que se completen en una sesión
 
+### Approach de construcción por secciones
+- **La Landing se construye sección por sección** (no toda de una vez)
+- Cada sección se valida con el usuario antes de seguir a la siguiente
+- **Aunque tarde más**, evita refactorizar
+- **Blog**: mismo enfoque, se discute cuando lleguemos ahí
+
 ### Calidad de código
 - **Código y archivos limpios y bien estructurados**
 - **Se delega cuando es necesario** (sub-agentes cuando aplique)
