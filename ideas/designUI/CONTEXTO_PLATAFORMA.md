@@ -330,11 +330,28 @@ Plataforma single-tenant con dos roles diferenciados.
 
 ## Próximas tareas
 
-1. **Dashboard de Olga** (primera tarea) — UI del laboratorio
-2. Dashboard de Miguel (admin)
-3. Definir stack frontend (pendiente)
-4. Definir hosting y emails
-5. Consolidar contexto y lanzar SDD formal
+### Fases de producción (propuesta)
+
+**Fase 1 — Lo que no necesita BD de negocio:**
+1. Auth (registro, login, roles) ← clave transversal
+2. Landing (sin el "Únete" funcional, solo visual)
+3. Blog (con categorías, preview, artículos estáticos primero)
+
+**Fase 2 — La base de datos:**
+4. Setup MongoDB (conexiones, schemas, collections)
+5. Carga inicial de plantas (con la ficha de la lavanda como ejemplo)
+
+**Fase 3 — Lo que usa la BD:**
+6. Glosario (lee de plantas)
+7. Dashboard de Olga (Kanban + crear lote + seguimiento + stock)
+
+**Fase 4 — Evaluación final:**
+8. Dashboard de Miguel (admin) — cuando todo esté funcionando para ver qué utilidades agregás
+
+### Tareas previas a la producción
+- Definir stack frontend (pendiente)
+- Definir hosting y emails
+- Consolidar contexto y lanzar SDD formal
 
 ---
 
