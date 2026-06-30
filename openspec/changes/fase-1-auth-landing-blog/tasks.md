@@ -36,7 +36,7 @@ Dependencies are implicit: tasks within a phase run top-to-bottom; later phases 
 
 - [x] **T-004** Implement atomic JSON file store in src/lib/db/json-store.ts; verify atomic writes; commit `feat: add atomic JSON file store`.
 - [x] **T-005** Implement UserRepository in src/lib/db/repository/user.ts with first-user-admin rule and bcrypt hashing; verify create/find/count; commit `feat: adapt UserRepository to MongoDB + bcrypt (T-005)`.
-- [ ] **T-006** Configure NextAuth in src/lib/auth/options.ts and src/app/api/auth/[...nextauth]/route.ts with credentials provider; verify session has id/email/role; commit `feat: add NextAuth credentials provider`.
+- [x] **T-006** Configure NextAuth in src/lib/auth/options.ts and src/app/api/auth/[...nextauth]/route.ts with credentials provider; verify session has id/email/role; commit `feat: add NextAuth credentials provider`.
 - [ ] **T-007** Build login page at src/app/(auth)/login/page.tsx with client form and errors; verify valid/invalid flows; commit `feat: add login page`.
 - [ ] **T-008** Build registration page at src/app/(auth)/register/page.tsx with password validation and duplicate email handling; verify first user becomes admin; commit `feat: add registration page`.
 - [ ] **T-009** Add Google OAuth provider to NextAuth options; create user via UserRepository on first OAuth sign-in; verify callback; commit `feat: add Google OAuth provider`.

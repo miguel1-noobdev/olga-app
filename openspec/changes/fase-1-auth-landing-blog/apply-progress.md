@@ -12,6 +12,7 @@
 | T-003 | Glassmorphism design tokens | done | `a7723c2` | 31 design-token tests green; build still 4/4. |
 | T-004 | Atomic JSON file store | done | `e6e1d69` | 20 unit tests green; path-traversal hardened. |
 | T-005 | UserRepository MongoDB + bcrypt | done | `66583a0` | 15 TDD tests green; GGA initially rejected (wrong stack), reimplemented with Mongoose. |
+| T-006 | NextAuth credentials provider | done | `1bb045f` | 73 tests pass; build 5/5 routes; session includes id/email/role. |
 
 ## T-001 — Scaffold Next.js 14 + Tailwind
 
@@ -152,3 +153,30 @@
 
 ### Bundle size
 - `src/lib/db/models/user.ts`: 31 lines. `src/lib/db/repository/user.ts`: 115 lines. Test: +121 lines. Net: ~267 lines. Under 400-line budget.
+
+## T-006 — NextAuth Credentials Provider
+
+### What landed
+- `src/lib/auth/options.ts` — NextAuth configuration with `CredentialsProvider`. Authorize callback finds user by email via UserRepository, verifies password with bcrypt, returns user object (id, email, role) or null. JWT callback injects `id` and `role` into token. Session callback exposes them on `session.user`. Custom pages: `signIn` and `error` both point to `/login`. Session strategy is `jwt`.
+- `src/lib/auth/types.d.ts` — TypeScript module augmentation extending `Session`, `User`, and `JWT` interfaces to include `id: string` and `role: string` fields.
+- `src/app/api/auth/[...nextauth]/route.ts` — NextAuth handler exporting GET and POST. Route is now visible in the Next.js route table as a dynamic server route.
+- `tests/auth-credentials.test.ts` — 6 tests covering valid/invalid credentials, first-user-admin role, and session field expectations. Uses a fresh mock UserRepository per test.
+- `.env` — `AUTH_SECRET` generated via Node.js `crypto.randomBytes(32).toString('base64')`. MongoDB and Google OAuth placeholders added for future tasks.
+
+### Verification
+- `npm run build` — 5/5 routes, includes new `/api/auth/[...nextauth]` as dynamic route.
+- `npx vitest run` — 73/73 tests pass (6 new + 52 existing + 15 user-repo).
+- Build output shows route table with `ƒ /api/auth/[...nextauth] 0 B` — confirmed registered.
+
+### Decisions / infra notes
+- **next-auth v4.24.14** — v5 is in beta; v4 is stable and compatible with Next.js 14 App Router.
+- **jwt strategy over database sessions** — jwt is stateless and scales better. Database sessions would require a sessions collection and periodic cleanup. For this project size, jwt is sufficient.
+- **`session.user.id` and `session.user.role`** — added via module augmentation so TypeScript knows about these fields throughout the app. Without augmentation, accessing `session.user.id` would be a type error.
+- **`/login` as single auth page** — both `signIn` and `error` redirect to `/login`. T-007 will build that page with proper UI.
+- **AUTH_SECRET in .env, never committed** — `.gitignore` excludes `.env`. Secret was generated locally; different environments will need their own secrets via `openssl rand -base64 32` or equivalent.
+
+### Outstanding risks
+- No runtime DB connection configured yet. NextAuth will use Mongoose via UserRepository. In production, `MONGODB_URI` needs to be set. In tests, `mongodb-memory-server` handles it.
+
+### Bundle size
+- `src/lib/auth/options.ts`: 55 lines. `src/lib/auth/types.d.ts`: 18 lines. Route: 5 lines. Test: +86 lines. Net: ~164 lines. Under 400-line budget.
