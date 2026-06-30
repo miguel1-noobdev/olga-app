@@ -8,7 +8,7 @@
 | Task | Title | Status | Commit | Notes |
 |------|-------|--------|--------|-------|
 | T-001 | Scaffold Next.js 14 + Tailwind | done | `af79a1c` | Build verified. See notes below. |
-| T-002 | Configure Vitest | done | pending | Smoke test green. See notes below. |
+| T-002 | Configure Vitest | done | `8350fdb` | Smoke test green. GGA passed. |
 
 ## T-001 — Scaffold Next.js 14 + Tailwind
 
