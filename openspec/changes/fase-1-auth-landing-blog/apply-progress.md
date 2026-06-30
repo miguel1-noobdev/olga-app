@@ -9,6 +9,7 @@
 |------|-------|--------|--------|-------|
 | T-001 | Scaffold Next.js 14 + Tailwind | done | `af79a1c` | Build verified. See notes below. |
 | T-002 | Configure Vitest | done | `8350fdb` | Smoke test green. GGA passed. |
+| T-003 | Glassmorphism design tokens | done | `<this commit>` | 31 design-token tests green; build still 4/4. |
 
 ## T-001 — Scaffold Next.js 14 + Tailwind
 
@@ -66,3 +67,31 @@
 
 ### Bundle size
 - 24 lines of project code (config + test) + regenerated `package-lock.json`. Well under the 400-line budget.
+
+## T-003 — Glassmorphism design tokens
+
+### What landed
+- `tailwind.config.ts` — `theme.extend.colors` adds the full glassmorphism palette (primary `#334537`, secondary `#e9c349`, surface `#f4fbf2`, surface-container `#e9f0e7`, surface-border `#dde4db`, plus `on-surface` / `on-surface-variant` for body text). `theme.extend.fontFamily` exposes Playfair Display as `serif` and Plus Jakarta Sans as `sans`, both with full platform-fallback stacks. `borderRadius` extends with the 1rem / 2rem / 3rem scale from the Stitch base. `backdropBlur.glass = 20px` powers the navbar / overlay blur. `theme.safelist` whitelists the design-system utilities as a public API surface (the landing sections and blog components will consume them, but we don't want first paint to depend on a happy incidental match in `content`).
+- `src/styles/globals.css` — keeps the three `@tailwind` directives. Adds `@layer base` to set `html { background, color, font-family }` and `h1..h6 { font-family: serif }` so the page and headings pick up the design tokens without per-component plumbing. Adds `@layer components` with the `.glass-card` utility (translucent white, `backdrop-filter: blur(20px)`, hairline highlight borders, layered shadows in the primary/secondary palette, hover lift transition), its `:hover` variant, and a `.gold-border` hairline accent.
+- `tests/design-tokens.test.ts` — new TDD spec. 31 assertions across four suites: (1) config exports the expected color/font tokens, (2) `resolveConfig` resolves them to the exact hex values, (3) `globals.css` keeps the three directives and defines `.glass-card` / `.glass-card:hover` / `.gold-border` with the right backdrop-filter, (4) postcss + tailwind compiles the test classes to the right CSS — `bg-primary` -> `rgb(51 69 55 / var(--tw-bg-opacity, 1))`, `text-secondary` -> `rgb(233 195 73 / ...)`, `backdrop-blur-glass` -> `--tw-backdrop-blur: blur(20px)`, etc. The compilation test writes a temp fixture so the JIT purges nothing.
+
+### Verification
+- `npm run test:run` — 32/32 passed (31 new + the T-002 smoke test). 2.5s total.
+- `npm run build` — still 4/4 static pages; `/` route still 138 B + 87.4 kB shared JS (the design tokens add zero bytes until a component actually uses them, which T-011 onward will do).
+- TDD order respected: the test was written first, ran with 17/18 failing (Red), then the config + CSS made every test pass (Green). No refactor needed at this scope.
+
+### Decisions / infra notes
+- **T-003 did not touch `src/app/page.tsx`** — the placeholder is intentionally trivial and the real landing is owned by T-011. The placeholder does pick up the new tokens (background = surface, h1 = serif) thanks to the `@layer base` rules, which is the right "do no more than necessary" move.
+- **`safelist` is intentional** — design-system tokens are part of the public API, not just utilities that happen to be used somewhere in `src/`. Whitelisting the palette, the two font aliases, `backdrop-blur-glass`, `glass-card`, and `gold-border` means: (a) the test can compile them without writing fake components, (b) T-011 can drop a `<section className="bg-primary text-surface">` and not be surprised by an empty CSS bundle if a future PR renames a parent component.
+- **Postcss compile test approach** — Tailwind's JIT purges classes that don't appear in any `content` source. To prove the full chain (config -> utility -> CSS) without coupling the test to a real component, the test creates a tiny temp HTML fixture in `os.tmpdir()`, clones the config with `content: [fixture]` and `safelist: undefined` (so the test proves the *config-defined tokens alone* are sufficient, not the safelist), runs postcss, and asserts on the compiled CSS. Temp dir is cleaned in `afterAll`. This is the only test that actually goes through postcss and is the closest analog to "what the production build will emit".
+- **Tailwind 3.4 output format** — colors compile to `rgb(R G B / var(--tw-*-opacity, 1))`, not plain hex, so opacity modifiers (`bg-primary/50`) work via the `--tw-bg-opacity` variable. `backdrop-blur-*` compiles to `--tw-backdrop-blur: blur(Npx)` plus a `backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) ...` line. The test regexes assert on this real format, not on the hex.
+- **Color names with dashes** — Tailwind 3 lets you use any string as a color key, so `surface-container` and `surface-border` work as `bg-surface-container` and `border-surface-border` without renaming. The kebab-case keys are quoted in the config to satisfy the TS object-literal parser.
+- **`gold-border` is in globals.css, not the config** — it's a one-off utility (a single hairline color, no variants), not a token that needs theming. Putting it in `@layer components` keeps the config focused on palette + type + spacing.
+- **First-use of `@layer base` in the project** — T-001 left the base layer empty (just the directives). T-003 fills it with the design-system defaults. Future components can assume `body` has surface background, `h1..h6` use the serif family, and the OS will render them as designed.
+
+### Outstanding risks
+- None for T-003. The tokens are static; nothing runtime can break. The only follow-up is consuming them in T-011+ landing sections, which is by design.
+- The audit count from T-002 (9 vulnerabilities, all in dev deps) is unchanged.
+
+### Bundle size
+- `tailwind.config.ts`: 14 -> 56 lines (+42). `globals.css`: 3 -> 54 lines (+51). Test: +208 lines (31 assertions). Net: ~301 lines of project code. Under the 400-line chained-PR budget for the Fase 1 work unit.

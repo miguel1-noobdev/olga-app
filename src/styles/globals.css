@@ -1,3 +1,54 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  html {
+    background-color: theme("colors.surface");
+    color: theme("colors.on-surface");
+    font-family: theme("fontFamily.sans");
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: theme("fontFamily.serif");
+  }
+}
+
+@layer components {
+  /* Glassmorphism panel — translucent white, backdrop blur, hairline border, soft shadow. */
+  /* Source of truth: ideas/designUI/ejemplo3/.../code.html .glass-card rule. */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255, 255, 255, 0.8);
+    border-left: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.05),
+      0 20px 40px -5px rgba(51, 69, 55, 0.1),
+      0 10px 15px -3px rgba(115, 92, 0, 0.05);
+    transition:
+      transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+      box-shadow 0.4s ease;
+  }
+
+  .glass-card:hover {
+    transform: translateY(-10px);
+    box-shadow:
+      0 10px 15px -3px rgba(0, 0, 0, 0.05),
+      0 40px 60px -10px rgba(51, 69, 55, 0.2),
+      0 20px 25px -5px rgba(115, 92, 0, 0.1);
+  }
+
+  /* Hairline gold accent for special CTAs and dividers. */
+  .gold-border {
+    border: 1px solid #d4af37;
+  }
+}
