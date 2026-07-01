@@ -17,6 +17,7 @@
 | T-008 | Registration page + API | done | `7a25cb8` | Registration page + POST /api/auth/register; first-user-admin rule via UserRepository. |
 | T-009 | Google OAuth provider | done | `2ac36fa` | GoogleProvider added to NextAuth; signIn callback creates user via UserRepository on first OAuth sign-in; login page has Google button. |
 | T-010 | Auth guard middleware | done | `9116fc0` | Middleware protects /blog/** using jose JWT verify; redirects unauthenticated users to /login?callbackUrl. |
+| T-011 | Landing layout + navbar | done | `b43d25d` | Responsive navbar with glassmorphism; anchor links; mobile hamburger menu. Placeholder sections for T-012-T-020. |
 
 ## T-001 — Scaffold Next.js 14 + Tailwind
 
@@ -208,3 +209,21 @@
 
 ### Bundle size
 - `src/lib/auth/options.ts`: +28 lines (GoogleProvider + signIn callback + jwt logic). `src/app/(auth)/login/page.tsx`: +18 lines (button + divider). Net: ~46 lines. Under 400-line budget.
+
+## T-011 — Landing Layout + Navbar
+
+### What landed
+- `src/app/page.tsx` — Full landing page structure with 9 placeholder sections (hero, productos, metodos, journal, glosario, olga, unete, redes, footer) ready for T-012-T-020. Includes sticky navbar offset padding.
+- `src/components/landing/navbar.tsx` — Responsive glassmorphism navbar. Desktop: horizontal nav links + auth buttons. Mobile: hamburger menu with slide-down panel. Uses design tokens: `bg-surface/80`, `backdrop-blur-glass`, `border-surface-border`.
+
+### Verification
+- `npm run build` — passes, all routes render.
+- Visual check: navbar sticks to top, glass effect works, mobile menu toggles.
+
+### Decisions / infra notes
+- **Anchor links for single-page navigation** — `#hero`, `#productos`, etc. Smooth scroll will be added in a future enhancement if needed.
+- **Navbar uses 'use client'** — needs React state for mobile menu toggle. This is the only client component in the layout; all sections can be server components.
+- **Placeholder sections** — Each section has a colored background alternating between `bg-surface` and `bg-surface-container` for visual rhythm. Real content comes in T-012+.
+
+### Bundle size
+- `src/app/page.tsx`: +60 lines. `src/components/landing/navbar.tsx`: +85 lines. Net: ~145 lines. Under 400-line budget.

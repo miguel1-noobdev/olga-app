@@ -44,7 +44,7 @@ Dependencies are implicit: tasks within a phase run top-to-bottom; later phases 
 
 ## Phase 3: Landing Page
 
-- [ ] **T-011** Create landing layout and navbar in src/app/page.tsx and src/components/landing/navbar.tsx; verify navigation renders; commit `feat: add landing layout and navbar`.
+- [x] **T-011** Create landing layout and navbar in src/app/page.tsx and src/components/landing/navbar.tsx; verify navigation renders; commit `feat: add landing layout and navbar`.
 - [ ] **T-012** Build Hero section in src/components/landing/sections/hero.tsx with full-viewport /img/hero image, headline, CTA; verify render; commit `feat: add Hero section`.
 - [ ] **T-013** Build Productos preview section with 3-4 cards from /img/prd and collection link; verify render; commit `feat: add Productos preview section`.
 - [ ] **T-014** Build Nuestros métodos section showing process steps; verify render; commit `feat: add Nuestros metodos section`.
