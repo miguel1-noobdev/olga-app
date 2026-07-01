@@ -1,5 +1,6 @@
 import type { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import GoogleProvider from 'next-auth/providers/google';
 import { createUserRepository } from '@/lib/db/repository/user';
 
 export const authOptions: NextAuthOptions = {
@@ -35,15 +36,47 @@ export const authOptions: NextAuthOptions = {
         };
       },
     }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
   ],
   callbacks: {
+    async signIn({ user, account }) {
+      if (account?.provider === 'google') {
+        const repo = createUserRepository();
+        const existingUser = await repo.findByEmail(user.email!);
+
+        if (!existingUser) {
+          await repo.create({
+            email: user.email!,
+            password: crypto.randomUUID(),
+          });
+        }
+      }
+
+      return true;
+    },
+
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
-        token.role = user.role;
+        if (!user.id || !user.role) {
+          const repo = createUserRepository();
+          const dbUser = await repo.findByEmail(user.email!);
+
+          if (dbUser) {
+            token.id = dbUser.id;
+            token.role = dbUser.role;
+          }
+        } else {
+          token.id = user.id;
+          token.role = user.role;
+        }
       }
+
       return token;
     },
+
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
