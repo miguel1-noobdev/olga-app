@@ -15,7 +15,7 @@
 | T-006 | NextAuth credentials provider | done | `1bb045f` | 73 tests pass; build 5/5 routes; session includes id/email/role. |
 | T-007 | Login page | done | `dd21355` | Login page renders; Suspense boundary for useSearchParams; glass-card styling. |
 | T-008 | Registration page + API | done | `7a25cb8` | Registration page + POST /api/auth/register; first-user-admin rule via UserRepository. |
-| T-009 | Google OAuth provider | pending | — | Skipped for now; T-009 remains open for future implementation. |
+| T-009 | Google OAuth provider | done | `2ac36fa` | GoogleProvider added to NextAuth; signIn callback creates user via UserRepository on first OAuth sign-in; login page has Google button. |
 | T-010 | Auth guard middleware | done | `9116fc0` | Middleware protects /blog/** using jose JWT verify; redirects unauthenticated users to /login?callbackUrl. |
 
 ## T-001 — Scaffold Next.js 14 + Tailwind
@@ -184,3 +184,27 @@
 
 ### Bundle size
 - `src/lib/auth/options.ts`: 55 lines. `src/lib/auth/types.d.ts`: 18 lines. Route: 5 lines. Test: +86 lines. Net: ~164 lines. Under 400-line budget.
+
+## T-009 — Google OAuth Provider
+
+### What landed
+- `src/lib/auth/options.ts` — Added `GoogleProvider` from `next-auth/providers/google`. Configured with `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` from `.env`.
+- **`signIn` callback** — Extended to handle Google OAuth: when `account.provider === 'google'`, checks if user exists via `UserRepository.findByEmail()`. If not found, creates the user via `UserRepository.create()` with a random UUID password (OAuth users don't use password login). First user becomes `admin` via existing T-005 rule.
+- **`jwt` callback** — Extended to handle OAuth users: when `user.id` or `user.role` are missing (OAuth profile doesn't have them), looks up the user in database by email and adds `id` and `role` to the token.
+- `src/app/(auth)/login/page.tsx` — Added "Continuar con Google" button below the credentials form. Uses `signIn('google', { callbackUrl })` from `next-auth/react`. Includes Google logo SVG and proper styling with glass-card design system.
+
+### Verification
+- `npm run build` — passes, login page bundle includes Google button.
+- OAuth flow tested manually: Google redirects to `/api/auth/callback/google`, then to callback URL.
+
+### Decisions / infra notes
+- **OAuth users get random password** — `crypto.randomUUID()` generates an unguessable password. OAuth users can only sign in via Google, never via credentials form (they don't know the random password). This maintains the single-user-table design.
+- **Email uniqueness enforced** — Google OAuth uses the same `UserRepository` which has unique email constraint. If a user registers via credentials first, then tries OAuth with the same email, `findByEmail` finds the existing user and doesn't create a duplicate.
+- **First-user-admin rule works for OAuth too** — The first user to sign in via Google gets `admin` role because `UserRepository.create()` checks `countDocuments() === 0`.
+
+### Outstanding risks
+- **Google OAuth requires public redirect URI** — In development, `http://localhost:3000/api/auth/callback/google` must be added to Google Cloud Console authorized redirect URIs. In production, `https://botanicasob.duckdns.org/api/auth/callback/google` must be added.
+- **OAuth users can't change password** — Since they have a random password, there's no "forgot password" flow for OAuth users. This is standard behavior; they should use Google account recovery.
+
+### Bundle size
+- `src/lib/auth/options.ts`: +28 lines (GoogleProvider + signIn callback + jwt logic). `src/app/(auth)/login/page.tsx`: +18 lines (button + divider). Net: ~46 lines. Under 400-line budget.
