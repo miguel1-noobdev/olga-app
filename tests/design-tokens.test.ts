@@ -119,16 +119,18 @@ describe('glassmorphism design tokens (T-003)', () => {
       ).toBe('#dde4db');
     });
 
-    it('resolves the serif font family to start with Playfair Display', () => {
+    it('resolves the serif font family to start with the CSS variable', () => {
       const serif = (resolved.theme?.fontFamily as Record<string, string[]>)
         .serif;
-      expect(serif[0]).toBe('Playfair Display');
+      expect(serif[0]).toBe('var(--font-serif)');
+      expect(serif).toContain('Playfair Display');
     });
 
-    it('resolves the sans font family to start with Plus Jakarta Sans', () => {
+    it('resolves the sans font family to start with the CSS variable', () => {
       const sans = (resolved.theme?.fontFamily as Record<string, string[]>)
         .sans;
-      expect(sans[0]).toBe('Plus Jakarta Sans');
+      expect(sans[0]).toBe('var(--font-sans)');
+      expect(sans).toContain('Plus Jakarta Sans');
     });
   });
 

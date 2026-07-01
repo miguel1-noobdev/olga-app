@@ -19,9 +19,16 @@ const config: Config = {
       },
       fontFamily: {
         // Playfair Display — headlines, brand mark, display copy
-        serif: ["Playfair Display", "ui-serif", "Georgia", "serif"],
+        serif: [
+          "var(--font-serif)",
+          "Playfair Display",
+          "ui-serif",
+          "Georgia",
+          "serif"
+        ],
         // Plus Jakarta Sans — body, labels, UI
         sans: [
+          "var(--font-sans)",
           "Plus Jakarta Sans",
           "ui-sans-serif",
           "system-ui",

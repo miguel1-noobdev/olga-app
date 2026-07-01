@@ -23,6 +23,10 @@ coverage/
 # Runtime data (JsonStore base directory)
 .data/
 
+# Local dev server logs
+next-dev.*
+*.log
+
 # Environment
 .env*.local
 .env
