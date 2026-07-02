@@ -6,6 +6,7 @@ import Diario from '@/components/landing/diario';
 import Glosario from '@/components/landing/glosario';
 import Olga from '@/components/landing/olga';
 import Unete from '@/components/landing/unete';
+import Redes from '@/components/landing/redes';
 
 export default function HomePage() {
   return (
@@ -19,13 +20,7 @@ export default function HomePage() {
         <Glosario />
         <Olga />
         <Unete />
-
-        <section id="redes" className="py-20 px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl font-serif text-primary mb-4">Nuestras Redes</h2>
-            <p className="text-on-surface-variant">Sección en construcción - T-019</p>
-          </div>
-        </section>
+        <Redes />
 
         <footer className="py-12 px-4 border-t border-surface-border">
           <div className="max-w-4xl mx-auto text-center">
