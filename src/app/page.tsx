@@ -4,6 +4,7 @@ import Products from '@/components/landing/products';
 import Metodos from '@/components/landing/metodos';
 import Diario from '@/components/landing/diario';
 import Glosario from '@/components/landing/glosario';
+import Olga from '@/components/landing/olga';
 
 export default function HomePage() {
   return (
@@ -15,13 +16,7 @@ export default function HomePage() {
         <Metodos />
         <Diario />
         <Glosario />
-
-        <section id="olga" className="py-20 px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl font-serif text-primary mb-4">Sobre Olga</h2>
-            <p className="text-on-surface-variant">Sección en construcción - T-017</p>
-          </div>
-        </section>
+        <Olga />
 
         <section id="unete" className="py-20 px-4 bg-surface-container">
           <div className="max-w-4xl mx-auto text-center">
