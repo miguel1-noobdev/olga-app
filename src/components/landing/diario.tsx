@@ -47,7 +47,7 @@ export default function Diario() {
             <h2 className="font-serif text-3xl md:text-5xl text-primary mb-4">
               Diario Botánico
             </h2>
-            <p className="font-sans text-base text-on-surface-variant">
+            <p className="font-sans text-lg text-on-surface-variant">
               Reflexiones sobre ingredientes naturales, rutinas conscientes y
               el arte de la formulación artesanal.
             </p>
@@ -93,7 +93,7 @@ export default function Diario() {
               </h3>
 
               {/* Excerpt */}
-              <p className="font-sans text-base text-on-surface-variant line-clamp-2">
+              <p className="font-sans text-lg text-on-surface-variant line-clamp-2">
                 {article.excerpt}
               </p>
             </article>

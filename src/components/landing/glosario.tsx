@@ -83,7 +83,7 @@ export default function Glosario() {
             <h2 className="font-serif text-3xl md:text-5xl text-primary mb-4">
               Aprende sobre nuestra despensa botánica
             </h2>
-            <p className="font-sans text-lg text-on-surface-variant">
+            <p className="font-sans text-xl text-on-surface-variant">
               Solo ingredientes que la tierra nos ofrece generosamente.
             </p>
           </div>

@@ -61,7 +61,7 @@ export default function Redes() {
           <h2 className="font-serif text-3xl md:text-5xl text-primary mb-4">
             Síguenos en Redes
           </h2>
-          <p className="font-sans text-lg text-on-surface-variant">
+          <p className="font-sans text-xl text-on-surface-variant">
             Comparte tus rituales, aprende sobre ingredientes y sé parte de
             nuestro viaje botánico.
           </p>

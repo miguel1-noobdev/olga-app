@@ -10,13 +10,13 @@ export default function Olga() {
           <h2 className="font-serif text-3xl md:text-4xl text-primary">
             Soy Olga, tu alquimista botánica
           </h2>
-          <p className="font-sans text-lg text-on-surface-variant">
+          <p className="font-sans text-xl text-on-surface-variant">
             Botánica Esencial OB nació de mi pasión por las plantas y mi deseo
             de ofrecer una alternativa honesta al cuidado de la piel
             tradicional. Después de años estudiando herbología, decidí crear
             este pequeño taller donde la ciencia y la naturaleza se encuentran.
           </p>
-          <p className="font-sans text-lg text-on-surface-variant italic border-l-4 border-gold-soft p-4 bg-gold-soft/10">
+          <p className="font-sans text-xl text-on-surface-variant italic border-l-4 border-gold-soft p-4 bg-gold-soft/10">
             "Creo firmemente que lo que ponemos en nuestra piel debe ser tan
             nutritivo como lo que comemos."
           </p>

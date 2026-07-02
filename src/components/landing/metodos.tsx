@@ -30,11 +30,11 @@ export default function Metodos() {
               <h2 className="font-serif text-4xl md:text-5xl text-primary leading-tight">
                 La Belleza del Proceso Lento y Artesanal
               </h2>
-              <p className="font-sans text-lg text-on-surface-variant">
-                Cada producto de Botánica Esencial nace en mi pequeño taller,
-                donde el tiempo se detiene para dejar que la naturaleza actúe.
-                No soy una fábrica; soy artesana del bienestar.
-              </p>
+          <p className="font-sans text-xl text-on-surface-variant">
+            Cada producto de Botánica Esencial nace en mi pequeño taller,
+            donde el tiempo se detiene para dejar que la naturaleza actúe.
+            No soy una fábrica; soy artesana del bienestar.
+          </p>
             </div>
             <ul className="space-y-6">
               {principles.map((principle, index) => (
@@ -46,7 +46,7 @@ export default function Metodos() {
                     <h4 className="font-bold text-on-surface font-sans text-sm font-bold uppercase tracking-wider">
                       {principle.title}
                     </h4>
-                    <p className="text-on-surface-variant font-sans text-base">
+                    <p className="text-on-surface-variant font-sans text-lg">
                       {principle.text}
                     </p>
                   </div>

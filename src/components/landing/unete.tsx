@@ -14,7 +14,7 @@ export default function Unete() {
                 <br />
                 <span className="text-secondary">Comunidad Botánica</span>
               </h2>
-              <p className="font-sans text-lg text-white/90 max-w-md">
+              <p className="font-sans text-xl text-white/90 max-w-md">
                 Recibe consejos de autocuidado, recetas naturales y acceso a
                 nuestro blog y a nuestro santuario botánico.
               </p>
