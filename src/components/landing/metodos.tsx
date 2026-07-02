@@ -1,70 +1,76 @@
 export default function Metodos() {
-  const steps = [
+  const principles = [
     {
-      number: '01',
-      title: 'Selección Botánica',
-      description:
-        'Elegimos cada planta en su punto óptimo de cosecha, respetando los ciclos naturales y la biodiversidad local.',
+      icon: 'eco',
+      text: 'Prensado en frío para conservar todos los nutrientes.',
     },
     {
-      number: '02',
-      title: 'Extracción en Frío',
-      description:
-        'Utilizamos métodos de extracción a baja temperatura para preservar la integridad molecular de cada ingrediente activo.',
+      icon: 'biotech',
+      text: 'Micro-lotes controlados para garantizar frescura.',
     },
     {
-      number: '03',
-      title: 'Formulación Artesanal',
-      description:
-        'Cada producto se elabora en pequeños lotes, garantizando frescura, potencia y la máxima calidad en cada fórmula.',
+      icon: 'filter_vintage',
+      text: 'Ingredientes 100% biodegradables y locales.',
     },
   ];
 
   return (
-    <section id="metodos" className="py-20 md:py-32 px-4 sm:px-6 lg:px-8">
+    <section
+      id="metodos"
+      className="bg-surface-container/30 py-20 md:py-32 px-4 sm:px-6 lg:px-8"
+    >
       <div className="max-w-7xl mx-auto">
-        <div className="grid md:grid-cols-2 gap-16 items-center">
-          {/* Content */}
-          <div className="order-2 md:order-1">
-            <div className="relative p-8 md:p-12 bg-surface-container/50 backdrop-blur-glass rounded-2xl border border-gold-soft overflow-hidden">
-              <div className="absolute -top-10 -right-10 w-40 h-40 bg-primary/5 rounded-full blur-3xl" />
-              <h2 className="font-serif text-3xl md:text-4xl text-primary mb-8 italic">
-                Nuestro Proceso
-              </h2>
-              <div className="space-y-10">
-                {steps.map((step) => (
-                  <div key={step.number} className="flex gap-6">
-                    <span className="font-serif text-4xl text-primary/40">
-                      {step.number}
-                    </span>
-                    <div>
-                      <h4 className="font-serif text-xl text-primary mb-2">
-                        {step.title}
-                      </h4>
-                      <p className="font-sans text-base text-on-surface-variant">
-                        {step.description}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-20 items-center">
+          {/* Image */}
+          <div className="relative">
+            <div className="aspect-square rounded-2xl overflow-hidden shadow-2xl">
+              <img
+                className="w-full h-full object-cover"
+                src="/img/lab/materias-primas-1.jpeg"
+                alt="Proceso artesanal de extracción botánica"
+              />
+            </div>
+            <div className="absolute -bottom-10 -right-10 glass-card p-8 rounded-2xl hidden lg:block max-w-xs">
+              <p className="font-serif text-2xl italic text-primary">
+                "La integridad de la planta es mi prioridad absoluta."
+              </p>
             </div>
           </div>
 
-          {/* Image */}
-          <div className="order-1 md:order-2">
-            <div className="space-y-6">
-              <img
-                className="w-full h-[500px] md:h-[600px] object-cover rounded-2xl shadow-xl"
-                src="/img/lab/materias-primas-1.jpeg"
-                alt="Selección de materias primas botánicas"
-              />
-              <div className="flex justify-between items-center p-6 border-l-4 border-primary bg-primary/5 rounded-r-2xl">
-                <p className="font-serif italic text-lg text-primary">
-                  "Respetar la planta es nuestra primera y única regla."
-                </p>
-              </div>
-            </div>
+          {/* Content */}
+          <div>
+            <span className="text-secondary font-sans text-sm font-bold uppercase tracking-[0.2em] mb-4 block">
+              Mi Método
+            </span>
+            <h2 className="font-serif text-4xl md:text-5xl text-primary mb-6">
+              Proceso Artesanal y Pureza
+            </h2>
+            <p className="font-sans text-lg text-on-surface-variant mb-8 leading-relaxed">
+              Utilizo técnicas de prensado en frío para asegurar que cada
+              molécula activa llegue intacta a tu piel. Sin calor excesivo, sin
+              químicos agresivos, solo la esencia más pura de la botánica local.
+            </p>
+            <ul className="space-y-4 mb-10">
+              {principles.map((principle, index) => (
+                <li key={index} className="flex items-center space-x-3">
+                  <span
+                    className="material-symbols-outlined text-secondary"
+                    style={{ fontVariationSettings: "'FILL' 1" }}
+                  >
+                    {principle.icon}
+                  </span>
+                  <span className="font-sans text-base font-semibold text-on-surface">
+                    {principle.text}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <a
+              href="#"
+              className="inline-block bg-primary text-on-primary px-10 py-4 rounded-full font-sans text-sm font-bold uppercase tracking-widest shadow-lg hover:-translate-y-1 transition-all duration-300"
+            >
+              Conocer más
+            </a>
           </div>
         </div>
       </div>
