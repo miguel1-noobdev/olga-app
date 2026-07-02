@@ -1,6 +1,7 @@
 import Navbar from '@/components/landing/navbar';
 import Hero from '@/components/landing/hero';
 import Products from '@/components/landing/products';
+import Diario from '@/components/landing/diario';
 
 export default function HomePage() {
   return (
@@ -10,12 +11,7 @@ export default function HomePage() {
         <Hero />
         <Products />
 
-        <section id="journal" className="py-20 px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl font-serif text-primary mb-4">Journal</h2>
-            <p className="text-on-surface-variant">Sección en construcción - T-015</p>
-          </div>
-        </section>
+        <Diario />
 
         <section id="ingredientes" className="py-20 px-4 bg-surface-container">
           <div className="max-w-4xl mx-auto text-center">
