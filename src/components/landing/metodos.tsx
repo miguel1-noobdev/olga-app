@@ -1,76 +1,75 @@
 export default function Metodos() {
   const principles = [
     {
-      icon: 'eco',
-      text: 'Prensado en frío para conservar todos los nutrientes.',
+      icon: 'handyman',
+      title: 'Hecho a Mano',
+      text: 'Lotes pequeños para garantizar la máxima frescura y potencia de cada ingrediente.',
     },
     {
-      icon: 'biotech',
-      text: 'Micro-lotes controlados para garantizar frescura.',
+      icon: 'science',
+      title: 'Ciencia Botánica',
+      text: 'Fusiono saberes ancestrales con métodos modernos de extracción ecológica.',
     },
     {
-      icon: 'filter_vintage',
-      text: 'Ingredientes 100% biodegradables y locales.',
+      icon: 'recycling',
+      title: 'Sin Huella',
+      text: 'Envases de vidrio infinitamente reciclables y embalajes libres de plástico.',
     },
   ];
 
   return (
     <section
       id="metodos"
-      className="bg-surface-container/30 py-20 md:py-32 px-4 sm:px-6 lg:px-8"
+      className="bg-surface-container/30 py-20 md:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden"
     >
-      <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-20 items-center">
-          {/* Image */}
-          <div className="relative">
-            <div className="aspect-square rounded-2xl overflow-hidden shadow-2xl">
-              <img
-                className="w-full h-full object-cover"
-                src="/img/lab/materias-primas-1.jpeg"
-                alt="Proceso artesanal de extracción botánica"
-              />
-            </div>
-            <div className="absolute -bottom-10 -right-10 glass-card p-8 rounded-2xl hidden lg:block max-w-xs">
-              <p className="font-serif text-2xl italic text-primary">
-                "La integridad de la planta es mi prioridad absoluta."
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-20">
+        {/* Content */}
+        <div className="flex-1 order-2 md:order-1">
+          <div className="space-y-8">
+            <div className="space-y-4">
+              <h2 className="font-serif text-4xl md:text-5xl text-primary leading-tight">
+                La Belleza del Proceso Lento y Artesanal
+              </h2>
+              <p className="font-sans text-lg text-on-surface-variant">
+                Cada producto de Botánica Esencial nace en mi pequeño taller,
+                donde el tiempo se detiene para dejar que la naturaleza actúe.
+                No soy una fábrica; soy artesana del bienestar.
               </p>
             </div>
-          </div>
-
-          {/* Content */}
-          <div>
-            <span className="text-secondary font-sans text-sm font-bold uppercase tracking-[0.2em] mb-4 block">
-              Mi Método
-            </span>
-            <h2 className="font-serif text-4xl md:text-5xl text-primary mb-6">
-              Proceso Artesanal y Pureza
-            </h2>
-            <p className="font-sans text-lg text-on-surface-variant mb-8 leading-relaxed">
-              Utilizo técnicas de prensado en frío para asegurar que cada
-              molécula activa llegue intacta a tu piel. Sin calor excesivo, sin
-              químicos agresivos, solo la esencia más pura de la botánica local.
-            </p>
-            <ul className="space-y-4 mb-10">
+            <ul className="space-y-6">
               {principles.map((principle, index) => (
-                <li key={index} className="flex items-center space-x-3">
-                  <span
-                    className="material-symbols-outlined text-secondary"
-                    style={{ fontVariationSettings: "'FILL' 1" }}
-                  >
+                <li key={index} className="flex items-start gap-4">
+                  <span className="material-symbols-outlined text-primary bg-primary/10 p-3 rounded-full">
                     {principle.icon}
                   </span>
-                  <span className="font-sans text-base font-semibold text-on-surface">
-                    {principle.text}
-                  </span>
+                  <div>
+                    <h4 className="font-bold text-on-surface font-sans text-sm font-bold uppercase tracking-wider">
+                      {principle.title}
+                    </h4>
+                    <p className="text-on-surface-variant font-sans text-base">
+                      {principle.text}
+                    </p>
+                  </div>
                 </li>
               ))}
             </ul>
-            <a
-              href="#"
-              className="inline-block bg-primary text-on-primary px-10 py-4 rounded-full font-sans text-sm font-bold uppercase tracking-widest shadow-lg hover:-translate-y-1 transition-all duration-300"
-            >
-              Conocer más
-            </a>
+          </div>
+        </div>
+
+        {/* Image */}
+        <div className="flex-1 order-1 md:order-2">
+          <div className="relative">
+            <div className="absolute -top-10 -right-10 w-40 h-40 border border-gold-soft rounded-full -z-10 opacity-50" />
+            <img
+              className="w-full h-auto rounded-[40px] shadow-xl rotate-2 hover:rotate-0 transition-all duration-500"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuAh_nP1yecGnKz7jaGsTgtIiNLPty1bvg1qNEd5PbXszbbX6Sw72CQyF3gmeDxvBUa83UE1tRu3abwiWtB552uRwjJkoY51ZUUvg6vV85qkLlI_S3Q_2cy6geeRE4jADgpVl0nE45G2rsV7eU7Pt-l7gF8T88vwS3spCNhZEDTRFr9bhzQ5DXbs_DDeyUTuib4l030XV4iLchxh6kk_X2atVFViJvuDiXZRJ73ffERq6o9Mq2wH7JARCa1mzJYLZeEQT5fP5cIg6UbU"
+              alt="Manos artesanas mezclando ingredientes botánicos en un mortero"
+            />
+            <div className="absolute bottom-10 -left-10 glass-card p-6 rounded-2xl max-w-[240px]">
+              <p className="font-serif text-primary text-2xl italic">
+                "Desde la semilla hasta tu piel"
+              </p>
+            </div>
           </div>
         </div>
       </div>
