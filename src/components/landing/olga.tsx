@@ -20,12 +20,6 @@ export default function Olga() {
             "Creo firmemente que lo que ponemos en nuestra piel debe ser tan
             nutritivo como lo que comemos."
           </p>
-          <a
-            href="#"
-            className="inline-block bg-earth text-white px-8 py-3 rounded-full font-sans text-sm font-bold uppercase tracking-widest shadow-lg hover:-translate-y-1 transition-all duration-300"
-          >
-            Leer mi historia completa
-          </a>
         </div>
 
         {/* Image */}
