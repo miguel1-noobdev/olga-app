@@ -7,6 +7,7 @@ import Glosario from '@/components/landing/glosario';
 import Olga from '@/components/landing/olga';
 import Unete from '@/components/landing/unete';
 import Redes from '@/components/landing/redes';
+import Footer from '@/components/landing/footer';
 
 export default function HomePage() {
   return (
@@ -21,13 +22,7 @@ export default function HomePage() {
         <Olga />
         <Unete />
         <Redes />
-
-        <footer className="py-12 px-4 border-t border-surface-border">
-          <div className="max-w-4xl mx-auto text-center">
-            <h3 className="text-xl font-serif text-primary mb-2">Botánica Esencial OB</h3>
-            <p className="text-sm text-on-surface-variant">Footer en construcción - T-020</p>
-          </div>
-        </footer>
+        <Footer />
       </main>
     </>
   );
