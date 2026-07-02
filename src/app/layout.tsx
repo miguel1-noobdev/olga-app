@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Playfair_Display, Plus_Jakarta_Sans } from "next/font/google";
+import AuthSessionProvider from "@/components/auth/session-provider";
 import "@/styles/globals.css";
 
 const bodyFont = Plus_Jakarta_Sans({
@@ -31,7 +32,9 @@ export default function RootLayout({
       lang="es"
       className={`${bodyFont.variable} ${headlineFont.variable}`}
     >
-      <body className={bodyFont.className}>{children}</body>
+      <body className={bodyFont.className}>
+        <AuthSessionProvider>{children}</AuthSessionProvider>
+      </body>
     </html>
   );
 }

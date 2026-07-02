@@ -24,13 +24,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section id="metodos" className="py-20 px-4 bg-surface-container">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl font-serif text-primary mb-4">Nuestros Métodos</h2>
-            <p className="text-on-surface-variant">Sección en construcción - T-014</p>
-          </div>
-        </section>
-
         <section id="journal" className="py-20 px-4">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl font-serif text-primary mb-4">Journal</h2>
@@ -38,9 +31,9 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section id="glosario" className="py-20 px-4 bg-surface-container">
+        <section id="ingredientes" className="py-20 px-4 bg-surface-container">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl font-serif text-primary mb-4">Glosario Botánico</h2>
+            <h2 className="text-3xl font-serif text-primary mb-4">Ingredientes</h2>
             <p className="text-on-surface-variant">Sección en construcción - T-016</p>
           </div>
         </section>
