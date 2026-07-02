@@ -1,4 +1,53 @@
+'use client';
+
+import { useEffect, useRef, useState } from 'react';
+
 export default function Glosario() {
+  const [cardProgress, setCardProgress] = useState<Map<number, number>>(
+    new Map()
+  );
+  const cardRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+
+  useEffect(() => {
+    const calculateProgress = () => {
+      const newProgress = new Map<number, number>();
+
+      cardRefs.current.forEach((ref, id) => {
+        if (ref) {
+          const rect = ref.getBoundingClientRect();
+          const windowHeight = window.innerHeight;
+
+          // Rango de animación: desde que aparece hasta que está en el centro
+          const start = windowHeight;
+          const end = windowHeight * 0.3;
+
+          let progress = 0;
+
+          if (rect.top < start && rect.top > end) {
+            const range = start - end;
+            const position = start - rect.top;
+            progress = position / range;
+          } else if (rect.top <= end) {
+            progress = 1;
+          }
+
+          newProgress.set(id, progress);
+        }
+      });
+
+      setCardProgress(newProgress);
+    };
+
+    const handleScroll = () => {
+      requestAnimationFrame(calculateProgress);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    calculateProgress();
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const ingredients = [
     {
       name: 'Lavanda',
@@ -48,23 +97,46 @@ export default function Glosario() {
 
         {/* Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
-          {ingredients.map((ingredient, index) => (
-            <div
-              key={index}
-              className="glass-card aspect-square rounded-3xl overflow-hidden relative group"
-            >
-              <img
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                src={ingredient.image}
-                alt={ingredient.name}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-earth/60 to-transparent flex items-end p-6">
-                <span className="text-white font-serif text-xl">
-                  {ingredient.name}
-                </span>
+          {ingredients.map((ingredient, index) => {
+            const progress = cardProgress.get(index) || 0;
+
+            // Delay escalonado: cada tarjeta empieza 150ms después
+            const delay = index * 0.15;
+            const adjustedProgress = Math.max(
+              0,
+              Math.min(1, (progress - delay) / (1 - delay))
+            );
+
+            // Transform: desde abajo (translateY 100px) a posición normal
+            const translateY = (1 - adjustedProgress) * 100;
+            const opacity = adjustedProgress;
+
+            return (
+              <div
+                key={index}
+                ref={(el) => {
+                  if (el) cardRefs.current.set(index, el);
+                }}
+                className="glass-card aspect-square rounded-3xl overflow-hidden relative group"
+                style={{
+                  transform: `translateY(${translateY}px)`,
+                  opacity: opacity,
+                  transition: 'transform 0.15s ease-out, opacity 0.15s ease-out',
+                }}
+              >
+                <img
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  src={ingredient.image}
+                  alt={ingredient.name}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-earth/60 to-transparent flex items-end p-6">
+                  <span className="text-white font-serif text-xl">
+                    {ingredient.name}
+                  </span>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Mobile button */}
