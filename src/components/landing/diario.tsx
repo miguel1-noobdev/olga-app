@@ -38,7 +38,7 @@ export default function Diario() {
   return (
     <section
       id="diario"
-      className="bg-surface-container-low py-20 md:py-32 px-4 sm:px-6 lg:px-8 border-y border-gold-soft"
+      className="bg-[#A8B89C]/50 py-20 md:py-32 px-4 sm:px-6 lg:px-8 border-y border-gold-soft"
     >
       <div className="max-w-7xl mx-auto">
         {/* Header */}
