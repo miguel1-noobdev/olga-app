@@ -1,6 +1,7 @@
 import Navbar from '@/components/landing/navbar';
 import Hero from '@/components/landing/hero';
 import Products from '@/components/landing/products';
+import Metodos from '@/components/landing/metodos';
 import Diario from '@/components/landing/diario';
 
 export default function HomePage() {
@@ -10,7 +11,7 @@ export default function HomePage() {
       <main className="min-h-screen bg-surface">
         <Hero />
         <Products />
-
+        <Metodos />
         <Diario />
 
         <section id="ingredientes" className="py-20 px-4 bg-surface-container">
