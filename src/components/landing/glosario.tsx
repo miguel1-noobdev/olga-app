@@ -107,8 +107,8 @@ export default function Glosario() {
               Math.min(1, (progress - delay) / (1 - delay))
             );
 
-            // Transform: desde abajo (translateY 100px) a posición normal
-            const translateY = (1 - adjustedProgress) * 100;
+            // Transform: desde la izquierda (translateX -100px) a posición normal
+            const translateX = (1 - adjustedProgress) * -100;
             const opacity = adjustedProgress;
 
             return (
@@ -119,7 +119,7 @@ export default function Glosario() {
                 }}
                 className="glass-card aspect-square rounded-3xl overflow-hidden relative group"
                 style={{
-                  transform: `translateY(${translateY}px)`,
+                  transform: `translateX(${translateX}px)`,
                   opacity: opacity,
                   transition: 'transform 0.15s ease-out, opacity 0.15s ease-out',
                 }}
