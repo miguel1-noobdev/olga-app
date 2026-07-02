@@ -1,21 +1,12 @@
 import Navbar from '@/components/landing/navbar';
+import Hero from '@/components/landing/hero';
 
 export default function HomePage() {
   return (
     <>
       <Navbar />
       <main className="min-h-screen bg-surface">
-        {/* Placeholder sections - T-012 to T-020 will replace these */}
-        <section id="hero" className="min-h-screen flex items-center justify-center pt-16">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-serif text-primary mb-4">
-              Botánica Esencial OB
-            </h1>
-            <p className="text-xl text-on-surface-variant max-w-2xl mx-auto px-4">
-              Cosmética natural artesanal, hecha con amor y plantas
-            </p>
-          </div>
-        </section>
+        <Hero />
 
         <section id="productos" className="py-20 px-4">
           <div className="max-w-4xl mx-auto text-center">
