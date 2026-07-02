@@ -1,5 +1,6 @@
 import Navbar from '@/components/landing/navbar';
 import Hero from '@/components/landing/hero';
+import Products from '@/components/landing/products';
 
 export default function HomePage() {
   return (
@@ -7,13 +8,7 @@ export default function HomePage() {
       <Navbar />
       <main className="min-h-screen bg-surface">
         <Hero />
-
-        <section id="productos" className="py-20 px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl font-serif text-primary mb-4">Nuestros Productos</h2>
-            <p className="text-on-surface-variant">Sección en construcción - T-013</p>
-          </div>
-        </section>
+        <Products />
 
         <section id="journal" className="py-20 px-4">
           <div className="max-w-4xl mx-auto text-center">
