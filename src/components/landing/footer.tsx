@@ -69,14 +69,14 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-white/50 text-sm italic">
+          <p className="text-black text-sm font-bold italic">
             © 2026 Botánica Esencial OB. Todos los derechos reservados.
           </p>
           <div className="text-center md:text-right">
-            <p className="text-white/70 text-sm font-bold">
+            <p className="text-black text-sm font-bold">
               Creado por Miguel P.
             </p>
-            <p className="text-white/50 text-xs">IA_Soluciones Web</p>
+            <p className="text-black/70 text-xs font-bold">IA_Soluciones Web</p>
           </div>
         </div>
       </div>
