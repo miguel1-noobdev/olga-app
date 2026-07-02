@@ -2,9 +2,9 @@ export default function Unete() {
   return (
     <section id="unete" className="py-20 md:py-32 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        <div className="bg-gradient-to-br from-sage-dark to-primary p-12 md:p-24 rounded-[3rem] shadow-2xl relative overflow-hidden text-center md:text-left">
+        <div className="bg-primary p-12 md:p-24 rounded-[3rem] shadow-2xl relative overflow-hidden text-center md:text-left">
           {/* Decorative blur */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -mr-48 -mt-48" />
+          <div className="absolute top-0 right-0 w-96 h-96 bg-secondary/20 rounded-full blur-3xl -mr-48 -mt-48" />
 
           <div className="grid lg:grid-cols-2 gap-12 items-center relative z-10">
             {/* Content */}
@@ -12,7 +12,7 @@ export default function Unete() {
               <h2 className="font-serif text-4xl md:text-5xl text-white leading-tight">
                 Únete a nuestra
                 <br />
-                <span className="text-primary-fixed">Comunidad Botánica</span>
+                <span className="text-secondary">Comunidad Botánica</span>
               </h2>
               <p className="font-sans text-lg text-white/90 max-w-md">
                 Recibe consejos de autocuidado, recetas naturales y acceso a
@@ -21,20 +21,20 @@ export default function Unete() {
             </div>
 
             {/* Form */}
-            <div className="glass-card p-8 rounded-3xl bg-white/20 border border-white/30 space-y-6">
+            <div className="bg-white/10 backdrop-blur-glass p-8 rounded-3xl border border-white/20 space-y-6">
               <div className="space-y-4">
                 <input
-                  className="w-full bg-white/20 border border-white/30 rounded-xl px-6 py-4 text-white placeholder-white/70 focus:ring-2 focus:ring-primary focus:border-white transition-all"
+                  className="w-full bg-white/20 border border-white/30 rounded-xl px-6 py-4 text-white placeholder-white/60 focus:ring-2 focus:ring-secondary focus:border-white transition-all"
                   placeholder="Tu nombre"
                   type="text"
                 />
                 <input
-                  className="w-full bg-white/20 border border-white/30 rounded-xl px-6 py-4 text-white placeholder-white/70 focus:ring-2 focus:ring-primary focus:border-white transition-all"
+                  className="w-full bg-white/20 border border-white/30 rounded-xl px-6 py-4 text-white placeholder-white/60 focus:ring-2 focus:ring-secondary focus:border-white transition-all"
                   placeholder="Email@ejemplo.com"
                   type="email"
                 />
               </div>
-              <button className="w-full bg-white text-sage-dark font-bold py-4 rounded-xl shadow-lg hover:bg-cream-light transition-all font-sans text-sm uppercase tracking-widest">
+              <button className="w-full bg-secondary text-primary font-bold py-4 rounded-xl shadow-lg hover:bg-white transition-all font-sans text-sm uppercase tracking-widest">
                 Suscribirme Ahora
               </button>
               <div className="flex items-center gap-4 py-2">
