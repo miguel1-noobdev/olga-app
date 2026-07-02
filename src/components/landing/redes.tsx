@@ -2,6 +2,7 @@ export default function Redes() {
   const socials = [
     {
       name: 'Facebook',
+      colorClass: 'text-[#1877F2]',
       icon: (
         <svg
           className="w-6 h-6"
@@ -14,6 +15,7 @@ export default function Redes() {
     },
     {
       name: 'YouTube',
+      colorClass: 'text-[#FF0000]',
       icon: (
         <svg
           className="w-6 h-6"
@@ -26,6 +28,7 @@ export default function Redes() {
     },
     {
       name: 'TikTok',
+      colorClass: 'text-[#000000]',
       icon: (
         <svg
           className="w-6 h-6"
@@ -38,6 +41,7 @@ export default function Redes() {
     },
     {
       name: 'Instagram',
+      colorClass: 'text-transparent bg-clip-text bg-gradient-to-tr from-[#833AB4] via-[#FD1D1D] to-[#F77737]',
       icon: (
         <svg
           className="w-6 h-6"
@@ -70,8 +74,10 @@ export default function Redes() {
               href="#"
               className="glass-card h-40 flex flex-col items-center justify-center gap-3 hover:bg-primary/5 transition-all group"
             >
-              <div className="w-12 h-12 rounded-full bg-secondary/20 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                {social.icon}
+              <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center group-hover:scale-110 transition-transform">
+                <div className={social.colorClass}>
+                  {social.icon}
+                </div>
               </div>
               <span className="font-sans text-xs font-bold uppercase tracking-widest text-on-surface">
                 {social.name}
