@@ -40,7 +40,7 @@ export default function Glosario() {
           </div>
           <a
             href="#"
-            className="hidden md:inline-block border-2 border-primary text-primary font-sans text-sm font-bold uppercase tracking-widest px-6 py-3 rounded-full hover:bg-primary hover:text-on-primary transition-all duration-300 shrink-0 ml-8"
+            className="hidden md:inline-block border-2 border-primary text-primary font-sans text-sm font-bold uppercase tracking-widest px-6 py-3 rounded-full hover:bg-primary hover:text-white transition-all duration-300 shrink-0 ml-8"
           >
             LEER MÁS
           </a>
@@ -71,7 +71,7 @@ export default function Glosario() {
         <div className="md:hidden text-center mt-8">
           <a
             href="#"
-            className="inline-block border-2 border-primary text-primary font-sans text-sm font-bold uppercase tracking-widest px-6 py-3 rounded-full hover:bg-primary hover:text-on-primary transition-all duration-300"
+            className="inline-block border-2 border-primary text-primary font-sans text-sm font-bold uppercase tracking-widest px-6 py-3 rounded-full hover:bg-primary hover:text-white transition-all duration-300"
           >
             LEER MÁS
           </a>
