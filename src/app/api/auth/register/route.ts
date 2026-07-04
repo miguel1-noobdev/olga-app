@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
 import { createUserRepository } from '@/lib/db/repository/user';
+import { connectToDatabase } from '@/lib/db/connect';
 
 export async function POST(request: Request) {
   try {
+    await connectToDatabase();
+
     const body = await request.json();
     const { email, password } = body;
 

@@ -1,8 +1,10 @@
+import Link from 'next/link';
+
 export default function Footer() {
   const navLinks = [
     { href: '#hero', label: 'Inicio' },
     { href: '#productos', label: 'Productos' },
-    { href: '#journal', label: 'Journal' },
+    { href: '/blog', label: 'Journal' },
     { href: '#ingredientes', label: 'Ingredientes' },
   ];
 
@@ -30,12 +32,21 @@ export default function Footer() {
             <ul className="space-y-3">
               {navLinks.map((link) => (
                 <li key={link.href}>
-                  <a
-                    href={link.href}
-                    className="text-white/70 hover:text-secondary transition-colors duration-300"
-                  >
-                    {link.label}
-                  </a>
+                  {link.href.startsWith('#') ? (
+                    <a
+                      href={link.href}
+                      className="text-white/70 hover:text-secondary transition-colors duration-300"
+                    >
+                      {link.label}
+                    </a>
+                  ) : (
+                    <Link
+                      href={link.href}
+                      className="text-white/70 hover:text-secondary transition-colors duration-300"
+                    >
+                      {link.label}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>

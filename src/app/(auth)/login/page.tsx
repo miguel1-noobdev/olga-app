@@ -15,7 +15,7 @@ function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
 
   const errorParam = searchParams.get('error');
-  const callbackUrl = searchParams.get('callbackUrl') || '/blog';
+  const callbackUrl = searchParams.get('callbackUrl') || '/';
 
   useEffect(() => {
     if (errorParam === 'CredentialsSignin') {
@@ -45,7 +45,11 @@ function LoginForm() {
       });
 
       if (result?.error) {
-        setError('Credenciales inválidas. Verificá tu email y contraseña.');
+        if (result.error === 'CredentialsSignin') {
+          setError('Credenciales inválidas. Verificá tu email y contraseña.');
+        } else {
+          setError('Error al iniciar sesión. Intentá de nuevo más tarde.');
+        }
       } else if (result?.ok) {
         router.push(callbackUrl);
       }

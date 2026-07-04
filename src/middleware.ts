@@ -1,34 +1,21 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { jwtVerify } from 'jose';
-
-const AUTH_SECRET = new TextEncoder().encode(
-  process.env.AUTH_SECRET || 'fallback-secret-for-build'
-);
+import { getToken } from 'next-auth/jwt';
 
 export async function middleware(request: NextRequest) {
-  const token = request.cookies.get('next-auth.session-token')?.value ||
-                request.cookies.get('__Secure-next-auth.session-token')?.value;
+  const token = await getToken({
+    req: request,
+    secret: process.env.AUTH_SECRET,
+  });
 
   if (!token) {
     const callbackUrl = encodeURIComponent(request.nextUrl.pathname);
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('callbackUrl', callbackUrl);
-
     return NextResponse.redirect(loginUrl);
   }
 
-  try {
-    await jwtVerify(token, AUTH_SECRET);
-    return NextResponse.next();
-  } catch {
-    // Invalid or expired token - redirect to login
-    const callbackUrl = encodeURIComponent(request.nextUrl.pathname);
-    const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('callbackUrl', callbackUrl);
-
-    return NextResponse.redirect(loginUrl);
-  }
+  return NextResponse.next();
 }
 
 export const config = {

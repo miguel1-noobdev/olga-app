@@ -2,6 +2,7 @@ import type { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import { createUserRepository } from '@/lib/db/repository/user';
+import { connectToDatabase } from '@/lib/db/connect';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -12,6 +13,8 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
+        await connectToDatabase();
+
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
@@ -43,6 +46,8 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async signIn({ user, account }) {
+      await connectToDatabase();
+
       if (account?.provider === 'google') {
         const repo = createUserRepository();
         const existingUser = await repo.findByEmail(user.email!);

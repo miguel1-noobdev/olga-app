@@ -53,7 +53,7 @@ export default function Diario() {
             </p>
           </div>
           <a
-            href="#"
+            href="/blog"
             className="border-2 border-primary text-primary font-sans text-sm font-bold uppercase tracking-widest px-6 py-3 rounded-full hover:bg-primary hover:text-on-primary transition-all duration-300 shrink-0"
           >
             LEER MÁS
