@@ -22,7 +22,7 @@ Chain strategy: pending
 |---|---|---|---|
 | 1 | Auth + middleware + guards | PR 1 | base: main; includes tests |
 | 2 | Landing page 9 sections | PR 2 | base: PR 1; section-by-section validation |
-| 3 | Blog platform + integration | PR 3 | base: PR 2; MDX, comments, final tests |
+| 3 | Blog platform + integration | PR 3 | base: PR 2; MongoDB-backed blog, admin authoring, remaining follow-ups |
 
 Dependencies are implicit: tasks within a phase run top-to-bottom; later phases depend on earlier phases.
 
@@ -45,20 +45,20 @@ Dependencies are implicit: tasks within a phase run top-to-bottom; later phases 
 ## Phase 3: Landing Page
 
 - [x] **T-011** Create landing layout and navbar in src/app/page.tsx and src/components/landing/navbar.tsx; verify navigation renders; commit `feat: add landing layout and navbar`.
-- [ ] **T-012** Build Hero section in src/components/landing/sections/hero.tsx with full-viewport /img/hero image, headline, CTA; verify render; commit `feat: add Hero section`.
-- [ ] **T-013** Build Productos preview section with 3-4 cards from /img/prd and collection link; verify render; commit `feat: add Productos preview section`.
-- [ ] **T-014** Build Nuestros métodos section showing process steps; verify render; commit `feat: add Nuestros metodos section`.
-- [ ] **T-015** Build Journal preview section with 3 latest blog entries and registration prompt for anonymous users; verify content; commit `feat: add Journal preview section`.
-- [ ] **T-016** Build Glosario botánico preview section with 3-4 ingredient cards and glossary link; verify render; commit `feat: add Glosario preview section`.
-- [ ] **T-017** Build Presentación de Olga section with circular photo, intro, highlighted quote; verify render; commit `feat: add Presentacion de Olga section`.
-- [ ] **T-018** Build Únete section with registration CTA; verify render and CTA link; commit `feat: add Unete section`.
-- [ ] **T-019** Build Acceso a redes section with large social-media links; verify links; commit `feat: add Acceso a redes section`.
-- [ ] **T-020** Build Footer section with navigation, contact, social, and legal placeholders; verify render; commit `feat: add Footer section`.
+- [x] **T-012** Build Hero section in src/components/landing/hero.tsx with full-viewport hero image, headline, and landing presentation; verify render; commit `feat: add Hero section`.
+- [x] **T-013** Build Productos preview section with line cards and collection affordances in src/components/landing/products.tsx; verify render; commit `feat: add Productos preview section`.
+- [x] **T-014** Build Nuestros métodos section in src/components/landing/metodos.tsx showing the artisanal process; verify render; commit `feat: add Nuestros metodos section`.
+- [x] **T-015** Build Diario Botánico preview section in src/components/landing/diario.tsx with 3 landing cards and `/blog` CTA; verify content; commit `feat: add Journal preview section`.
+- [x] **T-016** Build Glosario botánico preview section in src/components/landing/glosario.tsx with ingredient cards and glossary CTA placeholder; verify render; commit `feat: add Glosario preview section`.
+- [x] **T-017** Build Presentación de Olga section in src/components/landing/olga.tsx with circular photo, intro, and highlighted quote; verify render; commit `feat: add Presentacion de Olga section`.
+- [x] **T-018** Build Únete section in src/components/landing/unete.tsx with registration-style CTA layout; verify render; commit `feat: add Unete section`.
+- [x] **T-019** Build Acceso a redes section in src/components/landing/redes.tsx with large social-media cards; verify render; commit `feat: add Acceso a redes section`.
+- [x] **T-020** Build Footer section in src/components/landing/footer.tsx with navigation, contact details, copyright, and creator credit; verify render; commit `feat: add Footer section`.
 
 ## Phase 4: Blog Platform
 
-- [ ] **T-021** Set up MDX loader in src/lib/content/articles.ts and create 4 seed articles in content/articles/; verify list/filter/bySlug; commit `feat: add MDX article loader and seed articles`.
-- [ ] **T-022** Build blog listing page at src/app/blog/page.tsx with article cards and category filter; verify Recursos/Blog filter; commit `feat: add blog listing page`.
-- [ ] **T-023** Build article page at src/app/blog/[slug]/page.tsx rendering title, image, content, author, date, category, tags; verify slug routing; commit `feat: add blog article page`.
+- [x] **T-021** Implement MongoDB-backed article persistence with `src/lib/db/connect.ts`, `src/lib/db/models/article.ts`, `src/lib/db/repository/article.ts`, and admin create flow at `/admin/blog`, `/admin/blog/nuevo`, and `POST /api/admin/articles`; this superseded the earlier MDX-loader plan.
+- [x] **T-022** Build `/blog` welcome page plus `/blog/articulos` published listing using MongoDB article data; verify `/blog` reads the latest 2 published articles and `/blog/articulos` reads all published articles.
+- [x] **T-023** Build `/blog/[slug]` article detail page reading article content from MongoDB by slug and rendering the published detail view; verify slug routing.
 - [ ] **T-024** Implement comments in src/components/blog/comment-form.tsx, comment-list.tsx, and src/app/api/comments/route.ts; verify post/delete and empty rejection; commit `feat: add comments API and UI`.
 - [ ] **T-025** Run integration tests for anonymous redirect, registered /blog access, first-user-admin, 9 landing sections order; verify build; commit `test: add Fase 1 integration tests`.

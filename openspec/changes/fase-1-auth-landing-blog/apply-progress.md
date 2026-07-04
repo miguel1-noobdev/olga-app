@@ -18,6 +18,9 @@
 | T-009 | Google OAuth provider | done | `2ac36fa` | GoogleProvider added to NextAuth; signIn callback creates user via UserRepository on first OAuth sign-in; login page has Google button. |
 | T-010 | Auth guard middleware | done | `9116fc0` | Middleware protects /blog/** using jose JWT verify; redirects unauthenticated users to /login?callbackUrl. |
 | T-011 | Landing layout + navbar | done | `b43d25d` | Responsive navbar with glassmorphism; anchor links; mobile hamburger menu. Placeholder sections for T-012-T-020. |
+| T-021 | MongoDB article persistence + admin create flow | done | `e9073df` | Earlier MDX-loader plan was superseded by the MongoDB article model/repository, `/admin/blog`, `/admin/blog/nuevo`, and `POST /api/admin/articles`. |
+| T-022 | Blog home + published listing routes | done | `e9073df` | `/blog` renders the welcome experience plus the latest 2 published articles; `/blog/articulos` lists all published articles from MongoDB. |
+| T-023 | Blog article detail route | done | `e9073df` | `/blog/[slug]` resolves articles by slug from MongoDB and renders the published detail page. |
 
 ## T-001 — Scaffold Next.js 14 + Tailwind
 
@@ -227,3 +230,26 @@
 
 ### Bundle size
 - `src/app/page.tsx`: +60 lines. `src/components/landing/navbar.tsx`: +85 lines. Net: ~145 lines. Under 400-line budget.
+
+## Blog implementation snapshot — current HEAD / worktree (`e9073df`)
+
+### What is actually implemented
+- `src/app/blog/page.tsx` connects to MongoDB via `connectToDatabase()`, builds a repository with `createArticleRepository()`, and reads the latest 2 published articles with `findLatestPublished(2)`.
+- `src/components/blog/blog-homepage.tsx` renders the `/blog` welcome experience with a static welcome hero plus two recent published articles passed in from MongoDB.
+- `src/app/blog/articulos/page.tsx` reads all published articles with `findAllPublished()` and renders the full published listing.
+- `src/app/blog/[slug]/page.tsx` reads a single article by slug with `findBySlug()` and renders the detail page, returning `notFound()` when the slug does not exist.
+- `src/components/blog/blog-navbar.tsx` and `src/components/blog/blog-footer.tsx` provide blog-specific chrome; the blog does **not** reuse the landing `Navbar`/`Footer` components.
+- `src/app/admin/blog/page.tsx` is the current admin listing route, `src/app/admin/blog/nuevo/page.tsx` is the create form, and `src/app/api/admin/articles/route.ts` handles authenticated admin creation plus auto-publish.
+- `src/lib/db/connect.ts`, `src/lib/db/models/article.ts`, and `src/lib/db/repository/article.ts` provide the MongoDB connection, Article model, and article repository abstraction used by the public and admin blog routes.
+- Navigation flow is already wired to real routes: landing and blog links point to `/blog` or `/blog/articulos`, article cards point to `/blog/[slug]`, and admin shortcuts point to `/admin/blog` and `/admin/blog/nuevo`.
+
+### Notes
+- The earlier notes about `featured-article.tsx`, `MEDIUM_ARTICLES`, `SMALL_ARTICLES`, placeholder `#` links, and a future MDX swap are no longer accurate for the current HEAD and have been removed.
+- `src/components/landing/diario.tsx` still shows three static landing cards; it is **not** yet backed by the MongoDB article repository.
+- `src/lib/db/models/article.ts` currently declares `slug` as `unique: true` and also adds a manual `ArticleSchema.index({ slug: 1 })`; that duplicate-index warning cleanup remains pending.
+
+### Remaining follow-ups (still pending)
+- Edit/delete article management from the admin area.
+- Make the landing `Diario Botánico` section read the latest 3 published articles dynamically.
+- Comments, search, and category filtering for the blog remain unimplemented.
+- Clean up the duplicate slug index warning in the article model.
