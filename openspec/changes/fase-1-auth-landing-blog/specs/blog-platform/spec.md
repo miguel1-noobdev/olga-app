@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define the registered-only blog for Botánica Esencial OB: article listing, category filtering, article view, comments, and static seed content for Fase 1.
+Define the registered-only blog for Botánica Esencial OB: article listing, article view, and admin-authored MongoDB-backed articles for Fase 1. Category filtering and comments are explicitly deferred and out of scope for this phase by product decision.
 
 ## Requirements
 
@@ -42,21 +42,15 @@ The blog listing page MUST display article cards with title, featured image, cat
 - WHEN the page loads
 - THEN all seed articles are displayed as cards
 
-### Requirement: Category filter
+### Requirement: Category filter deferred for Fase 1
 
-The system MUST allow filtering the article list by the categories `Recursos` and `Blog`.
+The system MUST NOT expose category filtering UI or behaviour in Fase 1. The article listing page renders all published articles regardless of category. Filtering by `Recursos` / `Blog` is explicitly deferred to a future blog enhancement.
 
-#### Scenario: Filter by one category
+#### Scenario: Article listing renders without category filter
 
 - GIVEN articles exist in both categories
-- WHEN the user selects the `Recursos` filter
-- THEN only articles with category `Recursos` are displayed
-
-#### Scenario: Show all categories
-
-- GIVEN a category filter is active
-- WHEN the user clears the filter
-- THEN all articles are displayed again
+- WHEN an authenticated user visits `/blog/articulos`
+- THEN all published articles are displayed and no category filter UI is present
 
 ### Requirement: Article view
 
@@ -68,31 +62,15 @@ The system MUST render a complete article page for each article slug.
 - WHEN the page loads
 - THEN the title, featured image, content, author, date, category, and tags are displayed
 
-### Requirement: Comments for registered users
+### Requirement: Comments deferred for Fase 1
 
-Authenticated users MUST be able to add comments to an article.
+The Fase 1 blog MUST remain comment-free. Comment submission, display, and moderation are explicitly out of scope until a future change reopens them.
 
-#### Scenario: Post a comment
+#### Scenario: Article renders without comments UI
 
-- GIVEN an authenticated user views an article
-- WHEN the user submits a non-empty comment
-- THEN the comment is saved and displayed with the author's name and timestamp
-
-#### Scenario: Empty comment rejected
-
-- GIVEN an authenticated user submits an empty comment
-- WHEN the form is validated
-- THEN the comment is rejected and an error message is shown
-
-### Requirement: Comment moderation
-
-The author of a comment or an admin MUST be able to delete it.
-
-#### Scenario: Delete own comment
-
-- GIVEN an authenticated user has previously posted a comment
-- WHEN the user chooses to delete it
-- THEN the comment is marked as deleted and no longer rendered
+- GIVEN an authenticated user opens a blog article
+- WHEN the page is rendered
+- THEN the article content is shown without comment form, comment list, or moderation controls
 
 ### Requirement: Landing blog preview
 

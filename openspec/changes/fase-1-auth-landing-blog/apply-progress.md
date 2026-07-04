@@ -21,6 +21,8 @@
 | T-021 | MongoDB article persistence + admin create flow | done | `e9073df` | Earlier MDX-loader plan was superseded by the MongoDB article model/repository, `/admin/blog`, `/admin/blog/nuevo`, and `POST /api/admin/articles`. |
 | T-022 | Blog home + published listing routes | done | `e9073df` | `/blog` renders the welcome experience plus the latest 2 published articles; `/blog/articulos` lists all published articles from MongoDB. |
 | T-023 | Blog article detail route | done | `e9073df` | `/blog/[slug]` resolves articles by slug from MongoDB and renders the published detail page. |
+| T-024 | Blog comments | deferred | n/a | Explicit product decision: comments are out of scope for Fase 1; the blog stays comment-free for now. |
+| T-025 | Fase 1 verification closure | done | n/a | `verify-report.md` confirms the auth/blog redirect, registered access architecture, first-user-admin rule, landing section order, build, and test suite checks passed; the report's warning was limited to docs drift. |
 
 ## T-001 — Scaffold Next.js 14 + Tailwind
 
@@ -251,5 +253,16 @@
 ### Remaining follow-ups (still pending)
 - Edit/delete article management from the admin area.
 - Make the landing `Diario Botánico` section read the latest 3 published articles dynamically.
-- Comments, search, and category filtering for the blog remain unimplemented.
+- Search and category filtering for the blog remain unimplemented.
 - Clean up the duplicate slug index warning in the article model.
+
+### Scope decision — blog comments deferred
+- The user explicitly decided not to add blog comments in Fase 1.
+- T-024 is therefore deferred/out of scope, not a pending implementation blocker.
+- Current expected product state: the blog remains comment-free until a future phase reopens that decision.
+
+## T-025 — Verification closure
+
+- Verification source: `openspec/changes/fase-1-auth-landing-blog/verify-report.md`.
+- Verified runtime targets passed: anonymous `/blog` redirect, registered blog access architecture, first-user-admin rule, 9 landing sections order, build, and existing test suite.
+- The verify report's `warning` status was due to OpenSpec comment-scope drift, not a runtime failure.

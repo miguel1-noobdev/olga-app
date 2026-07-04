@@ -1,15 +1,15 @@
 change: fase-1-auth-landing-blog
 title: Fase 1 — Auth + Landing + Blog
-status: proposed
+status: verified
 created: 2026-06-30
-updated: 2026-06-30
+updated: 2026-07-04
 phases:
-  exploration: pending
+  exploration: done
   proposal: done
-  spec: pending
-  design: pending
-  tasks: pending
-  apply: pending
-  verify: pending
+  spec: done
+  design: done
+  tasks: done
+  apply: done
+  verify: done
   archive: pending
 dependencies: []

@@ -17,6 +17,8 @@ Establish the public face and subscriber layer of Botánica Esencial OB. Deliver
 - MongoDB business collections (Fase 2)
 - Glosario full page (Fase 3)
 - Laboratorio and admin dashboards (Fase 3-4)
+- Blog comments and moderation (explicitly deferred by product decision for Fase 1)
+- Blog search and category filtering (deferred to a future blog enhancement)
 - Email sending infrastructure
 - Payment, cart, checkout
 
@@ -25,7 +27,7 @@ Establish the public face and subscriber layer of Botánica Esencial OB. Deliver
 ### New Capabilities
 - `user-auth`: registration, login, logout, OAuth, role assignment, first-user-admin rule
 - `landing-page`: 9-section public landing with glassmorphism design system
-- `blog-platform`: article listing, category filter, article view, comments for registered users
+- `blog-platform`: article listing and article view for registered users
 
 ### Modified Capabilities
 - None
@@ -67,8 +69,8 @@ Bootstrap a Next.js 14 App Router project with TypeScript and Tailwind. Build au
 
 ## Success Criteria
 
-- [ ] First registered user is assigned `admin` role automatically
-- [ ] Registered users can log in and access `/blog`
-- [ ] Anonymous users see full landing but are redirected when accessing `/blog`
-- [ ] Landing renders all 9 sections matching the glassmorphism reference
-- [ ] Blog shows articles, categories, and allows comments from logged-in users
+- [x] First registered user is assigned `admin` role automatically
+- [x] Registered users can log in and access `/blog`
+- [x] Anonymous users see full landing but are redirected when accessing `/blog`
+- [x] Landing renders all 9 sections matching the glassmorphism reference
+- [x] Blog shows articles without comments, search, or category filtering in Fase 1

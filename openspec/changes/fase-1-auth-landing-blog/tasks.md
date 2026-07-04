@@ -60,5 +60,5 @@ Dependencies are implicit: tasks within a phase run top-to-bottom; later phases 
 - [x] **T-021** Implement MongoDB-backed article persistence with `src/lib/db/connect.ts`, `src/lib/db/models/article.ts`, `src/lib/db/repository/article.ts`, and admin create flow at `/admin/blog`, `/admin/blog/nuevo`, and `POST /api/admin/articles`; this superseded the earlier MDX-loader plan.
 - [x] **T-022** Build `/blog` welcome page plus `/blog/articulos` published listing using MongoDB article data; verify `/blog` reads the latest 2 published articles and `/blog/articulos` reads all published articles.
 - [x] **T-023** Build `/blog/[slug]` article detail page reading article content from MongoDB by slug and rendering the published detail view; verify slug routing.
-- [ ] **T-024** Implement comments in src/components/blog/comment-form.tsx, comment-list.tsx, and src/app/api/comments/route.ts; verify post/delete and empty rejection; commit `feat: add comments API and UI`.
-- [ ] **T-025** Run integration tests for anonymous redirect, registered /blog access, first-user-admin, 9 landing sections order; verify build; commit `test: add Fase 1 integration tests`.
+- [x] **T-024** Defer blog comments by explicit product decision; comments are out of scope for Fase 1 and the blog remains comment-free for now. No comment UI/API implementation in this phase.
+- [x] **T-025** Run integration tests for anonymous redirect, registered /blog access, first-user-admin, 9 landing sections order; verify build; commit `test: add Fase 1 integration tests`.
