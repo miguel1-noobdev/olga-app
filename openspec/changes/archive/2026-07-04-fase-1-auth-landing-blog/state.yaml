@@ -1,6 +1,6 @@
 change: fase-1-auth-landing-blog
 title: Fase 1 — Auth + Landing + Blog
-status: verified
+status: archived
 created: 2026-06-30
 updated: 2026-07-04
 phases:
@@ -11,5 +11,7 @@ phases:
   tasks: done
   apply: done
   verify: done
-  archive: pending
+  archive: done
+archived_at: 2026-07-04
+archive_path: openspec/changes/archive/2026-07-04-fase-1-auth-landing-blog
 dependencies: []
