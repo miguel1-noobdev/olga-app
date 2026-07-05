@@ -47,6 +47,35 @@ olga-app/
 - **Un commit por tarea** completada
 - **Documentación centralizada** en `CONTEXTO_PLATAFORMA.md`
 
+## Desarrollo local
+
+### Requisitos
+
+- Node.js (ver `package.json`)
+- Docker Desktop (Windows) o Docker Engine (Linux/WSL)
+
+### Levantar MongoDB local
+
+La base de datos corre en un contenedor Docker con un volumen persistente:
+
+```bash
+docker compose up -d mongo
+```
+
+Esto expone MongoDB solo en `localhost:27017` usando el volumen `mongo-data`.
+
+El archivo `.env.local` ya contiene la URI por defecto:
+
+```bash
+MONGODB_URI=mongodb://localhost:27017/botanica-ob
+```
+
+### Tests
+
+```bash
+npm run test:run
+```
+
 ## Ver también
 
 - [CONTEXTO_PLATAFORMA.md](./ideas/designUI/CONTEXTO_PLATAFORMA.md) — Contexto completo del proyecto
