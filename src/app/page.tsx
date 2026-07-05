@@ -1,3 +1,4 @@
+import React from 'react';
 import Navbar from '@/components/landing/navbar';
 import Hero from '@/components/landing/hero';
 import Products from '@/components/landing/products';
@@ -8,8 +9,14 @@ import Olga from '@/components/landing/olga';
 import Unete from '@/components/landing/unete';
 import Redes from '@/components/landing/redes';
 import Footer from '@/components/landing/footer';
+import { connectToDatabase } from '@/lib/db/connect';
+import { createArticleRepository } from '@/lib/db/repository/article';
 
-export default function HomePage() {
+export default async function HomePage() {
+  await connectToDatabase();
+  const repo = createArticleRepository();
+  const articles = await repo.findLatestPublished(3);
+
   return (
     <>
       <Navbar />
@@ -17,7 +24,7 @@ export default function HomePage() {
         <Hero />
         <Products />
         <Metodos />
-        <Diario />
+        <Diario articles={articles} />
         <Glosario />
         <Olga />
         <Unete />
