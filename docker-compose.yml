@@ -1,0 +1,16 @@
+services:
+  mongo:
+    image: mongo:7.0
+    container_name: botanica-ob-mongo
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: botanica-ob
+    volumes:
+      - mongo-data:/data/db
+    # Bind only to localhost so the port is never exposed to the internet.
+    # Only accessible from the host itself (Docker Desktop on Windows, WSL/Linux).
+
+volumes:
+  mongo-data:
