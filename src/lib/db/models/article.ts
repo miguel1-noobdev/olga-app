@@ -69,8 +69,7 @@ const ArticleSchema = new Schema<IArticle>(
   }
 );
 
-// Índice para búsquedas por slug y fecha de publicación
-ArticleSchema.index({ slug: 1 });
+// Índice para búsquedas por fecha de publicación
 ArticleSchema.index({ published: 1, publishedAt: -1 });
 
 export const ArticleModel: Model<IArticle> =
