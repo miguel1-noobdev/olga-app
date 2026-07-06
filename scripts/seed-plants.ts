@@ -173,6 +173,37 @@ const PLANT_SEEDS: SeedPlant[] = [
     description:
       'Planta herbácea perenne (en el caso de U. dioica) o anual (U. urens) de la familia Urticaceae, caracterizada por la presencia de tricomas o pelos urticantes que funcionan como agujas hipodérmicas al contacto con la piel. La Ortiga mayor (U. dioica) se distingue por ser más alta (hasta 2 metros) y perenne, con rizomas amarillos rastreros, mientras que la Ortiga menor (U. urens) es anual y de menor porte. Es una especie nitrófila (indicadora de suelos ricos en nitrógeno) y prefiere sitios húmedos, bordes de caminos, escombreras y zonas ribereñas en climas templados de todo el mundo.',
   },
+  {
+    commonName: 'Viborera morada',
+    scientificName: 'Echium plantagineum L.',
+    family: 'Boraginaceae',
+    usedParts: ['Semillas', 'Flores', 'Raíz'],
+    compounds: [
+      { name: 'Ácido estearidónico', percentage: 'SDA, 12-14%' },
+      { name: 'Ácido alfa-linolénico', percentage: 'ALA, 40-41%' },
+      { name: 'Gamma-linolénico', percentage: 'GLA' },
+      { name: 'Mucílagos' },
+      { name: 'Naftoquinonas', description: 'raíz: shikoninas' },
+      { name: 'Alcaloides pirrolizidínicos', description: 'planta verde: equimidina' },
+    ],
+    properties: {
+      oral: ['Cardioprotector', 'Neuroprotector'],
+      topical: ['Regenerador de la barrera cutánea', 'Antiinflamatorio tópico'],
+    },
+    contraindications: [
+      'Consumo interno de planta cruda o infusiones prohibido por toxicidad hepática acumulativa',
+      'Aceite refinado evitar en embarazo',
+      'Aceite refinado evitar en lactancia',
+      'Aceite refinado evitar con anticoagulantes',
+    ],
+    availableExtracts: [
+      { type: 'Aceite de Semilla Refinado', description: 'Proceso de Super Refining para eliminar APs y proteínas alergénicas' },
+      { type: 'Infusión de Flores', description: 'Uso tradicional demulcente (pectoral), hoy se cuestiona por trazas de alcaloides' },
+      { type: 'Extracto de Raíz', description: 'Rico en shikoninas con propiedades antimicrobianas' },
+    ],
+    description:
+      'Planta herbácea de la familia Boraginaceae, de ciclo anual o bienal, reconocida por su gran resiliencia y por ser una fuente vegetal excepcional de ácidos grasos ω-3 complejos. Se distingue de la viborera común (E. vulgare) porque solo dos de sus estambres sobresalen claramente de la corola. Posee hojas basales anchas y ovadas en roseta que recuerdan al llantén. Es una especie nitrófila y ruderal, habitual en bordes de caminos, dunas fijas y campos baldíos, desde el nivel del mar hasta los 1200 metros.',
+  },
 ];
 
 function slugify(text: string): string {
