@@ -78,6 +78,35 @@ const PLANT_SEEDS: SeedPlant[] = [
     description:
       'Planta herbácea perenne del género Plantago en la familia Plantaginaceae, conocida por su gran capacidad de regeneración. El Llantén mayor (P. major) se diferencia por sus hojas anchas y ovaladas, mientras que el Llantén menor (P. lanceolata) tiene hojas largas y lanceoladas. Es muy común en bordes de caminos, prados húmedos y terrenos de cultivo de Europa y América.',
   },
+  {
+    commonName: 'Viborera',
+    scientificName: 'Echium albicans Lag. & Rodr.',
+    family: 'Boraginaceae',
+    usedParts: ['Semillas', 'Sumidades floridas'],
+    compounds: [
+      { name: 'Ácido esteáridónico', percentage: 'SDA' },
+      { name: 'Ácido gamma-linolénico', percentage: 'GLA' },
+      { name: 'Ácido alfa-linolénico', percentage: 'ALA' },
+      { name: 'Alcaloides pirrolizidínicos' },
+    ],
+    properties: {
+      oral: [],
+      topical: ['Regenerador cutáneo', 'Antiinflamatorio', 'Antioxidante', 'Hidratante profundo'],
+    },
+    contraindications: [
+      'Uso interno restringido por toxicidad hepática',
+      'No usar en embarazo',
+      'No usar en lactancia',
+      'No usar en pacientes con daño hepático',
+    ],
+    availableExtracts: [
+      { type: 'Aceite de Semillas', method: 'Prensa en frío' },
+      { type: 'Infusión', description: 'Uso externo' },
+      { type: 'Extracto Glicólico' },
+    ],
+    description:
+      'Planta herbácea perenne de la familia Boraginaceae, notable por su follaje blanquecino y su alto valor en ácidos grasos esenciales. Se distingue de otras especies del género Echium por sus hojas densamente cubiertas de pelos blancos (tomento), lo que le da un aspecto plateado o albino. Es una especie endémica de las cordilleras Béticas (sur de España), donde crece en roquedos, pedregales y fisuras de rocas calizas, adaptada a condiciones de alta montaña.',
+  },
 ];
 
 function slugify(text: string): string {
