@@ -79,7 +79,7 @@ const PLANT_SEEDS: SeedPlant[] = [
       'Planta herbácea perenne del género Plantago en la familia Plantaginaceae, conocida por su gran capacidad de regeneración. El Llantén mayor (P. major) se diferencia por sus hojas anchas y ovaladas, mientras que el Llantén menor (P. lanceolata) tiene hojas largas y lanceoladas. Es muy común en bordes de caminos, prados húmedos y terrenos de cultivo de Europa y América.',
   },
   {
-    commonName: 'Viborera',
+    commonName: 'Viborera blanca',
     scientificName: 'Echium albicans Lag. & Rodr.',
     family: 'Boraginaceae',
     usedParts: ['Semillas', 'Sumidades floridas'],
