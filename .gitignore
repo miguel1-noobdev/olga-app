@@ -23,6 +23,10 @@ coverage/
 # Runtime data (JsonStore base directory)
 .data/
 
+# Local AI skill registry cache
+.atl/skill-registry.md
+.atl/.skill-registry.cache.json
+
 # Local dev server logs
 next-dev.*
 *.log
@@ -34,6 +38,9 @@ next-dev.*
 # OS
 .DS_Store
 Thumbs.db
+
+# Local reference captures from Olga's notebook
+img/WhatsApp Image*.jpeg
 
 # IDE
 .vscode/
