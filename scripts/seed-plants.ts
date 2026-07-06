@@ -139,6 +139,40 @@ const PLANT_SEEDS: SeedPlant[] = [
     description:
       'Planta herbácea perenne de porte erecto (30-100 cm) con tallos cuadrangulares ramificados y hojas opuestas rugosas. Se distingue de la hierba luisa (Aloysia citriodora) por carecer de su intenso aroma cítrico. Es una especie ruderal y nitrófila que coloniza rápidamente bordes de caminos y terrenos baldíos. Es nativa de Europa, Asia y África, pero está naturalizada en toda América.',
   },
+  {
+    commonName: 'Ortiga',
+    scientificName: 'Urtica dioica L.',
+    family: 'Urticaceae',
+    usedParts: ['Hojas', 'Sumidades aéreas', 'Raíces', 'Rizomas', 'Semillas'],
+    compounds: [
+      { name: 'Ácidos fenólicos', description: 'hojas: ácido clorogénico, cafeico' },
+      { name: 'Flavonoides', description: 'hojas: quercetina, rutina' },
+      { name: 'Aminas', description: 'hojas: histamina, serotonina, acetilcolina en pelos urticantes' },
+      { name: 'Minerales', description: 'hojas: hierro, calcio, potasio, magnesio' },
+      { name: 'Polisacáridos', description: 'raíces' },
+      { name: 'Lignanos', description: 'raíces' },
+      { name: 'Fitoesteroles', description: 'raíces: β-sitosterol' },
+      { name: 'Aglutinina de Urtica dioica', description: 'raíces: UDA' },
+    ],
+    properties: {
+      oral: ['Antiprostático', 'Diurético', 'Depurativo', 'Antiinflamatorio', 'Analgésico', 'Remineralizante'],
+      topical: ['Antiinflamatorio', 'Seborregulador', 'Remineralizante'],
+    },
+    contraindications: [
+      'Hipersensibilidad a la planta',
+      'Embarazo y lactancia',
+      'Menores de 12 años',
+      'Insuficiencia cardíaca o renal grave',
+    ],
+    availableExtracts: [
+      { type: 'Infusión / Decocción', description: 'Tradicional para afecciones urinarias o reumáticas' },
+      { type: 'Jugo de Planta Fresca', description: 'Muy rico en clorofila y minerales, usado como tónico' },
+      { type: 'Extracto Fluido / Tintura', description: 'Concentrados hidroalcohólicos para uso interno o lociones capilares' },
+      { type: 'Extracto Seco', description: 'Estandarizado en sílice o β-sitosterol para suplementación' },
+    ],
+    description:
+      'Planta herbácea perenne (en el caso de U. dioica) o anual (U. urens) de la familia Urticaceae, caracterizada por la presencia de tricomas o pelos urticantes que funcionan como agujas hipodérmicas al contacto con la piel. La Ortiga mayor (U. dioica) se distingue por ser más alta (hasta 2 metros) y perenne, con rizomas amarillos rastreros, mientras que la Ortiga menor (U. urens) es anual y de menor porte. Es una especie nitrófila (indicadora de suelos ricos en nitrógeno) y prefiere sitios húmedos, bordes de caminos, escombreras y zonas ribereñas en climas templados de todo el mundo.',
+  },
 ];
 
 function slugify(text: string): string {
