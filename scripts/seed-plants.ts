@@ -107,6 +107,38 @@ const PLANT_SEEDS: SeedPlant[] = [
     description:
       'Planta herbácea perenne de la familia Boraginaceae, notable por su follaje blanquecino y su alto valor en ácidos grasos esenciales. Se distingue de otras especies del género Echium por sus hojas densamente cubiertas de pelos blancos (tomento), lo que le da un aspecto plateado o albino. Es una especie endémica de las cordilleras Béticas (sur de España), donde crece en roquedos, pedregales y fisuras de rocas calizas, adaptada a condiciones de alta montaña.',
   },
+  {
+    commonName: 'Verbena',
+    scientificName: 'Verbena officinalis L.',
+    family: 'Verbenaceae',
+    usedParts: ['Sumidades floridas', 'Hojas', 'Raíz'],
+    compounds: [
+      { name: 'Iridoides heterosídicos', percentage: 'mín. 1.5% verbenalina, verbenalósido, hastatósido' },
+      { name: 'Glucósidos fenilpropanoides', percentage: 'verbascósido' },
+      { name: 'Flavonoides', percentage: 'luteolina, apigenina' },
+      { name: 'Taninos' },
+      { name: 'Mucílagos' },
+      { name: 'Aceite esencial', percentage: 'citral, geraniol' },
+    ],
+    properties: {
+      oral: ['Sedante', 'Ansiolítico', 'Neuroprotector', 'Antitusivo', 'Febrífugo', 'Galactogogo', 'Astringente'],
+      topical: ['Antiinflamatorio'],
+    },
+    contraindications: [
+      'Embarazo (efecto uterotónico/abortivo)',
+      'Hipotiroidismo (acción antitiroidea)',
+      'Niños menores de 12 años',
+      'Anemia ferropénica (taninos quelan el hierro)',
+      'Puede interactuar con anticoagulantes y antihipertensivos',
+    ],
+    availableExtracts: [
+      { type: 'Infusión', description: '1.5 - 2 g por taza para ansiedad o tos' },
+      { type: 'Extracto Fluido / Tintura', description: 'Formas concentradas para afecciones reumáticas o insomnio' },
+      { type: 'Decocción', description: 'Uso externo: lavados de heridas, eccemas o gargarismos para gingivitis' },
+    ],
+    description:
+      'Planta herbácea perenne de porte erecto (30-100 cm) con tallos cuadrangulares ramificados y hojas opuestas rugosas. Se distingue de la hierba luisa (Aloysia citriodora) por carecer de su intenso aroma cítrico. Es una especie ruderal y nitrófila que coloniza rápidamente bordes de caminos y terrenos baldíos. Es nativa de Europa, Asia y África, pero está naturalizada en toda América.',
+  },
 ];
 
 function slugify(text: string): string {
