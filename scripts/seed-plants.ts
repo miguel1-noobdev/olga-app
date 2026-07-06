@@ -21,29 +21,31 @@ const PLANT_SEEDS: SeedPlant[] = [
     scientificName: 'Lavandula angustifolia Mill.',
     species: 'Lavandula angustifolia',
     family: 'Lamiaceae',
-    usedParts: ['Flores', 'Sumidades floridas'],
+    usedParts: ['Sumidades floridas'],
     compounds: [
-      { name: 'Linalool', percentage: '25-38%' },
-      { name: 'Acetato de linalilo', percentage: '25-45%' },
+      { name: 'Linalol', percentage: '20-45%' },
+      { name: 'Acetato de linalilo', percentage: '25-47%' },
       { name: 'Lavandulol' },
       { name: 'Terpinen-4-ol' },
     ],
     properties: {
-      oral: ['Ansiolítico', 'Sedante', 'Neuroprotector'],
-      topical: ['Antiinflamatorio', 'Cicatrizante', 'Antiséptico', 'Regenerador cutáneo'],
+      oral: ['Ansiolítico', 'Sedante'],
+      topical: ['Antiinflamatorio', 'Regenerador cutáneo'],
     },
     contraindications: [
       'Hipersensibilidad a la planta',
-      'No baños con heridas abiertas',
-      'No oral en embarazo/lactancia/niños <12',
+      'Evitar vía oral en embarazo',
+      'Evitar en insuficiencia cardíaca grave en baños',
     ],
     availableExtracts: [
-      { type: 'Aceite Esencial', method: 'Destilación por arrastre de vapor', description: '100% puro' },
-      { type: 'Hidrolato', description: 'Agua floral rica en polifenoles' },
-      { type: 'Extracto CO2', description: 'Alta estabilidad y pureza de activos' },
+      { type: 'Aceite Esencial' },
+      { type: 'Hidrolato' },
+      { type: 'Extracto de CO2' },
+      { type: 'Oleato' },
+      { type: 'Glicerito' },
     ],
     description:
-      'Planta aromática de la familia de las labiadas, reconocida por sus propiedades calmantes y regeneradoras de la piel.',
+      'Lavandula angustifolia, lavanda, es una especie de planta sufruticosa perenne del género Lavandula en la familia Lamiaceae (Labiadas). Se distingue de otras lavandas (como el espliego o cantueso) por sus hojas lineares más estrechas y su espiga floral más corta y compacta. Es nativa de la región mediterránea occidental, prefiriendo suelos calcáreos, secos y soleados en altitudes de montaña.',
   },
   {
     commonName: 'Llantén',
@@ -97,14 +99,13 @@ async function seedPlants() {
 
     for (const seed of PLANT_SEEDS) {
       const slug = slugify(seed.scientificName);
-      const existing = await PlantModel.findOne({ slug });
+      const plant = await PlantModel.findOneAndUpdate(
+        { slug },
+        { ...seed, slug },
+        { upsert: true, returnDocument: 'after', runValidators: true }
+      );
 
-      if (existing) {
-        console.log(`Plant "${seed.commonName}" already exists (slug: ${slug}). Skipping.`);
-      } else {
-        const plant = await PlantModel.create({ ...seed, slug });
-        console.log(`Plant "${plant.commonName}" seeded with slug "${plant.slug}".`);
-      }
+      console.log(`Plant "${plant.commonName}" synced with slug "${plant.slug}".`);
     }
   } catch (error) {
     console.error('Failed to seed plants:', error);
