@@ -343,6 +343,44 @@ const PLANT_SEEDS: SeedPlant[] = [
     description:
       'Arbusto vigoroso de porte desordenado y ramas sarmentosas, también conocido como Rosal Silvestre, que alcanza habitualmente los 2 a 4 metros, aunque puede llegar a los 12 metros si cuenta con apoyo para trepar. Se caracteriza por sus tallos provistos de aguijones falciformes y sus pseudofrutos carnosos (cinorrodones) de un rojo escarlata brillante. Se distingue diagnósticamente de otras rosas por tener folíolos completamente glabros en ambas caras y sépalos que se desprenden precozmente antes de la maduración del fruto. Es nativa de la región Paleártica, siendo común en toda la Península Ibérica hasta los 1500 msnm, y se ha naturalizado con éxito en los valles interandinos de Chile y Perú hasta los 4000 msnm.',
   },
+  {
+    commonName: 'Romero',
+    scientificName: 'Salvia rosmarinus Spenn.',
+    family: 'Lamiaceae',
+    usedParts: ['Hojas', 'Sumidades floridas'],
+    compounds: [
+      { name: '1,8-cineol', description: 'aceite esencial: 15-55%' },
+      { name: 'Alfa-pineno', description: 'aceite esencial: hasta 80%' },
+      { name: 'Alcanfor', description: 'aceite esencial: 10-35%' },
+      { name: 'Borneol', description: 'aceite esencial' },
+      { name: 'Verbenona', description: 'aceite esencial' },
+      { name: 'Campheno', description: 'aceite esencial' },
+      { name: 'Ácido carnósico', description: 'diterpeno fenólico' },
+      { name: 'Carnosol', description: 'diterpeno fenólico' },
+      { name: 'Ácido rosmarínico', description: 'hidrosoluble' },
+      { name: 'Ácido cafeico' },
+      { name: 'Flavonoides', description: 'luteolina, apigenina, genkwanina' },
+    ],
+    properties: {
+      oral: ['Antioxidante', 'Hepatoprotector', 'Neuroprotector', 'Nootrópico', 'Antiinflamatorio', 'Analgésico', 'Antiespasmódico', 'Mucolítico'],
+      topical: ['Dermatológico', 'Estimulante de microcirculación cutánea'],
+    },
+    contraindications: [
+      'Obstrucción de conductos biliares',
+      'Colelitiasis',
+      'Embarazo y lactancia',
+      'No recomendado menores de 12 años (oral)',
+      'No recomendado menores de 18 años (aceite esencial)',
+      'Hipersensibilidad, riesgo de dermatitis de contacto y fotosensibilidad',
+    ],
+    availableExtracts: [
+      { type: 'Aceite Esencial', description: 'Destilado por vapor, uso tópico y aromaterapia' },
+      { type: 'Extracto Hidroalcohólico', description: 'Estandarizado en ácido rosmarínico y ácido carnósico' },
+      { type: 'Infusión', description: '2 g de hoja por taza para dispepsias y espasmos digestivos leves' },
+    ],
+    description:
+      'Arbusto perenne, leñoso y densamente ramificado, también conocido como Rosmarino, que alcanza habitualmente de 1 a 1,5 metros de altura, aunque puede llegar a los 2 metros en condiciones óptimas. Se distingue por sus hojas sésiles, coriáceas y lineares (tipo aguja), de haz verde oscuro brillante y envés blanquecino debido a una densa cobertura de tricomas glandulares que albergan sus aceites esenciales. Sus flores son bilabiadas, de color azul pálido, lila o blanco, agrupadas en racimos axilares cortos. Recientemente reclasificado del género Rosmarinus al género Salvia tras análisis filogenéticos en 2017. Es nativo de la cuenca del Mediterráneo y el norte de África, prosperando en suelos calcáreos, arcillosos o arenosos y exposiciones soleadas hasta los 1500 msnm.',
+  },
 ];
 
 function slugify(text: string): string {
