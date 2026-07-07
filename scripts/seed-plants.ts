@@ -702,6 +702,34 @@ const PLANT_SEEDS: SeedPlant[] = [
     description:
       'Planta herbácea perenne, rizomatosa y de gran porte, también conocida como Cardamomo Verde o Verdadero, que alcanza habitualmente entre 2 y 5 metros de altura. Se caracteriza por poseer un rizoma carnoso y nudoso del cual emergen múltiples pseudotallos formados por vainas foliares solapadas. Sus hojas son alternas, lanceoladas, de color verde oscuro y pueden medir hasta 90 cm de largo. El fruto es una cápsula trilocular ovalada de color verde claro que encierra entre 15 y 20 semillas oscuras, pequeñas y altamente aromáticas. Es nativo de las selvas tropicales de los Ghats Occidentales (India) y Sri Lanka, prosperando en altitudes de entre 600 y 1,500 msnm bajo sombra densa. Se distingue diagnósticamente del cardamomo negro (Amomum subulatum) por su perfil sensorial dulce, cítrico y floral y por su quimiotipo rico en acetato de α-terpinilo.',
   },
+  {
+    commonName: 'Cardamomo negro',
+    scientificName: 'Amomum subulatum Roxb.',
+    family: 'Zingiberaceae',
+    usedParts: ['Semillas', 'Cápsula'],
+    compounds: [
+      { name: '1,8-cineol', description: 'aceite esencial: 65.50%' },
+      { name: 'Limoneno', description: 'aceite esencial: 3.60%' },
+      { name: 'Beta-pineno', description: 'aceite esencial: 3.34%' },
+      { name: 'Alfa-terpineol', description: 'aceite esencial: 3.30%' },
+      { name: 'Alfa-pineno', description: 'aceite esencial: 2.78%' },
+    ],
+    properties: {
+      oral: ['Gastrointestinal', 'Carminativa', 'Estimulante del apetito', 'Respiratoria', 'Expectorante', 'Antiinflamatoria', 'Antiinflamatoria sistémica'],
+      topical: [],
+    },
+    contraindications: [
+      'Cálculos biliares',
+      'Gestación y lactancia',
+    ],
+    availableExtracts: [
+      { type: 'Polvo de semillas', description: 'Semillas secas molidas para mezclas de especias como garam masala' },
+      { type: 'Oleorresina encapsulada', description: 'Liofilización para preservar compuestos volátiles ahumados' },
+      { type: 'Cápsulas enteras', description: 'Fruto seco completo para decocciones y curries' },
+    ],
+    description:
+      'Planta herbácea perenne de la familia del jengibre, caracterizada por producir frutos en cápsulas grandes y oscuras que poseen una superficie rugosa y estriada. Estas cápsulas contienen entre 15 y 20 semillas de color marrón oscuro a negro en su madurez. Su perfil sensorial es marcadamente distinto, con un aroma ahumado, terroso y alcanforado, y un sabor fuerte y punzante. A diferencia del cardamomo verdadero (Elettaria cardamomum), el cardamomo negro es nativo de las regiones montañosas del Himalaya (India, Nepal y Bután), lo que le otorga el nombre de "cardamomo de las colinas". Sus cápsulas son de mayor tamaño, color más oscuro y tienen una textura exterior mucho más tosca que las variedades verdes. Es un cultivo fundamental en Nepal.',
+  },
 ];
 
 function slugify(text: string): string {
