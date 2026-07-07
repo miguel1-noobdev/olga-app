@@ -20,7 +20,7 @@ export default function Metodos() {
   return (
     <section
       id="metodos"
-      className="bg-surface-container/30 py-20 md:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden"
+      className="bg-surface-container/30 py-28 md:py-40 px-4 sm:px-6 lg:px-8 overflow-hidden"
     >
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-20">
         {/* Content */}
