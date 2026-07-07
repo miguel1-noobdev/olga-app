@@ -5,13 +5,12 @@ import { getToken } from 'next-auth/jwt';
 export async function middleware(request: NextRequest) {
   const token = await getToken({
     req: request,
-    secret: process.env.AUTH_SECRET,
+    secret: process.env.NEXTAUTH_SECRET,
   });
 
   if (!token) {
-    const callbackUrl = encodeURIComponent(request.nextUrl.pathname);
     const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('callbackUrl', callbackUrl);
+    loginUrl.searchParams.set('callbackUrl', request.nextUrl.pathname);
     return NextResponse.redirect(loginUrl);
   }
 
@@ -19,5 +18,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/blog/:path*'],
+  matcher: ['/blog/:path*', '/jardin-digital/:path*'],
 };

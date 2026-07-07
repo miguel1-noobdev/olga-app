@@ -5,6 +5,7 @@ import { createUserRepository } from '@/lib/db/repository/user';
 import { connectToDatabase } from '@/lib/db/connect';
 
 export const authOptions: NextAuthOptions = {
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     CredentialsProvider({
       name: 'credentials',
