@@ -88,7 +88,7 @@ export default function Glosario() {
             </p>
           </div>
           <a
-            href="#"
+            href="/jardin-digital"
             className="hidden md:inline-block border-2 border-primary text-primary font-sans text-sm font-bold uppercase tracking-widest px-6 py-3 rounded-full hover:bg-primary hover:text-white transition-all duration-300 shrink-0 ml-8"
           >
             LEER MÁS
@@ -142,7 +142,7 @@ export default function Glosario() {
         {/* Mobile button */}
         <div className="md:hidden text-center mt-8">
           <a
-            href="#"
+            href="/jardin-digital"
             className="inline-block border-2 border-primary text-primary font-sans text-sm font-bold uppercase tracking-widest px-6 py-3 rounded-full hover:bg-primary hover:text-white transition-all duration-300"
           >
             LEER MÁS
