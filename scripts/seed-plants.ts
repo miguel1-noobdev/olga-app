@@ -452,6 +452,44 @@ const PLANT_SEEDS: SeedPlant[] = [
     description:
       'Arbusto o subarbusto perenne, leñoso y densamente ramificado, también conocido como Granadina, que alcanza habitualmente entre 1 y 1.3 metros de altura. Se caracteriza por sus tallos de sección cuadrangular y sus hojas opuestas, ovadas a elípticas, con márgenes serrados y una textura ligeramente vellosa. Al ser trituradas, las hojas liberan una fragancia compleja similar a la grosella negra. Sus flores son tubulares y bilabiadas, con colores que varían del rojo carmesí al magenta, rosa y blanco. Pertenece al subgénero Calosphace. Se distingue de su pariente cercano Salvia greggii por poseer márgenes foliares serrados y la presencia de un par de papilas dactiliformes en el interior del tubo de la corola. Es nativa de biomas subtropicales de tierras altas, distribuyéndose desde el sureste de Arizona hasta México y Guatemala, prosperando en elevaciones de entre 1,000 y 2,500 msnm.',
   },
+  {
+    commonName: 'Manzanilla',
+    scientificName: 'Matricaria chamomilla L.',
+    family: 'Asteraceae',
+    usedParts: ['Capítulos florales'],
+    compounds: [
+      { name: 'Camazuleno', description: 'aceite esencial, color azul violáceo' },
+      { name: 'Alfa-bisabolol', description: 'aceite esencial: 27-50.5%' },
+      { name: 'Óxidos de bisabolol', description: 'aceite esencial' },
+      { name: 'Espiroéteres', description: 'aceite esencial' },
+      { name: 'Apigenina-7-glucósido', description: 'flavonoide, marcador de calidad ≥ 0.25%' },
+      { name: 'Luteolina', description: 'flavonoide' },
+      { name: 'Quercetina', description: 'flavonoide' },
+      { name: 'Herniarina', description: 'cumarina' },
+      { name: 'Umbeliferona', description: 'cumarina' },
+      { name: 'Ácido ferúlico', description: 'ácido fenólico' },
+      { name: 'Polisacáridos mucilaginosos', description: 'otros' },
+    ],
+    properties: {
+      oral: ['Antiinflamatoria', 'Espasmolítica', 'Sedante', 'Ansiolítica', 'Protectora digestiva', 'Protectora renal', 'Protectora ósea'],
+      topical: ['Cicatrizante', 'Antiinflamatoria'],
+    },
+    contraindications: [
+      'Hipersensibilidad a Asteráceas',
+      'Reacción cruzada con polen de girasol o ambrosía',
+      'Baños de inmersión total prohibidos con heridas abiertas extensas',
+      'Baños de inmersión total prohibidos con fiebre elevada',
+      'Baños de inmersión total prohibidos con insuficiencia cardíaca grave',
+    ],
+    availableExtracts: [
+      { type: 'Infusión', description: '2-8 g de flor seca, 3 veces al día para trastornos digestivos' },
+      { type: 'Extracto Fluido', description: '1:1, estandarizado en aceite esencial mín 0.30%' },
+      { type: 'Extracto Seco Atomizado', description: '1.2% de apigenina' },
+      { type: 'Extracto por CO2 Supercrítico', description: 'Obtiene matricina pura sin degradarla a camazuleno' },
+    ],
+    description:
+      'Planta herbácea anual de porte erguido y tallos ramificados, glabros, también conocida como Manzanilla Común o Alemana, que alcanza entre 15 y 60 cm de altura. Posee hojas sésiles y alternas de aspecto plumoso con segmentos filiformes verde brillante. Sus inflorescencias son capítulos pedunculados con flores liguladas blancas en la periferia y flores tubulosas amarillas en el disco central. Su carácter diagnóstico definitivo es el receptáculo floral alargado-cónico, internamente hueco y sin páleas interflorales. Las lígulas blancas se curvan hacia abajo al madurar. Es nativa de Europa meridional/oriental y Asia templada, prosperando en suelos ligeros con pH entre 5.6 y 7.5.',
+  },
 ];
 
 function slugify(text: string): string {
