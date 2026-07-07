@@ -667,7 +667,7 @@ const PLANT_SEEDS: SeedPlant[] = [
       'Planta herbácea perenne, rizomatosa y vivaz, también conocida como Menta de Agua, que alcanza habitualmente hasta los 90 cm de altura. Se caracteriza por sus tallos de sección cuadrangular, de color verde o púrpura, que varían de pilosos a casi glabros. Sus hojas son opuestas, de forma ovada a ovado-lanceolada, con bordes dentados y un marcado olor mentolado característico. Las flores son diminutas y se agrupan densamente en inflorescencias terminales de color púrpura, rosado o lila. Se distingue de otras mentas por su hábito de crecimiento ligado a ambientes muy húmedos, encontrándose en las orillas de ríos, arroyos, estanques y canales. Es el progenitor genético directo (junto con M. spicata) de la menta piperita. Es nativa de la región Paleártica y se ha naturalizado ampliamente en América y Australia.',
   },
   {
-    commonName: 'Cardamomo',
+    commonName: 'Cardamomo verde',
     scientificName: 'Elettaria cardamomum (L.) Maton',
     family: 'Zingiberaceae',
     usedParts: ['Semillas', 'Cápsula'],
