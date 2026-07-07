@@ -88,6 +88,11 @@ export const PLANT_SEEDS: SeedPlant[] = [
     ],
     description:
       'Planta herbácea perenne del género Plantago en la familia Plantaginaceae, conocida por su gran capacidad de regeneración. El Llantén mayor (P. major) se diferencia por sus hojas anchas y ovaladas, mientras que el Llantén menor (P. lanceolata) tiene hojas largas y lanceoladas. Es muy común en bordes de caminos, prados húmedos y terrenos de cultivo de Europa y América.',
+    images: [
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/8/83/Plantago_major_RF.jpg', alt: 'Plantago major en su hábitat natural' },
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/6/6a/Broadleaf_Plantain_Spike.jpg', alt: 'Espiga floral de Plantago major' },
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/5/5c/Plantago_major_kz08.jpg', alt: 'Plantago major - detalle botánico' },
+    ],
   },
   {
     commonName: 'Viborera blanca',
@@ -117,6 +122,10 @@ export const PLANT_SEEDS: SeedPlant[] = [
     ],
     description:
       'Planta herbácea perenne de la familia Boraginaceae, notable por su follaje blanquecino y su alto valor en ácidos grasos esenciales. Se distingue de otras especies del género Echium por sus hojas densamente cubiertas de pelos blancos (tomento), lo que le da un aspecto plateado o albino. Es una especie endémica de las cordilleras Béticas (sur de España), donde crece en roquedos, pedregales y fisuras de rocas calizas, adaptada a condiciones de alta montaña.',
+    images: [
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/8/82/Echium_albicans_Enfoque_2010-7-17_ArenalJardinBotanicoHoyadePedraza.jpg', alt: 'Echium albicans en flor, Sierra Nevada, España' },
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/d/d3/Echium_albicans_Habitus_2010-7-17_ArenalJardinBotanicoHoyadePedraza.jpg', alt: 'Echium albicans - hábito, Sierra Nevada' },
+    ],
   },
   {
     commonName: 'Verbena',
@@ -149,6 +158,11 @@ export const PLANT_SEEDS: SeedPlant[] = [
     ],
     description:
       'Planta herbácea perenne de porte erecto (30-100 cm) con tallos cuadrangulares ramificados y hojas opuestas rugosas. Se distingue de la hierba luisa (Aloysia citriodora) por carecer de su intenso aroma cítrico. Es una especie ruderal y nitrófila que coloniza rápidamente bordes de caminos y terrenos baldíos. Es nativa de Europa, Asia y África, pero está naturalizada en toda América.',
+    images: [
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/9/91/Verbena_officinalis_kz07.jpg', alt: 'Verbena officinalis en flor' },
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/3/37/Flores_de_Verbena_%28Verbena_officinalis%29.jpg', alt: 'Flores de Verbena officinalis' },
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Verbena_%28Verbena_officinalis%29_arbusto_en_Takiwasi%2C_Tarapoto%2C_Per%C3%BA.jpg', alt: 'Verbena officinalis - arbusto en Perú' },
+    ],
   },
   {
     commonName: 'Ortiga',
@@ -183,6 +197,11 @@ export const PLANT_SEEDS: SeedPlant[] = [
     ],
     description:
       'Planta herbácea perenne (en el caso de U. dioica) o anual (U. urens) de la familia Urticaceae, caracterizada por la presencia de tricomas o pelos urticantes que funcionan como agujas hipodérmicas al contacto con la piel. La Ortiga mayor (U. dioica) se distingue por ser más alta (hasta 2 metros) y perenne, con rizomas amarillos rastreros, mientras que la Ortiga menor (U. urens) es anual y de menor porte. Es una especie nitrófila (indicadora de suelos ricos en nitrógeno) y prefiere sitios húmedos, bordes de caminos, escombreras y zonas ribereñas en climas templados de todo el mundo.',
+    images: [
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/2/2a/Peacock_%28Aglais_io%29_caterpillars_on_stinging_nettle_%28Urtica_dioica%29_Ruggeller_Riet.jpg', alt: 'Urtica dioica con orugas de mariposa pavo real' },
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/8/86/Nettle_%28Urtica_dioica%29_-_Oslo%2C_Norway_2020-08-03.jpg', alt: 'Urtica dioica - ortiga mayor en Oslo, Noruega' },
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/9/90/Urtica_dioica_3.jpg', alt: 'Urtica dioica - detalle de hojas' },
+    ],
   },
   {
     commonName: 'Viborera morada',
@@ -214,6 +233,11 @@ export const PLANT_SEEDS: SeedPlant[] = [
     ],
     description:
       'Planta herbácea de la familia Boraginaceae, de ciclo anual o bienal, reconocida por su gran resiliencia y por ser una fuente vegetal excepcional de ácidos grasos ω-3 complejos. Se distingue de la viborera común (E. vulgare) porque solo dos de sus estambres sobresalen claramente de la corola. Posee hojas basales anchas y ovadas en roseta que recuerdan al llantén. Es una especie nitrófila y ruderal, habitual en bordes de caminos, dunas fijas y campos baldíos, desde el nivel del mar hasta los 1200 metros.',
+    images: [
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/d/de/Echium_plantagineum_RF.jpg', alt: 'Echium plantagineum en flor' },
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/0/06/Echium_plantagineum%E2%80%93IMG_6542_03.jpg', alt: 'Echium plantagineum en Turquía' },
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/1/1d/Echium_plantagineum%E2%80%93IMG_6486_03.jpg', alt: 'Echium plantagineum - detalle floral' },
+    ],
   },
   {
     commonName: 'Aloe Vera',
@@ -297,6 +321,11 @@ export const PLANT_SEEDS: SeedPlant[] = [
     ],
     description:
       'Planta herbácea perenne, hemicriptófita y laticífera, reconocida por su raíz napiforme vigorosa que puede profundizar hasta 4.6 metros en condiciones óptimas. Se caracteriza por sus hojas en roseta basal con márgenes runcinados y sus escapos florales huecos que culminan en un capítulo amarillo solitario. Es una especie cosmopolita, ruderal y nitrófila obligada, que prospera con vigor en suelos antropizados, praderas húmedas y bordes de caminos desde el nivel del mar hasta los 1800 m.',
+    images: [
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/a/a8/Bombus_ruderarius_-_Taraxacum_officinale_-_Keila.jpg', alt: 'Taraxacum officinale con abejorro polinizando' },
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/5/50/Bloemknop_van_de_paardenbloem_%28Taraxacum_officinale%29_28-04-2025._%28d.j.b%29.jpg', alt: 'Capullo de Taraxacum officinale' },
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/d/d3/A_Taraxacum_Ruderalia_dandelion_clock.jpg', alt: 'Reloj de diente de león - Taraxacum officinale' },
+    ],
   },
   {
     commonName: 'Toronjil',
@@ -332,6 +361,11 @@ export const PLANT_SEEDS: SeedPlant[] = [
     ],
     description:
       'Planta herbácea perenne y vivaz de porte arbustivo (30-100 cm), también conocida como Melisa, caracterizada por sus tallos erectos de sección cuadrangular y un intenso aroma cítrico al estrujar sus hojas. Es nativa de la región del Mediterráneo oriental y Asia occidental, aunque se ha naturalizado en regiones templadas de todo el mundo. Debe distinguirse de la Hierba Luisa (Aloysia citriodora), que es un arbusto con un perfil fitoquímico distinto (mayor contenido de citral) y un marco regulatorio independiente. Se reconocen tres subespecies: officinalis, altissima e inodora.',
+    images: [
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/f/f9/Melissa_officinalis_1.jpg', alt: 'Melissa officinalis en flor, Monte Hermón' },
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/7/70/Lemon_balm_plant.jpg', alt: 'Melissa officinalis - planta de toronjil' },
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Zitronenmelisse-Melissa_officinalis-Pflanzenvermehrung--Josef_Schlaghecken.jpg', alt: 'Melissa officinalis - plántulas' },
+    ],
   },
   {
     commonName: 'Rosa Mosqueta',
@@ -419,6 +453,11 @@ export const PLANT_SEEDS: SeedPlant[] = [
     ],
     description:
       'Arbusto perenne, leñoso y densamente ramificado, también conocido como Rosmarino, que alcanza habitualmente de 1 a 1,5 metros de altura, aunque puede llegar a los 2 metros en condiciones óptimas. Se distingue por sus hojas sésiles, coriáceas y lineares (tipo aguja), de haz verde oscuro brillante y envés blanquecino debido a una densa cobertura de tricomas glandulares que albergan sus aceites esenciales. Sus flores son bilabiadas, de color azul pálido, lila o blanco, agrupadas en racimos axilares cortos. Recientemente reclasificado del género Rosmarinus al género Salvia tras análisis filogenéticos en 2017. Es nativo de la cuenca del Mediterráneo y el norte de África, prosperando en suelos calcáreos, arcillosos o arenosos y exposiciones soleadas hasta los 1500 msnm.',
+    images: [
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/5/5f/Rosmarinus_officinalis133095382.jpg', alt: 'Salvia rosmarinus en flor' },
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/6/6e/Rosmarinus_officinalis_%281%29.jpg', alt: 'Romero - Salvia rosmarinus' },
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/9/92/Rosemary_bush.jpg', alt: 'Arbusto de romero en flor' },
+    ],
   },
   {
     commonName: 'Salvia',
@@ -455,6 +494,11 @@ export const PLANT_SEEDS: SeedPlant[] = [
     ],
     description:
       'Mata o arbustillo espeso, vivaz y aromático, también conocida como Salvia Oficial, que alcanza habitualmente de 30 a 90 cm de altura, aunque puede llegar a los 150 cm. Se caracteriza por sus tallos erectos, ramificados y leñosos en la base, con hojas de textura rugosa y flores dispuestas en verticilos de color violeta, azul, blanco o rosado. Se distingue por sus hojas opuestas, lanceolado-elípticas y vellosas, con un color verde grisáceo por el haz y blanquecino por el envés debido a la densidad de sus tricomas. Es nativa de la región mediterránea, donde crece en peñascos, terrenos calcáreos y secos desde el nivel del mar hasta zonas montañosas. Se ha naturalizado en Europa central, Asia Menor y zonas templadas de América.',
+    images: [
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/9/9b/20260614_Salvia_officinalis_02.jpg', alt: 'Salvia officinalis en jardín' },
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/f/f4/Salvia_officinalis_in_Cardaillac_%281%29.jpg', alt: 'Salvia officinalis en Cardaillac, Francia' },
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/7/71/Salvia_officinalis_%28Common_Name-%22Common_sage%22%29_in_Tashkent_Botanical_Garden.jpg', alt: 'Salvia officinalis en el Jardín Botánico de Tashkent' },
+    ],
   },
   {
     commonName: 'Salvia rosa',
@@ -490,6 +534,11 @@ export const PLANT_SEEDS: SeedPlant[] = [
     ],
     description:
       'Arbusto o subarbusto perenne, leñoso y densamente ramificado, también conocido como Granadina, que alcanza habitualmente entre 1 y 1.3 metros de altura. Se caracteriza por sus tallos de sección cuadrangular y sus hojas opuestas, ovadas a elípticas, con márgenes serrados y una textura ligeramente vellosa. Al ser trituradas, las hojas liberan una fragancia compleja similar a la grosella negra. Sus flores son tubulares y bilabiadas, con colores que varían del rojo carmesí al magenta, rosa y blanco. Pertenece al subgénero Calosphace. Se distingue de su pariente cercano Salvia greggii por poseer márgenes foliares serrados y la presencia de un par de papilas dactiliformes en el interior del tubo de la corola. Es nativa de biomas subtropicales de tierras altas, distribuyéndose desde el sureste de Arizona hasta México y Guatemala, prosperando en elevaciones de entre 1,000 y 2,500 msnm.',
+    images: [
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/a/ac/%28MHNT%29_Salvia_microphylla_-_inflorescences_et_fleurs.jpg', alt: 'Salvia microphylla - inflorescencias y flores' },
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/e/e2/Salvia_microphylla_%27Hot_Lips%27_5Dsr_1-1541-01.jpg', alt: 'Salvia microphylla Hot Lips en Durban' },
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/2/2a/Sauge_de_Graham_FR_2012.jpg', alt: 'Salvia microphylla - Sauge de Graham' },
+    ],
   },
   {
     commonName: 'Manzanilla',
@@ -528,6 +577,11 @@ export const PLANT_SEEDS: SeedPlant[] = [
     ],
     description:
       'Planta herbácea anual de porte erguido y tallos ramificados, glabros, también conocida como Manzanilla Común o Alemana, que alcanza entre 15 y 60 cm de altura. Posee hojas sésiles y alternas de aspecto plumoso con segmentos filiformes verde brillante. Sus inflorescencias son capítulos pedunculados con flores liguladas blancas en la periferia y flores tubulosas amarillas en el disco central. Su carácter diagnóstico definitivo es el receptáculo floral alargado-cónico, internamente hueco y sin páleas interflorales. Las lígulas blancas se curvan hacia abajo al madurar. Es nativa de Europa meridional/oriental y Asia templada, prosperando en suelos ligeros con pH entre 5.6 y 7.5.',
+    images: [
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/a/a7/Chamomile%40original_size.jpg', alt: 'Matricaria chamomilla - flores de manzanilla' },
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/e/ee/RO_TL_Macin_Mountains_Argynnis_paphia_on_Matricaria_chamomilla_02.jpg', alt: 'Matricaria chamomilla con mariposa en Rumanía' },
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/c/c6/Matricaria_chamomilla%E2%80%93IMG_6148_01.jpg', alt: 'Matricaria chamomilla en Turquía' },
+    ],
   },
   {
     commonName: 'Manzanilla Romana',
@@ -559,6 +613,11 @@ export const PLANT_SEEDS: SeedPlant[] = [
     ],
     description:
       'Planta herbácea perenne de porte rastrero o decumbente, también conocida como Manzanilla Inglesa, que forma alfombras densas de 10 a 30 cm de altura. Sus tallos son vellosos con hojas verde-grisáceas que desprenden un intenso aroma a manzana al frotarlas. Los capítulos florales suelen ser solitarios sobre pedúnculos largos que se inclinan en fase de capullo. Se distingue por su receptáculo plano o ligeramente convexo, sólido y cubierto de páleas membranosas. Es nativa de la faja atlántica de Europa occidental y Norte de África. Prefiere suelos arenosos, fértiles y requiere riego continuo.',
+    images: [
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/7/76/Chamaemelum_nobile_kz03.jpg', alt: 'Chamaemelum nobile en jardín botánico de Berlín' },
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/f/fa/Chamaemelum_nobile1.jpg', alt: 'Chamaemelum nobile - detalle floral' },
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/b/b3/Chamaemelum_nobile_flower_%2801%29.jpg', alt: 'Chamaemelum nobile - flor' },
+    ],
   },
   {
     commonName: 'Jengibre',
@@ -594,6 +653,11 @@ export const PLANT_SEEDS: SeedPlant[] = [
     ],
     description:
       'Planta herbácea perenne que puede superar el metro de altura, caracterizada por un tallo aéreo (pseudotallo) formado por las vainas foliares y hojas lanceoladas. El interés farmacognóstico se centra en su rizoma, un tallo subterráneo modificado, horizontal y ramificado, cuya composición química varía según el quimiotipo y las condiciones de post-cosecha. Es nativo del sudeste asiático, aunque actualmente se cultiva de forma masiva en India, Nigeria y China. Se distingue de otras especies de la familia por su rizoma pungente y aromático, y por la transición química única de gingeroles a shogaoles que ocurre mediante el procesamiento térmico o secado.',
+    images: [
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/c/c1/Ginger_Plant_vs.jpg', alt: 'Zingiber officinale - planta y flor de jengibre' },
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/2/24/Zingiber_officinale_230935597.jpg', alt: 'Zingiber officinale en su hábitat' },
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/b/b1/Zingiber_officinale_flower_2.jpg', alt: 'Flor de Zingiber officinale' },
+    ],
   },
   {
     commonName: 'Rosa Común',
@@ -634,6 +698,11 @@ export const PLANT_SEEDS: SeedPlant[] = [
     ],
     description:
       'Arbusto de hábito terrestre y porte bajo, también conocido como Rosal Castellano, que alcanza habitualmente entre 0.5 y 1 metro de altura. Se caracteriza por poseer brotes rectos y ramificados con numerosos aguijones de distintas longitudes y glándulas caulinares. Sus flores son generalmente solitarias, grandes y muy fragantes, con pétalos aterciopelados que varían del rosa intenso al púrpura. Se distingue diagnósticamente de la Rosa canina por su porte significativamente más bajo y por sus sépalos que permanecen unidos al receptáculo hasta la maduración del fruto. Sus hojas tienen generalmente 5 folíolos, de color verde oscuro por el haz y más claros por el envés. Es nativa de Europa central y meridional y de Asia Menor, creciendo de forma silvestre en bosques de pino y encino.',
+    images: [
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/e/eb/Wild_Rosa_gallica_Romania.jpg', alt: 'Rosa gallica silvestre en Rumanía' },
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/7/7a/Rosa_gallica_sl100.jpg', alt: 'Rosa gallica - hábito' },
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/f/fa/Rosa_%27Officinalis%27_%285797048877%29.jpg', alt: 'Rosa gallica officinalis - Rosa de botica' },
+    ],
   },
   {
     commonName: 'Menta',
@@ -669,6 +738,11 @@ export const PLANT_SEEDS: SeedPlant[] = [
     ],
     description:
       'Hierba perenne, rizomatosa o estolonífera, también conocida como Menta Piperita, de origen híbrido (M. aquatica x M. spicata). Sus tallos alcanzan hasta 90 cm de altura, pudiendo ser glabros o más o menos pelosos. Se caracteriza por su intenso aroma y su cultivo extendido en todo el mundo. Aunque su origen exacto es debatido entre la Inglaterra del siglo XVII y el antiguo Egipto, actualmente se cultiva de forma masiva a nivel global. Se distingue por su naturaleza híbrida y su capacidad de propagación mediante rizomas.',
+    images: [
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/0/07/Mentha_x_piperita_001.JPG', alt: 'Mentha x piperita - planta de menta' },
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/6/63/Field_of_Mentha_x_piperita_04.jpg', alt: 'Campo de Mentha x piperita' },
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/f/f1/Peppermint_Plant.jpg', alt: 'Mentha x piperita - hojas de menta' },
+    ],
   },
   {
     commonName: 'Menta Acuática',
@@ -704,6 +778,11 @@ export const PLANT_SEEDS: SeedPlant[] = [
     ],
     description:
       'Planta herbácea perenne, rizomatosa y vivaz, también conocida como Menta de Agua, que alcanza habitualmente hasta los 90 cm de altura. Se caracteriza por sus tallos de sección cuadrangular, de color verde o púrpura, que varían de pilosos a casi glabros. Sus hojas son opuestas, de forma ovada a ovado-lanceolada, con bordes dentados y un marcado olor mentolado característico. Las flores son diminutas y se agrupan densamente en inflorescencias terminales de color púrpura, rosado o lila. Se distingue de otras mentas por su hábito de crecimiento ligado a ambientes muy húmedos, encontrándose en las orillas de ríos, arroyos, estanques y canales. Es el progenitor genético directo (junto con M. spicata) de la menta piperita. Es nativa de la región Paleártica y se ha naturalizado ampliamente en América y Australia.',
+    images: [
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/6/6d/Mentha_aquatica_LC0169.jpg', alt: 'Mentha aquatica en flor' },
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/a/a8/Mentha_aquatica_kz09.jpg', alt: 'Mentha aquatica en su hábitat' },
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/f/f8/Mentha_aquatica_02.jpg', alt: 'Mentha aquatica en flor' },
+    ],
   },
   {
     commonName: 'Cardamomo verde',
@@ -740,6 +819,11 @@ export const PLANT_SEEDS: SeedPlant[] = [
     ],
     description:
       'Planta herbácea perenne, rizomatosa y de gran porte, también conocida como Cardamomo Verde o Verdadero, que alcanza habitualmente entre 2 y 5 metros de altura. Se caracteriza por poseer un rizoma carnoso y nudoso del cual emergen múltiples pseudotallos formados por vainas foliares solapadas. Sus hojas son alternas, lanceoladas, de color verde oscuro y pueden medir hasta 90 cm de largo. El fruto es una cápsula trilocular ovalada de color verde claro que encierra entre 15 y 20 semillas oscuras, pequeñas y altamente aromáticas. Es nativo de las selvas tropicales de los Ghats Occidentales (India) y Sri Lanka, prosperando en altitudes de entre 600 y 1,500 msnm bajo sombra densa. Se distingue diagnósticamente del cardamomo negro (Amomum subulatum) por su perfil sensorial dulce, cítrico y floral y por su quimiotipo rico en acetato de α-terpinilo.',
+    images: [
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/f/f8/ElettariaCardamomum.jpg', alt: 'Elettaria cardamomum - planta de cardamomo verde' },
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Elettaria_cardamomum_Capsules_and_seeds.jpg', alt: 'Elettaria cardamomum - cápsulas y semillas' },
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/3/3c/Cardamom_%28Elettaria_cardamomum%29.jpg', alt: 'Elettaria cardamomum - detalle de frutos' },
+    ],
   },
   {
     commonName: 'Cardamomo negro',
@@ -768,5 +852,10 @@ export const PLANT_SEEDS: SeedPlant[] = [
     ],
     description:
       'Planta herbácea perenne de la familia del jengibre, caracterizada por producir frutos en cápsulas grandes y oscuras que poseen una superficie rugosa y estriada. Estas cápsulas contienen entre 15 y 20 semillas de color marrón oscuro a negro en su madurez. Su perfil sensorial es marcadamente distinto, con un aroma ahumado, terroso y alcanforado, y un sabor fuerte y punzante. A diferencia del cardamomo verdadero (Elettaria cardamomum), el cardamomo negro es nativo de las regiones montañosas del Himalaya (India, Nepal y Bután), lo que le otorga el nombre de "cardamomo de las colinas". Sus cápsulas son de mayor tamaño, color más oscuro y tienen una textura exterior mucho más tosca que las variedades verdes. Es un cultivo fundamental en Nepal.',
+    images: [
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/8/86/BlackCardamom.jpg', alt: 'Amomum subulatum - cardamomo negro' },
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/9/94/Amomum_subulatum_MHNT.BOT.2021.17.28.jpg', alt: 'Amomum subulatum - semillas' },
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/e/e4/Amomum_subulatum_north_Bengal_AJT_Johnsingh.JPG', alt: 'Amomum subulatum en Bengala del Norte' },
+    ],
   },
 ];
