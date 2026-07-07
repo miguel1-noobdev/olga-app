@@ -556,6 +556,46 @@ const PLANT_SEEDS: SeedPlant[] = [
     description:
       'Planta herbácea perenne que puede superar el metro de altura, caracterizada por un tallo aéreo (pseudotallo) formado por las vainas foliares y hojas lanceoladas. El interés farmacognóstico se centra en su rizoma, un tallo subterráneo modificado, horizontal y ramificado, cuya composición química varía según el quimiotipo y las condiciones de post-cosecha. Es nativo del sudeste asiático, aunque actualmente se cultiva de forma masiva en India, Nigeria y China. Se distingue de otras especies de la familia por su rizoma pungente y aromático, y por la transición química única de gingeroles a shogaoles que ocurre mediante el procesamiento térmico o secado.',
   },
+  {
+    commonName: 'Rosa Común',
+    scientificName: 'Rosa gallica L.',
+    family: 'Rosaceae',
+    usedParts: ['Pétalos', 'Botones florales'],
+    compounds: [
+      { name: 'Geraniol', description: 'aceite esencial' },
+      { name: 'Beta-citronelol', description: 'aceite esencial' },
+      { name: 'Nerol', description: 'aceite esencial' },
+      { name: 'Linalol', description: 'aceite esencial' },
+      { name: 'Eugenol', description: 'aceite esencial' },
+      { name: 'Taninos', description: 'hasta 15%' },
+      { name: 'Ácido gálico', description: 'compuesto fenólico' },
+      { name: 'Ácido elágico', description: 'compuesto fenólico' },
+      { name: 'Cianidol', description: 'antocianósido' },
+      { name: 'Quercitrósido', description: 'flavonoide' },
+      { name: 'Kaempferol', description: 'flavonoide' },
+      { name: 'Astragalina', description: 'flavonoide' },
+      { name: 'Vitamina C', description: 'otros' },
+    ],
+    properties: {
+      oral: ['Digestiva', 'Antiespasmódica'],
+      topical: ['Cicatrizante', 'Reparadora', 'Antiinflamatoria cutánea', 'Astringente', 'Antiséptica', 'Antibacterial'],
+    },
+    contraindications: [
+      'Hipersensibilidad a los pétalos de rosa',
+      'Riesgo de dermatitis por contacto',
+      'Embarazo y lactancia',
+      'Potencial efecto ulcerogénico en dosis elevadas por vía interna',
+    ],
+    availableExtracts: [
+      { type: 'Infusión', description: '20 g/l para trastornos digestivos leves o afecciones respiratorias' },
+      { type: 'Colutorio', description: '30 g/l para gargarismos, lavados oculares o irrigaciones vaginales' },
+      { type: 'Hidrolato', description: 'Agua de Rosas, tónico cutáneo y cosmética anti-edad' },
+      { type: 'Miel Rosada', description: 'Uso tradicional para aftas y estomatitis' },
+      { type: 'Vinagre de Rosas', description: '1/10, compresas para cefaleas y lavados corporales' },
+    ],
+    description:
+      'Arbusto de hábito terrestre y porte bajo, también conocido como Rosal Castellano, que alcanza habitualmente entre 0.5 y 1 metro de altura. Se caracteriza por poseer brotes rectos y ramificados con numerosos aguijones de distintas longitudes y glándulas caulinares. Sus flores son generalmente solitarias, grandes y muy fragantes, con pétalos aterciopelados que varían del rosa intenso al púrpura. Se distingue diagnósticamente de la Rosa canina por su porte significativamente más bajo y por sus sépalos que permanecen unidos al receptáculo hasta la maduración del fruto. Sus hojas tienen generalmente 5 folíolos, de color verde oscuro por el haz y más claros por el envés. Es nativa de Europa central y meridional y de Asia Menor, creciendo de forma silvestre en bosques de pino y encino.',
+  },
 ];
 
 function slugify(text: string): string {
