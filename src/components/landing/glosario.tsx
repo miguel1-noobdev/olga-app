@@ -25,6 +25,12 @@ const INGREDIENTS = [
   },
 ];
 
+const CARD_WIDTH = 300;
+const CARD_HEIGHT = 400;
+const CARD_GAP = 24;
+const CARD_STEP = CARD_WIDTH + CARD_GAP;
+const REVEAL_SEGMENT = 0.3;
+
 export default function Glosario() {
   const desktopTrackRef = useRef<HTMLDivElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -37,7 +43,7 @@ export default function Glosario() {
 
       const rect = track.getBoundingClientRect();
       const viewportHeight = window.innerHeight;
-      const start = viewportHeight * 0.65;
+      const start = viewportHeight * 0.5 - CARD_HEIGHT / 2;
       const end = -rect.height + viewportHeight * 0.45;
       const range = start - end;
       const progress = Math.min(1, Math.max(0, (start - rect.top) / range));
@@ -81,7 +87,7 @@ export default function Glosario() {
           </a>
         </div>
 
-        <div className="relative md:hidden">
+        <div className="relative lg:hidden">
           {INGREDIENTS.map((ingredient, index) => {
             const stickyTop = index * 80;
 
@@ -111,13 +117,11 @@ export default function Glosario() {
           })}
         </div>
 
-        <div ref={desktopTrackRef} className="relative hidden h-[1100px] md:block">
-          <div className="sticky top-24 h-[520px] overflow-visible">
+        <div ref={desktopTrackRef} className="relative hidden h-[1500px] lg:block">
+          <div className="sticky top-[calc(50vh-200px)] h-[400px] overflow-visible">
             <div className="relative h-full w-full">
               {INGREDIENTS.map((ingredient, index) => {
-                const cardStep = 324;
-                const segmentStart = index * 0.2;
-                const segmentLength = 0.24;
+                const segmentStart = Math.max(0, index - 1) * REVEAL_SEGMENT;
                 const cardProgress =
                   index === 0
                     ? 1
@@ -125,20 +129,22 @@ export default function Glosario() {
                         1,
                         Math.max(
                           0,
-                          (scrollProgress - segmentStart) / segmentLength,
+                          (scrollProgress - segmentStart) / REVEAL_SEGMENT,
                         ),
                       );
-                const startX = Math.max(0, index - 1) * cardStep;
-                const endX = index * cardStep;
-                const x = startX + (endX - startX) * cardProgress;
-                const y = index === 0 ? 0 : (1 - cardProgress) * 96;
-                const scale = 0.96 + cardProgress * 0.04;
-                const opacity = index === 0 ? 1 : 0.85 + cardProgress * 0.15;
+                const easedProgress = 1 - Math.pow(1 - cardProgress, 3);
+                const appearanceProgress = Math.min(1, cardProgress / 0.12);
+                const startX = Math.max(0, index - 1) * CARD_STEP;
+                const endX = index * CARD_STEP;
+                const x = startX + (endX - startX) * easedProgress;
+                const y = index === 0 ? 0 : (1 - easedProgress) * 120;
+                const scale = index === 0 ? 1 : 0.72 + easedProgress * 0.28;
+                const opacity = index === 0 ? 1 : appearanceProgress;
 
                 return (
                   <div
                     key={ingredient.name}
-                    className="glass-card group absolute left-0 top-16 h-[400px] w-[300px] overflow-hidden rounded-3xl shadow-xl"
+                    className="glass-card group absolute left-0 top-0 h-[400px] w-[300px] overflow-hidden rounded-3xl shadow-xl"
                     style={{
                       transform: `translate3d(${x}px, ${y}px, 0) scale(${scale})`,
                       opacity,
