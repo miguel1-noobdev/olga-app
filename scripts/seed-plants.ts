@@ -381,6 +381,42 @@ const PLANT_SEEDS: SeedPlant[] = [
     description:
       'Arbusto perenne, leñoso y densamente ramificado, también conocido como Rosmarino, que alcanza habitualmente de 1 a 1,5 metros de altura, aunque puede llegar a los 2 metros en condiciones óptimas. Se distingue por sus hojas sésiles, coriáceas y lineares (tipo aguja), de haz verde oscuro brillante y envés blanquecino debido a una densa cobertura de tricomas glandulares que albergan sus aceites esenciales. Sus flores son bilabiadas, de color azul pálido, lila o blanco, agrupadas en racimos axilares cortos. Recientemente reclasificado del género Rosmarinus al género Salvia tras análisis filogenéticos en 2017. Es nativo de la cuenca del Mediterráneo y el norte de África, prosperando en suelos calcáreos, arcillosos o arenosos y exposiciones soleadas hasta los 1500 msnm.',
   },
+  {
+    commonName: 'Salvia',
+    scientificName: 'Salvia officinalis L.',
+    family: 'Lamiaceae',
+    usedParts: ['Hoja', 'Sumidades floridas'],
+    compounds: [
+      { name: 'Alfa-tuyona', description: 'aceite esencial: 10-60%' },
+      { name: 'Beta-tuyona', description: 'aceite esencial' },
+      { name: 'Alcanfor', description: 'aceite esencial: 5-25%' },
+      { name: '1,8-cineol', description: 'aceite esencial' },
+      { name: 'Ácido rosmarínico', description: 'compuesto fenólico' },
+      { name: 'Flavonoides', description: 'luteolina, apigenina, hispidulina' },
+      { name: 'Taninos condensados', description: '3-7%' },
+      { name: 'Carnosol', description: 'diterpeno' },
+      { name: 'Ácido carnósico', description: 'diterpeno' },
+      { name: 'Ácido ursólico', description: 'triterpeno' },
+    ],
+    properties: {
+      oral: ['Antisudoral', 'Regulador térmico', 'Estimulante cognitivo', 'Antibacteriano', 'Antiviral', 'Digestivo', 'Espasmolítico', 'Astringente'],
+      topical: ['Astringente'],
+    },
+    contraindications: [
+      'Embarazo y lactancia',
+      'Epilepsia',
+      'Insuficiencia renal',
+      'Tumores estrogéno-dependientes',
+    ],
+    availableExtracts: [
+      { type: 'Polvo / Extracto Seco Estandarizado', description: 'Comprimidos para sofocos y sudores nocturnos' },
+      { type: 'Tintura', description: '1:10, uso oral o tópico' },
+      { type: 'Aceite Esencial Puro', description: 'Uso restringido, neurotóxico si se ingiere' },
+      { type: 'Infusión', description: 'Tónico digestivo, antiséptico bucal y antisudoral' },
+    ],
+    description:
+      'Mata o arbustillo espeso, vivaz y aromático, también conocida como Salvia Oficial, que alcanza habitualmente de 30 a 90 cm de altura, aunque puede llegar a los 150 cm. Se caracteriza por sus tallos erectos, ramificados y leñosos en la base, con hojas de textura rugosa y flores dispuestas en verticilos de color violeta, azul, blanco o rosado. Se distingue por sus hojas opuestas, lanceolado-elípticas y vellosas, con un color verde grisáceo por el haz y blanquecino por el envés debido a la densidad de sus tricomas. Es nativa de la región mediterránea, donde crece en peñascos, terrenos calcáreos y secos desde el nivel del mar hasta zonas montañosas. Se ha naturalizado en Europa central, Asia Menor y zonas templadas de América.',
+  },
 ];
 
 function slugify(text: string): string {
