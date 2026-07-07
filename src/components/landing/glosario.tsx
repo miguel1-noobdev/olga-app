@@ -70,8 +70,8 @@ export default function Glosario() {
     >
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex justify-between items-end mb-16">
-          <div className="text-center md:text-left flex-1">
+        <div className="mb-16 text-center md:text-left">
+          <div>
             <h2 className="font-serif text-3xl md:text-5xl text-primary mb-4">
               Aprende sobre nuestra despensa botánica
             </h2>
@@ -79,12 +79,6 @@ export default function Glosario() {
               Solo ingredientes que la tierra nos ofrece generosamente.
             </p>
           </div>
-          <a
-            href="/jardin-digital"
-            className="hidden md:inline-block border-2 border-primary text-primary font-sans text-sm font-bold uppercase tracking-widest px-6 py-3 rounded-full hover:bg-primary hover:text-white transition-all duration-300 shrink-0 ml-8"
-          >
-            LEER MÁS
-          </a>
         </div>
 
         <div className="relative lg:hidden">
@@ -168,8 +162,7 @@ export default function Glosario() {
           </div>
         </div>
 
-        {/* Mobile button */}
-        <div className="md:hidden text-center mt-8">
+        <div className="text-center mt-8 lg:mt-12">
           <a
             href="/jardin-digital"
             className="inline-block border-2 border-primary text-primary font-sans text-sm font-bold uppercase tracking-widest px-6 py-3 rounded-full hover:bg-primary hover:text-white transition-all duration-300"
