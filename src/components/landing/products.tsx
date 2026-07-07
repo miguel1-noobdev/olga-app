@@ -79,7 +79,7 @@ export default function Products() {
   ];
 
   return (
-    <section id="productos" className="py-20 md:py-32 px-4 sm:px-6 lg:px-8">
+    <section id="productos" className="min-h-[750px] flex flex-col justify-center px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">

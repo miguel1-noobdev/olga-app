@@ -26,7 +26,7 @@ export default function Diario({ articles }: DiarioProps) {
   return (
     <section
       id="diario"
-      className="bg-[#A8B89C]/50 py-20 md:py-32 px-4 sm:px-6 lg:px-8 border-y border-gold-soft"
+      className="bg-[#A8B89C]/50 min-h-[750px] flex flex-col justify-center px-4 sm:px-6 lg:px-8 border-y border-gold-soft"
     >
       <div className="max-w-7xl mx-auto">
         {/* Header */}

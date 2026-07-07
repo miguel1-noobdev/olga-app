@@ -56,12 +56,9 @@ export default function Glosario() {
     <section
       id="glosario"
       ref={sectionRef}
-      className="relative py-20 md:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden"
+      className="relative min-h-[250vh] flex flex-col justify-center px-4 sm:px-6 lg:px-8 overflow-hidden"
     >
-      {/* Extra height: gives room to scroll through all 4 card reveals */}
-      <div className="h-[100vh]" />
-
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto w-full">
         {/* Header */}
         <div className="flex justify-between items-end mb-16">
           <div className="text-center md:text-left flex-1">
