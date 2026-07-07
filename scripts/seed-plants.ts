@@ -417,6 +417,41 @@ const PLANT_SEEDS: SeedPlant[] = [
     description:
       'Mata o arbustillo espeso, vivaz y aromático, también conocida como Salvia Oficial, que alcanza habitualmente de 30 a 90 cm de altura, aunque puede llegar a los 150 cm. Se caracteriza por sus tallos erectos, ramificados y leñosos en la base, con hojas de textura rugosa y flores dispuestas en verticilos de color violeta, azul, blanco o rosado. Se distingue por sus hojas opuestas, lanceolado-elípticas y vellosas, con un color verde grisáceo por el haz y blanquecino por el envés debido a la densidad de sus tricomas. Es nativa de la región mediterránea, donde crece en peñascos, terrenos calcáreos y secos desde el nivel del mar hasta zonas montañosas. Se ha naturalizado en Europa central, Asia Menor y zonas templadas de América.',
   },
+  {
+    commonName: 'Salvia rosa',
+    scientificName: 'Salvia microphylla Kunth',
+    family: 'Lamiaceae',
+    usedParts: ['Hojas', 'Flores'],
+    compounds: [
+      { name: 'E-cariofileno', description: 'aceite esencial: 34.5%, agonista CB2' },
+      { name: 'Germacreno-D', description: 'aceite esencial' },
+      { name: '1,8-cineol', description: 'aceite esencial' },
+      { name: 'Alcanfor', description: 'aceite esencial' },
+      { name: 'Ácido rosmarínico', description: 'fracción no volátil' },
+      { name: 'Ácido ursólico', description: 'triterpeno' },
+      { name: 'Ácido oleanólico', description: 'triterpeno' },
+      { name: 'Salvigenina', description: 'flavonoide' },
+      { name: 'Hispidulina', description: 'flavonoide' },
+      { name: 'Apigenina', description: 'flavonoide' },
+      { name: 'Diterpenos pimarano y neoclerodano', description: 'potencial actividad opioides y GABA' },
+    ],
+    properties: {
+      oral: ['Ansiolítico', 'Gastroenterológico', 'Antimicrobiana', 'Antifúngica'],
+      topical: ['Dermatológica', 'Cicatrizante'],
+    },
+    contraindications: [
+      'Gestación y lactancia',
+      'Menores de 12 años: reducir dosis a la mitad',
+      'Hipersensibilidad a la familia Lamiaceae',
+    ],
+    availableExtracts: [
+      { type: 'Infusión', description: '5-10 g de hoja seca por taza para trastornos digestivos y fiebre' },
+      { type: 'Tintura', description: '1:5, 1-1.5 ml para cólicos menstruales y resfriado leve' },
+      { type: 'Aceite Esencial', description: 'Difusión respiratoria o diluido 1-2% tópicamente' },
+    ],
+    description:
+      'Arbusto o subarbusto perenne, leñoso y densamente ramificado, también conocido como Granadina, que alcanza habitualmente entre 1 y 1.3 metros de altura. Se caracteriza por sus tallos de sección cuadrangular y sus hojas opuestas, ovadas a elípticas, con márgenes serrados y una textura ligeramente vellosa. Al ser trituradas, las hojas liberan una fragancia compleja similar a la grosella negra. Sus flores son tubulares y bilabiadas, con colores que varían del rojo carmesí al magenta, rosa y blanco. Pertenece al subgénero Calosphace. Se distingue de su pariente cercano Salvia greggii por poseer márgenes foliares serrados y la presencia de un par de papilas dactiliformes en el interior del tubo de la corola. Es nativa de biomas subtropicales de tierras altas, distribuyéndose desde el sureste de Arizona hasta México y Guatemala, prosperando en elevaciones de entre 1,000 y 2,500 msnm.',
+  },
 ];
 
 function slugify(text: string): string {
