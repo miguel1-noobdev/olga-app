@@ -1,4 +1,6 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect, useRef, useState } from 'react';
 
 const INGREDIENTS = [
   {
@@ -24,6 +26,37 @@ const INGREDIENTS = [
 ];
 
 export default function Glosario() {
+  const desktopTrackRef = useRef<HTMLDivElement>(null);
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  useEffect(() => {
+    const calculateProgress = () => {
+      const track = desktopTrackRef.current;
+
+      if (!track) return;
+
+      const rect = track.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const start = viewportHeight * 0.65;
+      const end = -rect.height + viewportHeight * 0.45;
+      const range = start - end;
+      const progress = Math.min(1, Math.max(0, (start - rect.top) / range));
+
+      setScrollProgress(progress);
+    };
+
+    const handleScroll = () => requestAnimationFrame(calculateProgress);
+
+    calculateProgress();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', calculateProgress);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', calculateProgress);
+    };
+  }, []);
+
   return (
     <section
       id="glosario"
@@ -48,11 +81,9 @@ export default function Glosario() {
           </a>
         </div>
 
-        {/* Stacking Cards Container */}
-        <div className="relative">
+        <div className="relative md:hidden">
           {INGREDIENTS.map((ingredient, index) => {
-            // Each card stacks at a progressively lower position
-            const stickyTop = index * 80; // 80px offset per card
+            const stickyTop = index * 80;
 
             return (
               <div
@@ -78,6 +109,57 @@ export default function Glosario() {
               </div>
             );
           })}
+        </div>
+
+        <div ref={desktopTrackRef} className="relative hidden h-[1100px] md:block">
+          <div className="sticky top-24 h-[520px] overflow-visible">
+            <div className="relative h-full w-full">
+              {INGREDIENTS.map((ingredient, index) => {
+                const cardStep = 324;
+                const segmentStart = index * 0.2;
+                const segmentLength = 0.24;
+                const cardProgress =
+                  index === 0
+                    ? 1
+                    : Math.min(
+                        1,
+                        Math.max(
+                          0,
+                          (scrollProgress - segmentStart) / segmentLength,
+                        ),
+                      );
+                const startX = Math.max(0, index - 1) * cardStep;
+                const endX = index * cardStep;
+                const x = startX + (endX - startX) * cardProgress;
+                const y = index === 0 ? 0 : (1 - cardProgress) * 96;
+                const scale = 0.96 + cardProgress * 0.04;
+                const opacity = index === 0 ? 1 : 0.85 + cardProgress * 0.15;
+
+                return (
+                  <div
+                    key={ingredient.name}
+                    className="glass-card group absolute left-0 top-16 h-[400px] w-[300px] overflow-hidden rounded-3xl shadow-xl"
+                    style={{
+                      transform: `translate3d(${x}px, ${y}px, 0) scale(${scale})`,
+                      opacity,
+                      zIndex: INGREDIENTS.length - index,
+                    }}
+                  >
+                    <img
+                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      src={ingredient.image}
+                      alt={ingredient.name}
+                    />
+                    <div className="absolute inset-0 flex items-end bg-gradient-to-t from-earth/60 via-transparent to-transparent p-6">
+                      <span className="font-serif text-3xl text-white">
+                        {ingredient.name}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
 
         {/* Mobile button */}
