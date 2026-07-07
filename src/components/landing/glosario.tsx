@@ -2,74 +2,74 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-function RevealCard({ image, name, index }: { image: string; name: string; index: number }) {
-  const [isVisible, setIsVisible] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+export default function Glosario() {
+  const [cardProgress, setCardProgress] = useState<Map<number, number>>(
+    new Map()
+  );
+  const cardRefs = useRef<Map<number, HTMLDivElement>>(new Map());
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
+    const calculateProgress = () => {
+      const newProgress = new Map<number, number>();
+
+      cardRefs.current.forEach((ref, id) => {
+        if (ref) {
+          const rect = ref.getBoundingClientRect();
+          const windowHeight = window.innerHeight;
+
+          // Card starts revealing when its top hits the bottom of the viewport
+          // Card is fully revealed when its center is at 40% from top
+          const start = windowHeight;
+          const end = windowHeight * 0.4;
+
+          let progress = 0;
+
+          if (rect.top < start && rect.top > end) {
+            progress = (start - rect.top) / (start - end);
+          } else if (rect.top <= end) {
+            progress = 1;
+          }
+
+          newProgress.set(id, progress);
         }
-      },
-      { threshold: 0.3 }
-    );
+      });
 
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
+      setCardProgress(newProgress);
+    };
 
-    return () => observer.disconnect();
+    const handleScroll = () => {
+      requestAnimationFrame(calculateProgress);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    calculateProgress();
+
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  return (
-    <div
-      ref={ref}
-      className="glass-card aspect-square rounded-3xl overflow-hidden relative group"
-      style={{
-        opacity: isVisible ? 1 : 0,
-        transform: isVisible ? 'translateY(0)' : 'translateY(50px)',
-        transition: `opacity 0.7s ease-out ${index * 0.1}s, transform 0.7s ease-out ${index * 0.1}s`,
-      }}
-    >
-      <img
-        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-        src={image}
-        alt={name}
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-earth/60 to-transparent flex items-end p-6">
-        <span className="text-white font-serif text-xl">{name}</span>
-      </div>
-    </div>
-  );
-}
+  const ingredients = [
+    {
+      name: 'Lavanda',
+      image:
+        'https://lh3.googleusercontent.com/aida-public/AB6AXuBvonsaIF_H8eA7Nh9FlqGAnyrN28Tynwu_V5OGSFQcKkDNByBuS1QzfacyFK0S9H29a6mc6q_Yg8Bm1Nug9ajLghW9jTHK_xXtP8KWEOsRCfZCdYQTcuYqjAdLcrI0TEKFA-6mj_ZkTAZR8pCHRZ5IsUcQQaROGgZ7R5DlmJaopsSvPFPNPoqGqLCxyb48pl0isE5MZAEsPohourpmd_2Z94R27iIjQZC8-w46qnF5o0a915ClyyAyKfAn-O_1TmQed9QonTMgPumL',
+    },
+    {
+      name: 'Caléndula',
+      image:
+        'https://lh3.googleusercontent.com/aida-public/AB6AXuC2W6mht2mHlJ5DXw9flObGXWpOis3oQTjeSK0qyePFlukUaOpZApuSeejGM6XGmDJsVkqt1wwbd69UC-URajh_tlatWctmLbXmVN4XlL7jwVutVd-B9xb1FDMIpw4oVbgneuCLC3XHLhXniPaK5SHdb5xXnwzlgpcfMcy83Bjm0PxAeqRnOt-9jR8ESaeAhwfp-fy5_IrDnUQKRR-1HmWslGIrpD6SMvszcF9Uyl5Wj0Zsdz6PD2m9UhWPTdKsCOY1rolnhAhNHiP4',
+    },
+    {
+      name: 'Aloe Vera',
+      image:
+        'https://lh3.googleusercontent.com/aida-public/AB6AXuBX1rOzc23GoWbccOtxVVGkGPQ3w9VCGdh4iGac5m_9j8P-Bo_WO86DL8Rl-G85cJL3gKTBvD0oG_l2LQ1ZRih2s6wCGKN95dPhwp1Wn7v9Udm_9WI4lCcceZr_DOWypQHLio6kAM6-Sj1uT1OOZBXeMNqFZv4AZVMlwkMr81xW3Aii6CkiObsCRz0trv1jufYOKdyOBiWQ5NB1tu6V4YNIBIGzr4HAHM7bUlnr1jNI_8Mz788hQ2oUKKeOibtfVYd3e7wRHq5seLwS',
+    },
+    {
+      name: 'Café Puro',
+      image:
+        'https://lh3.googleusercontent.com/aida-public/AB6AXuB78FNoPibgoOV6g4RW6u6vn7-mvepdHJPd9cULjHvt1ChuiyQLE2A2lw2aEZZIvLClH3sVuM9K5lEpLJADdbBG7btHnC5VC0qJX-U9Mm-036di6XA2DbSYfYwK_ZT2_nYzq1_beaqIzXYXjefvMDYRSVO_Bj4qTwPqmatSnZjdoncian85OHwk3BUucPKKhbloFvdJUCegA0591DOykfb30JPT8aNvVthPbzMWbRlw7SMzBtgtiG9QYciiDUy8dO60DM_pAfzvL0Qf',
+    },
+  ];
 
-const INGREDIENTS = [
-  {
-    name: 'Lavanda',
-    image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuBvonsaIF_H8eA7Nh9FlqGAnyrN28Tynwu_V5OGSFQcKkDNByBuS1QzfacyFK0S9H29a6mc6q_Yg8Bm1Nug9ajLghW9jTHK_xXtP8KWEOsRCfZCdYQTcuYqjAdLcrI0TEKFA-6mj_ZkTAZR8pCHRZ5IsUcQQaROGgZ7R5DlmJaopsSvPFPNPoqGqLCxyb48pl0isE5MZAEsPohourpmd_2Z94R27iIjQZC8-w46qnF5o0a915ClyyAyKfAn-O_1TmQed9QonTMgPumL',
-  },
-  {
-    name: 'Caléndula',
-    image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuC2W6mht2mHlJ5DXw9flObGXWpOis3oQTjeSK0qyePFlukUaOpZApuSeejGM6XGmDJsVkqt1wwbd69UC-URajh_tlatWctmLbXmVN4XlL7jwVutVd-B9xb1FDMIpw4oVbgneuCLC3XHLhXniPaK5SHdb5xXnwzlgpcfMcy83Bjm0PxAeqRnOt-9jR8ESaeAhwfp-fy5_IrDnUQKRR-1HmWslGIrpD6SMvszcF9Uyl5Wj0Zsdz6PD2m9UhWPTdKsCOY1rolnhAhNHiP4',
-  },
-  {
-    name: 'Aloe Vera',
-    image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuBX1rOzc23GoWbccOtxVVGkGPQ3w9VCGdh4iGac5m_9j8P-Bo_WO86DL8Rl-G85cJL3gKTBvD0oG_l2LQ1ZRih2s6wCGKN95dPhwp1Wn7v9Udm_9WI4lCcceZr_DOWypQHLio6kAM6-Sj1uT1OOZBXeMNqFZv4AZVMlwkMr81xW3Aii6CkiObsCRz0trv1jufYOKdyOBiWQ5NB1tu6V4YNIBIGzr4HAHM7bUlnr1jNI_8Mz788hQ2oUKKeOibtfVYd3e7wRHq5seLwS',
-  },
-  {
-    name: 'Café Puro',
-    image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuB78FNoPibgoOV6g4RW6u6vn7-mvepdHJPd9cULjHvt1ChuiyQLE2A2lw2aEZZIvLClH3sVuM9K5lEpLJADdbBG7btHnC5VC0qJX-U9Mm-036di6XA2DbSYfYwK_ZT2_nYzq1_beaqIzXYXjefvMDYRSVO_Bj4qTwPqmatSnZjdoncian85OHwk3BUucPKKhbloFvdJUCegA0591DOykfb30JPT8aNvVthPbzMWbRlw7SMzBtgtiG9QYciiDUy8dO60DM_pAfzvL0Qf',
-  },
-];
-
-export default function Glosario() {
   return (
     <section
       id="glosario"
@@ -96,14 +96,46 @@ export default function Glosario() {
 
         {/* Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
-          {INGREDIENTS.map((ingredient, index) => (
-            <RevealCard
-              key={index}
-              image={ingredient.image}
-              name={ingredient.name}
-              index={index}
-            />
-          ))}
+          {ingredients.map((ingredient, index) => {
+            const progress = cardProgress.get(index) || 0;
+
+            // Stagger: each card starts its reveal later in the scroll
+            const stagger = index * 0.25;
+            const adjustedProgress = Math.max(
+              0,
+              Math.min(1, (progress - stagger) / (1 - stagger))
+            );
+
+            const translateY = (1 - adjustedProgress) * 60;
+            const opacity = adjustedProgress;
+            const scale = 0.85 + adjustedProgress * 0.15;
+
+            return (
+              <div
+                key={index}
+                ref={(el) => {
+                  if (el) cardRefs.current.set(index, el);
+                }}
+                className="glass-card aspect-square rounded-3xl overflow-hidden relative group"
+                style={{
+                  opacity,
+                  transform: `translateY(${translateY}px) scale(${scale})`,
+                  transition: 'none',
+                }}
+              >
+                <img
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  src={ingredient.image}
+                  alt={ingredient.name}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-earth/60 to-transparent flex items-end p-6">
+                  <span className="text-white font-serif text-xl">
+                    {ingredient.name}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
         </div>
 
         {/* Mobile button */}
