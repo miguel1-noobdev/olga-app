@@ -35,7 +35,7 @@ export default async function ArticlePage({ params }: { params: { slug: string }
       <BlogNavbar />
       <main className="min-h-screen bg-surface pt-20">
         {/* Imagen de cabecera */}
-        <div className="w-full h-[400px] md:h-[500px] overflow-hidden bg-gradient-to-br from-[#e9f0e7] via-[#d5e0d3] to-[#c5d3c2]">
+        <div className="w-full h-[400px] md:h-[500px] overflow-hidden bg-white">
           <img
             src={article.image}
             alt={article.imageAlt}
