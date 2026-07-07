@@ -237,6 +237,42 @@ const PLANT_SEEDS: SeedPlant[] = [
     description:
       'Planta suculenta perenne, xerófita y de tallo muy corto, perteneciente a una de las estirpes medicinales más importantes del mundo. Es reconocida por su capacidad de almacenar agua en un gel parenquimatoso altamente complejo. Se distingue por sus hojas largas (60-100 cm), carnosas y lanceoladas con márgenes serrados provistos de dientes blancos. A diferencia de otros aloes, A. barbadensis presenta flores amarillas tubulares en espigas de hasta 90 cm. Es nativa de la Península Arábiga, pero se ha naturalizado en regiones áridas y subtropicales de todo el mundo.',
   },
+  {
+    commonName: 'Diente de León',
+    scientificName: 'Taraxacum officinale (L.) Weber ex F.H.Wigg.',
+    family: 'Asteraceae',
+    usedParts: ['Hojas', 'Raíz', 'Planta entera'],
+    compounds: [
+      { name: 'Inulina', description: 'raíz: hasta 40% en otoño' },
+      { name: 'Lactonas sesquiterpénicas', description: 'raíz: taraxacósido, taraxacina' },
+      { name: 'Triterpenos', description: 'raíz: taraxasterol' },
+      { name: 'Esteroles', description: 'raíz' },
+      { name: 'Potasio', description: 'hojas: hasta 5% del peso seco' },
+      { name: 'Polifenoles', description: 'hojas: ácido chicórico, caftárico' },
+      { name: 'Flavonoides', description: 'hojas: luteolina-7-glucósido' },
+      { name: 'Vitaminas', description: 'hojas: A, B, C, D' },
+    ],
+    properties: {
+      oral: ['Diurético', 'Colerético', 'Colagogo', 'Ayuda digestiva', 'Reconstituyente', 'Remineralizante'],
+      topical: [],
+    },
+    contraindications: [
+      'Obstrucción de las vías biliares',
+      'Colangitis',
+      'Cálculos biliares',
+      'Embarazo y lactancia',
+      'Niños menores de 12 años',
+      'Contacto con látex fresco puede causar dermatitis de contacto',
+    ],
+    availableExtracts: [
+      { type: 'Infusión/Decocción', description: '4-10 g de hojas o 3-5 g de raíz' },
+      { type: 'Jugo fresco', description: '5-10 mL de hojas expresadas' },
+      { type: 'Tintura', description: '1:5, 5-10 mL tres veces al día antes de las comidas' },
+      { type: 'Sucedáneo de Café', description: 'Raíces de otoño secadas, tostadas y molidas' },
+    ],
+    description:
+      'Planta herbácea perenne, hemicriptófita y laticífera, reconocida por su raíz napiforme vigorosa que puede profundizar hasta 4.6 metros en condiciones óptimas. Se caracteriza por sus hojas en roseta basal con márgenes runcinados y sus escapos florales huecos que culminan en un capítulo amarillo solitario. Es una especie cosmopolita, ruderal y nitrófila obligada, que prospera con vigor en suelos antropizados, praderas húmedas y bordes de caminos desde el nivel del mar hasta los 1800 m.',
+  },
 ];
 
 function slugify(text: string): string {
