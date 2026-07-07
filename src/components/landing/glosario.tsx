@@ -3,46 +3,28 @@
 import { useEffect, useRef, useState } from 'react';
 
 export default function Glosario() {
-  const [cardProgress, setCardProgress] = useState<Map<number, number>>(
-    new Map()
-  );
-  const cardRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+  const [scrollOffset, setScrollOffset] = useState(0);
+  const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    const calculateProgress = () => {
-      const newProgress = new Map<number, number>();
+    const calculateOffset = () => {
+      const section = sectionRef.current;
+      if (!section) return;
 
-      cardRefs.current.forEach((ref, id) => {
-        if (ref) {
-          const rect = ref.getBoundingClientRect();
-          const windowHeight = window.innerHeight;
+      const rect = section.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
 
-          // Card starts revealing when its top hits the bottom of the viewport
-          // Card is fully revealed when its center is at 40% from top
-          const start = windowHeight;
-          const end = windowHeight * 0.4;
-
-          let progress = 0;
-
-          if (rect.top < start && rect.top > end) {
-            progress = (start - rect.top) / (start - end);
-          } else if (rect.top <= end) {
-            progress = 1;
-          }
-
-          newProgress.set(id, progress);
-        }
-      });
-
-      setCardProgress(newProgress);
+      // How far the section has entered the viewport (0 = not yet, 1 = section top at 20% from top)
+      const offset = (windowHeight - rect.top) / (windowHeight + rect.height * 0.4);
+      setScrollOffset(Math.max(0, Math.min(1, offset)));
     };
 
     const handleScroll = () => {
-      requestAnimationFrame(calculateProgress);
+      requestAnimationFrame(calculateOffset);
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    calculateProgress();
+    calculateOffset();
 
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -70,9 +52,13 @@ export default function Glosario() {
     },
   ];
 
+  // Each card has a different parallax speed (depth layer)
+  const speeds = [0.4, 0.6, 0.8, 1.0];
+
   return (
     <section
       id="glosario"
+      ref={sectionRef}
       className="py-20 md:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden"
     >
       <div className="max-w-7xl mx-auto">
@@ -97,29 +83,19 @@ export default function Glosario() {
         {/* Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
           {ingredients.map((ingredient, index) => {
-            const progress = cardProgress.get(index) || 0;
-
-            // Stagger: each card starts its reveal later in the scroll
-            const stagger = index * 0.25;
-            const adjustedProgress = Math.max(
-              0,
-              Math.min(1, (progress - stagger) / (1 - stagger))
-            );
-
-            const translateY = (1 - adjustedProgress) * 60;
-            const opacity = adjustedProgress;
-            const scale = 0.85 + adjustedProgress * 0.15;
+            const speed = speeds[index];
+            // Parallax: each card moves at its own speed
+            // Cards start 120px below and move up to their final position
+            const translateY = (1 - scrollOffset) * 120 * speed;
+            const opacity = 0.3 + scrollOffset * 0.7 * speed;
 
             return (
               <div
                 key={index}
-                ref={(el) => {
-                  if (el) cardRefs.current.set(index, el);
-                }}
                 className="glass-card aspect-square rounded-3xl overflow-hidden relative group"
                 style={{
-                  opacity,
-                  transform: `translateY(${translateY}px) scale(${scale})`,
+                  opacity: Math.min(1, opacity),
+                  transform: `translateY(${translateY}px)`,
                   transition: 'none',
                 }}
               >
