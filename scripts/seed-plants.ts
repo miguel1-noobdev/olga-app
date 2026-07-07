@@ -273,6 +273,41 @@ const PLANT_SEEDS: SeedPlant[] = [
     description:
       'Planta herbácea perenne, hemicriptófita y laticífera, reconocida por su raíz napiforme vigorosa que puede profundizar hasta 4.6 metros en condiciones óptimas. Se caracteriza por sus hojas en roseta basal con márgenes runcinados y sus escapos florales huecos que culminan en un capítulo amarillo solitario. Es una especie cosmopolita, ruderal y nitrófila obligada, que prospera con vigor en suelos antropizados, praderas húmedas y bordes de caminos desde el nivel del mar hasta los 1800 m.',
   },
+  {
+    commonName: 'Toronjil',
+    scientificName: 'Melissa officinalis L.',
+    family: 'Lamiaceae',
+    usedParts: ['Hoja'],
+    compounds: [
+      { name: 'Ácido rosmarínico', percentage: 'hasta 6%' },
+      { name: 'Ácidos melítricos A y B', description: 'exclusivos de la especie' },
+      { name: 'Ácido clorogénico' },
+      { name: 'Ácido cafeico' },
+      { name: 'Aceite esencial', percentage: '0.02-0.37%, citral, citronelal, geraniol, β-cariofileno' },
+      { name: 'Flavonoides', description: 'luteolina, apigenina, quercetina' },
+      { name: 'Taninos' },
+      { name: 'Ácidos triterpénicos', description: 'ursólico, oleanólico' },
+    ],
+    properties: {
+      oral: ['Sedante', 'Ansiolítico', 'Digestivo', 'Carminativo', 'Antiespasmódico', 'Potenciador cognitivo'],
+      topical: ['Antiviral tópico'],
+    },
+    contraindications: [
+      'Embarazo (riesgo teratogénico por citral y efecto uterotónico)',
+      'Hipotiroidismo (puede inhibir TSH)',
+      'Niños menores de 12 años',
+      'Aceite esencial puro extremadamente tóxico e irritante si no se diluye',
+      'Puede reducir la capacidad de conducir por efecto sedante',
+    ],
+    availableExtracts: [
+      { type: 'Infusión', description: '1.5 - 4.5 g de droga por taza, varias veces al día' },
+      { type: 'Extracto Fluido', description: '1:1, 2 - 4 mL tres veces al día' },
+      { type: 'Tintura', description: '1:5, 2 - 6 mL tres veces al día' },
+      { type: 'Uso Tópico', description: 'Cremas o soluciones acuosas para herpes labial' },
+    ],
+    description:
+      'Planta herbácea perenne y vivaz de porte arbustivo (30-100 cm), también conocida como Melisa, caracterizada por sus tallos erectos de sección cuadrangular y un intenso aroma cítrico al estrujar sus hojas. Es nativa de la región del Mediterráneo oriental y Asia occidental, aunque se ha naturalizado en regiones templadas de todo el mundo. Debe distinguirse de la Hierba Luisa (Aloysia citriodora), que es un arbusto con un perfil fitoquímico distinto (mayor contenido de citral) y un marco regulatorio independiente. Se reconocen tres subespecies: officinalis, altissima e inodora.',
+  },
 ];
 
 function slugify(text: string): string {
