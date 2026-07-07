@@ -3,25 +3,46 @@
 import { useEffect, useRef, useState } from 'react';
 
 export default function Glosario() {
-  const [isVisible, setIsVisible] = useState(false);
+  const [cardProgress, setCardProgress] = useState<number[]>([]);
   const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.2 }
-    );
+    const calculateProgress = () => {
+      const section = sectionRef.current;
+      if (!section) return;
 
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
+      const rect = section.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
 
-    return () => observer.disconnect();
+      // The section triggers when its top reaches the bottom of the viewport
+      // and finishes when its bottom leaves the top
+      const sectionTop = rect.top;
+      const sectionHeight = rect.height;
+
+      // How far into the section we've scrolled (0 = not yet, 1 = fully through)
+      const sectionProgress = Math.max(0, Math.min(1,
+        (windowHeight - sectionTop) / (windowHeight + sectionHeight)
+      ));
+
+      // Distribute 4 cards across the section's scroll range (0 to ~0.7)
+      // Each card gets 0.175 of the progress range (0.7 / 4)
+      const newProgress = [0, 1, 2, 3].map((i) => {
+        const cardStart = i * 0.17;
+        const cardRange = 0.18;
+        return Math.max(0, Math.min(1, (sectionProgress - cardStart) / cardRange));
+      });
+
+      setCardProgress(newProgress);
+    };
+
+    const handleScroll = () => {
+      requestAnimationFrame(calculateProgress);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    calculateProgress();
+
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const ingredients = [
@@ -51,8 +72,11 @@ export default function Glosario() {
     <section
       id="glosario"
       ref={sectionRef}
-      className="py-20 md:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden"
+      className="relative py-20 md:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden"
     >
+      {/* Extra height so there's enough scroll room to reveal all cards */}
+      <div className="h-[50vh]" />
+
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-end mb-16">
@@ -74,40 +98,37 @@ export default function Glosario() {
 
         {/* Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
-          {ingredients.map((ingredient, index) => (
-            <div
-              key={index}
-              className="glass-card aspect-square rounded-3xl overflow-hidden relative group"
-              style={{
-                opacity: isVisible ? 1 : 0,
-                transform: isVisible ? 'translateY(0)' : 'translateY(40px)',
-                transition: `opacity 0.6s ease-out ${index * 0.3}s, transform 0.6s ease-out ${index * 0.3}s`,
-              }}
-            >
-              <img
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                src={ingredient.image}
-                alt={ingredient.name}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-earth/60 to-transparent flex items-end p-6">
-                <span className="text-white font-serif text-xl">
-                  {ingredient.name}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
+          {ingredients.map((ingredient, index) => {
+            const progress = cardProgress[index] || 0;
 
-        {/* Mobile button */}
-        <div className="md:hidden text-center mt-8">
-          <a
-            href="/jardin-digital"
-            className="inline-block border-2 border-primary text-primary font-sans text-sm font-bold uppercase tracking-widest px-6 py-3 rounded-full hover:bg-primary hover:text-white transition-all duration-300"
-          >
-            LEER MÁS
-          </a>
+            return (
+              <div
+                key={index}
+                className="glass-card aspect-square rounded-3xl overflow-hidden relative group"
+                style={{
+                  opacity: progress,
+                  transform: `translateY(${(1 - progress) * 60}px) scale(${0.85 + progress * 0.15})`,
+                  transition: 'none',
+                }}
+              >
+                <img
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  src={ingredient.image}
+                  alt={ingredient.name}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-earth/60 to-transparent flex items-end p-6">
+                  <span className="text-white font-serif text-xl">
+                    {ingredient.name}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
+
+      {/* Extra bottom space to finish the last card reveal */}
+      <div className="h-[30vh]" />
     </section>
   );
 }
