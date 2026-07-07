@@ -13,26 +13,26 @@ async function seedArticles() {
       content: `
 La cosmética natural no es una moda pasajera: es un regreso a lo esencial. En **Botánica Esencial OB**, cada producto nace del conocimiento profundo de las plantas, de la ciencia que las respalda y de la tradición que las ha utilizado durante siglos.
 
-Nuestra filosofía es simple: **si la naturaleza lo creó, no necesita aditivos artificiales para funcionar**. Trabajamos con extractos vegetales puros, aceites esenciales destilados con cuidado e ingredientes que respetan el equilibrio natural de tu piel.
+Mi filosofía es simple: **si la naturaleza lo creó, no necesita aditivos artificiales para funcionar**. Trabajo con extractos vegetales puros, aceites esenciales destilados con cuidado e ingredientes que respetan el equilibrio natural de tu piel.
 
 ## ¿Por qué cosmética botánica?
 
 La cosmética convencional utiliza cientos de compuestos sintéticos que, aunque aprobados, pueden acumularse en el organismo o generar reacciones no deseadas. La cosmética natural, en cambio, se basa en:
 
 - **Ingredientes biodegradables** que no contaminan el agua ni el suelo
-- **Extractos vegetales** con afinidad natural por nuestra bioquímica
+- **Extractos vegetales** con afinidad natural por tu bioquímica
 - **Sin parabenos, sulfatos ni siliconas** que obstruyen los poros o alteran el microbioma cutáneo
 - **Procesos artesanales** que respetan la integridad de los principios activos
 
 ## Lo que encontrarás aquí
 
-En nuestro **Jardín Digital** podrás explorar una colección de 21 plantas medicinales con sus propiedades, compuestos activos, formas de uso y contraindicaciones. En el **Journal**, compartimos artículos como este para ayudarte a entender mejor cómo cuidar tu piel y tu bienestar con lo que la naturaleza nos ofrece.
+En el **Jardín Digital** podrás explorar una colección de 21 plantas medicinales con sus propiedades, compuestos activos, formas de uso y contraindicaciones. En el **Journal**, comparto artículos como este para ayudarte a entender mejor cómo cuidar tu piel y tu bienestar con lo que la naturaleza nos ofrece.
 
-## Nuestro compromiso
+## Mi compromiso
 
-No hacemos cosmética para vender. Hacemos cosmética porque creemos que **cada persona merece productos que realmente funcionen, sin comprometer su salud ni el planeta**. Cada lote se documenta, se prueba y se sigue en el tiempo para garantizar su calidad y eficacia.
+No hago cosmética para vender. Hago cosmética porque creo que **cada persona merece productos que realmente funcionen, sin comprometer su salud ni el planeta**. Cada lote lo documento, lo pruebo y le hago seguimiento en el tiempo para garantizar su calidad y eficacia.
 
-Te invitamos a explorar, aprender y sumarte a esta forma más consciente de cuidarte.
+Te invito a explorar, aprender y sumarte a esta forma más consciente de cuidarte.
       `.trim(),
       category: 'Blog',
       image: '/img/logo/logotrans3.png',
@@ -73,9 +73,9 @@ El gel (pulpa transparente) es seguro para uso tópico. Sin embargo, el **látex
 
 Si usas aloe fresco en casa, asegúrate de lavar bien la hoja y eliminar completamente la capa de látex antes de extraer el gel.
 
-## Nuestra experiencia
+## Mi experiencia
 
-En Botánica Esencial OB utilizamos aloe en nuestras fórmulas de hidratación profunda. Su compatibilidad con otros extractos vegetales lo convierte en una base ideal para sinergias botánicas.
+En Botánica Esencial OB utilizo aloe en mis fórmulas de hidratación profunda. Su compatibilidad con otros extractos vegetales lo convierte en una base ideal para sinergias botánicas.
       `.trim(),
       category: 'Recursos',
       image: 'https://upload.wikimedia.org/wikipedia/commons/5/54/Aloe-vera-20080327.JPG',
@@ -87,9 +87,9 @@ En Botánica Esencial OB utilizamos aloe en nuestras fórmulas de hidratación p
       slug: 'cuidados-piel-verano-cosmetica-natural',
       excerpt: 'El sol, el cloro y la sal pueden dañar tu piel. Te contamos cómo protegerla este verano con ingredientes naturales que tienes al alcance de la mano.',
       content: `
-El verano es maravilloso: días largos, baños de sol, piscina, playa... Pero nuestra piel no siempre comparte el entusiasmo. La combinación de **radiación UV, cloro, sal marina y sudor** puede deshidratarla, irritarla y acelerar su envejecimiento.
+El verano es maravilloso: días largos, baños de sol, piscina, playa... Pero tu piel no siempre comparte el entusiasmo. La combinación de **radiación UV, cloro, sal marina y sudor** puede deshidratarla, irritarla y acelerar su envejecimiento.
 
-La buena noticia es que no necesitas productos caros ni fórmulas complejas para cuidarla. La naturaleza ya nos da todo lo necesario.
+La buena noticia es que no necesitas productos caros ni fórmulas complejas para cuidarla. La naturaleza ya te da todo lo necesario.
 
 ## Los 4 pilares del cuidado estival
 
@@ -109,7 +109,7 @@ Aplica unas gotas por la mañana antes de tu protector solar.
 
 ### 3. After-sun reparador casero
 
-Después de un día de playa o piscina, tu piel necesita calma e hidratación. Esta mezcla es nuestro remedio favorito:
+Después de un día de playa o piscina, tu piel necesita calma e hidratación. Esta mezcla es mi remedio favorito:
 
 **Gel after-sun de aloe y lavanda:**
 - 3 cucharadas de gel de aloe vera (mejor si está frío)
@@ -139,7 +139,7 @@ El café estimula la microcirculación y la miel es un humectante natural que de
 
 Cada piel es única. Lo que funciona para una persona puede no irle bien a otra. La cosmética natural te invita a **experimentar, observar y adaptar**. Si algo te irrita, deja de usarlo. Si algo te sienta bien, incorpóralo a tu rutina.
 
-En Botánica Esencial OB creemos que **cuidarse es un acto de amor propio**, no una obligación estética. Disfruta del verano con consciencia y deja que la naturaleza sea tu aliada.
+En Botánica Esencial OB creo que **cuidarse es un acto de amor propio**, no una obligación estética. Disfruta del verano con consciencia y deja que la naturaleza sea tu aliada.
       `.trim(),
       category: 'Blog',
       image: 'https://upload.wikimedia.org/wikipedia/commons/a/a7/Chamomile%40original_size.jpg',
