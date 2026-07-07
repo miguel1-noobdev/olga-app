@@ -35,7 +35,7 @@ No hago cosmética para vender. Hago cosmética porque creo que **cada persona m
 Te invito a explorar, aprender y sumarte a esta forma más consciente de cuidarte.
       `.trim(),
       category: 'Blog',
-      image: '/img/logo/logotrans1total.png',
+      image: '/img/logo/logo-borde.jpeg',
       imageAlt: 'Logo de Botánica Esencial OB',
       readingTime: '4 min',
     },
