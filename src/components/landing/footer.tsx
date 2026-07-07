@@ -5,7 +5,7 @@ export default function Footer() {
     { href: '#hero', label: 'Inicio' },
     { href: '#productos', label: 'Productos' },
     { href: '/blog', label: 'Journal' },
-    { href: '/jardin-digital', label: 'Ingredientes' },
+    { href: '/jardin-digital', label: 'Jardin 2.0' },
   ];
 
   return (

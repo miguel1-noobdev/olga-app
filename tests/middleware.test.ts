@@ -18,12 +18,11 @@ vi.mock('next-auth/jwt', () => ({
 
 import { middleware, config } from '@/middleware';
 
-function createMockRequest(pathname: string): NextRequest {
+function createMockRequest(path: string): NextRequest {
+  const url = new URL(`http://localhost:3000${path}`);
   return {
-    nextUrl: {
-      pathname,
-    },
-    url: `http://localhost:3000${pathname}`,
+    nextUrl: url,
+    url: url.toString(),
   } as NextRequest;
 }
 
@@ -74,6 +73,18 @@ describe('middleware', () => {
       const redirectUrl = vi.mocked(NextResponse.redirect).mock.calls[0][0] as URL;
       expect(redirectUrl.pathname).toBe('/login');
       expect(redirectUrl.searchParams.get('callbackUrl')).toBe('/jardin-digital/lavanda');
+    });
+
+    it('preserves query string in callbackUrl', async () => {
+      getTokenMock.mockResolvedValue(null);
+
+      const request = createMockRequest('/blog?page=2');
+      await middleware(request);
+
+      expect(NextResponse.redirect).toHaveBeenCalledTimes(1);
+      const redirectUrl = vi.mocked(NextResponse.redirect).mock.calls[0][0] as URL;
+      expect(redirectUrl.pathname).toBe('/login');
+      expect(redirectUrl.searchParams.get('callbackUrl')).toBe('/blog?page=2');
     });
   });
 

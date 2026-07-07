@@ -2,11 +2,12 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { signIn } from 'next-auth/react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { sanitizeCallbackUrl } from '@/lib/auth/sanitize-callback-url';
+import { performCredentialsLogin } from '@/lib/auth/credentials-login';
 
 function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   const [email, setEmail] = useState('');
@@ -15,7 +16,7 @@ function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
 
   const errorParam = searchParams.get('error');
-  const callbackUrl = searchParams.get('callbackUrl') || '/';
+  const callbackUrl = sanitizeCallbackUrl(searchParams.get('callbackUrl'));
 
   useEffect(() => {
     if (errorParam === 'CredentialsSignin') {
@@ -37,21 +38,18 @@ function LoginForm() {
     setIsLoading(true);
 
     try {
-      const result = await signIn('credentials', {
-        email,
-        password,
-        callbackUrl,
-        redirect: false,
-      });
+      const result = await performCredentialsLogin(signIn, email, password, callbackUrl);
 
-      if (result?.error) {
+      if (result.ok) {
+        // Use hard navigation to guarantee the session cookie is sent.
+        // router.push() can race with cookie settlement and bounce back to /login.
+        window.location.href = result.navigateTo;
+      } else {
         if (result.error === 'CredentialsSignin') {
           setError('Credenciales inválidas. Verificá tu email y contraseña.');
         } else {
           setError('Error al iniciar sesión. Intentá de nuevo más tarde.');
         }
-      } else if (result?.ok) {
-        router.push(callbackUrl);
       }
     } catch {
       setError('Ocurrió un error. Intentá de nuevo.');

@@ -9,7 +9,7 @@ const NAV_LINKS = [
   { href: '#hero', label: 'Inicio' },
   { href: '#productos', label: 'Productos' },
   { href: '/blog', label: 'Journal' },
-  { href: '/jardin-digital', label: 'Ingredientes' },
+  { href: '/jardin-digital', label: 'Jardin 2.0' },
 ];
 
 const SCROLL_THRESHOLD = 50;
