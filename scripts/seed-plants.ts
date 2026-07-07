@@ -308,6 +308,41 @@ const PLANT_SEEDS: SeedPlant[] = [
     description:
       'Planta herbácea perenne y vivaz de porte arbustivo (30-100 cm), también conocida como Melisa, caracterizada por sus tallos erectos de sección cuadrangular y un intenso aroma cítrico al estrujar sus hojas. Es nativa de la región del Mediterráneo oriental y Asia occidental, aunque se ha naturalizado en regiones templadas de todo el mundo. Debe distinguirse de la Hierba Luisa (Aloysia citriodora), que es un arbusto con un perfil fitoquímico distinto (mayor contenido de citral) y un marco regulatorio independiente. Se reconocen tres subespecies: officinalis, altissima e inodora.',
   },
+  {
+    commonName: 'Rosa Mosqueta',
+    scientificName: 'Rosa canina L.',
+    family: 'Rosaceae',
+    usedParts: ['Pseudofruto', 'Semillas', 'Pétalos', 'Raíz'],
+    compounds: [
+      { name: 'Vitamina C', description: 'cinorrodón: 500-2000 mg/100g' },
+      { name: 'Vitaminas', description: 'cinorrodón: E, A, K, complejo B' },
+      { name: 'Flavonoides', description: 'cinorrodón: quercetina, tilirosido' },
+      { name: 'Galactolípido GOPO', description: 'cinorrodón' },
+      { name: 'Ácido linoleico', description: 'semillas: 51-52%' },
+      { name: 'Ácido α-linolénico', description: 'semillas: 19-40%' },
+      { name: 'Carotenoides', description: 'semillas' },
+      { name: 'Tocoferoles', description: 'semillas' },
+      { name: 'Taninos elágicos', description: 'raíz y hojas: rugosinas' },
+    ],
+    properties: {
+      oral: ['Antiinflamatorio', 'Condroprotector', 'Antioxidante', 'Inmunomodulador', 'Astringente'],
+      topical: ['Regenerador dérmico', 'Cicatrizante'],
+    },
+    contraindications: [
+      'Litiasis renal',
+      'Hemocromatosis',
+      'Déficit de G6PD',
+      'Suspender 14 días antes de cirugía por riesgo de sangrado',
+    ],
+    availableExtracts: [
+      { type: 'Polvo Estandarizado', description: 'Secado a menos de 40°C para preservar GOPO, para salud articular' },
+      { type: 'Aceite de Semilla', description: 'Prensado en frío para uso dermatológico y regeneración de cicatrices' },
+      { type: 'Infusión', description: 'Tónico vitamínico y diurético suave' },
+      { type: 'Macerado Glicerinado', description: 'Gemoterapia de brotes tiernos' },
+    ],
+    description:
+      'Arbusto vigoroso de porte desordenado y ramas sarmentosas, también conocido como Rosal Silvestre, que alcanza habitualmente los 2 a 4 metros, aunque puede llegar a los 12 metros si cuenta con apoyo para trepar. Se caracteriza por sus tallos provistos de aguijones falciformes y sus pseudofrutos carnosos (cinorrodones) de un rojo escarlata brillante. Se distingue diagnósticamente de otras rosas por tener folíolos completamente glabros en ambas caras y sépalos que se desprenden precozmente antes de la maduración del fruto. Es nativa de la región Paleártica, siendo común en toda la Península Ibérica hasta los 1500 msnm, y se ha naturalizado con éxito en los valles interandinos de Chile y Perú hasta los 4000 msnm.',
+  },
 ];
 
 function slugify(text: string): string {
