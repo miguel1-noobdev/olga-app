@@ -56,7 +56,7 @@ export default function Glosario() {
     <section
       id="glosario"
       ref={sectionRef}
-      className="relative py-28 md:py-40 px-4 sm:px-6 lg:px-8 overflow-hidden"
+      className="relative py-20 md:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden"
     >
       {/* Extra height: gives room to scroll through all 4 card reveals */}
       <div className="h-[100vh]" />

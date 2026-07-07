@@ -1,6 +1,6 @@
 export default function Olga() {
   return (
-    <section id="olga" className="py-28 md:py-40 px-4 sm:px-6 lg:px-8">
+    <section id="olga" className="py-20 md:py-32 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
         {/* Content */}
         <div className="order-2 md:order-1 space-y-6">

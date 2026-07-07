@@ -1,6 +1,6 @@
 export default function Unete() {
   return (
-    <section id="unete" className="py-28 md:py-40 px-4 sm:px-6 lg:px-8">
+    <section id="unete" className="py-20 md:py-32 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="bg-primary p-12 md:p-24 rounded-[3rem] shadow-2xl relative overflow-hidden text-center md:text-left">
           {/* Decorative blur */}
