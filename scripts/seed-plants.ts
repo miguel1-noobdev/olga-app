@@ -631,6 +631,41 @@ const PLANT_SEEDS: SeedPlant[] = [
     description:
       'Hierba perenne, rizomatosa o estolonífera, también conocida como Menta Piperita, de origen híbrido (M. aquatica x M. spicata). Sus tallos alcanzan hasta 90 cm de altura, pudiendo ser glabros o más o menos pelosos. Se caracteriza por su intenso aroma y su cultivo extendido en todo el mundo. Aunque su origen exacto es debatido entre la Inglaterra del siglo XVII y el antiguo Egipto, actualmente se cultiva de forma masiva a nivel global. Se distingue por su naturaleza híbrida y su capacidad de propagación mediante rizomas.',
   },
+  {
+    commonName: 'Menta Acuática',
+    scientificName: 'Mentha aquatica L.',
+    family: 'Lamiaceae',
+    usedParts: ['Hojas', 'Sumidades floridas'],
+    compounds: [
+      { name: 'Mentofurano', description: 'aceite esencial: 51.26-58.59%' },
+      { name: 'Limoneno', description: 'aceite esencial: 5.9-12.0%' },
+      { name: 'Trans-beta-ocimeno', description: 'aceite esencial: 5.5-8.1%' },
+      { name: 'Ledol', description: 'aceite esencial: 3.0-4.0%' },
+      { name: 'Beta-cariofileno', description: 'aceite esencial' },
+      { name: '1,8-cineol', description: 'aceite esencial' },
+      { name: 'Mentona', description: 'aceite esencial' },
+      { name: 'Isomentona', description: 'aceite esencial' },
+      { name: 'Pulegona', description: 'aceite esencial' },
+      { name: 'Neomentol', description: 'aceite esencial' },
+    ],
+    properties: {
+      oral: ['Antiespasmódica', 'Digestiva', 'Analgésica', 'Antipirética', 'Sedante suave', 'Astringente'],
+      topical: ['Antiséptica', 'Antimicrobiana'],
+    },
+    contraindications: [
+      'Mentofurano potencialmente hepatotóxico en dosis muy altas',
+      'Evitar aceite esencial puro cerca de nariz y pecho en niños pequeños',
+      'No recomendado en obstrucción de vías biliares',
+      'No recomendado en enfermedades hepáticas graves',
+    ],
+    availableExtracts: [
+      { type: 'Aceite Esencial', description: 'Hidrodestilación, composición varía entre fases vegetativa y floración' },
+      { type: 'Infusión', description: 'Tónico digestivo, emenagogo y afecciones respiratorias' },
+      { type: 'Extractos Orgánicos', description: 'Investigación en propiedades neuroquímicas y citotóxicas' },
+    ],
+    description:
+      'Planta herbácea perenne, rizomatosa y vivaz, también conocida como Menta de Agua, que alcanza habitualmente hasta los 90 cm de altura. Se caracteriza por sus tallos de sección cuadrangular, de color verde o púrpura, que varían de pilosos a casi glabros. Sus hojas son opuestas, de forma ovada a ovado-lanceolada, con bordes dentados y un marcado olor mentolado característico. Las flores son diminutas y se agrupan densamente en inflorescencias terminales de color púrpura, rosado o lila. Se distingue de otras mentas por su hábito de crecimiento ligado a ambientes muy húmedos, encontrándose en las orillas de ríos, arroyos, estanques y canales. Es el progenitor genético directo (junto con M. spicata) de la menta piperita. Es nativa de la región Paleártica y se ha naturalizado ampliamente en América y Australia.',
+  },
 ];
 
 function slugify(text: string): string {
