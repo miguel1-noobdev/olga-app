@@ -20,7 +20,7 @@ export default async function HomePage() {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen bg-surface space-y-10">
+      <main className="min-h-screen bg-surface space-y-20">
         <Hero />
         <Products />
         <Metodos />
