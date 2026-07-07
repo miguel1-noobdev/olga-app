@@ -3,49 +3,25 @@
 import { useEffect, useRef, useState } from 'react';
 
 export default function Glosario() {
-  const [cardProgress, setCardProgress] = useState<Map<number, number>>(
-    new Map()
-  );
-  const cardRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    const calculateProgress = () => {
-      const newProgress = new Map<number, number>();
-
-      cardRefs.current.forEach((ref, id) => {
-        if (ref) {
-          const rect = ref.getBoundingClientRect();
-          const windowHeight = window.innerHeight;
-
-          // Rango de animación: desde que aparece hasta que está en el centro
-          const start = windowHeight;
-          const end = windowHeight * 0.3;
-
-          let progress = 0;
-
-          if (rect.top < start && rect.top > end) {
-            const range = start - end;
-            const position = start - rect.top;
-            progress = position / range;
-          } else if (rect.top <= end) {
-            progress = 1;
-          }
-
-          newProgress.set(id, progress);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
         }
-      });
+      },
+      { threshold: 0.2 }
+    );
 
-      setCardProgress(newProgress);
-    };
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
 
-    const handleScroll = () => {
-      requestAnimationFrame(calculateProgress);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    calculateProgress();
-
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => observer.disconnect();
   }, []);
 
   const ingredients = [
@@ -74,6 +50,7 @@ export default function Glosario() {
   return (
     <section
       id="glosario"
+      ref={sectionRef}
       className="py-20 md:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden"
     >
       <div className="max-w-7xl mx-auto">
@@ -97,46 +74,28 @@ export default function Glosario() {
 
         {/* Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
-          {ingredients.map((ingredient, index) => {
-            const progress = cardProgress.get(index) || 0;
-
-            // Delay escalonado: cada tarjeta empieza 150ms después
-            const delay = index * 0.15;
-            const adjustedProgress = Math.max(
-              0,
-              Math.min(1, (progress - delay) / (1 - delay))
-            );
-
-            // Transform: desde la izquierda (translateX -100px) a posición normal
-            const translateX = (1 - adjustedProgress) * -100;
-            const opacity = adjustedProgress;
-
-            return (
-              <div
-                key={index}
-                ref={(el) => {
-                  if (el) cardRefs.current.set(index, el);
-                }}
-                className="glass-card aspect-square rounded-3xl overflow-hidden relative group"
-                style={{
-                  transform: `translateX(${translateX}px)`,
-                  opacity: opacity,
-                  transition: 'transform 0.15s ease-out, opacity 0.15s ease-out',
-                }}
-              >
-                <img
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  src={ingredient.image}
-                  alt={ingredient.name}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-earth/60 to-transparent flex items-end p-6">
-                  <span className="text-white font-serif text-xl">
-                    {ingredient.name}
-                  </span>
-                </div>
+          {ingredients.map((ingredient, index) => (
+            <div
+              key={index}
+              className="glass-card aspect-square rounded-3xl overflow-hidden relative group"
+              style={{
+                opacity: isVisible ? 1 : 0,
+                transform: isVisible ? 'translateY(0)' : 'translateY(40px)',
+                transition: `opacity 0.6s ease-out ${index * 0.3}s, transform 0.6s ease-out ${index * 0.3}s`,
+              }}
+            >
+              <img
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                src={ingredient.image}
+                alt={ingredient.name}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-earth/60 to-transparent flex items-end p-6">
+                <span className="text-white font-serif text-xl">
+                  {ingredient.name}
+                </span>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
 
         {/* Mobile button */}
