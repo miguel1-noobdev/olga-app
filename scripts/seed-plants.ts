@@ -596,6 +596,41 @@ const PLANT_SEEDS: SeedPlant[] = [
     description:
       'Arbusto de hábito terrestre y porte bajo, también conocido como Rosal Castellano, que alcanza habitualmente entre 0.5 y 1 metro de altura. Se caracteriza por poseer brotes rectos y ramificados con numerosos aguijones de distintas longitudes y glándulas caulinares. Sus flores son generalmente solitarias, grandes y muy fragantes, con pétalos aterciopelados que varían del rosa intenso al púrpura. Se distingue diagnósticamente de la Rosa canina por su porte significativamente más bajo y por sus sépalos que permanecen unidos al receptáculo hasta la maduración del fruto. Sus hojas tienen generalmente 5 folíolos, de color verde oscuro por el haz y más claros por el envés. Es nativa de Europa central y meridional y de Asia Menor, creciendo de forma silvestre en bosques de pino y encino.',
   },
+  {
+    commonName: 'Menta',
+    scientificName: 'Mentha x piperita L.',
+    family: 'Lamiaceae',
+    usedParts: ['Parte aérea'],
+    compounds: [
+      { name: 'Mentol', description: 'aceite esencial: 33-60%' },
+      { name: 'Mentona', description: 'aceite esencial: 15-32%' },
+      { name: 'Isomentona', description: 'aceite esencial: 2-8%' },
+      { name: '1,8-cineol', description: 'aceite esencial: 5-13%' },
+      { name: 'Acetato de mentilo', description: 'aceite esencial: 2-11%' },
+      { name: 'Mentofurano', description: 'aceite esencial: 1-10%' },
+      { name: 'Limoneno', description: 'aceite esencial: 1-7%' },
+      { name: 'Beta-mirceno', description: 'aceite esencial' },
+      { name: 'Beta-cariofileno', description: 'aceite esencial' },
+      { name: 'Pulegona', description: 'aceite esencial' },
+      { name: 'Carvona', description: 'aceite esencial' },
+      { name: 'Ácido salicílico', description: 'otros' },
+    ],
+    properties: {
+      oral: ['Carminativa', 'Digestiva'],
+      topical: ['Antibacteriana', 'Antiinflamatoria', 'Antiséptica', 'Vasodilatadora'],
+    },
+    contraindications: [
+      'El mentol puede aumentar la absorción tópica de otras sustancias como corticoides',
+      'Precaución en pieles extremadamente sensibles',
+    ],
+    availableExtracts: [
+      { type: 'Aceite Esencial', description: 'Hidrodestilación, uso en cosmética, higiene bucal y cuidado de pies' },
+      { type: 'Infusión', description: 'Menta piperitae folium, beneficios gastrointestinales' },
+      { type: 'Productos Tópicos', description: 'Cremas para pies y formulaciones anti-acné' },
+    ],
+    description:
+      'Hierba perenne, rizomatosa o estolonífera, también conocida como Menta Piperita, de origen híbrido (M. aquatica x M. spicata). Sus tallos alcanzan hasta 90 cm de altura, pudiendo ser glabros o más o menos pelosos. Se caracteriza por su intenso aroma y su cultivo extendido en todo el mundo. Aunque su origen exacto es debatido entre la Inglaterra del siglo XVII y el antiguo Egipto, actualmente se cultiva de forma masiva a nivel global. Se distingue por su naturaleza híbrida y su capacidad de propagación mediante rizomas.',
+  },
 ];
 
 function slugify(text: string): string {
