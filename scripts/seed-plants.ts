@@ -490,6 +490,37 @@ const PLANT_SEEDS: SeedPlant[] = [
     description:
       'Planta herbácea anual de porte erguido y tallos ramificados, glabros, también conocida como Manzanilla Común o Alemana, que alcanza entre 15 y 60 cm de altura. Posee hojas sésiles y alternas de aspecto plumoso con segmentos filiformes verde brillante. Sus inflorescencias son capítulos pedunculados con flores liguladas blancas en la periferia y flores tubulosas amarillas en el disco central. Su carácter diagnóstico definitivo es el receptáculo floral alargado-cónico, internamente hueco y sin páleas interflorales. Las lígulas blancas se curvan hacia abajo al madurar. Es nativa de Europa meridional/oriental y Asia templada, prosperando en suelos ligeros con pH entre 5.6 y 7.5.',
   },
+  {
+    commonName: 'Manzanilla Romana',
+    scientificName: 'Chamaemelum nobile (L.) All.',
+    family: 'Asteraceae',
+    usedParts: ['Capítulos florales'],
+    compounds: [
+      { name: 'Esteres alifáticos', description: 'aceite esencial >80%, ácido angélico y tíglico' },
+      { name: 'Angelato de isobutilo', description: 'aceite esencial' },
+      { name: 'Angelato de isoamilo', description: 'aceite esencial' },
+      { name: 'Nobilina', description: 'lactona sesquiterpénica, sabor amargo' },
+      { name: 'Glucósidos de luteolina', description: 'otros' },
+      { name: 'Glucósidos de quercetina', description: 'otros' },
+      { name: 'Chamaemelósido', description: 'marcador específico' },
+    ],
+    properties: {
+      oral: ['Espasmolítica neuromuscular', 'Antiinflamatoria', 'Sedante suave', 'Antiséptica'],
+      topical: ['Antiinflamatoria'],
+    },
+    contraindications: [
+      'Embarazo y lactancia',
+      'Asma',
+      'Niños menores de 12 años',
+    ],
+    availableExtracts: [
+      { type: 'Aceite Esencial', description: 'Muy valorado en aromaterapia y perfumería por su aroma afrutado' },
+      { type: 'Extracto Fluido', description: '1:1 con etanol al 70% para solubilizar nobilina' },
+      { type: 'Infusión', description: 'Uso tradicional como tónico digestivo y calmante' },
+    ],
+    description:
+      'Planta herbácea perenne de porte rastrero o decumbente, también conocida como Manzanilla Inglesa, que forma alfombras densas de 10 a 30 cm de altura. Sus tallos son vellosos con hojas verde-grisáceas que desprenden un intenso aroma a manzana al frotarlas. Los capítulos florales suelen ser solitarios sobre pedúnculos largos que se inclinan en fase de capullo. Se distingue por su receptáculo plano o ligeramente convexo, sólido y cubierto de páleas membranosas. Es nativa de la faja atlántica de Europa occidental y Norte de África. Prefiere suelos arenosos, fértiles y requiere riego continuo.',
+  },
 ];
 
 function slugify(text: string): string {
