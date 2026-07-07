@@ -204,6 +204,39 @@ const PLANT_SEEDS: SeedPlant[] = [
     description:
       'Planta herbácea de la familia Boraginaceae, de ciclo anual o bienal, reconocida por su gran resiliencia y por ser una fuente vegetal excepcional de ácidos grasos ω-3 complejos. Se distingue de la viborera común (E. vulgare) porque solo dos de sus estambres sobresalen claramente de la corola. Posee hojas basales anchas y ovadas en roseta que recuerdan al llantén. Es una especie nitrófila y ruderal, habitual en bordes de caminos, dunas fijas y campos baldíos, desde el nivel del mar hasta los 1200 metros.',
   },
+  {
+    commonName: 'Aloe Vera',
+    scientificName: 'Aloe barbadensis Miller',
+    family: 'Asphodelaceae',
+    usedParts: ['Gel', 'Látex'],
+    compounds: [
+      { name: 'Polisacáridos', description: 'gel: acemanano, glucomananos' },
+      { name: 'Vitaminas', description: 'gel: A, C, E, B12' },
+      { name: 'Minerales', description: 'gel: zinc, magnesio' },
+      { name: 'Enzimas', description: 'gel' },
+      { name: 'Aminoácidos', description: 'gel: 20 de los 22 necesarios' },
+      { name: 'Antraquinonas', description: 'látex: aloína A y B (barbaloína), emodina, cromonas' },
+    ],
+    properties: {
+      oral: ['Laxante estimulante'],
+      topical: ['Cicatrizante', 'Regenerador tisular', 'Antiinflamatorio', 'Calmante', 'Hidratante profundo'],
+    },
+    contraindications: [
+      'Uso interno del látex prohibido en embarazo',
+      'Uso interno del látex prohibido en lactancia',
+      'Niños menores de 12 años',
+      'Enfermedades intestinales agudas (Crohn, colitis)',
+      'Extracto de hoja entera no decolorado clasificado como posible carcinógeno Grupo 2B por IARC',
+    ],
+    availableExtracts: [
+      { type: 'Gel 1X / Concentrados', description: 'Jugo puro o concentrados (10X, 40X) para cosmética y bebidas' },
+      { type: 'Polvo 200X', description: 'Extracto deshidratado de alta pureza (1g equivale a 200g de gel fresco)' },
+      { type: 'Látex Seco', description: 'Resina usada en farmacia como laxante potente' },
+      { type: 'Extracto de Fitoplacenta', description: 'Innovador extracto obtenido por cultivo de tejidos para hidratación avanzada' },
+    ],
+    description:
+      'Planta suculenta perenne, xerófita y de tallo muy corto, perteneciente a una de las estirpes medicinales más importantes del mundo. Es reconocida por su capacidad de almacenar agua en un gel parenquimatoso altamente complejo. Se distingue por sus hojas largas (60-100 cm), carnosas y lanceoladas con márgenes serrados provistos de dientes blancos. A diferencia de otros aloes, A. barbadensis presenta flores amarillas tubulares en espigas de hasta 90 cm. Es nativa de la Península Arábiga, pero se ha naturalizado en regiones áridas y subtropicales de todo el mundo.',
+  },
 ];
 
 function slugify(text: string): string {
