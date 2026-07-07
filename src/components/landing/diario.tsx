@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 
 import type { ArticleRecord } from '@/lib/db/repository/article';
 
@@ -53,7 +54,11 @@ export default function Diario({ articles }: DiarioProps) {
             const styles = CATEGORY_STYLES[index % CATEGORY_STYLES.length];
 
             return (
-              <article key={article.id} className="group cursor-pointer">
+              <Link
+                key={article.id}
+                href={`/blog/${article.slug}`}
+                className="group cursor-pointer block"
+              >
                 {/* Image */}
                 <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden mb-6 border border-gold-soft">
                   <div
@@ -86,7 +91,7 @@ export default function Diario({ articles }: DiarioProps) {
                 <p className="font-sans text-lg text-on-surface-variant line-clamp-2">
                   {article.excerpt}
                 </p>
-              </article>
+              </Link>
             );
           })}
         </div>
