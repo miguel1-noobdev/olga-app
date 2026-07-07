@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import type { PlantRecord } from '@/lib/db/repository/plant';
 
 interface PlantCardProps {
@@ -46,12 +47,12 @@ export default function PlantCard({ plant }: PlantCardProps) {
         )}
 
         {/* Link Ver más */}
-        <a
+        <Link
           href={`/jardin-digital/${plant.slug}`}
           className="inline-flex items-center gap-2 pt-4 text-primary font-sans text-sm font-bold uppercase tracking-wider group-hover:underline underline-offset-8 transition-all"
         >
           Ver más <span className="material-symbols-outlined text-sm">arrow_forward</span>
-        </a>
+        </Link>
       </div>
     </article>
   );
