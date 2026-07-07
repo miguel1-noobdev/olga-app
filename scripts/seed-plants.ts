@@ -666,6 +666,42 @@ const PLANT_SEEDS: SeedPlant[] = [
     description:
       'Planta herbácea perenne, rizomatosa y vivaz, también conocida como Menta de Agua, que alcanza habitualmente hasta los 90 cm de altura. Se caracteriza por sus tallos de sección cuadrangular, de color verde o púrpura, que varían de pilosos a casi glabros. Sus hojas son opuestas, de forma ovada a ovado-lanceolada, con bordes dentados y un marcado olor mentolado característico. Las flores son diminutas y se agrupan densamente en inflorescencias terminales de color púrpura, rosado o lila. Se distingue de otras mentas por su hábito de crecimiento ligado a ambientes muy húmedos, encontrándose en las orillas de ríos, arroyos, estanques y canales. Es el progenitor genético directo (junto con M. spicata) de la menta piperita. Es nativa de la región Paleártica y se ha naturalizado ampliamente en América y Australia.',
   },
+  {
+    commonName: 'Cardamomo',
+    scientificName: 'Elettaria cardamomum (L.) Maton',
+    family: 'Zingiberaceae',
+    usedParts: ['Semillas', 'Cápsula'],
+    compounds: [
+      { name: 'Acetato de alfa-terpinilo', description: 'aceite esencial: 30-60%, marcador de calidad' },
+      { name: '1,8-cineol', description: 'aceite esencial: 15-50%' },
+      { name: 'Ácido protocatecuico', description: 'fracción fenólica' },
+      { name: 'Ácido cafeico', description: 'fracción fenólica' },
+      { name: 'Ácido siríngico', description: 'fracción fenólica' },
+      { name: 'Luteolina', description: 'flavonoide' },
+      { name: 'Kaempferol', description: 'flavonoide' },
+      { name: 'Quercetina', description: 'flavonoide' },
+      { name: 'Manganeso', description: 'mineral: 182 mg/100g' },
+      { name: 'Hierro', description: 'mineral' },
+      { name: 'Potasio', description: 'mineral' },
+      { name: 'Calcio', description: 'mineral' },
+    ],
+    properties: {
+      oral: ['Gastroenterológica', 'Carminativa', 'Gastroprotectora', 'Antiespasmódica', 'Metabólica', 'Respiratoria', 'Broncodilatadora', 'Neurológica', 'Neuroprotectora', 'Antioxidante'],
+      topical: [],
+    },
+    contraindications: [
+      'Colelitiasis',
+      'Gestación y lactancia',
+      'No recomendado aceite esencial en menores de 18 años',
+    ],
+    availableExtracts: [
+      { type: 'Aceite Esencial', description: 'Destilación al vapor, uso en farmacia y perfumería' },
+      { type: 'Tintura', description: '1:5, 1-1.5 ml para dispepsias y espasmos' },
+      { type: 'Polvo estandarizado', description: '3 g diarios para beneficios metabólicos y cardiovasculares' },
+    ],
+    description:
+      'Planta herbácea perenne, rizomatosa y de gran porte, también conocida como Cardamomo Verde o Verdadero, que alcanza habitualmente entre 2 y 5 metros de altura. Se caracteriza por poseer un rizoma carnoso y nudoso del cual emergen múltiples pseudotallos formados por vainas foliares solapadas. Sus hojas son alternas, lanceoladas, de color verde oscuro y pueden medir hasta 90 cm de largo. El fruto es una cápsula trilocular ovalada de color verde claro que encierra entre 15 y 20 semillas oscuras, pequeñas y altamente aromáticas. Es nativo de las selvas tropicales de los Ghats Occidentales (India) y Sri Lanka, prosperando en altitudes de entre 600 y 1,500 msnm bajo sombra densa. Se distingue diagnósticamente del cardamomo negro (Amomum subulatum) por su perfil sensorial dulce, cítrico y floral y por su quimiotipo rico en acetato de α-terpinilo.',
+  },
 ];
 
 function slugify(text: string): string {
