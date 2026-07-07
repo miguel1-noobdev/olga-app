@@ -81,20 +81,23 @@ function slugify(text: string): string {
 }
 
 function toPlantRecord(doc: IPlant): PlantRecord {
+  // Use JSON round-trip to strip all Mongoose prototypes from nested objects/arrays.
+  // .toObject() alone doesn't deep-strip subdocument arrays like images[] or compounds[].
+  const plain = JSON.parse(JSON.stringify(doc.toObject ? doc.toObject() : doc));
   return {
     id: doc._id.toString(),
-    commonName: doc.commonName,
-    scientificName: doc.scientificName,
-    slug: doc.slug,
-    species: doc.species,
-    family: doc.family,
-    usedParts: doc.usedParts,
-    compounds: doc.compounds,
-    properties: doc.properties,
-    contraindications: doc.contraindications,
-    availableExtracts: doc.availableExtracts,
-    description: doc.description,
-    images: doc.images,
+    commonName: plain.commonName,
+    scientificName: plain.scientificName,
+    slug: plain.slug,
+    species: plain.species,
+    family: plain.family,
+    usedParts: plain.usedParts,
+    compounds: plain.compounds,
+    properties: plain.properties,
+    contraindications: plain.contraindications,
+    availableExtracts: plain.availableExtracts,
+    description: plain.description,
+    images: plain.images,
     createdAt: doc.createdAt.toISOString(),
   };
 }

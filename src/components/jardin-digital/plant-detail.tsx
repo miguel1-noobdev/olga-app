@@ -1,7 +1,5 @@
-'use client';
-
-import React, { useState } from 'react';
-import Image from 'next/image';
+import React from 'react';
+import ImageGallery from './image-gallery';
 import type { PlantRecord } from '@/lib/db/repository/plant';
 
 interface PlantDetailProps {
@@ -9,8 +7,6 @@ interface PlantDetailProps {
 }
 
 export default function PlantDetail({ plant }: PlantDetailProps) {
-  const [selectedImage, setSelectedImage] = useState(0);
-
   return (
     <article>
       {/* Header */}
@@ -27,41 +23,7 @@ export default function PlantDetail({ plant }: PlantDetailProps) {
       </header>
 
       {/* Image Gallery */}
-      {plant.images && plant.images.length > 0 && (
-        <div className="mb-16">
-          {/* Main Image */}
-          <div className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden mb-4 bg-surface-container">
-            <img
-              src={plant.images[selectedImage].url}
-              alt={plant.images[selectedImage].alt}
-              className="w-full h-full object-cover"
-            />
-          </div>
-
-          {/* Thumbnails */}
-          {plant.images.length > 1 && (
-            <div className="flex gap-3 overflow-x-auto pb-2">
-              {plant.images.map((img, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setSelectedImage(idx)}
-                  className={`relative w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 border-2 transition-all ${
-                    idx === selectedImage
-                      ? 'border-primary ring-2 ring-primary/30'
-                      : 'border-transparent opacity-70 hover:opacity-100'
-                  }`}
-                >
-                  <img
-                    src={img.url}
-                    alt={img.alt}
-                    className="w-full h-full object-cover"
-                  />
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+      <ImageGallery images={plant.images || []} />
 
       {/* Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
@@ -90,7 +52,7 @@ export default function PlantDetail({ plant }: PlantDetailProps) {
                     <ul className="space-y-2">
                       {plant.properties.oral.map((prop) => (
                         <li key={prop} className="font-sans text-sm text-on-surface-variant flex items-start gap-2">
-                          <span className="text-primary mt-0.5">•</span>
+                          <span className="text-primary mt-0.5">&bull;</span>
                           {prop}
                         </li>
                       ))}
@@ -105,7 +67,7 @@ export default function PlantDetail({ plant }: PlantDetailProps) {
                     <ul className="space-y-2">
                       {plant.properties.topical.map((prop) => (
                         <li key={prop} className="font-sans text-sm text-on-surface-variant flex items-start gap-2">
-                          <span className="text-primary mt-0.5">•</span>
+                          <span className="text-primary mt-0.5">&bull;</span>
                           {prop}
                         </li>
                       ))}
@@ -209,7 +171,7 @@ export default function PlantDetail({ plant }: PlantDetailProps) {
                       key={contra}
                       className="font-sans text-xs text-on-surface-variant flex items-start gap-2"
                     >
-                      <span className="text-red-400 mt-0.5 flex-shrink-0">⚠</span>
+                      <span className="text-red-400 mt-0.5 flex-shrink-0">&#9888;</span>
                       {contra}
                     </li>
                   ))}
