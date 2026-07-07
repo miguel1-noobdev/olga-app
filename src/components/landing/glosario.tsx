@@ -1,6 +1,4 @@
-'use client';
-
-import { useEffect, useRef, useState } from 'react';
+import React from 'react';
 
 const INGREDIENTS = [
   {
@@ -26,39 +24,12 @@ const INGREDIENTS = [
 ];
 
 export default function Glosario() {
-  const [progress, setProgress] = useState(0);
-  const sectionRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const section = sectionRef.current;
-      if (!section) return;
-
-      const rect = section.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-
-      // Section triggers when its top reaches viewport top
-      // and completes when its top reaches -sectionHeight + windowHeight
-      // We spread reveals across the first 120vh of scroll
-      const revealRange = windowHeight * 1.2;
-      const start = windowHeight; // section top at viewport bottom
-      const progressValue = (start - rect.top) / revealRange;
-      setProgress(Math.max(0, Math.min(1, progressValue)));
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   return (
     <section
       id="glosario"
-      ref={sectionRef}
-      className="relative min-h-[250vh] flex flex-col justify-center px-4 sm:px-6 lg:px-8 overflow-hidden"
+      className="py-20 md:py-32 px-4 sm:px-6 lg:px-8"
     >
-      <div className="max-w-7xl mx-auto w-full">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-end mb-16">
           <div className="text-center md:text-left flex-1">
@@ -77,37 +48,46 @@ export default function Glosario() {
           </a>
         </div>
 
-        {/* Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+        {/* Stacking Cards Container */}
+        <div className="relative">
           {INGREDIENTS.map((ingredient, index) => {
-            // Each card gets 25% of the scroll progress range
-            const cardStart = index * 0.25;
-            const cardEnd = cardStart + 0.25;
-            const cardProgress = Math.max(0, Math.min(1, (progress - cardStart) / (cardEnd - cardStart)));
+            // Each card stacks at a progressively lower position
+            const stickyTop = index * 80; // 80px offset per card
 
             return (
               <div
                 key={index}
-                className="glass-card aspect-square rounded-3xl overflow-hidden relative group"
+                className="glass-card rounded-3xl overflow-hidden relative group mb-8"
                 style={{
-                  opacity: cardProgress,
-                  transform: `translateY(${(1 - cardProgress) * 80}px)`,
-                  transition: 'none',
+                  position: 'sticky',
+                  top: `${stickyTop}px`,
+                  height: '400px',
+                  zIndex: index,
                 }}
               >
                 <img
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   src={ingredient.image}
                   alt={ingredient.name}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-earth/60 to-transparent flex items-end p-6">
-                  <span className="text-white font-serif text-xl">
+                <div className="absolute inset-0 bg-gradient-to-t from-earth/60 via-transparent to-transparent flex items-end p-6">
+                  <span className="text-white font-serif text-3xl">
                     {ingredient.name}
                   </span>
                 </div>
               </div>
             );
           })}
+        </div>
+
+        {/* Mobile button */}
+        <div className="md:hidden text-center mt-8">
+          <a
+            href="/jardin-digital"
+            className="inline-block border-2 border-primary text-primary font-sans text-sm font-bold uppercase tracking-widest px-6 py-3 rounded-full hover:bg-primary hover:text-white transition-all duration-300"
+          >
+            LEER MÁS
+          </a>
         </div>
       </div>
     </section>
