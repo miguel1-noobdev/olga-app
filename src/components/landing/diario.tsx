@@ -60,9 +60,13 @@ export default function Diario({ articles }: DiarioProps) {
                 className="group cursor-pointer block"
               >
                 {/* Image */}
-                <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden mb-6 border border-gold-soft">
+                <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden mb-6 border border-gold-soft bg-gradient-to-br from-[#e9f0e7] via-[#d5e0d3] to-[#c5d3c2]">
                   <div
-                    className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
+                    className={`absolute inset-0 transition-transform duration-500 group-hover:scale-105 ${
+                      article.image.includes('logo')
+                        ? 'bg-contain bg-center bg-no-repeat'
+                        : 'bg-cover bg-center'
+                    }`}
                     style={{ backgroundImage: `url('${article.image}')` }}
                   />
                 </div>
