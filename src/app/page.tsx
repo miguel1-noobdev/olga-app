@@ -21,28 +21,28 @@ export default async function HomePage() {
     <>
       <Navbar />
       <main className="min-h-screen bg-surface space-y-20">
-        <div className="py-10">
+        <div className="py-20">
           <Hero />
         </div>
-        <div className="py-10">
+        <div className="py-20">
           <Products />
         </div>
-        <div className="py-10">
+        <div className="py-20">
           <Metodos />
         </div>
-        <div className="py-10">
+        <div className="py-20">
           <Diario articles={articles} />
         </div>
-        <div className="py-10">
+        <div className="py-20">
           <Glosario />
         </div>
-        <div className="py-10">
+        <div className="py-20">
           <Olga />
         </div>
-        <div className="py-10">
+        <div className="py-20">
           <Unete />
         </div>
-        <div className="py-10">
+        <div className="py-20">
           <Redes />
         </div>
         <Footer />
