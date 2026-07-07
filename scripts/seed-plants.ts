@@ -521,6 +521,41 @@ const PLANT_SEEDS: SeedPlant[] = [
     description:
       'Planta herbácea perenne de porte rastrero o decumbente, también conocida como Manzanilla Inglesa, que forma alfombras densas de 10 a 30 cm de altura. Sus tallos son vellosos con hojas verde-grisáceas que desprenden un intenso aroma a manzana al frotarlas. Los capítulos florales suelen ser solitarios sobre pedúnculos largos que se inclinan en fase de capullo. Se distingue por su receptáculo plano o ligeramente convexo, sólido y cubierto de páleas membranosas. Es nativa de la faja atlántica de Europa occidental y Norte de África. Prefiere suelos arenosos, fértiles y requiere riego continuo.',
   },
+  {
+    commonName: 'Jengibre',
+    scientificName: 'Zingiber officinale Roscoe',
+    family: 'Zingiberaceae',
+    usedParts: ['Rizoma'],
+    compounds: [
+      { name: 'Gingeroles', description: 'rizoma fresco, principal compuesto pungente' },
+      { name: 'Shogaoles', description: 'rizoma seco o cocido, más potentes antiinflamatorios' },
+      { name: 'Paradoles', description: 'otros' },
+      { name: 'Zingerona', description: 'otros' },
+      { name: 'Alfa-zingibereno', description: 'aceite esencial: hasta 35%' },
+      { name: 'Ar-curcumeno', description: 'aceite esencial' },
+      { name: 'Beta-bisaboleno', description: 'aceite esencial' },
+      { name: 'Citral', description: 'aceite esencial' },
+      { name: 'Borneol', description: 'aceite esencial' },
+      { name: 'Cineol', description: 'aceite esencial' },
+    ],
+    properties: {
+      oral: ['Antiemético', 'Antiinflamatorio', 'Analgésico', 'Antioxidante', 'Gastrointestinal', 'Carminativo'],
+      topical: [],
+    },
+    contraindications: [
+      'Embarazo: no superar 1 g de rizoma seco al día, evitar extractos concentrados',
+      'Cálculos biliares',
+      'No recomendado menores de 6 años para cinetosis',
+      'No recomendado menores de 18 años para otros trastornos gastrointestinales',
+    ],
+    availableExtracts: [
+      { type: 'Polvo Seco', description: '1-2 g para cinetosis, una hora antes del viaje' },
+      { type: 'Tintura', description: '1:5 o 1:10, 0.25-3 ml según concentración' },
+      { type: 'Aceite Esencial', description: 'Aromaterapia, antimicrobiano y antiespasmódico' },
+    ],
+    description:
+      'Planta herbácea perenne que puede superar el metro de altura, caracterizada por un tallo aéreo (pseudotallo) formado por las vainas foliares y hojas lanceoladas. El interés farmacognóstico se centra en su rizoma, un tallo subterráneo modificado, horizontal y ramificado, cuya composición química varía según el quimiotipo y las condiciones de post-cosecha. Es nativo del sudeste asiático, aunque actualmente se cultiva de forma masiva en India, Nigeria y China. Se distingue de otras especies de la familia por su rizoma pungente y aromático, y por la transición química única de gingeroles a shogaoles que ocurre mediante el procesamiento térmico o secado.',
+  },
 ];
 
 function slugify(text: string): string {
