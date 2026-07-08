@@ -38,9 +38,6 @@ export async function POST(request: Request) {
       readingTime,
     });
 
-    // Publicar automáticamente
-    await repo.publish(article.id);
-
     return NextResponse.json({ article }, { status: 201 });
   } catch (error) {
     console.error('Error creating article:', error);

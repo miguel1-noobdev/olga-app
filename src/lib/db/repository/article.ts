@@ -41,6 +41,7 @@ export interface ArticleRepository {
   create(input: CreateArticleInput): Promise<ArticleRecord>;
   findById(id: string): Promise<ArticleRecord | null>;
   findBySlug(slug: string): Promise<ArticleRecord | null>;
+  findPublishedBySlug(slug: string): Promise<ArticleRecord | null>;
   findLatestPublished(limit: number): Promise<ArticleRecord[]>;
   findAllPublished(): Promise<ArticleRecord[]>;
   update(id: string, input: UpdateArticleInput): Promise<ArticleRecord>;
@@ -79,10 +80,13 @@ export function createArticleRepository(): ArticleRepository {
   return {
     async create(input: CreateArticleInput): Promise<ArticleRecord> {
       const slug = input.slug || slugify(input.title);
+      const publishedAt = new Date();
 
       const article = await ArticleModel.create({
         ...input,
         slug,
+        published: true,
+        publishedAt,
       });
 
       return toArticleRecord(article);
@@ -95,6 +99,14 @@ export function createArticleRepository(): ArticleRepository {
 
     async findBySlug(slug: string): Promise<ArticleRecord | null> {
       const article = await ArticleModel.findOne({ slug: slug.toLowerCase().trim() });
+      return article ? toArticleRecord(article) : null;
+    },
+
+    async findPublishedBySlug(slug: string): Promise<ArticleRecord | null> {
+      const article = await ArticleModel.findOne({
+        slug: slug.toLowerCase().trim(),
+        published: true,
+      });
       return article ? toArticleRecord(article) : null;
     },
 

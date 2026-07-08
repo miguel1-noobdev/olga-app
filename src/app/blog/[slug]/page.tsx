@@ -8,7 +8,7 @@ import { notFound } from 'next/navigation';
 export default async function ArticlePage({ params }: { params: { slug: string } }) {
   await connectToDatabase();
   const repo = createArticleRepository();
-  const article = await repo.findBySlug(params.slug);
+  const article = await repo.findPublishedBySlug(params.slug);
 
   if (!article) {
     notFound();

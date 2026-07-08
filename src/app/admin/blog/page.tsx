@@ -78,12 +78,6 @@ export default async function AdminBlogPage() {
                 </div>
                 <div className="flex items-center gap-3">
                   <Link
-                    href={`/admin/blog/${article.id}/editar`}
-                    className="px-4 py-2 text-sm font-semibold text-primary hover:underline"
-                  >
-                    Editar
-                  </Link>
-                  <Link
                     href={`/blog/${article.slug}`}
                     className="px-4 py-2 text-sm font-semibold text-on-surface-variant hover:underline"
                   >
