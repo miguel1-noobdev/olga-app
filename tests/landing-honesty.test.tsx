@@ -8,6 +8,14 @@ import Unete from '@/components/landing/unete';
 import Metodos from '@/components/landing/metodos';
 import JardinNavbar from '@/components/jardin-digital/jardin-navbar';
 
+const { useSessionMock } = vi.hoisted(() => ({
+  useSessionMock: vi.fn(),
+}));
+
+vi.mock('next-auth/react', () => ({
+  useSession: useSessionMock,
+}));
+
 vi.mock('next/link', () => ({
   default: ({
     children,
@@ -46,6 +54,7 @@ describe('Landing honesty remediation', () => {
   });
 
   it('Unete links to real registration instead of a fake newsletter form', () => {
+    useSessionMock.mockReturnValue({ data: null, status: 'unauthenticated' });
     const html = renderToStaticMarkup(<Unete />);
     expect(html).toContain('/register');
     expect(html).toContain('Crear cuenta');
