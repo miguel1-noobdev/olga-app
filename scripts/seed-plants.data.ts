@@ -4,7 +4,7 @@ export interface SeedPlant {
   species?: string;
   family: string;
   usedParts: string[];
-  compounds: Array<{ name: string; percentage?: string }>;
+  compounds: Array<{ name: string; percentage?: string; description?: string }>;
   properties: { oral: string[]; topical: string[] };
   contraindications: string[];
   availableExtracts: Array<{ type: string; method?: string; description?: string }>;

@@ -10,6 +10,7 @@ export interface IPlant extends Document {
   compounds: Array<{
     name: string;
     percentage?: string;
+    description?: string;
   }>;
   properties: {
     oral: string[];
@@ -77,6 +78,7 @@ const PlantSchema = new Schema<IPlant>(
         {
           name: { type: String, required: true, trim: true },
           percentage: { type: String, trim: true },
+          description: { type: String, trim: true },
         },
       ],
       default: [],

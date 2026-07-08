@@ -16,7 +16,7 @@ export default function Olga() {
             tradicional. Después de años estudiando herbología, decidí crear
             este pequeño taller donde la ciencia y la naturaleza se encuentran.
           </p>
-          <p className="font-sans text-xl text-on-surface-variant italic border-l-4 border-gold-soft p-4 bg-gold-soft/10">
+          <p className="font-sans text-xl text-on-surface-variant italic border-l-4 border-secondary p-4 bg-secondary/10">
             "Creo firmemente que lo que ponemos en nuestra piel debe ser tan
             nutritivo como lo que comemos."
           </p>

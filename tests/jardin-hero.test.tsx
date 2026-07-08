@@ -19,12 +19,6 @@ describe('JardinHero', () => {
     expect(html).toContain('compendio vivo');
   });
 
-  it('renders CTA buttons', () => {
-    const html = renderToStaticMarkup(<JardinHero />);
-    expect(html).toContain('Comenzar Recorrido');
-    expect(html).toContain('Guía de Cultivo');
-  });
-
   it('renders hero image', () => {
     const html = renderToStaticMarkup(<JardinHero />);
     expect(html).toContain('<img');

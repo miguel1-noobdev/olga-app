@@ -24,7 +24,7 @@ describe('BlogNavbar', () => {
     expect(screen.getByRole('link', { name: /blog/i })).toBeInTheDocument();
   });
 
-  it('renders a sign-out button for authenticated users', () => {
+  it('renders a landing home link for authenticated users', () => {
     useSessionMock.mockReturnValue({
       status: 'authenticated',
       data: { user: { name: 'Olga', email: 'olga@test.com' } },
@@ -33,10 +33,12 @@ describe('BlogNavbar', () => {
     render(<BlogNavbar />);
 
     expect(screen.getByText('Olga')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /salir/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /inicio/i })).toHaveAttribute('href', '/blog');
+    const landingLink = screen.getByRole('link', { name: /esenciales ob/i });
+    expect(landingLink).toHaveAttribute('href', '/');
   });
 
-  it('calls signOut with the public home callbackUrl when "Salir" is clicked', async () => {
+  it('navigates to landing page and does not sign out when landing Esenciales OB is clicked', async () => {
     useSessionMock.mockReturnValue({
       status: 'authenticated',
       data: { user: { name: 'Olga', email: 'olga@test.com' } },
@@ -45,18 +47,19 @@ describe('BlogNavbar', () => {
     const user = userEvent.setup();
     render(<BlogNavbar />);
 
-    const signOutButton = screen.getByRole('button', { name: /salir/i });
-    await user.click(signOutButton);
+    const landingLink = screen.getByRole('link', { name: /esenciales ob/i });
+    expect(landingLink).toHaveAttribute('href', '/');
+    await user.click(landingLink);
 
-    expect(signOutMock).toHaveBeenCalledTimes(1);
-    expect(signOutMock).toHaveBeenCalledWith({ callbackUrl: '/' });
+    expect(signOutMock).not.toHaveBeenCalled();
   });
 
-  it('does not render sign-out button when unauthenticated', () => {
+  it('does not render landing home link when unauthenticated', () => {
     useSessionMock.mockReturnValue({ status: 'unauthenticated', data: null });
 
     render(<BlogNavbar />);
 
-    expect(screen.queryByRole('button', { name: /salir/i })).not.toBeInTheDocument();
+    const allLinks = screen.getAllByRole('link');
+    expect(allLinks.some((link) => link.getAttribute('href') === '/')).toBe(false);
   });
 });

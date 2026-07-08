@@ -70,4 +70,20 @@ describe('PlantModel', () => {
     expect(plant.properties.oral).toEqual([]);
     expect(plant.properties.topical).toEqual([]);
   });
+
+  it('preserves compound descriptions', async () => {
+    const plant = await PlantModel.create({
+      commonName: 'Ortiga',
+      scientificName: 'Urtica dioica L.',
+      family: 'Urticaceae',
+      compounds: [
+        { name: 'Flavonoides', description: 'hojas: quercetina, rutina' },
+        { name: 'Minerales' },
+      ],
+    });
+
+    expect(plant.compounds).toHaveLength(2);
+    expect(plant.compounds[0].description).toBe('hojas: quercetina, rutina');
+    expect(plant.compounds[1].description).toBeUndefined();
+  });
 });

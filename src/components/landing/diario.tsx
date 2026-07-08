@@ -9,8 +9,8 @@ type DiarioProps = {
 
 const CATEGORY_STYLES = [
   { categoryColor: 'text-primary', hoverColor: 'group-hover:text-primary' },
-  { categoryColor: 'text-coffee', hoverColor: 'group-hover:text-coffee' },
-  { categoryColor: 'text-earth', hoverColor: 'group-hover:text-earth' },
+  { categoryColor: 'text-secondary', hoverColor: 'group-hover:text-secondary' },
+  { categoryColor: 'text-on-surface-variant', hoverColor: 'group-hover:text-on-surface-variant' },
 ] as const;
 
 function formatArticleDate(article: ArticleRecord): string {
@@ -26,7 +26,7 @@ export default function Diario({ articles }: DiarioProps) {
   return (
     <section
       id="diario"
-      className="bg-[#A8B89C]/50 min-h-[750px] flex flex-col justify-center px-4 sm:px-6 lg:px-8 border-y border-gold-soft"
+      className="bg-[#A8B89C]/50 min-h-[750px] flex flex-col justify-center px-4 sm:px-6 lg:px-8 border-y border-secondary"
     >
       <div className="max-w-7xl mx-auto">
         {/* Header */}
@@ -42,7 +42,7 @@ export default function Diario({ articles }: DiarioProps) {
           </div>
           <a
             href="/blog"
-            className="border-2 border-primary text-primary font-sans text-sm font-bold uppercase tracking-widest px-6 py-3 rounded-full hover:bg-primary hover:text-on-primary transition-all duration-300 shrink-0"
+            className="border-2 border-primary text-primary font-sans text-sm font-bold uppercase tracking-widest px-6 py-3 rounded-full hover:bg-primary hover:text-surface transition-all duration-300 shrink-0"
           >
             LEER MÁS
           </a>
@@ -54,13 +54,16 @@ export default function Diario({ articles }: DiarioProps) {
             const styles = CATEGORY_STYLES[index % CATEGORY_STYLES.length];
 
             return (
-              <Link
+              <article
                 key={article.id}
-                href={`/blog/${article.slug}`}
                 className="group cursor-pointer block"
               >
+                <Link
+                  href={`/blog/${article.slug}`}
+                  className="block"
+                >
                 {/* Image */}
-                <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden mb-6 border border-gold-soft bg-white">
+                <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden mb-6 border border-secondary bg-white">
                   <div
                     className={`absolute inset-0 transition-transform duration-500 group-hover:scale-105 ${
                       article.image.includes('logo')
@@ -78,7 +81,7 @@ export default function Diario({ articles }: DiarioProps) {
                   >
                     {article.category}
                   </span>
-                  <span className="w-1 h-1 rounded-full bg-gold-soft" />
+                  <span className="w-1 h-1 rounded-full bg-secondary" />
                   <span className="font-sans text-sm text-on-surface-variant">
                     {formatArticleDate(article)}
                   </span>
@@ -95,7 +98,8 @@ export default function Diario({ articles }: DiarioProps) {
                 <p className="font-sans text-lg text-on-surface-variant line-clamp-2">
                   {article.excerpt}
                 </p>
-              </Link>
+                </Link>
+              </article>
             );
           })}
         </div>

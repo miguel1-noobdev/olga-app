@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useSession, signOut } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 
 export default function BlogNavbar() {
   const [isVisible, setIsVisible] = useState(true);
@@ -37,19 +37,21 @@ export default function BlogNavbar() {
         isVisible ? 'translate-y-0' : '-translate-y-full'
       }`}
     >
-      <div className="flex justify-between items-center h-20 px-6 max-w-7xl mx-auto">
-        {/* Logo y título */}
-        <Link href="/blog" className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-            <span className="font-serif text-xl text-primary">B</span>
-          </div>
-          <span className="font-serif text-xl text-on-surface">
-            Botánica Esencial OB
-          </span>
-        </Link>
+      <div className="flex flex-col sm:flex-row items-center min-h-[5rem] h-auto sm:h-20 px-4 sm:px-6 py-3 sm:py-0 max-w-7xl mx-auto gap-3 sm:gap-0">
+        {/* Logo y título - izquierda en desktop, arriba en mobile */}
+        <div className="sm:flex-1 sm:basis-0 flex justify-center sm:justify-start w-full sm:w-auto">
+          <Link href="/blog" className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <span className="font-serif text-xl text-primary">B</span>
+            </div>
+            <span className="font-serif text-xl text-on-surface">
+              Botánica Esencial OB
+            </span>
+          </Link>
+        </div>
 
-        {/* Navegación */}
-        <div className="flex items-center gap-6">
+        {/* Navegación principal - centro */}
+        <div className="flex items-center justify-center gap-4 md:gap-6 flex-wrap sm:flex-1 sm:basis-0">
           <Link
             href="/blog"
             className="font-sans text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-primary transition-colors"
@@ -63,18 +65,21 @@ export default function BlogNavbar() {
             Blog
           </Link>
           {isAuthenticated && (
-            <>
-              <span className="font-sans text-sm text-on-surface-variant">
-                {userDisplay}
-              </span>
-              <button
-                type="button"
-                onClick={() => signOut({ callbackUrl: '/' })}
-                className="font-sans text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-primary transition-colors"
-              >
-                Salir
-              </button>
-            </>
+            <span className="font-sans text-sm text-on-surface-variant truncate max-w-[120px] sm:max-w-[160px]">
+              {userDisplay}
+            </span>
+          )}
+        </div>
+
+        {/* Acceso a landing - derecha en desktop, abajo en mobile */}
+        <div className="sm:flex-1 sm:basis-0 flex justify-center sm:justify-end w-full sm:w-auto sm:pl-6 md:pl-10">
+          {isAuthenticated && (
+            <Link
+              href="/"
+              className="font-sans text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-primary transition-colors"
+            >
+              Esenciales OB
+            </Link>
           )}
         </div>
       </div>

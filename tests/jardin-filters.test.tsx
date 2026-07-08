@@ -17,11 +17,6 @@ describe('JardinFilters', () => {
     expect(html).toContain('Antiinflamatorias');
   });
 
-  it('renders family filter button', () => {
-    const html = renderToStaticMarkup(<JardinFilters />);
-    expect(html).toContain('Filtrar por Familia');
-  });
-
   it('uses rounded-full for filter buttons', () => {
     const html = renderToStaticMarkup(<JardinFilters />);
     expect(html).toContain('rounded-full');

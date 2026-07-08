@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { UserModel } from '../src/lib/db/models/user';
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/botanica-ob';
 
@@ -8,16 +9,7 @@ async function checkUsers() {
     await mongoose.connect(MONGODB_URI);
     console.log('✓ Conectado\n');
 
-    const UserSchema = new mongoose.Schema({
-      email: String,
-      passwordHash: String,
-      role: String,
-      createdAt: Date,
-    });
-
-    const User = mongoose.models.User || mongoose.model('User', UserSchema);
-    
-    const users = await User.find({});
+    const users = await UserModel.find({});
     
     if (users.length === 0) {
       console.log('No hay usuarios en la base de datos');

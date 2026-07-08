@@ -38,4 +38,22 @@ describe('PLANT_SEEDS', () => {
   it('includes valid Wikimedia Commons images for Aloe Vera', () => {
     expectValidWikimediaImages('Aloe Vera');
   });
+
+  it('preserves compound descriptions in seed data', () => {
+    const ortiga = PLANT_SEEDS.find((seed) => seed.commonName === 'Ortiga');
+    expect(ortiga).toBeDefined();
+
+    const phenolicAcids = ortiga!.compounds.find((c) => c.name === 'Ácidos fenólicos');
+    expect(phenolicAcids).toBeDefined();
+    expect(phenolicAcids!.description).toBe('hojas: ácido clorogénico, cafeico');
+  });
+
+  it('allows compounds without description in seed data', () => {
+    const lavanda = PLANT_SEEDS.find((seed) => seed.commonName === 'Lavanda');
+    expect(lavanda).toBeDefined();
+
+    const linalool = lavanda!.compounds.find((c) => c.name === 'Linalol');
+    expect(linalool).toBeDefined();
+    expect(linalool!.description).toBeUndefined();
+  });
 });

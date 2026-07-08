@@ -28,7 +28,10 @@ describe('PlantRepository', () => {
       species: 'Lavandula angustifolia',
       family: 'Lamiaceae',
       usedParts: ['Flores', 'Sumidades floridas'],
-      compounds: [{ name: 'Linalool', percentage: '25-38%' }],
+      compounds: [
+        { name: 'Linalool', percentage: '25-38%' },
+        { name: 'Acetato de linalilo', description: '_componente mayoritario_' },
+      ],
       properties: {
         oral: ['Ansiolítico'],
         topical: ['Cicatrizante'],
@@ -47,6 +50,16 @@ describe('PlantRepository', () => {
       expect(plant.commonName).toBe('Lavanda');
       expect(plant.slug).toBe('lavandula-angustifolia-mill');
       expect(typeof plant.createdAt).toBe('string');
+    });
+
+    it('preserves compound descriptions', async () => {
+      const plant = await repo.create(lavenderInput());
+
+      expect(plant.compounds).toHaveLength(2);
+      expect(plant.compounds[0].name).toBe('Linalool');
+      expect(plant.compounds[0].percentage).toBe('25-38%');
+      expect(plant.compounds[1].name).toBe('Acetato de linalilo');
+      expect(plant.compounds[1].description).toBe('_componente mayoritario_');
     });
 
     it('rejects duplicate slug', async () => {

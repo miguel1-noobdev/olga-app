@@ -3,6 +3,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import { createUserRepository } from '@/lib/db/repository/user';
 import { connectToDatabase } from '@/lib/db/connect';
+import { authorizeWithRepository } from './authorize-credentials';
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
@@ -15,29 +16,8 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         await connectToDatabase();
-
-        if (!credentials?.email || !credentials?.password) {
-          return null;
-        }
-
         const repo = createUserRepository();
-        const user = await repo.findByEmail(credentials.email);
-
-        if (!user) {
-          return null;
-        }
-
-        const isValid = await repo.verifyPassword(user, credentials.password);
-
-        if (!isValid) {
-          return null;
-        }
-
-        return {
-          id: user.id,
-          email: user.email,
-          role: user.role,
-        };
+        return authorizeWithRepository(repo, credentials);
       },
     }),
     GoogleProvider({

@@ -273,4 +273,32 @@ describe('glassmorphism design tokens (T-003)', () => {
       );
     });
   });
+
+  describe('production JSX token contract', () => {
+    const COMPONENTS = [
+      'src/components/landing/diario.tsx',
+      'src/components/landing/glosario.tsx',
+      'src/components/landing/metodos.tsx',
+      'src/components/landing/olga.tsx',
+    ];
+
+    const OBSOLETE_TOKENS = [
+      'text-coffee',
+      'text-earth',
+      'from-earth',
+      'border-gold-soft',
+      'bg-gold-soft/10',
+      'text-on-primary',
+    ];
+
+    it.each(COMPONENTS)(
+      '%s does not use obsolete design tokens',
+      (relativePath) => {
+        const source = readFileSync(resolve(ROOT, relativePath), 'utf8');
+        for (const token of OBSOLETE_TOKENS) {
+          expect(source).not.toContain(token);
+        }
+      }
+    );
+  });
 });

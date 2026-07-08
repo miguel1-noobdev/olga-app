@@ -101,7 +101,7 @@ export default function Glosario() {
                   src={ingredient.image}
                   alt={ingredient.name}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-earth/60 via-transparent to-transparent flex items-end p-6">
+                <div className="absolute inset-0 bg-gradient-to-t from-on-surface/60 via-transparent to-transparent flex items-end p-6">
                   <span className="text-white font-serif text-3xl">
                     {ingredient.name}
                   </span>
@@ -150,7 +150,7 @@ export default function Glosario() {
                       src={ingredient.image}
                       alt={ingredient.name}
                     />
-                    <div className="absolute inset-0 flex items-end bg-gradient-to-t from-earth/60 via-transparent to-transparent p-6">
+                    <div className="absolute inset-0 flex items-end bg-gradient-to-t from-on-surface/60 via-transparent to-transparent p-6">
                       <span className="font-serif text-3xl text-white">
                         {ingredient.name}
                       </span>
