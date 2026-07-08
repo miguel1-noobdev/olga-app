@@ -1,13 +1,13 @@
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import type { PlantRecord } from '@/lib/db/repository/plant';
+import type { PublicPlant } from '@/lib/jardin-digital/projection';
 
 const { connectToDatabaseMock, findAllMock, navbarMock, homepageMock, footerMock } = vi.hoisted(() => ({
   connectToDatabaseMock: vi.fn(),
   findAllMock: vi.fn(),
   navbarMock: vi.fn(() => <div data-testid="jardin-navbar" />),
-  homepageMock: vi.fn(({ plants }: { plants: PlantRecord[] }) => (
+  homepageMock: vi.fn(({ plants }: { plants: PublicPlant[] }) => (
     <section data-testid="jardin-homepage">
       {plants.map((plant) => (
         <span key={plant.id}>{plant.commonName}</span>
@@ -41,7 +41,7 @@ vi.mock('@/components/jardin-digital/jardin-footer', () => ({
 
 import JardinDigitalPage from '@/app/jardin-digital/page';
 
-const mockPlants: PlantRecord[] = [
+const mockPlants: PublicPlant[] = [
   {
     id: 'plant-1',
     commonName: 'Lavanda',
@@ -58,7 +58,6 @@ const mockPlants: PlantRecord[] = [
     description: 'Planta aromática mediterránea',
     slug: 'lavandula-angustifolia-mill',
     images: [],
-    createdAt: '2026-07-01T10:00:00.000Z',
   },
   {
     id: 'plant-2',
@@ -76,7 +75,6 @@ const mockPlants: PlantRecord[] = [
     description: 'Planta suculenta medicinal',
     slug: 'aloe-barbadensis-miller',
     images: [],
-    createdAt: '2026-07-02T10:00:00.000Z',
   },
 ];
 

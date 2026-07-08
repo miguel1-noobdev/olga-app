@@ -1,9 +1,9 @@
 import React from 'react';
 import PlantCard from './plant-card';
-import type { PlantRecord } from '@/lib/db/repository/plant';
+import type { PublicPlant } from '@/lib/jardin-digital/projection';
 
 interface PlantGridProps {
-  plants: PlantRecord[];
+  plants: PublicPlant[];
 }
 
 export default function PlantGrid({ plants }: PlantGridProps) {

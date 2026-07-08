@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { connectToDatabase } from '@/lib/db/connect';
 import { createPlantRepository } from '@/lib/db/repository/plant';
+import { toPublicPlant } from '@/lib/jardin-digital/projection';
 import PlantDetail from '@/components/jardin-digital/plant-detail';
 import { ArrowLeftIcon } from '@/components/ui/icons';
 
@@ -18,6 +19,8 @@ export default async function PlantDetailPage({ params }: PageProps) {
     notFound();
   }
 
+  const publicPlant = toPublicPlant(plant);
+
   return (
     <div className="min-h-screen bg-surface">
       <div className="max-w-4xl mx-auto px-6 py-8">
@@ -29,7 +32,7 @@ export default async function PlantDetailPage({ params }: PageProps) {
           Volver al catálogo
         </Link>
 
-        <PlantDetail plant={plant} />
+        <PlantDetail plant={publicPlant} />
       </div>
     </div>
   );

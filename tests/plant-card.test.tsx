@@ -2,9 +2,9 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import PlantCard from '@/components/jardin-digital/plant-card';
-import type { PlantRecord } from '@/lib/db/repository/plant';
+import type { PublicPlant } from '@/lib/jardin-digital/projection';
 
-const mockPlant: PlantRecord = {
+const mockPlant: PublicPlant = {
   id: 'plant-1',
   commonName: 'Lavanda',
   scientificName: 'Lavandula angustifolia Mill.',
@@ -25,7 +25,6 @@ const mockPlant: PlantRecord = {
       alt: 'Flores de lavanda',
     },
   ],
-  createdAt: '2026-07-01T10:00:00.000Z',
 };
 
 describe('PlantCard', () => {
@@ -62,7 +61,7 @@ describe('PlantCard', () => {
   });
 
   it('handles plant without images gracefully', () => {
-    const plantWithoutImages: PlantRecord = {
+    const plantWithoutImages: PublicPlant = {
       ...mockPlant,
       images: [],
     };
@@ -71,7 +70,7 @@ describe('PlantCard', () => {
   });
 
   it('handles plant without description gracefully', () => {
-    const plantWithoutDescription: PlantRecord = {
+    const plantWithoutDescription: PublicPlant = {
       ...mockPlant,
       description: undefined,
     };

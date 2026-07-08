@@ -2,15 +2,15 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 import PlantGrid from '@/components/jardin-digital/plant-grid';
-import type { PlantRecord } from '@/lib/db/repository/plant';
+import type { PublicPlant } from '@/lib/jardin-digital/projection';
 
 vi.mock('@/components/jardin-digital/plant-card', () => ({
-  default: ({ plant }: { plant: PlantRecord }) => (
+  default: ({ plant }: { plant: PublicPlant }) => (
     <div data-testid="plant-card">{plant.commonName}</div>
   ),
 }));
 
-const mockPlants: PlantRecord[] = [
+const mockPlants: PublicPlant[] = [
   {
     id: 'plant-1',
     commonName: 'Lavanda',
@@ -22,7 +22,6 @@ const mockPlants: PlantRecord[] = [
     contraindications: [],
     availableExtracts: [],
     slug: 'lavandula-angustifolia',
-    createdAt: '2026-07-01T10:00:00.000Z',
   },
   {
     id: 'plant-2',
@@ -35,7 +34,6 @@ const mockPlants: PlantRecord[] = [
     contraindications: [],
     availableExtracts: [],
     slug: 'aloe-barbadensis',
-    createdAt: '2026-07-02T10:00:00.000Z',
   },
   {
     id: 'plant-3',
@@ -48,7 +46,6 @@ const mockPlants: PlantRecord[] = [
     contraindications: [],
     availableExtracts: [],
     slug: 'salvia-rosmarinus',
-    createdAt: '2026-07-03T10:00:00.000Z',
   },
 ];
 

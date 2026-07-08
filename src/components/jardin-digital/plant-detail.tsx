@@ -1,9 +1,9 @@
 import React from 'react';
 import ImageGallery from './image-gallery';
-import type { PlantRecord } from '@/lib/db/repository/plant';
+import type { PublicPlant } from '@/lib/jardin-digital/projection';
 
 interface PlantDetailProps {
-  plant: PlantRecord;
+  plant: PublicPlant;
 }
 
 export default function PlantDetail({ plant }: PlantDetailProps) {
