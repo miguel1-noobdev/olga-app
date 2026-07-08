@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useSession, signOut } from 'next-auth/react';
 
 export default function BlogNavbar() {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const { data: session, status } = useSession();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -25,6 +27,9 @@ export default function BlogNavbar() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY]);
+
+  const isAuthenticated = status === 'authenticated';
+  const userDisplay = session?.user?.name || session?.user?.email || 'Usuario';
 
   return (
     <nav
@@ -57,12 +62,20 @@ export default function BlogNavbar() {
           >
             Blog
           </Link>
-          <Link
-            href="/"
-            className="font-sans text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-primary transition-colors"
-          >
-            Salir
-          </Link>
+          {isAuthenticated && (
+            <>
+              <span className="font-sans text-sm text-on-surface-variant">
+                {userDisplay}
+              </span>
+              <button
+                type="button"
+                onClick={() => signOut({ callbackUrl: '/' })}
+                className="font-sans text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-primary transition-colors"
+              >
+                Salir
+              </button>
+            </>
+          )}
         </div>
       </div>
     </nav>

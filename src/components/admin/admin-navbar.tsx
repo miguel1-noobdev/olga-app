@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { signOut } from 'next-auth/react';
 
 export default function AdminNavbar() {
   return (
@@ -28,12 +29,13 @@ export default function AdminNavbar() {
           >
             Ver Sitio
           </Link>
-          <Link
-            href="/"
+          <button
+            type="button"
+            onClick={() => signOut({ callbackUrl: '/' })}
             className="font-sans text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-primary transition-colors"
           >
             Salir
-          </Link>
+          </button>
         </div>
       </div>
     </nav>
