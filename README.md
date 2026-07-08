@@ -1,82 +1,107 @@
-# olga-app
+# Botánica Esencial OB
 
-Plataforma web para **Botánica Esencial OB** — negocio de cosmética natural artesanal de Olga.
+Single-tenant informational platform for a handcrafted natural cosmetics brand. Built with Next.js 14 App Router, TypeScript, Tailwind CSS, MongoDB, and NextAuth.js.
 
-## Tipo de proyecto
+This is **not an e-commerce site**. It explains the brand, shares content with registered subscribers, and gives the owner a lightweight admin flow for publishing articles.
 
-Plataforma **informativa y didáctica** (no e-commerce). Single-tenant, con dos roles de staff (Olga como productora, Miguel como admin) y usuarios suscriptores.
+## Current implemented scope
 
-## Stack
+- **Landing page** with nine sections: Hero, Products, Methods, Diario (blog preview), Glosario preview, Olga profile, Sign-up, Social links, Footer.
+- **Email/password authentication**: registration, login, logout, role-based access.
+- **Subscriber-only areas**: `/blog` and `/jardin-digital` are protected by middleware; anonymous visitors are redirected to `/login`.
+- **Admin area**: `/admin` and `/admin/blog/nuevo` are restricted to the `admin` role. The first registered user automatically becomes `admin`.
+- **Article publishing**: simple creation form at `/admin/blog/nuevo` that publishes immediately. No drafts, no edit flow yet.
+- **MongoDB storage** for users, articles, and plants, with in-memory MongoDB for tests.
+- **CI pipeline** via GitHub Actions: install, build, test, and script typecheck.
 
-- **Frontend + Backend**: Next.js 14+ (App Router)
-- **Base de datos**: MongoDB
-- **Auth**: NextAuth.js
-- **Hosting**: VPS propio (Ubuntu 24.04, 3.8GB RAM, 2 CPU) — `botanicasob.duckdns.org`
-- **Process manager**: PM2
-- **Reverse proxy + SSL**: Nginx + acme.sh
-- **Estilos**: Tailwind CSS
+## Auth reality
 
-## Estructura
+- **Email and password is the only working login path for end users.**
+- Google OAuth is wired in NextAuth config but intentionally **not exposed in the UI**. It remains deferred until the brand owner explicitly enables it.
+- Roles exist (`suscriptora`, `productora`, `admin`), but today only `suscriptora` and `admin` are exercised in the UI.
 
-```
-olga-app/
-├── ideas/              # Contexto y planificación (NO se deploya)
-│   └── designUI/
-│       └── CONTEXTO_PLATAFORMA.md   # Fuente de verdad del proyecto
-├── img/                # Galería de imágenes oficial
-│   ├── hero/
-│   ├── logo/
-│   ├── prd/            # Productos
-│   ├── plts/           # Plantas
-│   ├── lab/            # Laboratorio
-│   ├── etk/            # Etiquetas
-│   └── aimg/           # Auxiliares
-└── [código fuente]     # Se generará durante el SDD
-```
+## Blog reality
 
-## Estado actual
+- The blog is visible **only to registered users**.
+- The landing page shows the **latest 3 published articles** in the Diario section.
+- The blog welcome page shows the **latest 2 published articles**.
+- All articles are published immediately from the admin form; there is no draft or scheduled state.
 
-**Fase de planificación cerrada.** Contexto completo en `ideas/designUI/CONTEXTO_PLATAFORMA.md`.
+## Admin / content reality
 
-**Próxima fase**: SDD formal para Auth + Landing + Blog (Fase 1), construido sección por sección.
+- Admin can create a new article at `/admin/blog/nuevo`.
+- Articles are saved and published immediately.
+- There is **no edit, no delete, and no draft workflow** yet.
+- Content is stored as Markdown-like plain text and rendered safely (no `dangerouslySetInnerHTML`).
 
-## Convenciones
+## Local development
 
-- **Conventional Commits**: `feat:`, `fix:`, `docs:`, `chore:`, `style:`, `refactor:`
-- **Sin atribución de IA** en commits
-- **Un commit por tarea** completada
-- **Documentación centralizada** en `CONTEXTO_PLATAFORMA.md`
+### Requirements
 
-## Desarrollo local
+- Node.js 20
+- Docker or Docker Desktop
 
-### Requisitos
-
-- Node.js (ver `package.json`)
-- Docker Desktop (Windows) o Docker Engine (Linux/WSL)
-
-### Levantar MongoDB local
-
-La base de datos corre en un contenedor Docker con un volumen persistente:
+### Start MongoDB
 
 ```bash
 docker compose up -d mongo
 ```
 
-Esto expone MongoDB solo en `localhost:27017` usando el volumen `mongo-data`.
+This binds MongoDB to `127.0.0.1:27017` with a persistent volume.
 
-El archivo `.env.local` ya contiene la URI por defecto:
-
-```bash
-MONGODB_URI=mongodb://localhost:27017/botanica-ob
-```
-
-### Tests
+Copy `.env.example` to `.env.local` if you have not already:
 
 ```bash
-npm run test:run
+cp .env.example .env.local
 ```
 
-## Ver también
+The default `MONGODB_URI` points to `mongodb://localhost:27017/botanica-ob`.
 
-- [CONTEXTO_PLATAFORMA.md](./ideas/designUI/CONTEXTO_PLATAFORMA.md) — Contexto completo del proyecto
-- [AGENTS.md](./AGENTS.md) — Reglas para agentes AI que trabajen en este proyecto
+### Useful commands
+
+```bash
+npm run dev              # Start the Next.js dev server
+npm run build            # Production build
+npm run test:run         # Run the Vitest suite once
+npm run typecheck:scripts # Type-check files under scripts/
+```
+
+### Create an admin user
+
+The first user registered through `/register` becomes `admin` automatically. You can also use:
+
+```bash
+npx ts-node scripts/create-admin.ts <email> <password>
+```
+
+## CI
+
+A GitHub Actions workflow runs on every push and pull request to `main`/`master`:
+
+1. `npm ci`
+2. `npm run build`
+3. `npm run test:run`
+4. `npm run typecheck:scripts`
+
+## Project layout
+
+```
+olga-app/
+├── .github/workflows/   # CI
+├── ideas/               # Planning and design references (NOT deployed)
+├── img/                 # Official image gallery
+├── scripts/             # One-off admin/utility scripts
+├── src/                 # Next.js application source
+│   ├── app/             # App Router pages and API routes
+│   ├── components/      # React components
+│   ├── lib/             # Auth, DB models, repositories
+│   └── middleware.ts    # Route protection
+└── tests/               # Vitest tests
+```
+
+`ideas/` contains planning documents, UI references, and historical design explorations. It is **not part of the deployed application** and should be excluded from any production upload.
+
+## See also
+
+- [`AGENTS.md`](./AGENTS.md) — Rules for AI agents working on this repository.
+- [`ideas/designUI/CONTEXTO_PLATAFORMA.md`](./ideas/designUI/CONTEXTO_PLATAFORMA.md) — Full product context and long-term vision (Spanish, planning-only).
