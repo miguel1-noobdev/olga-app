@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { connectToDatabase } from '@/lib/db/connect';
 import { createPlantRepository } from '@/lib/db/repository/plant';
 import PlantDetail from '@/components/jardin-digital/plant-detail';
+import { ArrowLeftIcon } from '@/components/ui/icons';
 
 interface PageProps {
   params: { slug: string };
@@ -24,7 +25,7 @@ export default async function PlantDetailPage({ params }: PageProps) {
           href="/jardin-digital"
           className="inline-flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors mb-8 font-sans text-sm"
         >
-          <span className="material-symbols-outlined text-lg">arrow_back</span>
+          <ArrowLeftIcon className="w-5 h-5" />
           Volver al catálogo
         </Link>
 

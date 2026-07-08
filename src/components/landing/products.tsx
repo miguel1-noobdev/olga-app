@@ -169,25 +169,9 @@ export default function Products() {
                     <p className="font-sans text-base text-on-surface-variant mb-8 flex-grow">
                       {line.description}
                     </p>
-                    <a
-                      href={`#${line.id}`}
-                      className="font-sans text-sm font-bold uppercase tracking-widest text-primary hover:text-secondary flex items-center gap-2 transition-colors w-fit"
-                    >
-                      Ver productos
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M17 8l4 4m0 0l-4 4m4-4H3"
-                        />
-                      </svg>
-                    </a>
+                    <span className="font-sans text-sm font-bold uppercase tracking-widest text-primary/80 flex items-center gap-2 w-fit">
+                      Línea completa — próximamente
+                    </span>
                   </div>
                 </div>
               </div>

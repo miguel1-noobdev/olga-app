@@ -59,19 +59,18 @@ export default function Redes() {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="font-serif text-3xl md:text-5xl text-primary mb-4">
-            Síguenos en Redes
+            Nuestras Redes
           </h2>
           <p className="font-sans text-xl text-on-surface-variant">
-            Comparte tus rituales, aprende sobre ingredientes y sé parte de
-            nuestro viaje botánico.
+            Próximamente estaremos en redes sociales para compartir rituales,
+            ingredientes y nuestro viaje botánico.
           </p>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
           {socials.map((social, index) => (
-            <a
+            <div
               key={index}
-              href="#"
               className="glass-card h-40 flex flex-col items-center justify-center gap-3 hover:bg-primary/5 transition-all group"
             >
               <div
@@ -82,7 +81,7 @@ export default function Redes() {
               <span className="font-sans text-xs font-bold uppercase tracking-widest text-on-surface">
                 {social.name}
               </span>
-            </a>
+            </div>
           ))}
         </div>
       </div>

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { MenuIcon, SearchIcon } from '@/components/ui/icons';
 
 export default function JardinNavbar() {
   const [isVisible, setIsVisible] = useState(true);
@@ -70,18 +71,24 @@ export default function JardinNavbar() {
 
         {/* Botón de búsqueda (placeholder) */}
         <div className="flex items-center gap-4">
-          <button className="hidden lg:flex items-center bg-surface-container px-4 py-2 rounded-full border border-surface-border/30">
-            <span className="material-symbols-outlined text-on-surface-variant text-sm mr-2">
-              search
-            </span>
+          <button
+            type="button"
+            disabled
+            aria-label="Buscar (próximamente)"
+            className="hidden lg:flex items-center bg-surface-container px-4 py-2 rounded-full border border-surface-border/30 opacity-60 cursor-not-allowed"
+          >
+            <SearchIcon className="w-4 h-4 text-on-surface-variant mr-2" />
             <span className="font-sans text-sm text-on-surface-variant">
               Buscar...
             </span>
           </button>
-          <button className="md:hidden">
-            <span className="material-symbols-outlined text-primary text-3xl">
-              menu
-            </span>
+          <button
+            type="button"
+            disabled
+            aria-label="Menú (próximamente)"
+            className="md:hidden p-2 opacity-60 cursor-not-allowed"
+          >
+            <MenuIcon className="w-8 h-8 text-primary" />
           </button>
         </div>
       </div>

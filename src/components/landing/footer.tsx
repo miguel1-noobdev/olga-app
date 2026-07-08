@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { EnvelopeIcon, MapPinIcon } from '@/components/ui/icons';
 
 export default function Footer() {
   const navLinks = [
@@ -59,20 +60,18 @@ export default function Footer() {
             </h4>
             <ul className="space-y-3 text-white/70">
               <li className="flex items-center space-x-2">
-                <span className="material-symbols-outlined text-sm">location_on</span>
+                <MapPinIcon className="w-4 h-4" />
                 <span>Calle de la Pureza 45, Barcelona</span>
               </li>
               <li className="flex items-center space-x-2">
-                <span className="material-symbols-outlined text-sm">mail</span>
+                <EnvelopeIcon className="w-4 h-4" />
                 <span>hello@botanicaob.com</span>
               </li>
               <li>
-                <a
-                  href="#"
-                  className="hover:text-secondary transition-colors duration-300"
-                >
-                  Store Locator
-                </a>
+                <span className="text-white/70">
+                  Store locator{' '}
+                  <span className="text-white/50">(próximamente)</span>
+                </span>
               </li>
             </ul>
           </div>

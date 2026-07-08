@@ -26,8 +26,13 @@ describe('JardinFooter', () => {
     expect(html).toContain('© 2026');
   });
 
-  it('renders social icons', () => {
+  it('does not use the unreliable icon font', () => {
     const html = renderToStaticMarkup(<JardinFooter />);
-    expect(html).toContain('material-symbols-outlined');
+    expect(html).not.toContain('material-symbols-outlined');
+  });
+
+  it('does not include placeholder destination links', () => {
+    const html = renderToStaticMarkup(<JardinFooter />);
+    expect(html).not.toContain('href="#"');
   });
 });

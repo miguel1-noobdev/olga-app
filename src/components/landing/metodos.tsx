@@ -1,17 +1,19 @@
+import { FlaskIcon, RecycleIcon, WrenchIcon } from '@/components/ui/icons';
+
 export default function Metodos() {
   const principles = [
     {
-      icon: 'handyman',
+      icon: <WrenchIcon className="w-6 h-6" />,
       title: 'Hecho a Mano',
       text: 'Lotes pequeños para garantizar la máxima frescura y potencia de cada ingrediente.',
     },
     {
-      icon: 'science',
+      icon: <FlaskIcon className="w-6 h-6" />,
       title: 'Ciencia Botánica',
       text: 'Fusiono saberes ancestrales con métodos modernos de extracción ecológica.',
     },
     {
-      icon: 'recycling',
+      icon: <RecycleIcon className="w-6 h-6" />,
       title: 'Sin Huella',
       text: 'Envases de vidrio infinitamente reciclables y embalajes libres de plástico.',
     },
@@ -39,7 +41,7 @@ export default function Metodos() {
             <ul className="space-y-6">
               {principles.map((principle, index) => (
                 <li key={index} className="flex items-start gap-4">
-                  <span className="material-symbols-outlined text-primary bg-primary/10 p-3 rounded-full">
+                  <span className="text-primary bg-primary/10 p-3 rounded-full">
                     {principle.icon}
                   </span>
                   <div>
@@ -59,7 +61,7 @@ export default function Metodos() {
         {/* Image */}
         <div className="flex-1 order-1 md:order-2">
           <div className="relative">
-            <div className="absolute -top-10 -right-10 w-40 h-40 border border-gold-soft rounded-full -z-10 opacity-50" />
+            <div className="absolute -top-10 -right-10 w-40 h-40 border border-secondary rounded-full -z-10 opacity-50" />
             <img
               className="w-full h-auto rounded-[40px] shadow-xl rotate-2 hover:rotate-0 transition-all duration-500"
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuAh_nP1yecGnKz7jaGsTgtIiNLPty1bvg1qNEd5PbXszbbX6Sw72CQyF3gmeDxvBUa83UE1tRu3abwiWtB552uRwjJkoY51ZUUvg6vV85qkLlI_S3Q_2cy6geeRE4jADgpVl0nE45G2rsV7eU7Pt-l7gF8T88vwS3spCNhZEDTRFr9bhzQ5DXbs_DDeyUTuib4l030XV4iLchxh6kk_X2atVFViJvuDiXZRJ73ffERq6o9Mq2wH7JARCa1mzJYLZeEQT5fP5cIg6UbU"

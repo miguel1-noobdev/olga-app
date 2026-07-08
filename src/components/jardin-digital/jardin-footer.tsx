@@ -2,11 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 
 export default function JardinFooter() {
-  const legalLinks = [
-    { href: '#', label: 'Privacidad' },
-    { href: '#', label: 'Términos' },
-    { href: '#', label: 'Contacto' },
-  ];
+  const legalLabels = ['Privacidad', 'Términos', 'Contacto'];
 
   return (
     <footer className="w-full bg-gradient-to-b from-primary to-surface-container pt-20 pb-8 text-surface">
@@ -55,14 +51,12 @@ export default function JardinFooter() {
               Legal
             </h4>
             <ul className="space-y-3">
-              {legalLinks.map((link) => (
-                <li key={link.label}>
-                  <a
-                    href={link.href}
-                    className="text-white/70 hover:text-secondary transition-colors duration-300"
-                  >
-                    {link.label}
-                  </a>
+              {legalLabels.map((label) => (
+                <li key={label}>
+                  <span className="text-white/70">
+                    {label}{' '}
+                    <span className="text-white/50">(próximamente)</span>
+                  </span>
                 </li>
               ))}
             </ul>
