@@ -1,5 +1,6 @@
 import BlogNavbar from '@/components/blog/blog-navbar';
 import BlogFooter from '@/components/blog/blog-footer';
+import ArticleBody from '@/components/blog/article-body';
 import Link from 'next/link';
 import { connectToDatabase } from '@/lib/db/connect';
 import { createArticleRepository } from '@/lib/db/repository/article';
@@ -13,22 +14,6 @@ export default async function ArticlePage({ params }: { params: { slug: string }
   if (!article) {
     notFound();
   }
-
-  // Parsear contenido (soporta **negritas**, ### subtítulos, - listas)
-  const contentBlocks = article.content
-    .split('\n\n')
-    .map((block) => {
-      if (block.startsWith('### ')) {
-        return { type: 'heading', text: block.replace('### ', '') };
-      }
-      if (block.startsWith('- ')) {
-        return {
-          type: 'list',
-          items: block.split('\n').map((line) => line.replace('- ', '')),
-        };
-      }
-      return { type: 'paragraph', text: block };
-    });
 
   return (
     <>
@@ -74,48 +59,7 @@ export default async function ArticlePage({ params }: { params: { slug: string }
           </div>
 
           {/* Contenido */}
-          <div className="font-sans text-lg text-on-surface/90 leading-relaxed space-y-6">
-            {contentBlocks.map((block, index) => {
-              if (block.type === 'heading') {
-                return (
-                  <h2
-                    key={index}
-                    className="font-serif text-2xl md:text-3xl text-on-surface mt-12 mb-4"
-                  >
-                    {block.text}
-                  </h2>
-                );
-              }
-
-              if (block.type === 'list') {
-                return (
-                  <ul
-                    key={index}
-                    className="list-disc pl-6 space-y-2 my-6"
-                  >
-                    {block.items?.map((item, i) => (
-                      <li key={i} className="text-on-surface/90">
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                );
-              }
-
-              return (
-                <p
-                  key={index}
-                  className="text-on-surface/90"
-                  dangerouslySetInnerHTML={{
-                    __html: (block.text || '').replace(
-                      /\*\*(.*?)\*\*/g,
-                      '<strong class="text-on-surface font-semibold">$1</strong>'
-                    ),
-                  }}
-                />
-              );
-            })}
-          </div>
+          <ArticleBody content={article.content} />
 
           {/* Botón volver */}
           <div className="mt-16 pt-8 border-t border-on-surface-variant/20">
