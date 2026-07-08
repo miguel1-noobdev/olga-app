@@ -3,10 +3,10 @@ import JardinHero from './jardin-hero';
 import JardinFilters from './jardin-filters';
 import PlantGrid from './plant-grid';
 import JardinCompromiso from './jardin-compromiso';
-import type { PublicPlant } from '@/lib/jardin-digital/projection';
+import type { PublicPlantCard } from '@/lib/jardin-digital/projection';
 
 interface JardinHomepageProps {
-  plants: PublicPlant[];
+  plants: PublicPlantCard[];
 }
 
 export default function JardinHomepage({ plants }: JardinHomepageProps) {

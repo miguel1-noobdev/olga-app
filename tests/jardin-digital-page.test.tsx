@@ -1,13 +1,14 @@
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import type { PublicPlant } from '@/lib/jardin-digital/projection';
+import type { PlantRecord } from '@/lib/db/repository/plant';
+import { toPublicPlantCard, type PublicPlantCard } from '@/lib/jardin-digital/projection';
 
 const { connectToDatabaseMock, findAllMock, navbarMock, homepageMock, footerMock } = vi.hoisted(() => ({
   connectToDatabaseMock: vi.fn(),
   findAllMock: vi.fn(),
   navbarMock: vi.fn(() => <div data-testid="jardin-navbar" />),
-  homepageMock: vi.fn(({ plants }: { plants: PublicPlant[] }) => (
+  homepageMock: vi.fn(({ plants }: { plants: PublicPlantCard[] }) => (
     <section data-testid="jardin-homepage">
       {plants.map((plant) => (
         <span key={plant.id}>{plant.commonName}</span>
@@ -41,7 +42,7 @@ vi.mock('@/components/jardin-digital/jardin-footer', () => ({
 
 import JardinDigitalPage from '@/app/jardin-digital/page';
 
-const mockPlants: PublicPlant[] = [
+const mockPlants: PlantRecord[] = [
   {
     id: 'plant-1',
     commonName: 'Lavanda',
@@ -58,6 +59,7 @@ const mockPlants: PublicPlant[] = [
     description: 'Planta aromática mediterránea',
     slug: 'lavandula-angustifolia-mill',
     images: [],
+    createdAt: '2026-07-01T10:00:00.000Z',
   },
   {
     id: 'plant-2',
@@ -75,8 +77,11 @@ const mockPlants: PublicPlant[] = [
     description: 'Planta suculenta medicinal',
     slug: 'aloe-barbadensis-miller',
     images: [],
+    createdAt: '2026-07-02T10:00:00.000Z',
   },
 ];
+
+const expectedCardPlants = mockPlants.map(toPublicPlantCard);
 
 describe('JardinDigitalPage', () => {
   beforeEach(() => {
@@ -87,12 +92,12 @@ describe('JardinDigitalPage', () => {
     findAllMock.mockResolvedValueOnce(mockPlants);
 
     const element = await JardinDigitalPage();
-    const html = renderToStaticMarkup(element);
+    renderToStaticMarkup(element);
 
     expect(connectToDatabaseMock).toHaveBeenCalledTimes(1);
     expect(findAllMock).toHaveBeenCalledTimes(1);
     expect(homepageMock).toHaveBeenCalledTimes(1);
-    expect(homepageMock.mock.calls[0][0].plants).toEqual(mockPlants);
+    expect(homepageMock.mock.calls[0][0].plants).toEqual(expectedCardPlants);
   });
 
   it('renders navbar, homepage, and footer', async () => {

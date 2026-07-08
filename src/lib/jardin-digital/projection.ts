@@ -1,6 +1,11 @@
 import type { PlantRecord } from '@/lib/db/repository/plant';
 
-export interface PublicPlant {
+export interface PublicPlantImage {
+  url: string;
+  alt: string;
+}
+
+export interface PublicPlantDetail {
   id: string;
   commonName: string;
   scientificName: string;
@@ -24,13 +29,20 @@ export interface PublicPlant {
     description?: string;
   }>;
   description?: string;
-  images?: Array<{
-    url: string;
-    alt: string;
-  }>;
+  images?: PublicPlantImage[];
 }
 
-export function toPublicPlant(plant: PlantRecord): PublicPlant {
+export interface PublicPlantCard {
+  id: string;
+  commonName: string;
+  scientificName: string;
+  slug: string;
+  family: string;
+  description?: string;
+  images?: PublicPlantImage[];
+}
+
+export function toPublicPlantDetail(plant: PlantRecord): PublicPlantDetail {
   return {
     id: plant.id,
     commonName: plant.commonName,
@@ -43,6 +55,18 @@ export function toPublicPlant(plant: PlantRecord): PublicPlant {
     properties: plant.properties,
     contraindications: plant.contraindications,
     availableExtracts: plant.availableExtracts,
+    description: plant.description,
+    images: plant.images,
+  };
+}
+
+export function toPublicPlantCard(plant: PlantRecord): PublicPlantCard {
+  return {
+    id: plant.id,
+    commonName: plant.commonName,
+    scientificName: plant.scientificName,
+    slug: plant.slug,
+    family: plant.family,
     description: plant.description,
     images: plant.images,
   };

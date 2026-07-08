@@ -1,7 +1,7 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
-import type { PublicPlant } from '@/lib/jardin-digital/projection';
+import type { PublicPlantDetail } from '@/lib/jardin-digital/projection';
 
 const { connectToDatabaseMock, findBySlugMock } = vi.hoisted(() => ({
   connectToDatabaseMock: vi.fn(),
@@ -19,7 +19,7 @@ vi.mock('@/lib/db/repository/plant', () => ({
 }));
 
 vi.mock('@/components/jardin-digital/plant-detail', () => ({
-  default: ({ plant }: { plant: PublicPlant }) => (
+  default: ({ plant }: { plant: PublicPlantDetail }) => (
     <article data-testid="plant-detail">{plant.commonName}</article>
   ),
 }));
@@ -41,7 +41,7 @@ vi.mock('next/link', () => ({
 
 import PlantDetailPage from '@/app/jardin-digital/[slug]/page';
 
-const mockPlant: PublicPlant = {
+const mockPlant: PublicPlantDetail = {
   id: 'plant-1',
   commonName: 'Lavanda',
   scientificName: 'Lavandula angustifolia Mill.',

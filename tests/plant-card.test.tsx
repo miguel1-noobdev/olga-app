@@ -2,21 +2,13 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import PlantCard from '@/components/jardin-digital/plant-card';
-import type { PublicPlant } from '@/lib/jardin-digital/projection';
+import type { PublicPlantCard } from '@/lib/jardin-digital/projection';
 
-const mockPlant: PublicPlant = {
+const mockPlant: PublicPlantCard = {
   id: 'plant-1',
   commonName: 'Lavanda',
   scientificName: 'Lavandula angustifolia Mill.',
   family: 'Lamiaceae',
-  usedParts: ['Sumidades floridas'],
-  compounds: [{ name: 'Linalol', percentage: '20-45%' }],
-  properties: {
-    oral: ['Ansiolítico'],
-    topical: ['Antiinflamatorio'],
-  },
-  contraindications: ['Hipersensibilidad a la planta'],
-  availableExtracts: [{ type: 'Aceite Esencial' }],
   description: 'Planta aromática mediterránea conocida por sus propiedades relajantes',
   slug: 'lavandula-angustifolia-mill',
   images: [
@@ -61,7 +53,7 @@ describe('PlantCard', () => {
   });
 
   it('handles plant without images gracefully', () => {
-    const plantWithoutImages: PublicPlant = {
+    const plantWithoutImages: PublicPlantCard = {
       ...mockPlant,
       images: [],
     };
@@ -70,7 +62,7 @@ describe('PlantCard', () => {
   });
 
   it('handles plant without description gracefully', () => {
-    const plantWithoutDescription: PublicPlant = {
+    const plantWithoutDescription: PublicPlantCard = {
       ...mockPlant,
       description: undefined,
     };

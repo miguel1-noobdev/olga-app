@@ -2,25 +2,20 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 import PlantGrid from '@/components/jardin-digital/plant-grid';
-import type { PublicPlant } from '@/lib/jardin-digital/projection';
+import type { PublicPlantCard } from '@/lib/jardin-digital/projection';
 
 vi.mock('@/components/jardin-digital/plant-card', () => ({
-  default: ({ plant }: { plant: PublicPlant }) => (
+  default: ({ plant }: { plant: PublicPlantCard }) => (
     <div data-testid="plant-card">{plant.commonName}</div>
   ),
 }));
 
-const mockPlants: PublicPlant[] = [
+const mockPlants: PublicPlantCard[] = [
   {
     id: 'plant-1',
     commonName: 'Lavanda',
     scientificName: 'Lavandula angustifolia',
     family: 'Lamiaceae',
-    usedParts: [],
-    compounds: [],
-    properties: { oral: [], topical: [] },
-    contraindications: [],
-    availableExtracts: [],
     slug: 'lavandula-angustifolia',
   },
   {
@@ -28,11 +23,6 @@ const mockPlants: PublicPlant[] = [
     commonName: 'Aloe Vera',
     scientificName: 'Aloe barbadensis',
     family: 'Asphodelaceae',
-    usedParts: [],
-    compounds: [],
-    properties: { oral: [], topical: [] },
-    contraindications: [],
-    availableExtracts: [],
     slug: 'aloe-barbadensis',
   },
   {
@@ -40,11 +30,6 @@ const mockPlants: PublicPlant[] = [
     commonName: 'Romero',
     scientificName: 'Salvia rosmarinus',
     family: 'Lamiaceae',
-    usedParts: [],
-    compounds: [],
-    properties: { oral: [], topical: [] },
-    contraindications: [],
-    availableExtracts: [],
     slug: 'salvia-rosmarinus',
   },
 ];

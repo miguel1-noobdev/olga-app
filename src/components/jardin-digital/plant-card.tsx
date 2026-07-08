@@ -1,9 +1,9 @@
 import React from 'react';
 import Link from 'next/link';
-import type { PublicPlant } from '@/lib/jardin-digital/projection';
+import type { PublicPlantCard } from '@/lib/jardin-digital/projection';
 
 interface PlantCardProps {
-  plant: PublicPlant;
+  plant: PublicPlantCard;
 }
 
 export default function PlantCard({ plant }: PlantCardProps) {
