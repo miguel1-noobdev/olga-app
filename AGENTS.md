@@ -119,10 +119,10 @@ Si GGA está en un bucle o no para de fallar por cosas razonables, **avisale al 
 
 El proyecto se construye en **4 fases** (ver CONTEXTO_PLATAFORMA.md para detalles):
 
-1. **Fase 1** — Auth + Landing + Blog (lo que no necesita BD de negocio)
-2. **Fase 2** — Setup MongoDB + carga inicial de plantas
-3. **Fase 3** — Glosario + Dashboard de Olga (lo que usa la BD)
-4. **Fase 4** — Dashboard de Miguel (admin) — lo decide el usuario al final
+1. **Fase 1** — Auth + Landing + Blog + Jardín Digital (cerrada funcionalmente; retoques y Google OAuth aplazados)
+2. **Fase 2** — Dominio de plantas: consolidar `plantas` como fuente de verdad, estructura pública vs. interna, carga de plantas, refinar `/jardin-digital` como proyección pública
+3. **Fase 3** — Dashboard de Olga (laboratorio): lotes, fases, seguimiento, stock sobre el dominio completo de plantas
+4. **Fase 4** — Dashboard de Miguel (admin): dashboard real que absorbe la herramienta temporal `/admin/blog/*`
 
 ### 6.2 Approach: sección por sección
 

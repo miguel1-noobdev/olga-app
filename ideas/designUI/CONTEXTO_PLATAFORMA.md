@@ -20,7 +20,7 @@ Plataforma single-tenant con dos roles diferenciados.
 
 **Reglas de acceso:**
 - Visitantes anónimos: ven la landing completa, NO acceden al blog
-- Usuarios suscriptores (registrados con email/contraseña o Google): acceden al blog + reciben emails informativos
+- Usuarios suscriptores (registrados con email/contraseña; Google OAuth aplazado): acceden al blog + reciben emails informativos
 - Olga y Miguel: tienen cuentas con rol especial que los lleva a su dashboard privado
 - Los dashboards privados son **apps separadas** que se construyen después, una a una
 
@@ -28,10 +28,38 @@ Plataforma single-tenant con dos roles diferenciados.
 
 ---
 
+## Estado actual: cierre funcional de Fase 1
+
+Fase 1 se considera **cerrada funcionalmente**. Las versiones actuales son aceptables como primera entrega; los retoques estéticos y de UX quedan aplazados.
+
+| Pieza | Estado | Notas |
+|-------|--------|-------|
+| **Landing** | Primera versión aceptada | Quedan retoques estéticos pendientes |
+| **Blog** | Primera versión aceptada | Funcional para lectura y publicación básica |
+| **Jardín Digital** | Primera versión aceptada | Vista pública de plantas implementada |
+| **Auth** | Email/contraseña operativo | Google OAuth y mejoras de UX de registro quedan aplazadas |
+
+### Decisiones aplazadas (deferred)
+- **Google OAuth**: cableado en la config de NextAuth pero no expuesto en UI; se activará en una fase posterior.
+- **Mejoras de UX de registro**: flujo actual funcional, optimizaciones posteriores.
+- **Retoques estéticos de landing**: micro-ajustos visuales, no bloqueantes.
+
+### Sobre `/admin/blog/*` (herramienta temporal)
+- El formulario en `/admin/blog/nuevo` y sus rutas asociadas existen **solo para crear artículos de forma rápida** mientras no hay dashboard admin real.
+- **No es el hogar definitivo** del admin de contenido: su lugar correcto es el futuro **dashboard de Miguel (admin)**.
+- Cuando se construya el dashboard admin, esta herramienta provisional será absorbida por él.
+
+### Modelo de datos de plantas
+- **`plantas` (glosario botánico)**: es el **dominio fuente de verdad completo**. Contiene todas las fichas técnicas, propiedades, contraindicaciones, extractos y relaciones posibles.
+- **`/jardin-digital`**: es la **representación visual pública** de *una parte* de ese dominio. Los visitantes registrados ven solo lo que se decide proyectar; el dominio completo permanece disponible para los dashboards privados.
+- El futuro **dashboard de Olga** accederá al dominio completo de plantas (no solo a la vista pública).
+
+---
+
 ## Roles y modelo de negocio
 
 ### Usuarios suscriptores (públicos)
-- Registro con **email/contraseña** o **Google OAuth**
+- Registro con **email/contraseña** (Google OAuth aplazado)
 - Acceso a un **blog** (contenido restringido a registrados)
 - Reciben **emails informativos** cuando Olga publica nuevas creaciones o productos
 - **NO es e-commerce** — la web es informativa y didáctica
@@ -49,7 +77,8 @@ Plataforma single-tenant con dos roles diferenciados.
 
 ### Registro / autenticación
 - **Un solo flujo de registro** para todos los usuarios (suscriptores, Olga, Miguel)
-- Registro con **email/contraseña** o **Google OAuth**
+- Registro con **email/contraseña** (único camino habilitado en UI por ahora)
+- **Google OAuth aplazado**: cableado en la configuración de NextAuth pero no expuesto en UI; se activará en una fase posterior
 - **Primer usuario registrado = admin automáticamente** (Miguel)
 - Admin asigna roles después: `suscriptora` → `productora` (Olga)
 - Olga puede usar el blog desde el día 1, sin esperar su dashboard
@@ -146,7 +175,7 @@ Plataforma single-tenant con dos roles diferenciados.
 2. **Productos**: preview de 3-4 destacados + enlace "Ver colección completa" → **páginas separadas**
 3. **Nuestros métodos**: proceso de Olga (de los ejemplos)
 4. **Journal**: 3 tarjetas con últimas entradas del blog → **página aparte** (solo registrados)
-5. **Glosario botánico**: preview de 3-4 ingredientes con tarjetas → acceso al glosario completo (solo registrados)
+5. **Jardín Digital**: preview de 3-4 plantas con tarjetas → acceso a `/jardin-digital` (solo registrados)
 6. **Presentación**: "Detrás de la marca" con foto circular de Olga + cita
 7. **Únete**: registro de usuarios
 8. **Acceso a redes**: botones grandes o tarjetas que enlacen a redes sociales
@@ -155,7 +184,7 @@ Plataforma single-tenant con dos roles diferenciados.
 **Páginas separadas (no en la landing):**
 - Productos (página informativa)
 - Blog (solo registrados)
-- Glosario botánico (solo registrados)
+- Jardín Digital (`/jardin-digital`, solo registrados)
 
 **Presentacion de Olga (seccion en la landing)**
 - **Formato**: "Detrás de la marca" con foto circular de Olga
@@ -207,10 +236,11 @@ Plataforma single-tenant con dos roles diferenciados.
 
 ---
 
-### Glosario botánico (página separada)
+### Jardín Digital (`/jardin-digital`)
 - **Acceso**: solo usuarios registrados
-- En la landing: 3-4 tarjetas informativas + acceso al glosario completo
-- Página completa con todas las entradas del glosario
+- En la landing: 3-4 tarjetas informativas + acceso al Jardín Digital
+- Es la **vista pública del dominio de plantas**: muestra una selección/proyección de las fichas técnicas
+- **NO contiene todo el dominio**: el glosario completo (`plantas`) es la fuente de verdad y se usará desde los dashboards privados
 
 ---
 
@@ -434,28 +464,31 @@ Plataforma single-tenant con dos roles diferenciados.
 
 ## Próximas tareas
 
-### Fases de producción (propuesta)
+### Fases de producción (vigentes)
 
-**Fase 1 — Lo que no necesita BD de negocio:**
-1. Auth (registro, login, roles) ← clave transversal
-2. Landing (sin el "Únete" funcional, solo visual)
-3. Blog (con categorías, preview, artículos estáticos primero)
+**Fase 1 — Auth + Landing + Blog** *(cerrada funcionalmente)*
+- Auth email/contraseña, landing, blog y Jardín Digital como primeras versiones aceptables.
+- Google OAuth, mejoras de registro y retoques estéticos quedan aplazados.
 
-**Fase 2 — La base de datos:**
-4. Setup MongoDB (conexiones, schemas, collections)
-5. Carga inicial de plantas (con la ficha de la lavanda como ejemplo)
+**Fase 2 — Dominio de plantas y proyección pública**
+- Consolidar el dominio de plantas (`plantas`) como fuente de verdad.
+- Definir la estructura de datos pública vs. interna.
+- Continuar la carga de plantas (lavanda como primera, más fichas siguientes).
+- Refinar `/jardin-digital` como proyección pública de una parte del dominio.
 
-**Fase 3 — Lo que usa la BD:**
-6. Glosario (lee de plantas)
-7. Dashboard de Olga (Kanban + crear lote + seguimiento + stock)
+**Fase 3 — Dashboard de Olga (laboratorio) y flujos reales**
+- Construir el dashboard de Olga sobre el dominio completo de plantas.
+- Lotes, fases (F.A., F.O.), seguimiento temporal, stock y observaciones.
+- Flujos reales de trabajo a partir de su cuaderno de producción.
 
-**Fase 4 — Evaluación final:**
-8. Dashboard de Miguel (admin) — cuando todo esté funcionando para ver qué utilidades agregás
+**Fase 4 — Dashboard de Miguel (admin)**
+- Dashboard admin real.
+- Absorbe la herramienta temporal `/admin/blog/*` para gestión de contenido.
+- Administra usuarios, datos, automatizaciones y publicación.
 
 ### Tareas previas a la producción
-- Definir stack frontend (pendiente)
-- Definir hosting y emails
-- Consolidar contexto y lanzar SDD formal
+- Consolidar contexto y lanzar SDD formal de Fase 2
+- Definir emails (SMTP) cuando llegue el momento
 
 ---
 

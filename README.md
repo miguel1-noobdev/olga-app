@@ -34,6 +34,13 @@ This is **not an e-commerce site**. It explains the brand, shares content with r
 - There is **no edit, no delete, and no draft workflow** yet.
 - Content is stored as Markdown-like plain text and rendered safely (no `dangerouslySetInnerHTML`).
 
+## Operating model note
+
+- Phase 1 is closed functionally. Landing, blog, `/jardin-digital`, and email/password auth are accepted as first versions; Google OAuth, registration UX polish, and landing aesthetic tweaks are deferred.
+- `/admin/blog/*` is a **temporary** article-creation tool. Its long-term home is the real admin dashboard (Phase 4).
+- `plantas` is the full source-of-truth plant domain; `/jardin-digital` is only the public-facing projection of part of that domain.
+- See [`ideas/designUI/CONTEXTO_PLATAFORMA.md`](./ideas/designUI/CONTEXTO_PLATAFORMA.md) for the full product context and remapped phases.
+
 ## Local development
 
 ### Requirements
@@ -49,13 +56,13 @@ docker compose up -d mongo
 
 This binds MongoDB to `127.0.0.1:27017` with a persistent volume.
 
-Copy `.env.example` to `.env.local` if you have not already:
+Copy `.env.example` to `.env.local` if you have not already, then add the extra variables required for NextAuth:
 
 ```bash
 cp .env.example .env.local
 ```
 
-The default `MONGODB_URI` points to `mongodb://localhost:27017/botanica-ob`.
+The default `MONGODB_URI` points to `mongodb://localhost:27017/botanica-ob`. See [`docs/runbook.md`](./docs/runbook.md#required-environment-variables) for the full environment checklist.
 
 ### Useful commands
 
@@ -66,13 +73,17 @@ npm run test:run         # Run the Vitest suite once
 npm run typecheck:scripts # Type-check files under scripts/
 ```
 
+> For the full local/deploy runbook see [`docs/runbook.md`](./docs/runbook.md). For a detailed scripts reference see [`docs/scripts.md`](./docs/scripts.md).
+
 ### Create an admin user
 
 The first user registered through `/register` becomes `admin` automatically. You can also use:
 
 ```bash
-npx ts-node scripts/create-admin.ts <email> <password>
+npx ts-node scripts/create-admin.ts
 ```
+
+See [`docs/scripts.md`](./docs/scripts.md) for the exact credentials each script creates.
 
 ## CI
 
@@ -104,4 +115,6 @@ olga-app/
 ## See also
 
 - [`AGENTS.md`](./AGENTS.md) — Rules for AI agents working on this repository.
+- [`docs/runbook.md`](./docs/runbook.md) — Local run, deploy, and operational reference.
+- [`docs/scripts.md`](./docs/scripts.md) — What each script does and how to run it.
 - [`ideas/designUI/CONTEXTO_PLATAFORMA.md`](./ideas/designUI/CONTEXTO_PLATAFORMA.md) — Full product context and long-term vision (Spanish, planning-only).
