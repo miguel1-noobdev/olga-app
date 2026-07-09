@@ -1,5 +1,6 @@
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
+import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import Glosario from '@/components/landing/glosario';
 
@@ -75,5 +76,35 @@ describe('Glosario - Responsive Visual Contract', () => {
       expect(html).toContain('LEER MÁS');
       expect(html).toContain('href="/jardin-digital"');
     });
+  });
+});
+
+describe('Glosario - Teaser click-through', () => {
+  it('renders every ingredient card as a link to /jardin-digital', () => {
+    render(<Glosario />);
+
+    const ingredientNames = ['Lavanda', 'Caléndula', 'Aloe Vera', 'Café Puro'];
+    const allLinks = screen.getAllByRole('link');
+    const jardinLinks = allLinks.filter(
+      (link) => link.getAttribute('href') === '/jardin-digital',
+    );
+
+    // 4 mobile cards + 4 desktop cards + 1 CTA = 9 total links
+    expect(jardinLinks).toHaveLength(9);
+
+    for (const name of ingredientNames) {
+      const linksForName = jardinLinks.filter((link) =>
+        link.textContent?.includes(name),
+      );
+      // One link in mobile stack, one in desktop track
+      expect(linksForName).toHaveLength(2);
+    }
+  });
+
+  it('keeps the existing LEER MÁS CTA link', () => {
+    render(<Glosario />);
+
+    const cta = screen.getByRole('link', { name: /leer más/i });
+    expect(cta).toHaveAttribute('href', '/jardin-digital');
   });
 });

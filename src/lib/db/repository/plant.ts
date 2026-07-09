@@ -1,4 +1,4 @@
-import { PlantModel, IPlant } from '../models/plant';
+import { PlantModel, IPlant, PlantInternal } from '../models/plant';
 
 export interface PlantRecord {
   id: string;
@@ -28,6 +28,7 @@ export interface PlantRecord {
     url: string;
     alt: string;
   }>;
+  internal?: PlantInternal;
   createdAt: string;
 }
 
@@ -44,6 +45,7 @@ export interface CreatePlantInput {
   availableExtracts?: Array<{ type: string; method?: string; description?: string }>;
   description?: string;
   images?: Array<{ url: string; alt: string }>;
+  internal?: PlantInternal;
 }
 
 export interface UpdatePlantInput {
@@ -59,6 +61,7 @@ export interface UpdatePlantInput {
   availableExtracts?: Array<{ type: string; method?: string; description?: string }>;
   description?: string;
   images?: Array<{ url: string; alt: string }>;
+  internal?: PlantInternal;
 }
 
 export interface PlantRepository {
@@ -99,6 +102,7 @@ function toPlantRecord(doc: IPlant): PlantRecord {
     availableExtracts: plain.availableExtracts,
     description: plain.description,
     images: plain.images,
+    internal: plain.internal ?? {},
     createdAt: doc.createdAt.toISOString(),
   };
 }
@@ -148,10 +152,23 @@ export function createPlantRepository(): PlantRepository {
     },
 
     async update(id: string, input: UpdatePlantInput): Promise<PlantRecord> {
+      const existing = await PlantModel.findById(id);
+
+      if (!existing) {
+        throw new Error('Plant not found');
+      }
+
       const updateData: any = { ...input };
 
       if (input.scientificName && !input.slug) {
         updateData.slug = slugify(input.scientificName);
+      }
+
+      if (input.internal) {
+        updateData.internal = {
+          ...JSON.parse(JSON.stringify(existing.internal ?? {})),
+          ...input.internal,
+        };
       }
 
       const plant = await PlantModel.findByIdAndUpdate(id, updateData, {

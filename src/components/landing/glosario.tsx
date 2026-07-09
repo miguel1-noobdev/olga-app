@@ -86,9 +86,10 @@ export default function Glosario() {
             const stickyTop = index * 80;
 
             return (
-              <div
+              <a
                 key={index}
-                className="glass-card rounded-3xl overflow-hidden relative group mb-8"
+                href="/jardin-digital"
+                className="glass-card rounded-3xl overflow-hidden relative group mb-8 block"
                 style={{
                   position: 'sticky',
                   top: `${stickyTop}px`,
@@ -106,7 +107,7 @@ export default function Glosario() {
                     {ingredient.name}
                   </span>
                 </div>
-              </div>
+              </a>
             );
           })}
         </div>
@@ -136,9 +137,10 @@ export default function Glosario() {
                 const opacity = index === 0 ? 1 : appearanceProgress;
 
                 return (
-                  <div
+                  <a
                     key={ingredient.name}
-                    className="glass-card group absolute left-0 top-0 h-[400px] w-[300px] overflow-hidden rounded-3xl shadow-xl"
+                    href="/jardin-digital"
+                    className="glass-card group absolute left-0 top-0 h-[400px] w-[300px] overflow-hidden rounded-3xl shadow-xl block"
                     style={{
                       transform: `translate3d(${x}px, ${y}px, 0) scale(${scale})`,
                       opacity,
@@ -155,7 +157,7 @@ export default function Glosario() {
                         {ingredient.name}
                       </span>
                     </div>
-                  </div>
+                  </a>
                 );
               })}
             </div>

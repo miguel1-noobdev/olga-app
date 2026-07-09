@@ -1,5 +1,14 @@
 import type { PlantRecord } from '@/lib/db/repository/plant';
 
+/**
+ * Public projection for `/jardin-digital`.
+ *
+ * This layer deliberately strips internal-only fields (the Olga-facing
+ * `internal` group and operational metadata such as `createdAt`) from the
+ * full plant domain. For full-domain access see `@/lib/plantas/full-domain`,
+ * which is the intended entry point for Olga's future dashboard.
+ */
+
 export interface PublicPlantImage {
   url: string;
   alt: string;

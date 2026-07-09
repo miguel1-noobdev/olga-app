@@ -39,6 +39,13 @@ describe('PlantRepository', () => {
       contraindications: ['Hipersensibilidad'],
       availableExtracts: [{ type: 'Aceite Esencial' }],
       description: 'Planta aromática',
+      internal: {
+        cultivationNotes: 'Pleno sol, suelo drenado.',
+        harvestNotes: 'Cosechar en floración plena.',
+        sourcingNotes: 'Proveedor local orgánico.',
+        preparationNotes: 'Secado a la sombra.',
+        notes: 'Stock bajo para primavera.',
+      },
     };
   }
 
@@ -62,6 +69,27 @@ describe('PlantRepository', () => {
       expect(plant.compounds[1].description).toBe('_componente mayoritario_');
     });
 
+    it('preserves internal fields', async () => {
+      const plant = await repo.create(lavenderInput());
+
+      expect(plant.internal?.cultivationNotes).toBe('Pleno sol, suelo drenado.');
+      expect(plant.internal?.harvestNotes).toBe('Cosechar en floración plena.');
+      expect(plant.internal?.sourcingNotes).toBe('Proveedor local orgánico.');
+      expect(plant.internal?.preparationNotes).toBe('Secado a la sombra.');
+      expect(plant.internal?.notes).toBe('Stock bajo para primavera.');
+    });
+
+    it('creates a plant without internal fields', async () => {
+      const plant = await repo.create({
+        commonName: 'Manzanilla',
+        scientificName: 'Matricaria chamomilla L.',
+        family: 'Asteraceae',
+      });
+
+      expect(plant.commonName).toBe('Manzanilla');
+      expect(plant.internal).toBeDefined();
+    });
+
     it('rejects duplicate slug', async () => {
       await repo.create(lavenderInput());
       await expect(repo.create(lavenderInput())).rejects.toThrow();
@@ -74,6 +102,12 @@ describe('PlantRepository', () => {
       const found = await repo.findById(created.id);
       expect(found).not.toBeNull();
       expect(found?.commonName).toBe('Lavanda');
+    });
+
+    it('returns internal fields when found', async () => {
+      const created = await repo.create(lavenderInput());
+      const found = await repo.findById(created.id);
+      expect(found?.internal?.notes).toBe('Stock bajo para primavera.');
     });
 
     it('returns null when not found', async () => {
@@ -182,6 +216,27 @@ describe('PlantRepository', () => {
       const created = await repo.create(lavenderInput());
       const updated = await repo.update(created.id, { commonName: 'Lavanda fina' });
       expect(updated.slug).toBe('lavandula-angustifolia-mill');
+    });
+
+    it('updates internal fields', async () => {
+      const created = await repo.create(lavenderInput());
+      const updated = await repo.update(created.id, {
+        internal: { notes: 'Stock renovado.' },
+      });
+      expect(updated.internal?.notes).toBe('Stock renovado.');
+    });
+
+    it('preserves existing internal sibling fields during partial internal updates', async () => {
+      const created = await repo.create(lavenderInput());
+      const updated = await repo.update(created.id, {
+        internal: { notes: 'Stock renovado.' },
+      });
+
+      expect(updated.internal?.notes).toBe('Stock renovado.');
+      expect(updated.internal?.cultivationNotes).toBe('Pleno sol, suelo drenado.');
+      expect(updated.internal?.harvestNotes).toBe('Cosechar en floración plena.');
+      expect(updated.internal?.sourcingNotes).toBe('Proveedor local orgánico.');
+      expect(updated.internal?.preparationNotes).toBe('Secado a la sombra.');
     });
 
     it('throws when plant is not found', async () => {

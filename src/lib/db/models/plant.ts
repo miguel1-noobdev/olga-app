@@ -1,5 +1,13 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
+export interface PlantInternal {
+  cultivationNotes?: string;
+  harvestNotes?: string;
+  sourcingNotes?: string;
+  preparationNotes?: string;
+  notes?: string;
+}
+
 export interface IPlant extends Document {
   commonName: string;
   scientificName: string;
@@ -27,6 +35,7 @@ export interface IPlant extends Document {
     url: string;
     alt: string;
   }>;
+  internal?: PlantInternal;
   createdAt: Date;
 }
 
@@ -118,6 +127,13 @@ const PlantSchema = new Schema<IPlant>(
           alt: { type: String, required: true, trim: true },
         },
       ],
+    },
+    internal: {
+      cultivationNotes: { type: String, trim: true },
+      harvestNotes: { type: String, trim: true },
+      sourcingNotes: { type: String, trim: true },
+      preparationNotes: { type: String, trim: true },
+      notes: { type: String, trim: true },
     },
   },
   {

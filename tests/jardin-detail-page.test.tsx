@@ -1,6 +1,7 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
+import type { PlantRecord } from '@/lib/db/repository/plant';
 import type { PublicPlantDetail } from '@/lib/jardin-digital/projection';
 
 const { connectToDatabaseMock, findBySlugMock } = vi.hoisted(() => ({
@@ -39,9 +40,18 @@ vi.mock('next/link', () => ({
   ),
 }));
 
+const notFoundMock = vi.fn();
+
+vi.mock('next/navigation', () => ({
+  notFound: () => {
+    notFoundMock();
+    throw new Error('NEXT_NOT_FOUND');
+  },
+}));
+
 import PlantDetailPage from '@/app/jardin-digital/[slug]/page';
 
-const mockPlant: PublicPlantDetail = {
+const mockPlant: PlantRecord = {
   id: 'plant-1',
   commonName: 'Lavanda',
   scientificName: 'Lavandula angustifolia Mill.',
@@ -57,11 +67,25 @@ const mockPlant: PublicPlantDetail = {
   description: 'Planta aromática mediterránea',
   slug: 'lavandula-angustifolia-mill',
   images: [],
+  internal: {
+    notes: 'Stock bajo para primavera.',
+  },
+  createdAt: '2026-07-01T10:00:00.000Z',
 };
 
 describe('PlantDetailPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  it('calls notFound when findBySlug returns null', async () => {
+    findBySlugMock.mockResolvedValueOnce(null);
+
+    await expect(
+      PlantDetailPage({ params: { slug: 'unknown' } })
+    ).rejects.toThrow('NEXT_NOT_FOUND');
+
+    expect(notFoundMock).toHaveBeenCalled();
   });
 
   it('renders the back link with an inline SVG instead of the icon font', async () => {

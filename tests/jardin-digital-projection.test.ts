@@ -24,6 +24,13 @@ const fullPlant: PlantRecord = {
   availableExtracts: [{ type: 'Aceite Esencial', method: 'Destilación por arrastre de vapor' }],
   description: 'Planta aromática mediterránea',
   images: [{ url: 'https://example.com/lavanda.jpg', alt: 'Flores de lavanda' }],
+  internal: {
+    cultivationNotes: 'Pleno sol, suelo drenado.',
+    harvestNotes: 'Cosechar en floración plena.',
+    sourcingNotes: 'Proveedor local orgánico.',
+    preparationNotes: 'Secado a la sombra.',
+    notes: 'Stock bajo para primavera.',
+  },
   createdAt: '2026-07-01T10:00:00.000Z',
 };
 
@@ -59,6 +66,32 @@ describe('toPublicPlantDetail', () => {
     const detail = toPublicPlantDetail(fullPlant);
 
     expect(detail).not.toHaveProperty('createdAt');
+  });
+
+  it('excludes the internal Olga-facing group from public detail', () => {
+    const detail = toPublicPlantDetail(fullPlant);
+
+    expect(detail).not.toHaveProperty('internal');
+  });
+
+  it('still excludes internal fields when PlantRecord has no internal group', () => {
+    const plantWithoutInternal: PlantRecord = {
+      id: 'plant-3',
+      commonName: 'Manzanilla',
+      scientificName: 'Matricaria chamomilla L.',
+      slug: 'matricaria-chamomilla-l',
+      family: 'Asteraceae',
+      usedParts: ['Capítulos florales'],
+      compounds: [],
+      properties: { oral: [], topical: [] },
+      contraindications: [],
+      availableExtracts: [],
+      createdAt: '2026-07-03T10:00:00.000Z',
+    };
+
+    const detail = toPublicPlantDetail(plantWithoutInternal);
+
+    expect(detail).not.toHaveProperty('internal');
   });
 
   it('maps a minimal PlantRecord without optional fields', () => {
@@ -134,6 +167,12 @@ describe('toPublicPlantCard', () => {
     expect(card).not.toHaveProperty('contraindications');
     expect(card).not.toHaveProperty('availableExtracts');
     expect(card).not.toHaveProperty('createdAt');
+  });
+
+  it('excludes the internal Olga-facing group from public card', () => {
+    const card = toPublicPlantCard(fullPlant);
+
+    expect(card).not.toHaveProperty('internal');
   });
 
   it('maps a minimal PlantRecord without optional fields', () => {

@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { connectToDatabase } from '@/lib/db/connect';
 import { createPlantRepository } from '@/lib/db/repository/plant';
-import { toPublicPlantDetail } from '@/lib/jardin-digital/projection';
+import { resolveJardinDigitalPlant } from '@/lib/jardin-digital/catalog';
 import PlantDetail from '@/components/jardin-digital/plant-detail';
 import { ArrowLeftIcon } from '@/components/ui/icons';
 
@@ -14,12 +14,11 @@ export default async function PlantDetailPage({ params }: PageProps) {
   await connectToDatabase();
   const repo = createPlantRepository();
   const plant = await repo.findBySlug(params.slug);
+  const publicPlant = resolveJardinDigitalPlant(plant);
 
-  if (!plant) {
+  if (!publicPlant) {
     notFound();
   }
-
-  const publicPlant = toPublicPlantDetail(plant);
 
   return (
     <div className="min-h-screen bg-surface">

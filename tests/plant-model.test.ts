@@ -86,4 +86,40 @@ describe('PlantModel', () => {
     expect(plant.compounds[0].description).toBe('hojas: quercetina, rutina');
     expect(plant.compounds[1].description).toBeUndefined();
   });
+
+  it('initializes internal group as an empty object by default', async () => {
+    const plant = await PlantModel.create({
+      commonName: 'Lavanda',
+      scientificName: 'Lavandula angustifolia Mill.',
+      family: 'Lamiaceae',
+    });
+
+    expect(plant.internal).toBeDefined();
+    expect(plant.internal?.cultivationNotes).toBeUndefined();
+    expect(plant.internal?.harvestNotes).toBeUndefined();
+    expect(plant.internal?.sourcingNotes).toBeUndefined();
+    expect(plant.internal?.preparationNotes).toBeUndefined();
+    expect(plant.internal?.notes).toBeUndefined();
+  });
+
+  it('persists internal fields when provided', async () => {
+    const plant = await PlantModel.create({
+      commonName: 'Lavanda',
+      scientificName: 'Lavandula angustifolia Mill.',
+      family: 'Lamiaceae',
+      internal: {
+        cultivationNotes: 'Pleno sol, suelo drenado.',
+        harvestNotes: 'Cosechar en floración plena.',
+        sourcingNotes: 'Proveedor local orgánico.',
+        preparationNotes: 'Secado a la sombra.',
+        notes: 'Stock bajo para primavera.',
+      },
+    });
+
+    expect(plant.internal?.cultivationNotes).toBe('Pleno sol, suelo drenado.');
+    expect(plant.internal?.harvestNotes).toBe('Cosechar en floración plena.');
+    expect(plant.internal?.sourcingNotes).toBe('Proveedor local orgánico.');
+    expect(plant.internal?.preparationNotes).toBe('Secado a la sombra.');
+    expect(plant.internal?.notes).toBe('Stock bajo para primavera.');
+  });
 });
