@@ -19,7 +19,7 @@ const headlineFont = Playfair_Display({
 export const metadata: Metadata = {
   title: "Botánica Esencial OB",
   description:
-    "Cosmética natural artesanal hecha con plantas, conocimiento y un laboratorio casero."
+    "Hago cosmética natural artesanal con plantas, conocimiento y un laboratorio casero."
 };
 
 export default function RootLayout({

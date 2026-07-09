@@ -44,7 +44,7 @@ describe('Landing honesty remediation', () => {
     const html = renderToStaticMarkup(<Redes />);
     expect(html).not.toContain('href="#"');
     expect(html).not.toContain('<a ');
-    expect(html).toContain('Próximamente estaremos en redes sociales');
+    expect(html).toContain('Próximamente estaré en redes sociales');
   });
 
   it('Products does not imply detail pages', () => {
@@ -58,7 +58,7 @@ describe('Landing honesty remediation', () => {
     const html = renderToStaticMarkup(<Unete />);
     expect(html).toContain('/register');
     expect(html).toContain('Crear cuenta');
-    expect(html).toContain('La suscripción por email llegará pronto');
+    expect(html).toContain('Pronto activo la suscripción por email');
   });
 
   it('Metodos does not use material-symbols-outlined', () => {

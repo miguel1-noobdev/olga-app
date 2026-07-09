@@ -9,12 +9,12 @@ export default function JardinHero() {
           Herbario Digital
         </span>
         <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-primary leading-tight">
-          Explora nuestra colección de plantas medicinales
+          Explorá mi colección de plantas medicinales
         </h1>
         <p className="font-sans text-lg text-on-surface-variant max-w-2xl leading-relaxed">
           Un compendio vivo de la sabiduría botánica tradicional y científica.
-          Descubre las propiedades, el origen y los usos de las especies que han
-          acompañado a nuestra tradición herbal durante generaciones.
+          Descubrí las propiedades, el origen y los usos de las especies que han
+          acompañado a mi tradición herbal durante generaciones.
         </p>
 
       </div>

@@ -54,7 +54,7 @@ export default function Products() {
       category: 'CUIDADO DIARIO',
       title: 'Línea Facial',
       description:
-        'Serums, tónicos e hidratantes formulados con extractos botánicos activos para restaurar la luminosidad y el equilibrio natural de tu rostro.',
+        'Formulo serums, tónicos e hidratantes con extractos botánicos activos para restaurar la luminosidad y el equilibrio natural de tu rostro.',
       image: '/img/prd/linea-facial.jpg',
       size: 'large',
     },
@@ -63,7 +63,7 @@ export default function Products() {
       category: 'NUTRICIÓN PROFUNDA',
       title: 'Línea Corporal',
       description:
-        'Mantecas, aceites y exfoliantes que miman tu piel, dejándola suave y revitalizada.',
+        'Preparo mantecas, aceites y exfoliantes que miman tu piel, dejándola suave y revitalizada.',
       image: '/img/prd/linea-corporal.jpg',
       size: 'medium',
     },
@@ -72,7 +72,7 @@ export default function Products() {
       category: 'ECO-FRIENDLY',
       title: 'Línea Cabello',
       description:
-        'Champús sólidos y mascarillas capilares libres de sulfatos y siliconas. Limpieza suave y nutrición intensa que respeta el cuero cabelludo.',
+        'Elaboro champús sólidos y mascarillas capilares libres de sulfatos y siliconas. Limpieza suave y nutrición intensa que respeta tu cuero cabelludo.',
       image: '/img/prd/linea-cabello.jpg',
       size: 'wide',
     },
@@ -87,7 +87,7 @@ export default function Products() {
             Líneas de Cuidado
           </h2>
           <p className="font-sans text-lg text-on-surface-variant max-w-2xl mx-auto">
-            Nuestros productos están formulados con ingredientes 100% naturales,
+            Formulo mis productos con ingredientes 100% naturales,
             diseñados para nutrir profundamente respetando la fisiología de tu cuerpo.
           </p>
         </div>

@@ -59,11 +59,11 @@ export default function Redes() {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="font-serif text-3xl md:text-5xl text-primary mb-4">
-            Nuestras Redes
+            Mis Redes
           </h2>
           <p className="font-sans text-xl text-on-surface-variant">
-            Próximamente estaremos en redes sociales para compartir rituales,
-            ingredientes y nuestro viaje botánico.
+            Próximamente estaré en redes sociales para compartir rituales,
+            ingredientes y mi viaje botánico.
           </p>
         </div>
 

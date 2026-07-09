@@ -6,7 +6,7 @@ import JardinCompromiso from '@/components/jardin-digital/jardin-compromiso';
 describe('JardinCompromiso', () => {
   it('renders section title', () => {
     const html = renderToStaticMarkup(<JardinCompromiso />);
-    expect(html).toContain('Nuestro Compromiso');
+    expect(html).toContain('Mi Compromiso');
   });
 
   it('renders section description', () => {

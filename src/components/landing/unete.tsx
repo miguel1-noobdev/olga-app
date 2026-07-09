@@ -45,13 +45,13 @@ export default function Unete() {
             {/* Content */}
             <div className="space-y-6">
               <h2 className="font-serif text-4xl md:text-5xl text-white leading-tight">
-                Únete a nuestra
+                Únete a mi
                 <br />
                 <span className="text-secondary">Comunidad Botánica</span>
               </h2>
               <p className="font-sans text-xl text-white/90 max-w-md">
-                Recibe consejos de autocuidado, recetas naturales y acceso a
-                nuestro blog y a nuestro santuario botánico.
+                Recibís consejos de autocuidado, recetas naturales y acceso a
+                mi blog y a mi santuario botánico.
               </p>
             </div>
 
@@ -77,7 +77,7 @@ export default function Unete() {
               )}
 
               <p className="text-white/60 text-sm font-sans">
-                La suscripción por email llegará pronto.
+                Pronto activo la suscripción por email.
               </p>
 
               {showToast && (
@@ -88,7 +88,7 @@ export default function Unete() {
                   className="absolute -top-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-sm bg-white/95 text-primary px-6 py-4 rounded-2xl shadow-2xl border border-secondary/30 text-center z-20"
                 >
                   <p className="font-sans text-sm md:text-base leading-relaxed">
-                    Ya formás parte de nuestra comunidad. Ahora a disfrutar de
+                    Ya formás parte de mi comunidad. Ahora a disfrutar de
                     todo el contenido de mi web.
                   </p>
                 </div>
