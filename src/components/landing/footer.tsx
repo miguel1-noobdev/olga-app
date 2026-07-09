@@ -20,7 +20,7 @@ export default function Footer() {
               Botánica Esencial OB
             </div>
             <p className="text-white/70 text-base">
-              Ciencia natural para una belleza eterna. Creado para la eficacia
+              Hago cosmética natural para una belleza eterna. Cada fórmula nace para la eficacia
               pura y el bienestar consciente.
             </p>
           </div>

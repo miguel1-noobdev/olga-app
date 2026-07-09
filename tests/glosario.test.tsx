@@ -68,7 +68,7 @@ describe('Glosario - Responsive Visual Contract', () => {
 
     it('renders the section heading', () => {
       expect(html).toContain(
-        'Aprende sobre nuestra despensa botánica',
+        'Aprendé sobre mi despensa botánica',
       );
     });
 

@@ -15,7 +15,7 @@ export default function JardinFooter() {
               Jardín Digital
             </div>
             <p className="text-white/70 text-base">
-              Preservando la biodiversidad botánica para las futuras generaciones a
+              Preservo la biodiversidad botánica para las futuras generaciones a
               través de la educación y el arte digital.
             </p>
           </div>

@@ -52,7 +52,7 @@ describe('Unete CTA', () => {
     fireEvent.click(button);
 
     const toast = screen.getByRole('status');
-    expect(toast).toHaveTextContent('Ya formás parte de nuestra comunidad');
+    expect(toast).toHaveTextContent('Ya formás parte de mi comunidad');
     expect(toast).toHaveTextContent('Ahora a disfrutar de todo el contenido de mi web');
 
     act(() => {

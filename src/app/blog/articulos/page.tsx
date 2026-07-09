@@ -17,7 +17,7 @@ export default async function ArticulosPage() {
           {/* Hero de la página de artículos */}
           <div className="mb-16 text-center">
             <h1 className="font-serif text-5xl md:text-6xl text-on-surface mb-6">
-              Aprende con nuestros artículos
+              Aprendé con mis artículos
             </h1>
             <p className="font-sans text-xl text-on-surface-variant max-w-3xl mx-auto leading-relaxed">
               Explorá la sabiduría de las plantas, rituales de cuidado personal y el alma detrás de cada esencia.

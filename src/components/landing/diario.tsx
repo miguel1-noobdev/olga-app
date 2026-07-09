@@ -36,7 +36,7 @@ export default function Diario({ articles }: DiarioProps) {
               Diario Botánico
             </h2>
             <p className="font-sans text-lg text-on-surface-variant">
-              Reflexiones sobre ingredientes naturales, rutinas conscientes y
+              Mis reflexiones sobre ingredientes naturales, rutinas conscientes y
               el arte de la formulación artesanal.
             </p>
           </div>

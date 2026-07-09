@@ -6,10 +6,10 @@ export default function JardinCompromiso() {
       <div className="max-w-[1280px] mx-auto">
         <div className="text-center mb-16">
           <h2 className="font-serif text-4xl md:text-5xl text-primary mb-6">
-            Nuestro Compromiso
+            Mi Compromiso
           </h2>
           <p className="text-on-surface-variant text-lg md:text-xl max-w-3xl mx-auto leading-relaxed">
-            Más allá de un catálogo, somos una institución dedicada al estudio y la
+            Más allá de un catálogo, soy artesana dedicada al estudio y la
             preservación de la riqueza herbolaria.
           </p>
         </div>
@@ -20,7 +20,7 @@ export default function JardinCompromiso() {
               Investigación Científica
             </h3>
             <p className="font-sans text-on-surface-variant leading-relaxed">
-              Documentamos cada especie con rigor, contrastando el conocimiento
+              Documento cada especie con rigor, contrastando el conocimiento
               tradicional con evidencia botánica actual.
             </p>
           </div>
@@ -30,7 +30,7 @@ export default function JardinCompromiso() {
               Conservación
             </h3>
             <p className="font-sans text-on-surface-variant leading-relaxed">
-              Protegemos la diversidad herbolaria regional y promovemos su uso
+              Protejo la diversidad herbolaria regional y promuevo su uso
               responsable para las próximas generaciones.
             </p>
           </div>

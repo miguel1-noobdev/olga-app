@@ -5,7 +5,7 @@ export default function Olga() {
         {/* Content */}
         <div className="order-2 md:order-1 space-y-6">
           <span className="font-sans text-sm font-bold uppercase tracking-widest text-secondary">
-            Detrás de la marca
+            Detrás de mis fórmulas
           </span>
           <h2 className="font-serif text-3xl md:text-4xl text-primary">
             Soy Olga, tu alquimista botánica
@@ -17,8 +17,8 @@ export default function Olga() {
             este pequeño taller donde la ciencia y la naturaleza se encuentran.
           </p>
           <p className="font-sans text-xl text-on-surface-variant italic border-l-4 border-secondary p-4 bg-secondary/10">
-            "Creo firmemente que lo que ponemos en nuestra piel debe ser tan
-            nutritivo como lo que comemos."
+            "Creo firmemente que lo que pongo en mi piel debe ser tan
+            nutritivo como lo que como."
           </p>
         </div>
 

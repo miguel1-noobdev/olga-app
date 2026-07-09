@@ -63,7 +63,7 @@ export default function Hero() {
               isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
             }`}
           >
-            Cosmética artesanal elaborada con plantas cultivadas respetando sus ciclos naturales. 
+            Hago cosmética artesanal con plantas cultivadas respetando sus ciclos naturales.
             Cada fórmula es pura esencia botánica, sin procesos químicos ni aditivos artificiales.
           </p>
 
@@ -75,7 +75,7 @@ export default function Hero() {
           >
             <div className="h-px w-16 bg-primary/40" />
             <span className="text-xs uppercase tracking-widest text-on-surface-variant/70">
-              Hecho con amor y plantas
+              Hecho a mano con amor y plantas
             </span>
           </div>
         </div>

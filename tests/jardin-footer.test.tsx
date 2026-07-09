@@ -11,7 +11,7 @@ describe('JardinFooter', () => {
 
   it('renders description', () => {
     const html = renderToStaticMarkup(<JardinFooter />);
-    expect(html).toContain('Preservando la biodiversidad');
+    expect(html).toContain('Preservo la biodiversidad');
   });
 
   it('renders navigation links', () => {

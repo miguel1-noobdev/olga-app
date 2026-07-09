@@ -11,7 +11,7 @@ describe('JardinHero', () => {
 
   it('renders main title', () => {
     const html = renderToStaticMarkup(<JardinHero />);
-    expect(html).toContain('Explora nuestra colección de plantas medicinales');
+    expect(html).toContain('Explorá mi colección de plantas medicinales');
   });
 
   it('renders description', () => {

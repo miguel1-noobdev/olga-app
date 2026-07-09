@@ -8,7 +8,7 @@ interface BlogHomepageProps {
 const FEATURED = {
   title: 'Bienvenida al Diario Botánico',
   excerpt:
-    'Un espacio dedicado a la sabiduría de las plantas, donde exploramos la armonía entre la naturaleza y el cuidado personal consciente. Descubre rituales, guías y el alma detrás de cada esencia.',
+    'Un espacio dedicado a la sabiduría de las plantas, donde exploro la armonía entre la naturaleza y el cuidado personal consciente. Descubrí rituales, guías y el alma detrás de cada esencia.',
   image:
     'https://lh3.googleusercontent.com/aida-public/AB6AXuChh0RYStdU-lFoPgtkuct3e_QfAiF1YM9gIAJbZhwIjyHxRuN6PFPUppdcNy8aKvIMtYjj62Y10f-lm249bjLLXpLkzbaXHOTooPQbNg3PkSsscmydomKEK2UqrfZUFcs9uvTWBxaCLhF_1cApI3jMI2OMqsZDsDnzAVuioTULXQbxL_g623RGNsic7Ko5Psr2WlpfxUDHxyajAyCFV_UgsDNbtmahT1rToHB4hoFSTKlZSWkDHtgG0251YwsZFEI7dCx-haGt9Vg',
   imageAlt:
@@ -58,18 +58,18 @@ export default function BlogHomepage({ articles }: BlogHomepageProps) {
               ¿Qué es el Diario Botánico?
             </h2>
             <p className="font-sans text-base text-on-surface-variant">
-              Un espacio dedicado a compartir el conocimiento ancestral de las plantas medicinales, 
+              Un espacio donde comparto el conocimiento ancestral de las plantas medicinales,
               recetas de cosmética natural y rituales de cuidado personal consciente.
             </p>
           </div>
 
           <div className="rounded-xl overflow-hidden p-8 bg-white/50 backdrop-blur-[10px] border border-white/20 shadow-md">
             <h2 className="font-serif text-2xl text-on-surface mb-4">
-              Nuestra filosofía
+              Mi filosofía
             </h2>
             <p className="font-sans text-base text-on-surface-variant">
-              Creemos en el poder de la naturaleza para transformar nuestra rutina diaria en un ritual 
-              sagrado de conexión con la tierra y nosotras mismas.
+              Creo en el poder de la naturaleza para transformar mi rutina diaria en un ritual
+              sagrado de conexión con la tierra y mí misma.
             </p>
           </div>
         </section>

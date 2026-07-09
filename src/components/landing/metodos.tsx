@@ -5,7 +5,7 @@ export default function Metodos() {
     {
       icon: <WrenchIcon className="w-6 h-6" />,
       title: 'Hecho a Mano',
-      text: 'Lotes pequeños para garantizar la máxima frescura y potencia de cada ingrediente.',
+      text: 'Hago lotes pequeños para garantizar la máxima frescura y potencia de cada ingrediente.',
     },
     {
       icon: <FlaskIcon className="w-6 h-6" />,
@@ -15,7 +15,7 @@ export default function Metodos() {
     {
       icon: <RecycleIcon className="w-6 h-6" />,
       title: 'Sin Huella',
-      text: 'Envases de vidrio infinitamente reciclables y embalajes libres de plástico.',
+      text: 'Uso envases de vidrio infinitamente reciclables y embalajes libres de plástico.',
     },
   ];
 
