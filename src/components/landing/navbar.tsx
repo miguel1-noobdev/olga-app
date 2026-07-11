@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSession, signOut } from 'next-auth/react';
+import { isProductora, isAdmin } from '@/lib/auth/roles';
 
 const NAV_LINKS = [
   { href: '#hero', label: 'Inicio' },
@@ -32,6 +33,17 @@ export default function Navbar() {
   const isAuthenticated = status === 'authenticated';
   const userImage = session?.user?.image;
   const userName = session?.user?.name || session?.user?.email || 'Usuario';
+  const userRole = session?.user?.role ?? '';
+
+  const privateNavItem = (() => {
+    if (isProductora(userRole)) {
+      return { label: 'Laboratorio', href: '/laboratorio' };
+    }
+    if (isAdmin(userRole)) {
+      return { label: 'Admin', href: '/admin' };
+    }
+    return null;
+  })();
 
   return (
     <nav
@@ -82,6 +94,14 @@ export default function Navbar() {
                 </Link>
               )
             ))}
+            {privateNavItem && (
+              <Link
+                href={privateNavItem.href}
+                className="px-3 py-2 text-lg text-primary hover:text-primary/80 rounded-md transition-colors"
+              >
+                {privateNavItem.label}
+              </Link>
+            )}
           </div>
 
           {/* Right: Auth Buttons / User */}
@@ -165,6 +185,15 @@ export default function Navbar() {
                 </Link>
               )
             ))}
+            {privateNavItem && (
+              <Link
+                href={privateNavItem.href}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="block px-3 py-2 text-base text-primary hover:text-primary/80 rounded-md transition-colors"
+              >
+                {privateNavItem.label}
+              </Link>
+            )}
             <div className="pt-4 space-y-2 border-t border-surface-border mt-2">
               {isAuthenticated ? (
                 <button

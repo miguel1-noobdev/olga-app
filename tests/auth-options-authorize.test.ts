@@ -30,7 +30,7 @@ describe('authorizeWithRepository', () => {
     expect(user).toMatchObject({
       id: created.id,
       email: 'olga@botanicaob.com',
-      role: 'admin',
+      role: 'suscriptora',
     });
   });
 
@@ -64,5 +64,21 @@ describe('authorizeWithRepository', () => {
       password: '',
     });
     expect(user).toBeNull();
+  });
+
+  it('authorizes a productora user and returns the productora role', async () => {
+    const created = await repo.create({ email: 'olga@botanicaob.com', password: 'secret123' });
+    await repo.updateRole(created.id, 'productora');
+
+    const user = await authorizeWithRepository(repo, {
+      email: 'olga@botanicaob.com',
+      password: 'secret123',
+    });
+
+    expect(user).toMatchObject({
+      id: created.id,
+      email: 'olga@botanicaob.com',
+      role: 'productora',
+    });
   });
 });

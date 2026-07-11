@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { createUserRepository } from '../src/lib/db/repository/user';
+import { ROLES } from '../src/lib/auth/roles';
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/botanica-ob';
 
@@ -27,6 +28,7 @@ async function resetAdminUser() {
     const user = await repo.create({
       email,
       password,
+      role: ROLES.ADMIN,
     });
     
     console.log('✓ Usuario creado exitosamente\n');

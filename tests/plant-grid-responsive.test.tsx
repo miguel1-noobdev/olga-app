@@ -18,11 +18,6 @@ describe('PlantGrid - Responsive and States', () => {
             commonName: 'Test',
             scientificName: 'Test',
             family: 'Test',
-            usedParts: [],
-            compounds: [],
-            properties: { oral: [], topical: [] },
-            contraindications: [],
-            availableExtracts: [],
             slug: 'test',
           },
         ]}

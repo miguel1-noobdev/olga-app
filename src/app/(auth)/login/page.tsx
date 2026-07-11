@@ -3,12 +3,13 @@ import { authOptions } from '@/lib/auth/options';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import LoginForm from '@/components/auth/login-form';
+import { getDefaultRedirectForRole } from '@/lib/auth/role-redirect';
 
 export default async function LoginPage() {
   const session = await getServerSession(authOptions);
 
   if (session) {
-    redirect('/blog');
+    redirect(getDefaultRedirectForRole(session.user.role));
   }
 
   return (

@@ -29,15 +29,31 @@ describe('UserRepository', () => {
       expect(user.createdAt).toBeDefined();
     });
 
-    it('assigns admin role to the first user', async () => {
+    it('assigns suscriptora role by default', async () => {
       const user = await repo.create({ email: 'first@botanicaob.com', password: 'secret123' });
-      expect(user.role).toBe('admin');
+      expect(user.role).toBe('suscriptora');
     });
 
     it('assigns suscriptora role to subsequent users', async () => {
       await repo.create({ email: 'first@botanicaob.com', password: 'secret123' });
       const second = await repo.create({ email: 'second@botanicaob.com', password: 'secret456' });
       expect(second.role).toBe('suscriptora');
+    });
+
+    it('can assign an explicit role when provided', async () => {
+      const admin = await repo.create({
+        email: 'admin@botanicaob.com',
+        password: 'secret123',
+        role: 'admin',
+      });
+      expect(admin.role).toBe('admin');
+
+      const productora = await repo.create({
+        email: 'olga@botanicaob.com',
+        password: 'secret456',
+        role: 'productora',
+      });
+      expect(productora.role).toBe('productora');
     });
 
     it('normalizes email to lowercase and trims whitespace', async () => {
@@ -116,6 +132,16 @@ describe('UserRepository', () => {
       await repo.create({ email: 'olga@botanicaob.com', password: 'secret123' });
       const olga = await repo.findByEmail('olga@botanicaob.com');
       await repo.updateRole(olga!.id, 'productora');
+      const updated = await repo.findByEmail('olga@botanicaob.com');
+      expect(updated?.role).toBe('productora');
+    });
+
+    it('locks the productora role as Olga laboratory access role', async () => {
+      await repo.create({ email: 'olga@botanicaob.com', password: 'secret123' });
+      const olga = await repo.findByEmail('olga@botanicaob.com');
+
+      await repo.updateRole(olga!.id, 'productora');
+
       const updated = await repo.findByEmail('olga@botanicaob.com');
       expect(updated?.role).toBe('productora');
     });

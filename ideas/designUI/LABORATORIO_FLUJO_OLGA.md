@@ -17,10 +17,9 @@ Dicho fácil:
 ## Camino rápido
 
 1. Olga crea una **nueva fórmula** cuando quiere probar un producto nuevo.
-2. La app crea también el **Lote 1**, porque esa primera prueba ya es una fabricación real.
-3. Olga completa la receta, el procedimiento, los datos técnicos y el seguimiento.
-4. Si la receta funciona bien, la fórmula pasa a **validada**.
-5. A partir de ahí, cuando quiera volver a fabricar ese producto, crea un **nuevo lote** desde esa fórmula.
+2. En esa fórmula registra la receta, el procedimiento, los datos técnicos y el seguimiento de la prueba inicial.
+3. Si la receta funciona bien, la fórmula pasa a **validada**.
+4. A partir de ahí, cuando quiera volver a fabricar ese producto, crea un **nuevo lote** desde esa fórmula.
 
 ## Qué es una fórmula
 
@@ -72,7 +71,7 @@ Cuando Olga quiere crear un producto nuevo:
 4. escribe el procedimiento
 5. carga evaluación, prueba de uso y observaciones
 
-Al crear una fórmula nueva, la app también genera el **Lote 1**.
+Al crear una fórmula nueva, la app crea la **receta base** y ahí mismo queda documentada su prueba inicial.
 
 ## Cómo se crea un lote nuevo
 
@@ -130,7 +129,7 @@ Un lote puede pasar por estos estados:
 Olga crea una crema facial nueva.
 
 - La receta se guarda como **Fórmula CF-001**
-- Esa primera fabricación queda como **Lote 1**
+- Esa primera prueba queda registrada dentro de la **fórmula**
 
 La prueba sale bien y la fórmula queda validada.
 

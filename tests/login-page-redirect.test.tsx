@@ -26,7 +26,7 @@ describe('/login page', () => {
     vi.clearAllMocks();
   });
 
-  it('redirects authenticated users to /blog', async () => {
+  it('redirects suscriptora users to / when they have no callbackUrl context', async () => {
     getServerSessionMock.mockResolvedValue({
       user: { id: 'user-1', email: 'user@test.com', role: 'suscriptora' },
     });
@@ -34,7 +34,29 @@ describe('/login page', () => {
     await LoginPage();
 
     expect(redirectMock).toHaveBeenCalledTimes(1);
-    expect(redirectMock).toHaveBeenCalledWith('/blog');
+    expect(redirectMock).toHaveBeenCalledWith('/');
+  });
+
+  it('redirects productora users to /laboratorio', async () => {
+    getServerSessionMock.mockResolvedValue({
+      user: { id: 'user-1', email: 'olga@test.com', role: 'productora' },
+    });
+
+    await LoginPage();
+
+    expect(redirectMock).toHaveBeenCalledTimes(1);
+    expect(redirectMock).toHaveBeenCalledWith('/laboratorio');
+  });
+
+  it('redirects admin users to /admin', async () => {
+    getServerSessionMock.mockResolvedValue({
+      user: { id: 'user-1', email: 'miguel@test.com', role: 'admin' },
+    });
+
+    await LoginPage();
+
+    expect(redirectMock).toHaveBeenCalledTimes(1);
+    expect(redirectMock).toHaveBeenCalledWith('/admin');
   });
 
   it('renders the login form for unauthenticated users', async () => {

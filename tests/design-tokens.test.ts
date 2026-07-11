@@ -5,12 +5,14 @@ import { join, resolve } from 'node:path';
 import postcss from 'postcss';
 import tailwindcss from 'tailwindcss';
 import resolveConfig from 'tailwindcss/resolveConfig';
+import type { Config } from 'tailwindcss';
 
 const ROOT = resolve(__dirname, '..');
 const TAILWIND_CONFIG_PATH = resolve(ROOT, 'tailwind.config.ts');
 const GLOBALS_CSS_PATH = resolve(ROOT, 'src/styles/globals.css');
 
 interface TailwindConfig {
+  content?: Config['content'];
   theme: {
     extend: {
       colors: Record<string, string>;
@@ -85,49 +87,49 @@ describe('glassmorphism design tokens (T-003)', () => {
     let resolved: ReturnType<typeof resolveConfig>;
 
     beforeAll(() => {
-      resolved = resolveConfig(loadTailwindConfig());
+      resolved = resolveConfig(loadTailwindConfig() as Config);
     });
 
     it('resolves the primary color to #334537', () => {
       // Tailwind normalizes `theme.extend.colors.primary` into `theme.colors.primary`
       expect(
-        (resolved.theme?.colors as Record<string, string>).primary
+        (resolved.theme?.colors as unknown as Record<string, string>).primary
       ).toBe('#334537');
     });
 
     it('resolves the secondary color to #e9c349', () => {
       expect(
-        (resolved.theme?.colors as Record<string, string>).secondary
+        (resolved.theme?.colors as unknown as Record<string, string>).secondary
       ).toBe('#e9c349');
     });
 
     it('resolves the surface color to #f4fbf2', () => {
       expect(
-        (resolved.theme?.colors as Record<string, string>).surface
+        (resolved.theme?.colors as unknown as Record<string, string>).surface
       ).toBe('#f4fbf2');
     });
 
     it('resolves the surface-container color to #e9f0e7', () => {
       expect(
-        (resolved.theme?.colors as Record<string, string>)['surface-container']
+        (resolved.theme?.colors as unknown as Record<string, string>)['surface-container']
       ).toBe('#e9f0e7');
     });
 
     it('resolves the surface-border color to #dde4db', () => {
       expect(
-        (resolved.theme?.colors as Record<string, string>)['surface-border']
+        (resolved.theme?.colors as unknown as Record<string, string>)['surface-border']
       ).toBe('#dde4db');
     });
 
     it('resolves the serif font family to start with the CSS variable', () => {
-      const serif = (resolved.theme?.fontFamily as Record<string, string[]>)
+      const serif = (resolved.theme?.fontFamily as unknown as Record<string, string[]>)
         .serif;
       expect(serif[0]).toBe('var(--font-serif)');
       expect(serif).toContain('Playfair Display');
     });
 
     it('resolves the sans font family to start with the CSS variable', () => {
-      const sans = (resolved.theme?.fontFamily as Record<string, string[]>)
+      const sans = (resolved.theme?.fontFamily as unknown as Record<string, string[]>)
         .sans;
       expect(sans[0]).toBe('var(--font-sans)');
       expect(sans).toContain('Plus Jakarta Sans');

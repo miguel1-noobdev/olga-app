@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import mongoose from 'mongoose';
+import type { IndexDefinition } from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { PlantModel } from '@/lib/db/models/plant';
 
@@ -51,7 +52,7 @@ describe('PlantModel', () => {
   it('defines only one slug index', () => {
     const slugIndexes = PlantModel.schema
       .indexes()
-      .filter(([fields]) => JSON.stringify(fields) === JSON.stringify({ slug: 1 }));
+      .filter(([fields]: [IndexDefinition]) => JSON.stringify(fields) === JSON.stringify({ slug: 1 }));
 
     expect(slugIndexes).toHaveLength(1);
   });

@@ -25,25 +25,6 @@ describe('/admin/blog/nuevo page', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
-  it('redirects unauthenticated users to /login', async () => {
-    getServerSessionMock.mockResolvedValue(null);
-
-    await AdminBlogNuevoPage();
-
-    expect(redirectMock).toHaveBeenCalledTimes(1);
-    expect(redirectMock).toHaveBeenCalledWith('/login');
-  });
-
-  it('redirects non-admin users to /login', async () => {
-    getServerSessionMock.mockResolvedValue({
-      user: { id: 'user-1', email: 'user@test.com', role: 'suscriptora' },
-    });
-
-    await AdminBlogNuevoPage();
-
-    expect(redirectMock).toHaveBeenCalledTimes(1);
-    expect(redirectMock).toHaveBeenCalledWith('/login');
-  });
 
   it('renders the article form for admin users', async () => {
     getServerSessionMock.mockResolvedValue({

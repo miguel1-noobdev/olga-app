@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import { ROLES } from '@/lib/auth/roles';
 import { UserModel, IUser, Role } from '../models/user';
 
 export interface UserRecord {
@@ -12,6 +13,7 @@ export interface UserRecord {
 export interface CreateUserInput {
   email: string;
   password: string;
+  role?: Role;
 }
 
 export interface UserRepository {
@@ -65,8 +67,7 @@ export function createUserRepository(): UserRepository {
       }
 
       const passwordHash = await bcrypt.hash(input.password, 10);
-      const count = await UserModel.countDocuments();
-      const role: Role = count === 0 ? 'admin' : 'suscriptora';
+      const role: Role = input.role ?? ROLES.SUSCRIPTORA;
 
       const user = await UserModel.create({
         email,

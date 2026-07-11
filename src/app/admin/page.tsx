@@ -1,16 +1,7 @@
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/options';
-import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import AdminNavbar from '@/components/admin/admin-navbar';
 
-export default async function AdminPage() {
-  const session = await getServerSession(authOptions);
-
-  if (!session || session.user.role !== 'admin') {
-    redirect('/login');
-  }
-
+export default function AdminPage() {
   return (
     <>
       <AdminNavbar />

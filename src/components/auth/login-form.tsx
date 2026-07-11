@@ -2,10 +2,11 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { signIn } from 'next-auth/react';
+import { signIn, getSession } from 'next-auth/react';
 import Link from 'next/link';
 import { sanitizeCallbackUrl } from '@/lib/auth/sanitize-callback-url';
 import { performCredentialsLogin } from '@/lib/auth/credentials-login';
+import { getDefaultRedirectForRole } from '@/lib/auth/role-redirect';
 
 function LoginFormInner() {
   const searchParams = useSearchParams();
@@ -41,9 +42,18 @@ function LoginFormInner() {
       const result = await performCredentialsLogin(signIn, email, password, callbackUrl);
 
       if (result.ok) {
+        // Preserve explicit deep-link intent when the user was redirected
+        // to login from a protected page. Otherwise, send them to the
+        // role-specific home so productora/admin land in their workspace.
+        const session = await getSession();
+        const destination =
+          callbackUrl === '/'
+            ? getDefaultRedirectForRole(session?.user?.role)
+            : result.navigateTo;
+
         // Use hard navigation to guarantee the session cookie is sent.
         // router.push() can race with cookie settlement and bounce back to /login.
-        window.location.href = result.navigateTo;
+        window.location.href = destination;
       } else {
         if (result.error === 'CredentialsSignin') {
           setError('Credenciales inválidas. Verificá tu email y contraseña.');

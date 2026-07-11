@@ -3,6 +3,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import { createUserRepository } from '@/lib/db/repository/user';
 import { connectToDatabase } from '@/lib/db/connect';
+import { ROLES } from './roles';
 import { authorizeWithRepository } from './authorize-credentials';
 
 export const authOptions: NextAuthOptions = {
@@ -34,9 +35,14 @@ export const authOptions: NextAuthOptions = {
         const existingUser = await repo.findByEmail(user.email!);
 
         if (!existingUser) {
+          // OAuth sign-ins must never infer bootstrap privileges from an empty
+          // database. All new OAuth users are created as suscriptora; admin or
+          // productora roles must be assigned explicitly via scripts or admin
+          // tooling after the account exists.
           await repo.create({
             email: user.email!,
             password: crypto.randomUUID(),
+            role: ROLES.SUSCRIPTORA,
           });
         }
       }

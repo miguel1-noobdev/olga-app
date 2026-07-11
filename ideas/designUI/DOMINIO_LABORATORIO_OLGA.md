@@ -46,7 +46,14 @@ La proyección pública oculta datos internos y muestra solo lo necesario para l
 ## 2. `formulas`
 
 ### Estado actual
-Definida conceptualmente. Pendiente de implementación.
+Implementada en código.
+
+### Naming cerrado
+- en negocio y documentación se sigue hablando de `aceites`
+- en código la entidad se implementa en inglés como `Oil`
+- en persistencia, la colección técnica correspondiente queda cerrada como `oils`
+
+Esto evita mezclar español e inglés en modelos/repositorios, pero mantiene el lenguaje de Olga en la documentación funcional.
 
 ### Propósito
 Guardar la receta madre de cada producto.
@@ -162,7 +169,9 @@ Todos quedan, por ahora, como texto libre descriptivo.
 - notas personales de Olga
 
 ### Regla de negocio importante
-Una fórmula nueva nace junto con su **Lote 1**.
+Una fórmula nueva nace como receta base con su propio proceso inicial de formulación y prueba.
+
+Ese proceso inicial vive en `formulas`, no en `lots`.
 
 ## 3. `lots`
 
@@ -180,8 +189,9 @@ Guardar cada fabricación real de una fórmula.
 - una fórmula puede tener muchos lotes
 
 ### Regla de nacimiento
-- una fórmula nueva crea el **Lote 1**
-- una fórmula ya existente puede crear **Lote 2, 3, 4...**
+- una fórmula nueva nace como receta base con su propio proceso inicial de formulación y prueba
+- los `lots` aparecen recién cuando se fabrica más producto a partir de una fórmula ya existente
+- una fórmula ya existente puede crear **Lote 1, 2, 3, 4...** dentro de su historial de producción operativa
 
 ### Identidad del lote
 - `formulaId`
@@ -302,6 +312,13 @@ El **seguimiento operativo** pertenece al **lote**.
 
 ### Regla 5
 `plants` y `aceites` funcionan como tablas de conocimiento editables para apoyar el laboratorio.
+
+### Regla 6
+Una fórmula que tenga uno o más lotes asociados **no se puede eliminar**.
+
+- El borrado físico se rechaza mientras existan lotes.
+- El camino seguro es archivar la fórmula cambiando su `status` a `archived`.
+- No se implementa borrado en cascada ni borrado lógico por ahora.
 
 ## Orden recomendado de implementación
 

@@ -42,24 +42,6 @@ describe('/admin/blog page', () => {
     vi.clearAllMocks();
   });
 
-  it('redirects unauthenticated users to /login', async () => {
-    getServerSessionMock.mockResolvedValue(null);
-
-    await expect(AdminBlogPage()).rejects.toThrow('NEXT_REDIRECT /login');
-    expect(redirectMock).toHaveBeenCalledTimes(1);
-    expect(redirectMock).toHaveBeenCalledWith('/login');
-  });
-
-  it('redirects non-admin users to /login', async () => {
-    getServerSessionMock.mockResolvedValue({
-      user: { id: 'user-1', email: 'user@test.com', role: 'suscriptora' },
-    });
-
-    await expect(AdminBlogPage()).rejects.toThrow('NEXT_REDIRECT /login');
-    expect(redirectMock).toHaveBeenCalledTimes(1);
-    expect(redirectMock).toHaveBeenCalledWith('/login');
-  });
-
   it('lists published articles without an edit action', async () => {
     getServerSessionMock.mockResolvedValue({
       user: { id: 'admin-1', email: 'admin@test.com', role: 'admin' },

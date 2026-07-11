@@ -63,7 +63,7 @@ describe('/api/auth/register POST', () => {
     expect(user!.passwordHash).toMatch(/^\$2[aby]\$/);
   });
 
-  it('assigns admin role to the first registered user', async () => {
+  it('assigns suscriptora role to the first registered user', async () => {
     const res = await callRegisterRoute({
       email: 'olga@botanicaob.com',
       password: 'secret123',
@@ -74,7 +74,7 @@ describe('/api/auth/register POST', () => {
     const repo = createUserRepository();
     const user = await repo.findById(json.userId);
 
-    expect(user?.role).toBe('admin');
+    expect(user?.role).toBe('suscriptora');
   });
 
   it('assigns suscriptora role to subsequent users', async () => {

@@ -1,18 +1,9 @@
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/options';
-import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { createArticleRepository } from '@/lib/db/repository/article';
 import { connectToDatabase } from '@/lib/db/connect';
 import AdminNavbar from '@/components/admin/admin-navbar';
 
 export default async function AdminBlogPage() {
-  const session = await getServerSession(authOptions);
-
-  if (!session || session.user.role !== 'admin') {
-    redirect('/login');
-  }
-
   await connectToDatabase();
   const repo = createArticleRepository();
   const articles = await repo.findAllPublished();
