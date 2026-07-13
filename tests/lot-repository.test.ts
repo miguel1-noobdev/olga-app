@@ -535,6 +535,35 @@ describe('LotRepository', () => {
       expect(updated.formulaSnapshot.phases?.aqueous?.[0].grams).toBe(600);
     });
 
+    it('keeps lifecycle guards when a recovered repository instance is created', async () => {
+      const created = await repo.create({
+        formulaId,
+        targetBatchGrams: 500,
+        status: 'completed',
+        operationalObservations: 'Immutable production record',
+      });
+      const recoveredRepository = createLotRepository();
+
+      await expect(
+        recoveredRepository.update(created.id, {
+          targetBatchGrams: 1000,
+          operationalObservations: 'Unsafe recovered mutation',
+        })
+      ).rejects.toEqual(
+        expect.objectContaining<Partial<LotLifecycleError>>({ reason: 'completed_freeze' })
+      );
+
+      const stored = await recoveredRepository.findById(created.id);
+      expect(stored).toEqual(
+        expect.objectContaining({
+          status: 'completed',
+          targetBatchGrams: 500,
+          operationalObservations: 'Immutable production record',
+        })
+      );
+      expect(stored?.formulaSnapshot.targetBatchGrams).toBe(500);
+    });
+
     it('rejects a production update when the lot completes after its lifecycle read', async () => {
       const created = await repo.create({
         formulaId,
@@ -543,7 +572,14 @@ describe('LotRepository', () => {
       });
       const originalFindOneAndUpdate = LotModel.findOneAndUpdate.bind(LotModel);
 
-      vi.spyOn(LotModel, 'findOneAndUpdate').mockImplementationOnce(async (...args) => {
+      type FindOneAndUpdateCall = (
+        ...args: Parameters<typeof originalFindOneAndUpdate>
+      ) => Promise<Awaited<ReturnType<typeof originalFindOneAndUpdate>>>;
+      const findOneAndUpdateSpy = vi.spyOn(LotModel, 'findOneAndUpdate') as unknown as {
+        mockImplementationOnce(implementation: FindOneAndUpdateCall): void;
+      };
+
+      findOneAndUpdateSpy.mockImplementationOnce(async (...args) => {
         await originalFindOneAndUpdate({ _id: created.id }, { $set: { status: 'completed' } });
         return originalFindOneAndUpdate(...args);
       });

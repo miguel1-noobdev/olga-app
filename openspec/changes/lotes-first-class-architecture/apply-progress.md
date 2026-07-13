@@ -3,12 +3,12 @@
 ## Delivery Boundary
 
 - Delivery mode: auto-chain, stacked-to-main.
-- Current work unit: PR 5 — Formula context and Lotes navigation.
-- PR 1 status: implemented and verified locally; uncommitted and pending review receipt. It is not closed.
-- PR 2 status: implemented and verified locally; uncommitted and pending review receipt. It is not closed.
-- Scope: formula context and laboratory navigation only; canonical lifecycle, read/detail, creation, edit, and legacy redirects remain unchanged.
-- Completed tasks: 1.1, 1.2, 1.3, 2.1, 2.2, 2.3, 2.4, 3.1, 3.2, 4.1, 4.2, 4.3, 4.4, 5.1, 5.2, 5.3.
-- Remaining tasks: 5.4 chain close and review receipts.
+- Current work unit: post-verification remediation — receipt reconciliation and lifecycle recovery proof.
+- PR 1 status: committed as `3826ce6` (`feat: enforce lot lifecycle guards`); its test/runtime receipt is reconciled below.
+- PR 2 status: committed as `5084fb7` (`feat: add canonical lot workspace`); its test/runtime receipt is reconciled below.
+- Scope: receipt reconciliation and repository-test remediation only; canonical lifecycle, read/detail, creation, edit, legacy redirects, and navigation remain unchanged.
+- Completed tasks: 1.1, 1.2, 1.3, 2.1, 2.2, 2.3, 2.4, 3.1, 3.2, 4.1, 4.2, 4.3, 4.4, 5.1, 5.2, 5.3, 5.4.
+- Remaining tasks: none.
 - Chain order: PR 1 lifecycle → PR 2 canonical read/detail/follow-up → PR 3 create → PR 4 edit/legacy redirects → PR 5 formula context/navigation.
 
 ## TDD Cycle Evidence
@@ -60,11 +60,11 @@
 | Runtime harness command/scenario and exact result | N/A — repository-only boundary; MongoMemoryServer ran the simulated lifecycle completion race and persisted-state assertions. |
 | Full deterministic test result | `npm run test:run` — 79 files, 682 tests passed. |
 | Diff validation | `git diff --check` — passed with no whitespace errors. |
-| Rollback boundary | PR 1 is uncommitted: retain the mandatory guards and recover only through a targeted fix-forward or, after a commit exists, a Git revert to a guarded version. No routes, UI, schema, migrations, flags, commits, pushes, or PR scope changes. |
+| Rollback boundary | `3826ce6` is the guarded lifecycle baseline. Recover only through a targeted fix-forward or a Git revert whose target retains the mandatory guards. No routes, UI, schema, migrations, flags, or configuration are in this slice. |
 
 ## Review Gate
 
-- PR 1 remains open in the delivery chain until its review receipt is recorded; implementation and verification evidence do not close the work unit.
+- PR 1 has a recorded test/runtime receipt in the reconciled chain closure below. The verification-closure remediation completed bounded review `review-27e5cb3586501703`; it was not an individual review of PR 1.
 
 ## PR 2 TDD Cycle Evidence
 
@@ -171,6 +171,34 @@
 - Legacy nested routes remain redirect-only. No duplicate legacy UI or actions were reintroduced.
 - No migration, lifecycle behavior, canonical route implementation, or Stitch visual scope changed.
 
-## PR 5 Review Gate
+## Reconciled Chain Closure
 
-- Task 5.4 remains open. The chain cannot be closed until the required review receipts are recorded for all slices. No commits, pushes, or PRs were created in this apply batch.
+The prior progress record incorrectly described PR 1 and PR 2 as uncommitted. Git history confirms the complete stacked chain, and the existing per-slice evidence above is now reconciled to its commit receipts.
+
+| Slice | Commit receipt | Test/runtime receipt | Review gate |
+|---|---|---|---|
+| PR 1 — Lifecycle | `3826ce6` | Repository and lifecycle-contract evidence in the PR 1 sections; superseded focused runtime result: `npm run test:run -- lot-repository` — 44/44 passed. | The verification-closure remediation completed bounded review `review-27e5cb3586501703`; it was not an individual PR 1 review. |
+| PR 2 — Read/detail/follow-up | `5084fb7` | PR 2 focused route evidence and persisted MongoMemoryServer follow-up coverage above. | The verification-closure remediation completed bounded review `review-27e5cb3586501703`; it was not an individual PR 2 review. |
+| PR 3 — Creation | `9d63b24` | PR 3 focused route and repository snapshot evidence above. | The verification-closure remediation completed bounded review `review-27e5cb3586501703`; it was not an individual PR 3 review. |
+| PR 4 — Edit/legacy redirects | `73d6d39` | PR 4 focused route, redirect, and lifecycle evidence above. | The verification-closure remediation completed bounded review `review-27e5cb3586501703`; it was not an individual PR 4 review. |
+| PR 5 — Context/navigation | `02ccd27` | PR 5 focused navigation and production-build evidence above. | The verification-closure remediation completed bounded review `review-27e5cb3586501703`; it was not an individual PR 5 review. |
+
+### Strict-TDD Remediation Evidence
+
+| Task | Test file | RED | GREEN | REFACTOR |
+|---|---|---|---|---|
+| 5.4 recovery guard proof | `tests/lot-repository.test.ts` | Historical pre-guard baseline `b80e55f` has no lifecycle guard implementation; the completed-production mutation assertion defines the missing behavior. | `npm run test:run -- lot-repository` — 1 file, 44/44 passed. A newly created repository instance rejects the completed mutation and preserves the persisted snapshot and production note. | Kept the guard at the repository boundary; no recovery bypass, flag, migration, or production code path was added. |
+| 5.4 race mock type safety | `tests/lot-repository.test.ts` | Standalone `npx tsc --noEmit --pretty false` previously failed on the overloaded `findOneAndUpdate` mock. | `npx tsc --noEmit --pretty false` — exit 0. The simulated completion race remains covered by the same 44/44 runtime suite. | Narrowed the test-only mock contract to the actual awaited call signature without changing the mock's completion-race behavior. |
+
+### Final Work Unit Evidence
+
+| Evidence | Result |
+|---|---|
+| Focused test command and exact result | `npm run test:run -- lot-repository` — 1 file, 44/44 passed. |
+| Runtime harness command/scenario and exact result | MongoMemoryServer lifecycle scenario: a fresh repository instance rejected a completed lot's production/snapshot mutation and persisted the original status, grams, snapshot, and observation. |
+| Full deterministic test result | `npm run test:run` — 80 files, 671/671 passed. |
+| Standalone type check | `npx tsc --noEmit --pretty false` — exit 0. |
+| Production build | `npm run build` — exit 0; compiled, type-checked, and generated 21/21 static pages. |
+| Rollback boundary | Revert `tests/lot-repository.test.ts` only to remove the remediation proof; retain `3826ce6` or a later guarded version for any release recovery. |
+
+Task 5.4 is complete. The chain is reconciled to commits `3826ce6` → `5084fb7` → `9d63b24` → `73d6d39` → `02ccd27`; no migration exists, bounded review `review-27e5cb3586501703` completed for the verification-closure remediation, and no commit, push, or PR was started in this remediation batch.
