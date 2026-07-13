@@ -1,7 +1,11 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { createLotRepository } from '@/lib/db/repository/lot';
+import {
+  createLotRepository,
+  LotLifecycleError,
+  LotValidationError,
+} from '@/lib/db/repository/lot';
 import { LotModel } from '@/lib/db/models/lot';
 import { FormulaModel } from '@/lib/db/models/formula';
 
@@ -414,11 +418,159 @@ describe('LotRepository', () => {
       expect(updated.formulaSnapshot.targetBatchGrams).toBe(1000);
     });
 
+    it('regenerates only a planned lot snapshot from its own provenance', async () => {
+      const created = await repo.create({
+        formulaId,
+        targetBatchGrams: 500,
+        status: 'planned',
+      });
+
+      await FormulaModel.findByIdAndUpdate(formulaId, {
+        $set: {
+          'phases.aqueous.0.grams': 999,
+          targetBatchGrams: 999,
+        },
+      });
+
+      const updated = await repo.update(created.id, { targetBatchGrams: 1000 });
+
+      expect(updated.targetBatchGrams).toBe(1000);
+      expect(updated.formulaSnapshot.targetBatchGrams).toBe(1000);
+      expect(updated.formulaSnapshot.phases?.aqueous?.[0].grams).toBe(600);
+    });
+
+    it('rejects snapshot regeneration for an in-progress lot', async () => {
+      const created = await repo.create({
+        formulaId,
+        targetBatchGrams: 500,
+        status: 'in_progress',
+      });
+
+      await expect(repo.update(created.id, { targetBatchGrams: 1000 })).rejects.toEqual(
+        expect.objectContaining<Partial<LotLifecycleError>>({
+          reason: 'snapshot_regeneration_not_allowed',
+        })
+      );
+    });
+
+    it('rejects completed production mutations while preserving its snapshot', async () => {
+      const created = await repo.create({
+        formulaId,
+        targetBatchGrams: 500,
+        status: 'completed',
+        operationalObservations: 'Final production note',
+      });
+
+      await expect(
+        repo.update(created.id, {
+          targetBatchGrams: 1000,
+          operationalObservations: 'Changed production note',
+        })
+      ).rejects.toEqual(
+        expect.objectContaining<Partial<LotLifecycleError>>({ reason: 'completed_freeze' })
+      );
+
+      const stored = await repo.findById(created.id);
+
+      expect(stored?.targetBatchGrams).toBe(500);
+      expect(stored?.formulaSnapshot.targetBatchGrams).toBe(500);
+      expect(stored?.formulaSnapshot.phases?.aqueous?.[0].grams).toBe(300);
+      expect(stored?.operationalObservations).toBe('Final production note');
+    });
+
+    it('allows dated append-only follow-up for a completed lot', async () => {
+      const created = await repo.create({
+        formulaId,
+        targetBatchGrams: 500,
+        status: 'completed',
+        followUp: {
+          entries: [{ date: new Date('2026-03-01'), note: 'Initial follow-up' }],
+        },
+      });
+
+      const updated = await repo.update(created.id, {
+        followUp: {
+          entries: [{ date: new Date('2026-03-02'), note: 'Completed follow-up' }],
+        },
+      });
+
+      expect(updated.followUp.entries).toEqual([
+        expect.objectContaining({ note: 'Initial follow-up' }),
+        expect.objectContaining({ note: 'Completed follow-up' }),
+      ]);
+      expect(updated.formulaSnapshot.targetBatchGrams).toBe(500);
+    });
+
+    it('allows cancelled lots to update their editable production fields', async () => {
+      const created = await repo.create({
+        formulaId,
+        targetBatchGrams: 500,
+        status: 'cancelled',
+      });
+
+      const updated = await repo.update(created.id, {
+        status: 'planned',
+        operationalObservations: 'Reopened for review',
+        plannedAt: new Date('2026-04-01'),
+      });
+
+      expect(updated.status).toBe('planned');
+      expect(updated.targetBatchGrams).toBe(500);
+      expect(updated.formulaSnapshot.targetBatchGrams).toBe(500);
+      expect(updated.operationalObservations).toBe('Reopened for review');
+      expect(updated.plannedAt).toBe('2026-04-01T00:00:00.000Z');
+    });
+
+    it('regenerates a cancelled lot snapshot from its own provenance', async () => {
+      const created = await repo.create({
+        formulaId,
+        targetBatchGrams: 500,
+        status: 'cancelled',
+      });
+
+      const updated = await repo.update(created.id, { targetBatchGrams: 1000 });
+
+      expect(updated.targetBatchGrams).toBe(1000);
+      expect(updated.formulaSnapshot.targetBatchGrams).toBe(1000);
+      expect(updated.formulaSnapshot.phases?.aqueous?.[0].grams).toBe(600);
+    });
+
+    it('rejects a production update when the lot completes after its lifecycle read', async () => {
+      const created = await repo.create({
+        formulaId,
+        targetBatchGrams: 500,
+        status: 'planned',
+      });
+      const originalFindOneAndUpdate = LotModel.findOneAndUpdate.bind(LotModel);
+
+      vi.spyOn(LotModel, 'findOneAndUpdate').mockImplementationOnce(async (...args) => {
+        await originalFindOneAndUpdate({ _id: created.id }, { $set: { status: 'completed' } });
+        return originalFindOneAndUpdate(...args);
+      });
+
+      await expect(repo.update(created.id, { targetBatchGrams: 1000 })).rejects.toEqual(
+        expect.objectContaining<Partial<LotLifecycleError>>({ reason: 'completed_freeze' })
+      );
+
+      const stored = await repo.findById(created.id);
+      expect(stored?.status).toBe('completed');
+      expect(stored?.targetBatchGrams).toBe(500);
+      expect(stored?.formulaSnapshot.targetBatchGrams).toBe(500);
+    });
+
     it('rejects non-positive targetBatchGrams on update', async () => {
       const created = await repo.create({ formulaId, targetBatchGrams: 500 });
 
-      await expect(repo.update(created.id, { targetBatchGrams: 0 })).rejects.toThrow();
-      await expect(repo.update(created.id, { targetBatchGrams: -100 })).rejects.toThrow();
+      await expect(repo.update(created.id, { targetBatchGrams: 0 })).rejects.toEqual(
+        expect.objectContaining<Partial<LotValidationError>>({
+          reason: 'target_batch_grams_invalid',
+        })
+      );
+      await expect(repo.update(created.id, { targetBatchGrams: -100 })).rejects.toEqual(
+        expect.objectContaining<Partial<LotValidationError>>({
+          reason: 'target_batch_grams_invalid',
+        })
+      );
     });
 
     it('throws when lot is not found', async () => {

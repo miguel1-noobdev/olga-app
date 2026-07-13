@@ -17,6 +17,20 @@ export type SubmitLotEditResult =
   | { success: false; errors: LotEditFormValidationError }
   | { success: false; error: string };
 
+export interface LotLifecyclePermissions {
+  canEditProduction: boolean;
+  canRescaleSnapshot: boolean;
+  canAppendFollowUp: boolean;
+}
+
+export function getLotLifecyclePermissions(status: LotStatus): LotLifecyclePermissions {
+  return {
+    canEditProduction: status !== 'completed',
+    canRescaleSnapshot: status === 'planned' || status === 'cancelled',
+    canAppendFollowUp: true,
+  };
+}
+
 export function createEmptyLotEditFormValues(): LotEditFormValues {
   return {
     status: 'planned',

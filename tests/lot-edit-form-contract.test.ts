@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   createEmptyLotEditFormValues,
+  getLotLifecyclePermissions,
   toLotEditFormValues,
   toUpdateLotInput,
   validateMinimumLotEditForm,
@@ -8,6 +9,32 @@ import {
 import { LotStatus } from '@/lib/lots/lot-types';
 
 describe('lot edit form contract', () => {
+  describe('getLotLifecyclePermissions', () => {
+    it('allows planned lots to edit production and rescale their snapshot', () => {
+      expect(getLotLifecyclePermissions('planned')).toEqual({
+        canEditProduction: true,
+        canRescaleSnapshot: true,
+        canAppendFollowUp: true,
+      });
+    });
+
+    it('freezes completed production while keeping follow-up appendable', () => {
+      expect(getLotLifecyclePermissions('completed')).toEqual({
+        canEditProduction: false,
+        canRescaleSnapshot: false,
+        canAppendFollowUp: true,
+      });
+    });
+
+    it('keeps cancelled lots editable and able to rescale their snapshot', () => {
+      expect(getLotLifecyclePermissions('cancelled')).toEqual({
+        canEditProduction: true,
+        canRescaleSnapshot: true,
+        canAppendFollowUp: true,
+      });
+    });
+  });
+
   describe('createEmptyLotEditFormValues', () => {
     it('returns an empty operational form seeded with planned status', () => {
       const form = createEmptyLotEditFormValues();

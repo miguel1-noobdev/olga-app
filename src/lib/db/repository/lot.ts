@@ -17,6 +17,31 @@ import type {
 
 export type { LotRecord, CreateLotInput, UpdateLotInput } from '@/lib/lots/lot-types';
 
+export class LotLifecycleError extends Error {
+  constructor(
+    public readonly reason:
+      | 'completed_freeze'
+      | 'snapshot_regeneration_not_allowed'
+      | 'not_found'
+  ) {
+    super(
+      reason === 'completed_freeze'
+        ? 'Lot production fields and snapshot are frozen once completed'
+        : reason === 'snapshot_regeneration_not_allowed'
+          ? 'Lot snapshots can only be regenerated while planned or cancelled'
+          : 'Lot not found'
+    );
+    this.name = 'LotLifecycleError';
+  }
+}
+
+export class LotValidationError extends Error {
+  constructor(public readonly reason: 'target_batch_grams_invalid') {
+    super('targetBatchGrams must be greater than 0');
+    this.name = 'LotValidationError';
+  }
+}
+
 export interface LotRepository {
   create(input: CreateLotInput): Promise<LotRecord>;
   findById(id: string): Promise<LotRecord | null>;
@@ -230,7 +255,7 @@ export function createLotRepository(): LotRepository {
       }
 
       if (input.targetBatchGrams <= 0) {
-        throw new Error('targetBatchGrams must be greater than 0');
+        throw new LotValidationError('target_batch_grams_invalid');
       }
 
       const maxRetries = 5;
@@ -305,6 +330,24 @@ export function createLotRepository(): LotRepository {
     },
 
     async update(id: string, input: UpdateLotInput): Promise<LotRecord> {
+      const lot = await LotModel.findById(id);
+
+      if (!lot) {
+        throw new LotLifecycleError('not_found');
+      }
+
+      const hasProductionChanges =
+        input.status !== undefined ||
+        input.targetBatchGrams !== undefined ||
+        input.operationalObservations !== undefined ||
+        input.plannedAt !== undefined ||
+        input.startedAt !== undefined ||
+        input.completedAt !== undefined;
+
+      if (lot.status === 'completed' && hasProductionChanges) {
+        throw new LotLifecycleError('completed_freeze');
+      }
+
       const updateOps: Record<string, unknown> = {};
       const $set: Record<string, unknown> = {};
 
@@ -313,16 +356,14 @@ export function createLotRepository(): LotRepository {
       }
       if (input.targetBatchGrams !== undefined) {
         if (input.targetBatchGrams <= 0) {
-          throw new Error('targetBatchGrams must be greater than 0');
+          throw new LotValidationError('target_batch_grams_invalid');
+        }
+
+        if (lot.status !== 'planned' && lot.status !== 'cancelled') {
+          throw new LotLifecycleError('snapshot_regeneration_not_allowed');
         }
 
         $set.targetBatchGrams = input.targetBatchGrams;
-        const lot = await LotModel.findById(id);
-
-        if (!lot) {
-          throw new Error('Lot not found');
-        }
-
         const currentSnapshot = JSON.parse(JSON.stringify(lot.formulaSnapshot)) as FormulaSnapshot;
         $set.formulaSnapshot = scaleSnapshot(currentSnapshot, input.targetBatchGrams);
       }
@@ -349,13 +390,22 @@ export function createLotRepository(): LotRepository {
         };
       }
 
-      const updated = await LotModel.findByIdAndUpdate(id, updateOps, {
+      const updateFilter: Record<string, unknown> = { _id: id };
+      if (hasProductionChanges) {
+        updateFilter.status = { $ne: 'completed' };
+      }
+
+      const updated = await LotModel.findOneAndUpdate(updateFilter, updateOps, {
         returnDocument: 'after',
         runValidators: true,
       });
 
       if (!updated) {
-        throw new Error('Lot not found');
+        if (hasProductionChanges && (await LotModel.exists({ _id: id }))) {
+          throw new LotLifecycleError('completed_freeze');
+        }
+
+        throw new LotLifecycleError('not_found');
       }
 
       return toLotRecord(updated);
