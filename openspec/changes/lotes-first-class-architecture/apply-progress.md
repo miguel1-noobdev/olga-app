@@ -3,11 +3,12 @@
 ## Delivery Boundary
 
 - Delivery mode: auto-chain, stacked-to-main.
-- Current work unit: PR 1 — Lifecycle repository invariants.
+- Current work unit: PR 2 — Canonical list, detail, and follow-up.
 - PR 1 status: implemented and verified locally; uncommitted and pending review receipt. It is not closed.
-- Scope: repository lifecycle guards, lifecycle permissions contract, and focused tests only.
-- Completed tasks: 1.1, 1.2, 1.3.
-- Remaining tasks: Phases 2–5.
+- PR 2 status: implemented and verified locally; uncommitted and pending review receipt. It is not closed.
+- Scope: canonical `/laboratorio/lotes` list and detail routes with append-only follow-up only.
+- Completed tasks: 1.1, 1.2, 1.3, 2.1, 2.2, 2.3, 2.4.
+- Remaining tasks: Phases 3–5.
 - Chain order: PR 1 lifecycle → PR 2 canonical read/detail/follow-up → PR 3 create → PR 4 edit/legacy redirects → PR 5 formula context/navigation.
 
 ## TDD Cycle Evidence
@@ -64,3 +65,30 @@
 ## Review Gate
 
 - PR 1 remains open in the delivery chain until its review receipt is recorded; implementation and verification evidence do not close the work unit.
+
+## PR 2 TDD Cycle Evidence
+
+| Task | Test File | Layer | RED | GREEN | REFACTOR |
+|---|---|---|---|---|---|
+| 2.1 | `tests/laboratorio-lotes-list.test.tsx` | Server-component integration | `npm run test:run -- laboratorio-lotes-list` failed because the canonical route did not exist. | 2/2 passed after the list route called `LotRepository.findAll()` and rendered canonical links. | Kept the page limited to global listing; navigation changes remain PR 5. |
+| 2.2 | `tests/laboratorio-lotes-list.test.tsx` | Server-component integration | Tests from 2.1 failed before production code. | 2/2 passed. | No further change required. |
+| 2.3 | `tests/laboratorio-lotes-detail.test.tsx` | Server-component integration | `npm run test:run -- laboratorio-lotes-detail` failed because the canonical detail route did not exist. | 6/6 passed after canonical detail and follow-up wiring. The inherited repository suite proves atomic `$push` behavior. | Preserved the existing follow-up form contract and repository boundary. |
+| 2.4 | `tests/laboratorio-lotes-detail.test.tsx` | Server-component integration | Tests from 2.3 failed before production code. | 6/6 passed. | Canonical action redirects only to the canonical detail route. |
+
+## PR 2 Work Unit Evidence
+
+| Evidence | Result |
+|---|---|
+| Focused test command and exact result | `npm run test:run -- laboratorio-lotes-list laboratorio-lotes-detail` — 2 files, 8/8 passed. |
+| Runtime harness command/scenario and exact result | N/A — server-component routes use repository and action mocks. The persistence boundary is exercised by `tests/lot-repository.test.ts`, including atomic concurrent `$push` follow-up behavior. |
+| Full deterministic test result | `npm run test:run` — 81 files, 690 tests passed. |
+| Build result | `npm run build` compiled and type-checked successfully, then exited during unrelated static prerendering because local MongoDB at `127.0.0.1:27017` is unavailable. |
+| Diff validation | `git diff --check` — passed with no whitespace errors. |
+| Rollback boundary | `src/app/laboratorio/lotes/**` and the two canonical route test files. Reverting them removes only PR 2 routes; no legacy routes, navigation, formula creation, schema, or lifecycle guards are touched. |
+
+## PR 2 Implementation Notes
+
+- The global list is canonical at `/laboratorio/lotes` and reads every lot through `LotRepository.findAll()`.
+- Canonical detail reads the lot by `lotId`, renders provenance from immutable lot fields, links to its formula context, and returns `notFound()` for absent lots.
+- Canonical follow-up calls the guarded repository update with only a single follow-up entry. The repository's existing `$push` path remains the sole append mechanism and applies to every lifecycle status.
+- PR 3 formula creation, PR 4 edit/legacy redirects, and PR 5 navigation remain untouched.

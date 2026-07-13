@@ -34,10 +34,10 @@ Chain strategy: stacked-to-main
 
 ## Phase 2: Canonical Read and Follow-Up Routes
 
-- [ ] 2.1 RED: create `tests/laboratorio-lotes-list.test.tsx` for all lots, empty state, and canonical detail links.
-- [ ] 2.2 GREEN: create `src/app/laboratorio/lotes/page.tsx` using `LotRepository.findAll()`.
-- [ ] 2.3 RED: add `tests/laboratorio-lotes-detail.test.tsx` for provenance, `notFound`, and atomic append-only dated `$push` follow-up for planned, in_progress, completed, and cancelled lots.
-- [ ] 2.4 GREEN: create `src/app/laboratorio/lotes/[lotId]/{page,actions}.tsx` to satisfy detail and append-only follow-up tests.
+- [x] 2.1 RED: create `tests/laboratorio-lotes-list.test.tsx` for all lots, empty state, and canonical detail links.
+- [x] 2.2 GREEN: create `src/app/laboratorio/lotes/page.tsx` using `LotRepository.findAll()`.
+- [x] 2.3 RED: add `tests/laboratorio-lotes-detail.test.tsx` for provenance, `notFound`, and atomic append-only dated `$push` follow-up for planned, in_progress, completed, and cancelled lots.
+- [x] 2.4 GREEN: create `src/app/laboratorio/lotes/[lotId]/{page,actions}.tsx` to satisfy detail and append-only follow-up tests.
 
 ## Phase 3: Canonical Creation
 
