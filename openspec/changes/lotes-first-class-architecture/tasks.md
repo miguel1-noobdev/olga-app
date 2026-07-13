@@ -41,8 +41,8 @@ Chain strategy: stacked-to-main
 
 ## Phase 3: Canonical Creation
 
-- [ ] 3.1 RED: add `tests/laboratorio-lotes-nuevo.test.tsx` for validated-only selection, empty state, validated `formulaId` preselection, submission re-validation, scaled provenance snapshot, and canonical redirect.
-- [ ] 3.2 GREEN: create `src/app/laboratorio/lotes/nuevo/{page,actions}.tsx` and selector/form components; accept preselection only for a currently validated formula and reject formulas no longer validated on submit.
+- [x] 3.1 RED: add `tests/laboratorio-lotes-nuevo.test.tsx` for validated-only selection, empty state, validated `formulaId` preselection, submission re-validation, scaled provenance snapshot, and canonical redirect.
+- [x] 3.2 GREEN: create `src/app/laboratorio/lotes/nuevo/{page,actions}.tsx` and selector/form components; accept preselection only for a currently validated formula and reject formulas no longer validated on submit.
 
 ## Phase 4: Edit and Compatibility
 

@@ -3,12 +3,12 @@
 ## Delivery Boundary
 
 - Delivery mode: auto-chain, stacked-to-main.
-- Current work unit: PR 2 — Canonical list, detail, and follow-up.
+- Current work unit: PR 3 — Canonical validated-formula creation.
 - PR 1 status: implemented and verified locally; uncommitted and pending review receipt. It is not closed.
 - PR 2 status: implemented and verified locally; uncommitted and pending review receipt. It is not closed.
-- Scope: canonical `/laboratorio/lotes` list and detail routes with append-only follow-up only.
-- Completed tasks: 1.1, 1.2, 1.3, 2.1, 2.2, 2.3, 2.4.
-- Remaining tasks: Phases 3–5.
+- Scope: canonical `/laboratorio/lotes/nuevo` creation only; legacy redirects, edit, formula context, and navigation remain excluded.
+- Completed tasks: 1.1, 1.2, 1.3, 2.1, 2.2, 2.3, 2.4, 3.1, 3.2.
+- Remaining tasks: Phases 4–5.
 - Chain order: PR 1 lifecycle → PR 2 canonical read/detail/follow-up → PR 3 create → PR 4 edit/legacy redirects → PR 5 formula context/navigation.
 
 ## TDD Cycle Evidence
@@ -92,3 +92,28 @@
 - Canonical detail reads the lot by `lotId`, renders provenance from immutable lot fields, links to its formula context, and returns `notFound()` for absent lots.
 - Canonical follow-up calls the guarded repository update with only a single follow-up entry. The repository's existing `$push` path remains the sole append mechanism and applies to every lifecycle status.
 - PR 3 formula creation, PR 4 edit/legacy redirects, and PR 5 navigation remain untouched.
+
+## PR 3 TDD Cycle Evidence
+
+| Task | Test File | Layer | Safety Net | RED | GREEN | TRIANGULATE | REFACTOR |
+|---|---|---|---|---|---|---|---|
+| 3.1 | `tests/laboratorio-lotes-nuevo.test.tsx` | Server-component/action integration | `npm run test:run -- lot-form laboratorio-lotes-list laboratorio-lotes-detail` — 4 files, 26/26 passed | Test failed to resolve the absent canonical page/action modules. | `npm run test:run -- laboratorio-lotes-nuevo` — 5/5 passed. | Validated preselection, no-formula empty state, submit revalidation rejection, and canonical planned creation/redirect exercise distinct paths. Scaled immutable snapshot persistence is covered by `tests/lot-repository.test.ts` (43/43). | Converted target grams to a number at client/action boundaries; focused suite remained green. |
+| 3.2 | `tests/laboratorio-lotes-nuevo.test.tsx` | Server-component/action integration | New route/component files; page dependencies covered by the 26/26 safety-net result. | Tests from 3.1 failed before implementation. | `npm run test:run -- laboratorio-lotes-nuevo` — 5/5 passed. | Validated-only selector/preselection and server-side status revalidation cover different creation paths; action forces `planned` status before repository creation. | Kept creation-specific values isolated from the legacy lot form; no legacy route or navigation changes. |
+
+## PR 3 Work Unit Evidence
+
+| Evidence | Result |
+|---|---|
+| Focused test command and exact result | `npm run test:run -- laboratorio-lotes-nuevo lot-repository` — 2 files, 48/48 passed. The repository suite includes scaled ingredient snapshot, rounding, provenance, and validated-status guard cases. |
+| Runtime harness command/scenario and exact result | N/A — canonical page/action tests use repository and redirect mocks; the MongoMemoryServer repository suite exercised persisted scaled snapshots. |
+| Full deterministic test result | `npm run test:run` — 82 files, 695/695 passed. |
+| Type check | `npx tsc --noEmit --pretty false` remains blocked by a pre-existing incompatible `findOneAndUpdate` mock signature at `tests/lot-repository.test.ts:546`; no errors originate in PR 3 files. |
+| Diff validation | `git diff --check` — passed with no whitespace errors. |
+| Rollback boundary | `src/app/laboratorio/lotes/nuevo/**`, `src/components/laboratorio/lot-creation-form.tsx`, and `tests/laboratorio-lotes-nuevo.test.tsx`. Reverting them removes only canonical PR 3 creation; mandatory repository lifecycle/snapshot safeguards remain. |
+
+## PR 3 Implementation Notes
+
+- The canonical page queries only `FormulaRepository.findByStatus('validated')`; a query-string `formulaId` is selected only when it exists in that current result.
+- The action reloads the selected formula and rejects absent or non-validated formulas before calling `LotRepository.create`.
+- The action always passes `status: 'planned'` and redirects successful creation to `/laboratorio/lotes/[newLotId]`.
+- Immutable provenance and proportional snapshot scaling remain exclusively enforced by the already-verified `LotRepository.create` boundary.
