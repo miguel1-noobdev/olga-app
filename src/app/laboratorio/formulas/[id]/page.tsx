@@ -55,9 +55,9 @@ function IdentitySection({ formula }: { formula: FormulaRecord }) {
 
 function LotsSection({ formulaId, lots }: { formulaId: string; lots: LotRecord[] }) {
   return (
-    <SectionCard title="Lots">
+    <SectionCard title="Lotes">
       {lots.length === 0 ? (
-        <EmptySectionMessage>No lots registered for this formula.</EmptySectionMessage>
+        <EmptySectionMessage>No Lotes registered for this formula.</EmptySectionMessage>
       ) : (
         <ul className="space-y-4">
           {lots.map((lot) => (
@@ -68,7 +68,7 @@ function LotsSection({ formulaId, lots }: { formulaId: string; lots: LotRecord[]
               <div className="space-y-1">
                 <div className="flex items-center gap-3">
                   <Link
-                    href={`/laboratorio/formulas/${formulaId}/lotes/${lot.id}`}
+                    href={`/laboratorio/lotes/${lot.id}`}
                     className="font-sans text-sm font-semibold text-on-surface hover:text-primary transition-colors"
                   >
                     {lot.lotCode}
@@ -312,7 +312,7 @@ export default async function LaboratoryFormulaDetailPage({ params }: PageProps)
 
             {formula.status === 'validated' && (
               <Link
-                href={`/laboratorio/formulas/${formula.id}/lotes/nuevo`}
+                href={`/laboratorio/lotes/nuevo?formulaId=${formula.id}`}
                 className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors font-sans text-sm font-medium"
               >
                 <PlusIcon className="w-4 h-4" />

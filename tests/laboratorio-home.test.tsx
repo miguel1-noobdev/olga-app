@@ -76,6 +76,10 @@ describe('/laboratorio home page', () => {
       'href',
       '/laboratorio/formulas'
     );
+    expect(screen.getByRole('link', { name: /lotes/i })).toHaveAttribute(
+      'href',
+      '/laboratorio/lotes'
+    );
     expect(screen.getByRole('link', { name: /plants/i })).toHaveAttribute(
       'href',
       '/laboratorio/plantas'

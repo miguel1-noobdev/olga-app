@@ -53,7 +53,7 @@ Chain strategy: stacked-to-main
 
 ## Phase 5: Context, Navigation, and Branch Close
 
-- [ ] 5.1 RED: update `tests/laboratorio-home.test.tsx`, `tests/laboratorio-layout.test.tsx`, and `tests/laboratorio-formula-detail.test.tsx` for canonical Lotes links.
-- [ ] 5.2 GREEN: wire canonical links in `src/app/laboratorio/formulas/[id]/page.tsx`, `src/app/laboratorio/page.tsx`, and `src/components/laboratorio/laboratory-navbar.tsx` last; the formula-context create link carries its validated formula into canonical creation preselection.
-- [ ] 5.3 REFACTOR: remove duplicate route-only code and keep implementation vocabulary limited to Lotes/Lote.
+- [x] 5.1 RED: update `tests/laboratorio-home.test.tsx`, `tests/laboratorio-layout.test.tsx`, and `tests/laboratorio-formula-detail.test.tsx` for canonical Lotes links.
+- [x] 5.2 GREEN: wire canonical links in `src/app/laboratorio/formulas/[id]/page.tsx`, `src/app/laboratorio/page.tsx`, and `src/components/laboratorio/laboratory-navbar.tsx` last; the formula-context create link carries its validated formula into canonical creation preselection.
+- [x] 5.3 REFACTOR: remove duplicate route-only code and keep implementation vocabulary limited to Lotes/Lote.
 - [ ] 5.4 Close the chain only after canonical routes pass, lifecycle invariants and legacy redirects are proven, no migration exists, and each PR records test/runtime receipts plus review gates; only then resume the Stitch visual worktree.

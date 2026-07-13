@@ -3,12 +3,12 @@
 ## Delivery Boundary
 
 - Delivery mode: auto-chain, stacked-to-main.
-- Current work unit: PR 3 — Canonical validated-formula creation.
+- Current work unit: PR 5 — Formula context and Lotes navigation.
 - PR 1 status: implemented and verified locally; uncommitted and pending review receipt. It is not closed.
 - PR 2 status: implemented and verified locally; uncommitted and pending review receipt. It is not closed.
-- Scope: canonical `/laboratorio/lotes/nuevo` creation only; legacy redirects, edit, formula context, and navigation remain excluded.
-- Completed tasks: 1.1, 1.2, 1.3, 2.1, 2.2, 2.3, 2.4, 3.1, 3.2.
-- Remaining tasks: Phases 4–5.
+- Scope: formula context and laboratory navigation only; canonical lifecycle, read/detail, creation, edit, and legacy redirects remain unchanged.
+- Completed tasks: 1.1, 1.2, 1.3, 2.1, 2.2, 2.3, 2.4, 3.1, 3.2, 4.1, 4.2, 4.3, 4.4, 5.1, 5.2, 5.3.
+- Remaining tasks: 5.4 chain close and review receipts.
 - Chain order: PR 1 lifecycle → PR 2 canonical read/detail/follow-up → PR 3 create → PR 4 edit/legacy redirects → PR 5 formula context/navigation.
 
 ## TDD Cycle Evidence
@@ -145,3 +145,32 @@
 - Legacy create resolves only the formula context: it redirects validated formulas with `?formulaId=` and returns `notFound()` for unavailable or unvalidated formulas.
 - The canonical edit route uses lifecycle permissions to enable rescaling only for planned/cancelled lots, preserve in-progress non-snapshot edits, and freeze completed production controls. Follow-up remains available from canonical detail for every status.
 - PR 5 formula context and navigation remain excluded.
+
+## PR 5 TDD Cycle Evidence
+
+| Task | Test File | Layer | Safety Net | RED | GREEN | TRIANGULATE | REFACTOR |
+|---|---|---|---|---|---|---|---|
+| 5.1 | `tests/laboratorio-home.test.tsx`, `tests/laboratorio-layout.test.tsx`, `tests/laboratorio-formula-detail.test.tsx` | Server-component and client-navigation integration | `npm run test:run -- laboratorio-home laboratorio-layout laboratorio-formula-detail` — 3 files, 38/38 passed before the change | Replaced legacy and missing-route expectations; focused command failed with 9 assertions because canonical Lotes links were absent | Same focused command — 3 files, 38/38 passed | Covered hub and navbar entries plus validated formula creation preselection and formula lot-history links for multiple formula and lot IDs | Consolidated section terminology to `Lotes`; legacy route UI/actions were already absent after PR 4 and were revalidated by redirect coverage |
+| 5.2 | Same as 5.1 | Server-component and client-navigation integration | Covered by task 5.1 baseline | Tests from 5.1 failed before production link changes | Same focused command — 3 files, 38/38 passed | Home, navbar, formula creation, and formula lot-history routes exercise distinct navigation paths | Kept the formula context read-only except for canonical creation shortcut |
+| 5.3 | `tests/laboratorio-formula-detail.test.tsx`, `tests/laboratorio-formula-lot-redirects.test.tsx` | Route integration | `npm run test:run -- laboratorio-formula-lot-redirects` — 1 file, 5/5 passed | Canonical formula-context link assertions in task 5.1 failed while legacy URLs were still emitted | Formula context no longer emits legacy nested links; `npm run test:run -- laboratorio-formula-lot-redirects` — 1 file, 5/5 passed confirms legacy routes are redirect-only | Multiple canonical detail links and validated creation preselection rule out formula/lot ID coupling; legacy redirect branches cover matching and rejected contexts | No additional route deletion was required: PR 4 had already removed duplicate legacy screens/actions; this slice removes their last formula-context entry points and standardizes `Lotes`/`Lote` vocabulary |
+
+## PR 5 Work Unit Evidence
+
+| Evidence | Result |
+|---|---|
+| Focused test command and exact result | `npm run test:run -- laboratorio-home laboratorio-layout laboratorio-formula-detail` — 3 files, 38/38 passed. `npm run test:run -- laboratorio-formula-lot-redirects` — 1 file, 5/5 passed. |
+| Runtime harness command/scenario and exact result | `npm run build` — production Next.js build compiled, type-checked, and generated 21/21 static pages successfully with Docker/MongoDB available. |
+| Full deterministic test result | `npm run test:run` — 80 files, 670/670 passed. |
+| Diff validation | `git diff --check` — passed with no whitespace errors. |
+| Rollback boundary | `src/app/laboratorio/formulas/[id]/page.tsx`, `src/app/laboratorio/page.tsx`, `src/components/laboratorio/laboratory-navbar.tsx`, their three focused test files, and the PR 5 task/progress records. Reverting them removes only canonical navigation and formula-context shortcuts; canonical routes and guarded legacy redirects remain. |
+
+## PR 5 Implementation Notes
+
+- Formula-context lot history links now target `/laboratorio/lotes/[lotId]`; validated formula creation targets `/laboratorio/lotes/nuevo?formulaId=[formulaId]`.
+- The laboratory home and desktop/mobile navigation expose `/laboratorio/lotes` as `Lotes`.
+- Legacy nested routes remain redirect-only. No duplicate legacy UI or actions were reintroduced.
+- No migration, lifecycle behavior, canonical route implementation, or Stitch visual scope changed.
+
+## PR 5 Review Gate
+
+- Task 5.4 remains open. The chain cannot be closed until the required review receipts are recorded for all slices. No commits, pushes, or PRs were created in this apply batch.

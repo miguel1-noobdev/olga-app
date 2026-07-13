@@ -76,6 +76,12 @@ export default async function LaboratoryHomePage() {
             icon={<FlaskIcon className="w-6 h-6" />}
           />
           <HubCard
+            href="/laboratorio/lotes"
+            title="Lotes"
+            description="View and follow up all production Lotes."
+            icon={<FlaskIcon className="w-6 h-6" />}
+          />
+          <HubCard
             href="/laboratorio/plantas"
             title="Plants"
             description="Consult the internal botanical inventory."

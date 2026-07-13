@@ -17,6 +17,7 @@ import {
 const NAV_LINKS = [
   { href: '/laboratorio', label: 'Home', icon: HomeIcon },
   { href: '/laboratorio/formulas', label: 'Formulas', icon: FlaskIcon },
+  { href: '/laboratorio/lotes', label: 'Lotes', icon: FlaskIcon },
   { href: '/laboratorio/plantas', label: 'Plants', icon: LeafIcon },
   { href: '/laboratorio/aceites', label: 'Oils', icon: DropletIcon },
 ];

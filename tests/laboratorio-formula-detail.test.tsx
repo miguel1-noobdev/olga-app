@@ -188,7 +188,7 @@ describe('/laboratorio/formulas/[id] page', () => {
     );
   });
 
-  it('renders a create lot link pointing to the nested lot create route', async () => {
+  it('renders a create Lote link pointing to canonical creation with formula context', async () => {
     getServerSessionMock.mockResolvedValue({
       user: { id: 'user-1', email: 'olga@test.com', role: 'productora' },
     });
@@ -199,7 +199,7 @@ describe('/laboratorio/formulas/[id] page', () => {
 
     const createLotLink = screen.getByRole('link', { name: /create lot/i });
     expect(createLotLink).toBeInTheDocument();
-    expect(createLotLink).toHaveAttribute('href', '/laboratorio/formulas/formula-1/lotes/nuevo');
+    expect(createLotLink).toHaveAttribute('href', '/laboratorio/lotes/nuevo?formulaId=formula-1');
   });
 
   it('uses the actual formula id in the create lot link', async () => {
@@ -213,7 +213,7 @@ describe('/laboratorio/formulas/[id] page', () => {
 
     expect(screen.getByRole('link', { name: /create lot/i })).toHaveAttribute(
       'href',
-      '/laboratorio/formulas/formula-42/lotes/nuevo'
+      '/laboratorio/lotes/nuevo?formulaId=formula-42'
     );
   });
 
@@ -250,8 +250,8 @@ describe('/laboratorio/formulas/[id] page', () => {
     const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
     render(jsx);
 
-    expect(screen.getByRole('heading', { name: 'Lots' })).toBeInTheDocument();
-    expect(screen.getByText('No lots registered for this formula.')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Lotes' })).toBeInTheDocument();
+    expect(screen.getByText('No Lotes registered for this formula.')).toBeInTheDocument();
   });
 
   it('renders the lot list with basic fields', async () => {
@@ -279,7 +279,7 @@ describe('/laboratorio/formulas/[id] page', () => {
     const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
     render(jsx);
 
-    const section = screen.getByRole('heading', { name: 'Lots' }).closest('section');
+    const section = screen.getByRole('heading', { name: 'Lotes' }).closest('section');
     expect(section).toBeInTheDocument();
 
     const scoped = within(section as HTMLElement);
@@ -293,7 +293,7 @@ describe('/laboratorio/formulas/[id] page', () => {
     expect(scoped.getByText(/750 g target/)).toBeInTheDocument();
   });
 
-  it('renders a detail link for each lot using the nested route', async () => {
+  it('renders a canonical detail link for each Lote', async () => {
     getServerSessionMock.mockResolvedValue({
       user: { id: 'user-1', email: 'olga@test.com', role: 'productora' },
     });
@@ -318,16 +318,16 @@ describe('/laboratorio/formulas/[id] page', () => {
     const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
     render(jsx);
 
-    const section = screen.getByRole('heading', { name: 'Lots' }).closest('section');
+    const section = screen.getByRole('heading', { name: 'Lotes' }).closest('section');
     const scoped = within(section as HTMLElement);
 
     expect(scoped.getByRole('link', { name: 'CF-001-L001' })).toHaveAttribute(
       'href',
-      '/laboratorio/formulas/formula-1/lotes/lot-1'
+      '/laboratorio/lotes/lot-1'
     );
     expect(scoped.getByRole('link', { name: 'CF-001-L002' })).toHaveAttribute(
       'href',
-      '/laboratorio/formulas/formula-1/lotes/lot-2'
+      '/laboratorio/lotes/lot-2'
     );
   });
 
@@ -343,12 +343,12 @@ describe('/laboratorio/formulas/[id] page', () => {
     const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-42' } });
     render(jsx);
 
-    const section = screen.getByRole('heading', { name: 'Lots' }).closest('section');
+    const section = screen.getByRole('heading', { name: 'Lotes' }).closest('section');
     const scoped = within(section as HTMLElement);
 
     expect(scoped.getByRole('link', { name: 'CF-001-L005' })).toHaveAttribute(
       'href',
-      '/laboratorio/formulas/formula-42/lotes/lot-5'
+      '/laboratorio/lotes/lot-5'
     );
   });
 
@@ -387,7 +387,7 @@ describe('/laboratorio/formulas/[id] page', () => {
       const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
       const { unmount } = render(jsx);
 
-      expect(screen.getByRole('heading', { name: 'Lots' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Lotes' })).toBeInTheDocument();
       unmount();
     }
   });
