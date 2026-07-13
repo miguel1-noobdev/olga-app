@@ -117,3 +117,31 @@
 - The action reloads the selected formula and rejects absent or non-validated formulas before calling `LotRepository.create`.
 - The action always passes `status: 'planned'` and redirects successful creation to `/laboratorio/lotes/[newLotId]`.
 - Immutable provenance and proportional snapshot scaling remain exclusively enforced by the already-verified `LotRepository.create` boundary.
+
+## PR 4 TDD Cycle Evidence
+
+| Task | Test File | Layer | Safety Net | RED | GREEN | TRIANGULATE | REFACTOR |
+|---|---|---|---|---|---|---|---|
+| 4.1 | `tests/laboratorio-lotes-edit.test.tsx`, `tests/laboratorio-lotes-edit-actions.test.ts` | Server-component/action integration | `npm run test:run -- laboratorio-formula-lot-detail lot-edit-form` — 40/40 passed | Canonical edit page import failed because `/lotes/[lotId]/editar` did not exist. | `npm run test:run -- laboratorio-lotes-edit laboratorio-lotes-edit-actions` — 7/7 passed. | Planned rescale, in-progress freeze, completed freeze, not-found, invalid grams, and canonical redirect cover distinct lifecycle paths. | Centralized UI permissions through the existing lifecycle contract; action avoids resubmitting an unchanged target batch. |
+| 4.2 | `tests/laboratorio-lotes-edit.test.tsx`, `tests/laboratorio-lotes-edit-actions.test.ts` | Server-component/action integration | Covered by task 4.1 baseline | Tests from 4.1 failed before canonical page/action implementation. | 7/7 passed. | Read-only and mutation paths exercise separate status rules. | Canonical route only; no formula-context navigation added. |
+| 4.3 | `tests/laboratorio-formula-lot-redirects.test.tsx` | Route integration | `npm run test:run -- laboratorio-formula-lot-detail lot-edit-form` — 40/40 passed | Redirect assertions failed against rendered legacy screens and legacy create's non-404 fallback. | `npm run test:run -- laboratorio-formula-lot-redirects` — 5/5 passed. | Matching detail, matching edit, mismatched ownership, validated create, unavailable create, and unvalidated create cover each route branch. | Consolidated compatibility coverage in one redirect-focused suite. |
+| 4.4 | `tests/laboratorio-formula-lot-redirects.test.tsx` | Route integration | Covered by task 4.3 baseline | Tests from 4.3 failed before redirect-only routes. | 5/5 passed. | Detail/edit ownership and create formula-context validation remain intentionally separate checks. | Removed unreferenced legacy screens/actions and migrated follow-up action coverage to the canonical action. |
+
+## PR 4 Work Unit Evidence
+
+| Evidence | Result |
+|---|---|
+| Focused test command and exact result | `npm run test:run -- laboratorio-lotes-edit laboratorio-lotes-edit-actions laboratorio-formula-lot-redirects lot-edit-form lot-edit-form-contract laboratorio-formula-lot-follow-up-actions` — 6 files, 40/40 passed. |
+| Runtime harness command/scenario and exact result | N/A — App Router pages/actions are isolated with route and repository mocks; the focused suites execute matching redirects, 404 paths, and lifecycle permission behavior. |
+| Full deterministic test result | `npm run test:run` — 80 files, 670/670 passed. |
+| Type check | `npx tsc --noEmit --pretty false` reports only the pre-existing Mongoose mock signature incompatibility at `tests/lot-repository.test.ts:546`; no PR 4 errors. |
+| Build result | `npm run build` compiled and type-checked successfully, then static prerendering failed because local MongoDB at `127.0.0.1:27017` is unavailable. |
+| Diff validation | `git diff --check` — passed with no whitespace errors. |
+| Rollback boundary | Canonical `lotes/[lotId]/editar`, compatibility `formulas/[id]/lotes/**`, edit form contract/component, and redirect/edit tests. Reverting this slice removes only PR 4 edit and compatibility behavior; lifecycle repository guards and canonical list/detail/create remain. |
+
+## PR 4 Implementation Notes
+
+- Legacy detail and edit resolve the lot by `lotId`, compare `lot.formulaId` to the legacy `params.id`, and redirect only matching ownership to `/laboratorio/lotes/[lotId]` or `/laboratorio/lotes/[lotId]/editar`.
+- Legacy create resolves only the formula context: it redirects validated formulas with `?formulaId=` and returns `notFound()` for unavailable or unvalidated formulas.
+- The canonical edit route uses lifecycle permissions to enable rescaling only for planned/cancelled lots, preserve in-progress non-snapshot edits, and freeze completed production controls. Follow-up remains available from canonical detail for every status.
+- PR 5 formula context and navigation remain excluded.

@@ -46,10 +46,10 @@ Chain strategy: stacked-to-main
 
 ## Phase 4: Edit and Compatibility
 
-- [ ] 4.1 RED: add `tests/laboratorio-lotes-edit.test.tsx` for planned/cancelled production edits and rescaling, in-progress snapshot controls read-only with other production fields editable, completed production read-only, and follow-up availability for every status.
-- [ ] 4.2 GREEN: create `src/app/laboratorio/lotes/[lotId]/editar/{page,actions}.tsx` using repository permissions; `/editar` is the intentional canonical Spanish segment, guards remain mandatory, and `completed` keeps production data frozen without blocking follow-up.
-- [ ] 4.3 RED: migrate legacy route tests for ownership-checked detail and edit redirects, mismatched `notFound()`, matching edit redirect, and legacy-create formula-context validation that redirects with validated `formulaId` preselection or returns `notFound()` when unavailable or unvalidated.
-- [ ] 4.4 GREEN: convert `src/app/laboratorio/formulas/[id]/lotes/**` detail and edit routes to ownership-checked redirects using `params.id` and `lotId`; convert legacy create to formula-context validation and redirect only for validated formulas. Remove duplicate legacy UI/actions without returning 404 for a matching legacy edit URL.
+- [x] 4.1 RED: add `tests/laboratorio-lotes-edit.test.tsx` for planned/cancelled production edits and rescaling, in-progress snapshot controls read-only with other production fields editable, completed production read-only, and follow-up availability for every status.
+- [x] 4.2 GREEN: create `src/app/laboratorio/lotes/[lotId]/editar/{page,actions}.tsx` using repository permissions; `/editar` is the intentional canonical Spanish segment, guards remain mandatory, and `completed` keeps production data frozen without blocking follow-up.
+- [x] 4.3 RED: migrate legacy route tests for ownership-checked detail and edit redirects, mismatched `notFound()`, matching edit redirect, and legacy-create formula-context validation that redirects with validated `formulaId` preselection or returns `notFound()` when unavailable or unvalidated.
+- [x] 4.4 GREEN: convert `src/app/laboratorio/formulas/[id]/lotes/**` detail and edit routes to ownership-checked redirects using `params.id` and `lotId`; convert legacy create to formula-context validation and redirect only for validated formulas. Remove duplicate legacy UI/actions without returning 404 for a matching legacy edit URL.
 
 ## Phase 5: Context, Navigation, and Branch Close
 

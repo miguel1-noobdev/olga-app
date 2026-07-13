@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { submitLotFollowUp } from '@/app/laboratorio/formulas/[id]/lotes/[lotId]/actions';
+import { submitLotFollowUp } from '@/app/laboratorio/lotes/[lotId]/actions';
 import {
   createEmptyLotFollowUpFormValues,
   toLotFollowUpEntry,
@@ -64,7 +64,7 @@ describe('submitLotFollowUp server action', () => {
     });
 
     await expect(submitLotFollowUp(lotId, form)).rejects.toThrow(
-      `NEXT_REDIRECT /laboratorio/formulas/formula-1/lotes/${lotId}`
+      `NEXT_REDIRECT /laboratorio/lotes/${lotId}`
     );
 
     expect(connectToDatabaseMock).toHaveBeenCalledTimes(1);

@@ -52,7 +52,7 @@ describe('LotEditForm', () => {
     expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
   });
 
-  it('does not expose non-editable fields as inputs', () => {
+  it('exposes only the lifecycle-safe rescaling control among immutable lot fields', () => {
     render(
       <LotEditForm
         initialValues={defaultValues}
@@ -60,7 +60,7 @@ describe('LotEditForm', () => {
       />
     );
 
-    expect(screen.queryByLabelText(/target batch/i)).not.toBeInTheDocument();
+    expect(screen.getByRole('spinbutton', { name: /target batch/i })).toBeEnabled();
     expect(screen.queryByLabelText(/lot number/i)).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/lot code/i)).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/formula snapshot/i)).not.toBeInTheDocument();

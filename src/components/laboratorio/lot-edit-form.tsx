@@ -6,6 +6,7 @@ import { LOT_STATUSES, LotStatus } from '@/lib/lots/lot-types';
 import {
   LotEditFormValues,
   LotEditFormValidationError,
+  LotLifecyclePermissions,
   SubmitLotEditResult,
   validateMinimumLotEditForm,
 } from '@/lib/lots/lot-edit-form-contract';
@@ -14,11 +15,17 @@ import { LOT_STATUS_LABELS } from '@/components/laboratorio/shared-presentation'
 export interface LotEditFormProps {
   initialValues: LotEditFormValues;
   submitLotEdit: (values: LotEditFormValues) => Promise<SubmitLotEditResult>;
+  permissions?: LotLifecyclePermissions;
 }
 
 export default function LotEditForm({
   initialValues,
   submitLotEdit,
+  permissions = {
+    canEditProduction: true,
+    canRescaleSnapshot: true,
+    canAppendFollowUp: true,
+  },
 }: LotEditFormProps) {
   const router = useRouter();
   const [values, setValues] = useState<LotEditFormValues>(initialValues);
@@ -105,6 +112,7 @@ export default function LotEditForm({
               onChange={(event) =>
                 updateField('status', event.target.value as LotStatus)
               }
+              disabled={!permissions.canEditProduction}
               className={inputClassName('status')}
             >
               {LOT_STATUSES.map((lotStatus) => (
@@ -117,6 +125,23 @@ export default function LotEditForm({
           </div>
 
           <div>
+            <label htmlFor="targetBatchGrams" className={labelClassName}>
+              Target batch (g)
+            </label>
+            <input
+              id="targetBatchGrams"
+              type="number"
+              min="0.01"
+              step="0.01"
+              value={values.targetBatchGrams ?? ''}
+              onChange={(event) => updateField('targetBatchGrams', event.target.value)}
+              disabled={!permissions.canRescaleSnapshot}
+              className={inputClassName('targetBatchGrams')}
+            />
+            <FieldError name="targetBatchGrams" />
+          </div>
+
+          <div>
             <label htmlFor="plannedAt" className={labelClassName}>
               Planned at (optional)
             </label>
@@ -125,6 +150,7 @@ export default function LotEditForm({
               type="date"
               value={values.plannedAt}
               onChange={(event) => updateField('plannedAt', event.target.value)}
+              disabled={!permissions.canEditProduction}
               className={inputClassName('plannedAt')}
             />
             <FieldError name="plannedAt" />
@@ -139,6 +165,7 @@ export default function LotEditForm({
               type="date"
               value={values.startedAt}
               onChange={(event) => updateField('startedAt', event.target.value)}
+              disabled={!permissions.canEditProduction}
               className={inputClassName('startedAt')}
             />
             <FieldError name="startedAt" />
@@ -155,6 +182,7 @@ export default function LotEditForm({
               onChange={(event) =>
                 updateField('completedAt', event.target.value)
               }
+              disabled={!permissions.canEditProduction}
               className={inputClassName('completedAt')}
             />
             <FieldError name="completedAt" />
@@ -171,6 +199,7 @@ export default function LotEditForm({
             onChange={(event) =>
               updateField('operationalObservations', event.target.value)
             }
+            disabled={!permissions.canEditProduction}
             rows={3}
             className={inputBaseClassName}
             placeholder="Notes for the production run"
@@ -181,7 +210,7 @@ export default function LotEditForm({
       <div className="flex flex-col sm:flex-row gap-4 pt-4">
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || !permissions.canEditProduction}
           className="px-8 py-3 bg-primary text-white rounded-full font-sans text-sm font-bold uppercase tracking-wider hover:opacity-90 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? 'Updating...' : 'Update lot'}

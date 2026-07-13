@@ -2,6 +2,7 @@ import { UpdateLotInput, LOT_STATUSES, LotStatus } from '@/lib/lots/lot-types';
 
 export interface LotEditFormValues {
   status: LotStatus;
+  targetBatchGrams?: string;
   plannedAt: string;
   startedAt: string;
   completedAt: string;
@@ -51,6 +52,7 @@ function toDateInputValue(isoDate: string | null | undefined): string {
 
 export function toLotEditFormValues(record: {
   status: LotStatus;
+  targetBatchGrams?: number;
   plannedAt: string | null;
   startedAt: string | null;
   completedAt: string | null;
@@ -58,6 +60,8 @@ export function toLotEditFormValues(record: {
 }): LotEditFormValues {
   return {
     status: record.status,
+    targetBatchGrams:
+      record.targetBatchGrams === undefined ? undefined : String(record.targetBatchGrams),
     plannedAt: toDateInputValue(record.plannedAt),
     startedAt: toDateInputValue(record.startedAt),
     completedAt: toDateInputValue(record.completedAt),
@@ -70,8 +74,11 @@ export function toUpdateLotInput(values: LotEditFormValues): UpdateLotInput {
   const startedAt = values.startedAt.trim();
   const completedAt = values.completedAt.trim();
 
+  const targetBatchGrams = values.targetBatchGrams?.trim();
+
   return {
     status: values.status,
+    ...(targetBatchGrams ? { targetBatchGrams: Number(targetBatchGrams) } : {}),
     plannedAt: plannedAt ? new Date(plannedAt) : undefined,
     startedAt: startedAt ? new Date(startedAt) : undefined,
     completedAt: completedAt ? new Date(completedAt) : undefined,
@@ -88,6 +95,14 @@ export function validateMinimumLotEditForm(values: LotEditFormValues): {
 
   if (!LOT_STATUSES.includes(values.status)) {
     errors.status = 'Status is required';
+  }
+
+  const targetBatchGrams = values.targetBatchGrams?.trim();
+  if (
+    targetBatchGrams &&
+    (!Number.isFinite(Number(targetBatchGrams)) || Number(targetBatchGrams) <= 0)
+  ) {
+    errors.targetBatchGrams = 'Target batch must be greater than 0';
   }
 
   const plannedAt = values.plannedAt.trim();
