@@ -249,6 +249,14 @@ Fase 1 se considera **cerrada funcionalmente**. Las versiones actuales son acept
 
 **Acceso**: `botanicaob.com/laboratorio` (mismo patrón que `/admin` para Miguel)
 
+### Archivo reconciliado: experimento de UI de Laboratorio descartado
+- El experimento `feat/laboratorio-hub-stitch` queda descartado: no se incorpora código, QA ni documentación de implementación como autoridad.
+- El futuro diseño se crea y aprueba en Stitch como en Figma, página por página: primero escritorio y luego móvil; recién después se implementa código.
+- El hub privado conserva intención y copy en español: saludo fijo `Hola, Olga`, acción secundaria `Nueva fórmula` y sin panel de workflow.
+- Sus cuatro dominios y rutas canónicas son: `Fórmulas` (`/laboratorio/formulas`), `Lotes` (`/laboratorio/lotes`), `Mi jardín` (`/laboratorio/plantas`) y `Mis aceites` (`/laboratorio/aceites`).
+- La navegación conserva enlace de marca al hub (`/laboratorio`), pestañas de escritorio desde `640px`, y navegación móvil solo con iconos accesibles, etiquetas programáticas y objetivos de al menos `44px`. El cierre de sesión sigue separado y conserva su callback de retorno.
+- Dirección de producto global: Laboratorio oscuro por defecto, con selector claro/oscuro. Los tokens visuales y la composición se redefinen desde las nuevas pantallas de Stitch aprobadas; no se copian del experimento descartado.
+
 **Visualización**: Tablero **Kanban vitaminado** (idea, no religión — puede evolucionar)
 - Prioridad: **rapidez de carga**
 - **NO** dashboard con números grandes
