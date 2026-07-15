@@ -2,7 +2,7 @@
 
 ## Status
 
-PR1 tasks 1.1–1.7 are complete in Strict TDD mode. This is the first slice of the user-approved feature-branch chain; no PR2–PR4 work was started.
+PR1 tasks 1.1–1.7 and PR2 tasks 2.1–2.3 are complete in Strict TDD mode. PR2 is the second slice of the user-approved feature-branch chain and is based on PR1; PR3–PR4 were not started.
 
 ## Approved Decisions
 
@@ -20,6 +20,9 @@ PR1 tasks 1.1–1.7 are complete in Strict TDD mode. This is the first slice of 
 - [x] 1.5 RED: shell, health page, and protected API tests.
 - [x] 1.6 GREEN/REFACTOR: shared Admin shell, health page/API, and retained article tooling.
 - [x] 1.7 Regression: middleware and server-layout access checks.
+- [x] 2.1 RED: lifecycle, private-draft intake, private preview, and public-denial tests.
+- [x] 2.2 GREEN/REFACTOR: lifecycle state machine, MongoDB repository lifecycle methods, Admin content routes, preview/actions, and temporary-tool removal.
+- [x] 2.3 Regression: subscriber public Blog remains filtered to published records and Admin routes remain protected.
 
 ## TDD Cycle Evidence
 
@@ -32,6 +35,9 @@ PR1 tasks 1.1–1.7 are complete in Strict TDD mode. This is the first slice of 
 | 1.5 | `tests/admin-shell.test.tsx`, `tests/admin-salud-page.test.tsx`, `tests/api-admin-health.test.ts` | Integration | N/A (new files) | Failed before shell, page, and route existed: 3 suites unresolved | Passed: 3 files, 5 tests | Anonymous/non-Admin/Admin API and ready/unavailable cards | Shared health contract props |
 | 1.6 | Same as 1.5 plus `tests/admin-blog-list.test.tsx` | Integration | 24/24 existing Admin/access tests before editing | Tests existed before shell route/page code | Passed: 40 focused tests | Shell navigation, retained article tool, and three-card page | Removed obsolete page-level navbar mock; legacy component retained |
 | 1.7 | `tests/middleware.test.ts`, `tests/admin-layout.test.tsx` | Integration | 24/24 before editing | Existing access regression suite | Passed: 23 access tests within final 40-test run | Anonymous, non-Admin, productora, and Admin paths | No access-code refactor needed |
+| 2.1 | `tests/admin-content-lifecycle.test.ts`, `tests/article-repository.test.ts` | Unit/Integration | 20/20 existing article/Admin tests | Failed: lifecycle module unresolved; intake test expected draft but current repository published it | Passed: 11 lifecycle/repository tests | Draft/review/published/unpublished paths and public filtering | Added explicit review/unpublish timestamps without a migration |
+| 2.2 | `tests/api-admin-content-actions.test.ts`, `tests/admin-content-{page,nuevo,preview}.test.tsx` | Integration | 20/20 existing article/Admin tests | Failed: new Admin routes unresolved | Passed: 5 route/page tests | Non-Admin denial; review, publish, unpublish; draft preview/intake | Shared lifecycle state mapping and one action endpoint |
+| 2.3 | Focused PR2 command plus public/Admin regressions | Integration | 38/38 focused tests before final type check | Existing public/Admin behavior re-run | Passed: 12 files, 38 tests; TypeScript passed | Published-only public query plus Admin-only layout/action paths | No public Blog component or access behavior changed |
 
 ## Work Unit Evidence
 
@@ -42,13 +48,22 @@ PR1 tasks 1.1–1.7 are complete in Strict TDD mode. This is the first slice of 
 | Runtime harness command/scenario and exact result | N/A — no E2E/runtime harness is configured; the protected route behavior is covered at the API and server-layout integration boundaries. |
 | Rollback boundary | Revert health files under `src/lib/admin/health`, `src/app/api/admin/health`, `src/app/admin/salud`, shell components, and the four Admin page/layout integrations. `admin-navbar.tsx`, middleware, access logic, and temporary `/admin/blog/*` tool remain intact. |
 
+## PR2 Work Unit Evidence
+
+| Evidence | Result |
+|---|---|
+| Focused test command and exact result | `npm run test:run -- tests/admin-content*.test* tests/api-admin-content-actions.test.ts tests/article*.test* tests/blog-navbar.test.tsx tests/admin-navbar.test.tsx tests/admin-shell.test.tsx tests/admin-layout.test.tsx` — exit 0; 12 files, 38 tests passed. |
+| Type check | `npx tsc --noEmit` — exit 0. |
+| Runtime harness command/scenario and exact result | N/A — no E2E/runtime harness is configured; repository, protected API, server-page, and layout integration boundaries are covered. |
+| Rollback boundary | Revert `src/lib/admin/content/lifecycle.ts`, `src/lib/db/{models,repository}/article.ts`, `src/app/admin/contenido`, `src/app/api/admin/articles/[id]`, `src/components/admin/content-actions.tsx`, and the Admin navigation/form integration; restore the deleted temporary `/admin/blog/*` pages and tests as the paired rollback. |
+
 ## Scope Confirmation
 
-- No public UI or Blog access changes.
+- No public UI redesign or Blog access changes; public queries remain `published: true`, so drafts and unpublished articles are denied to subscribers.
 - No migrations, laboratory/data/user work, MongoDB console, or Stitch changes.
 - No secrets, credentials, tokens, identities, raw errors, or infrastructure details are returned by health output.
 - The existing Admin terminology correction diff was preserved and not altered as part of this work.
 
 ## Remaining Tasks
 
-All PR2–PR4 tasks remain unchecked and out of scope until PR1 verification completes.
+PR3–PR4 remain unchecked and out of scope.

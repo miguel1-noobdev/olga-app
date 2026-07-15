@@ -35,11 +35,11 @@ describe('ArticleRepository', () => {
   }
 
   describe('create', () => {
-    it('publishes the article immediately', async () => {
+    it('creates intake as a private draft', async () => {
       const article = await repo.create(articleInput());
 
-      expect(article.published).toBe(true);
-      expect(article.publishedAt).not.toBeNull();
+      expect(article.published).toBe(false);
+      expect(article.publishedAt).toBeNull();
     });
 
     it('generates a slug from the title when none is provided', async () => {
@@ -58,6 +58,8 @@ describe('ArticleRepository', () => {
   describe('findPublishedBySlug', () => {
     it('returns a published article by slug', async () => {
       const created = await repo.create(articleInput());
+      await repo.review(created.id);
+      await repo.publish(created.id);
 
       const found = await repo.findPublishedBySlug(created.slug);
 
@@ -67,6 +69,8 @@ describe('ArticleRepository', () => {
 
     it('returns null when the article is not published', async () => {
       const created = await repo.create(articleInput());
+      await repo.review(created.id);
+      await repo.publish(created.id);
       await repo.unpublish(created.id);
 
       const found = await repo.findPublishedBySlug(created.slug);
@@ -82,6 +86,8 @@ describe('ArticleRepository', () => {
 
     it('is case-insensitive and trims whitespace', async () => {
       const created = await repo.create(articleInput());
+      await repo.review(created.id);
+      await repo.publish(created.id);
 
       const found = await repo.findPublishedBySlug('  Ritual-De-Lavanda  ');
 
@@ -94,6 +100,10 @@ describe('ArticleRepository', () => {
     it('returns only published articles sorted by publishedAt desc', async () => {
       const first = await repo.create({ ...articleInput(), title: 'Primero' });
       const second = await repo.create({ ...articleInput(), title: 'Segundo' });
+      await repo.review(first.id);
+      await repo.publish(first.id);
+      await repo.review(second.id);
+      await repo.publish(second.id);
       await repo.unpublish(first.id);
 
       const all = await repo.findAllPublished();
@@ -103,8 +113,7 @@ describe('ArticleRepository', () => {
     });
 
     it('returns empty array when no published articles exist', async () => {
-      const created = await repo.create(articleInput());
-      await repo.unpublish(created.id);
+      await repo.create(articleInput());
 
       const all = await repo.findAllPublished();
 

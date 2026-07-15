@@ -10,7 +10,9 @@ export interface IArticle extends Document {
   imageAlt: string;
   readingTime: string;
   published: boolean;
-  publishedAt: Date;
+  publishedAt?: Date;
+  reviewedAt?: Date;
+  unpublishedAt?: Date;
   createdAt: Date;
 }
 
@@ -61,6 +63,12 @@ const ArticleSchema = new Schema<IArticle>(
       default: false,
     },
     publishedAt: {
+      type: Date,
+    },
+    reviewedAt: {
+      type: Date,
+    },
+    unpublishedAt: {
       type: Date,
     },
   },

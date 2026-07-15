@@ -17,7 +17,7 @@ describe('AdminShell', () => {
     );
 
     expect(screen.getByRole('heading', { name: 'Dashboard Admin' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Artículos' })).toHaveAttribute('href', '/admin/blog');
+    expect(screen.getByRole('link', { name: 'Contenido' })).toHaveAttribute('href', '/admin/contenido');
     expect(screen.getByRole('link', { name: 'Salud del sistema' })).toHaveAttribute('href', '/admin/salud');
     expect(screen.getByText('Temporary article tooling')).toBeInTheDocument();
   });

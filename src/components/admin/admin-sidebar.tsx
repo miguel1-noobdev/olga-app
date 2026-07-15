@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 const navigation = [
   { href: '/admin', label: 'Inicio' },
-  { href: '/admin/blog', label: 'Artículos' },
+  { href: '/admin/contenido', label: 'Contenido' },
   { href: '/admin/salud', label: 'Salud del sistema' },
 ];
 

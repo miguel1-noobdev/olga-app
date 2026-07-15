@@ -38,9 +38,9 @@ Chain strategy: pending
 
 ## Phase 2: PR2 — Content Private Draft Lifecycle
 
-- [ ] 2.1 RED: test intake → private draft, review/preview/publish/unpublish, and draft/unpublished public denial.
-- [ ] 2.2 GREEN/REFACTOR: add `src/lib/admin/content/lifecycle.ts`, extend `src/lib/db/repository/article.ts`, add `src/app/admin/contenido/*`, then delete `src/app/admin/blog/*` only after passing.
-- [ ] 2.3 Verify PR2 command; accept subscriber-only published content. Non-goals: public Blog redesign, access changes, migrations, Stitch.
+- [x] 2.1 RED: test intake → private draft, review/preview/publish/unpublish, and draft/unpublished public denial.
+- [x] 2.2 GREEN/REFACTOR: add `src/lib/admin/content/lifecycle.ts`, extend `src/lib/db/repository/article.ts`, add `src/app/admin/contenido/*`, then delete `src/app/admin/blog/*` only after passing.
+- [x] 2.3 Verify PR2 command; accept subscriber-only published content. Non-goals: public Blog redesign, access changes, migrations, Stitch.
 
 ## Phase 3: PR3 — Botanical Data
 

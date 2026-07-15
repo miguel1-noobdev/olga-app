@@ -1,4 +1,5 @@
 import { ArticleModel, IArticle } from '../models/article';
+import { canPublishArticle, reviewArticle, unpublishArticle } from '@/lib/admin/content/lifecycle';
 
 export interface ArticleRecord {
   id: string;
@@ -12,6 +13,8 @@ export interface ArticleRecord {
   readingTime: string;
   published: boolean;
   publishedAt: string | null;
+  reviewedAt?: string | null;
+  unpublishedAt?: string | null;
   createdAt: string;
 }
 
@@ -44,7 +47,9 @@ export interface ArticleRepository {
   findPublishedBySlug(slug: string): Promise<ArticleRecord | null>;
   findLatestPublished(limit: number): Promise<ArticleRecord[]>;
   findAllPublished(): Promise<ArticleRecord[]>;
+  findAll(): Promise<ArticleRecord[]>;
   update(id: string, input: UpdateArticleInput): Promise<ArticleRecord>;
+  review(id: string): Promise<ArticleRecord>;
   publish(id: string): Promise<void>;
   unpublish(id: string): Promise<void>;
   delete(id: string): Promise<void>;
@@ -72,6 +77,8 @@ function toArticleRecord(doc: IArticle): ArticleRecord {
     readingTime: doc.readingTime,
     published: doc.published,
     publishedAt: doc.publishedAt?.toISOString() || null,
+    reviewedAt: doc.reviewedAt?.toISOString() || null,
+    unpublishedAt: doc.unpublishedAt?.toISOString() || null,
     createdAt: doc.createdAt.toISOString(),
   };
 }
@@ -80,13 +87,10 @@ export function createArticleRepository(): ArticleRepository {
   return {
     async create(input: CreateArticleInput): Promise<ArticleRecord> {
       const slug = input.slug || slugify(input.title);
-      const publishedAt = new Date();
-
       const article = await ArticleModel.create({
         ...input,
         slug,
-        published: true,
-        publishedAt,
+        published: false,
       });
 
       return toArticleRecord(article);
@@ -125,6 +129,11 @@ export function createArticleRepository(): ArticleRepository {
       return articles.map(toArticleRecord);
     },
 
+    async findAll(): Promise<ArticleRecord[]> {
+      const articles = await ArticleModel.find({}).sort({ createdAt: -1 });
+      return articles.map(toArticleRecord);
+    },
+
     async update(id: string, input: UpdateArticleInput): Promise<ArticleRecord> {
       const updateData: any = { ...input };
 
@@ -144,25 +153,61 @@ export function createArticleRepository(): ArticleRepository {
     },
 
     async publish(id: string): Promise<void> {
-      const result = await ArticleModel.findByIdAndUpdate(id, {
-        published: true,
-        publishedAt: new Date(),
-      });
+      const article = await ArticleModel.findById(id);
 
-      if (!result) {
+      if (!article) {
         throw new Error('Article not found');
       }
+
+      if (!canPublishArticle({
+        published: article.published,
+        reviewedAt: article.reviewedAt ?? null,
+        unpublishedAt: article.unpublishedAt ?? null,
+      })) {
+        throw new Error('Article must be reviewed before publishing');
+      }
+
+      await ArticleModel.findByIdAndUpdate(id, {
+        published: true,
+        publishedAt: new Date(),
+        unpublishedAt: null,
+      });
     },
 
     async unpublish(id: string): Promise<void> {
-      const result = await ArticleModel.findByIdAndUpdate(id, {
-        published: false,
-        publishedAt: null,
-      });
+      const article = await ArticleModel.findById(id);
 
-      if (!result) {
+      if (!article) {
         throw new Error('Article not found');
       }
+
+      const update = unpublishArticle({
+        published: article.published,
+        reviewedAt: article.reviewedAt ?? null,
+        unpublishedAt: article.unpublishedAt ?? null,
+      });
+      await ArticleModel.findByIdAndUpdate(id, update);
+    },
+
+    async review(id: string): Promise<ArticleRecord> {
+      const article = await ArticleModel.findById(id);
+
+      if (!article) {
+        throw new Error('Article not found');
+      }
+
+      const update = reviewArticle({
+        published: article.published,
+        reviewedAt: article.reviewedAt ?? null,
+        unpublishedAt: article.unpublishedAt ?? null,
+      });
+      const reviewed = await ArticleModel.findByIdAndUpdate(id, update, { new: true });
+
+      if (!reviewed) {
+        throw new Error('Article not found');
+      }
+
+      return toArticleRecord(reviewed);
     },
 
     async delete(id: string): Promise<void> {
