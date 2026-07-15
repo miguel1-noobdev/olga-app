@@ -44,10 +44,10 @@ Chain strategy: pending
 
 ## Phase 3: PR3 — Botanical Data
 
-- [ ] 3.1 Gate: approve oils/extracts ownership and laboratory coordination; stop without it.
-- [ ] 3.2 RED: test valid private save, invalid no-op, and public exclusion of internal botanical/laboratory fields.
-- [ ] 3.3 GREEN/REFACTOR: add `src/lib/admin/botanico/*`, `src/app/admin/botanico/*`, validation beside `src/lib/db/repository/plant.ts`; retain `src/lib/jardin-digital/projection.ts` as public path.
-- [ ] 3.4 Verify PR3 command; accept `plantas` as source of truth. Non-goals: laboratory redesign, migrations, public expansion.
+- [x] 3.1 Gate: approve oils/extracts ownership and laboratory coordination; stop without it.
+- [x] 3.2 RED: test valid private save, invalid no-op, and public exclusion of internal botanical/laboratory fields.
+- [x] 3.3 GREEN/REFACTOR: add `src/lib/admin/botanico/*`, `src/app/admin/botanico/*`, validation beside `src/lib/db/repository/plant.ts`; retain `src/lib/jardin-digital/projection.ts` as public path.
+- [x] 3.4 Verify PR3 command; accept `plantas` as source of truth. Non-goals: laboratory redesign, migrations, public expansion.
 
 ## Phase 4: PR4 — Users, Roles, and Minimal Activity
 

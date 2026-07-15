@@ -3,6 +3,7 @@ import Link from 'next/link';
 const navigation = [
   { href: '/admin', label: 'Inicio' },
   { href: '/admin/contenido', label: 'Contenido' },
+  { href: '/admin/botanico', label: 'Catálogo botánico' },
   { href: '/admin/salud', label: 'Salud del sistema' },
 ];
 
