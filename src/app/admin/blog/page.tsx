@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { createArticleRepository } from '@/lib/db/repository/article';
 import { connectToDatabase } from '@/lib/db/connect';
-import AdminNavbar from '@/components/admin/admin-navbar';
 
 export default async function AdminBlogPage() {
   await connectToDatabase();
@@ -9,9 +8,7 @@ export default async function AdminBlogPage() {
   const articles = await repo.findAllPublished();
 
   return (
-    <>
-      <AdminNavbar />
-      <main className="min-h-screen bg-surface pt-32 pb-20 px-4 sm:px-6 lg:px-8">
+      <main className="min-h-full bg-surface px-6 py-10 md:px-10">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
@@ -81,6 +78,5 @@ export default async function AdminBlogPage() {
         )}
       </div>
     </main>
-    </>
   );
 }

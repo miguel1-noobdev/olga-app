@@ -2,7 +2,7 @@
 
 ## Intent
 
-Establish the public face and subscriber layer of Botánica Esencial OB. Deliver a glassmorphism landing page, role-based authentication, and a registered-only blog so visitors can subscribe and Olga/Miguel can start building the audience before the business dashboards arrive.
+Establish the public face and subscriber layer of Botánica Esencial OB. Deliver a glassmorphism landing page, role-based authentication, and a registered-only blog so visitors can subscribe and Olga/Admin can start building the audience before the business dashboards arrive.
 
 ## Scope
 

@@ -60,7 +60,7 @@ describe('/admin layout', () => {
 
   it('renders children for admin role', async () => {
     getServerSessionMock.mockResolvedValue({
-      user: { id: 'admin-1', email: 'miguel@test.com', role: 'admin' },
+      user: { id: 'admin-1', email: 'admin@test.com', role: 'admin' },
     });
 
     const jsx = await AdminLayout({ children: <div>Protected content</div> });

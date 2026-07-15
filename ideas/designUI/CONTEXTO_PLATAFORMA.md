@@ -16,12 +16,12 @@ Plataforma single-tenant con dos roles diferenciados.
 | Pública | Visitantes anónimos | Landing completa, pueden registrarse |
 | Restringida | Usuarios registrados (suscriptores) | Blog (parte de la landing) + emails informativos |
 | Privada | Olga (cuenta staff) | Dashboard de producción — su "laboratorio" |
-| Privada | Miguel (admin) | Dashboard admin — operación digital, publicación, administración |
+| Privada | Admin (admin) | Dashboard admin — operación digital, publicación, administración |
 
 **Reglas de acceso:**
 - Visitantes anónimos: ven la landing completa, NO acceden al blog
 - Usuarios suscriptores (registrados con email/contraseña; Google OAuth aplazado): acceden al blog + reciben emails informativos
-- Olga y Miguel: tienen cuentas con rol especial que los lleva a su dashboard privado
+- Olga y Admin: tienen cuentas con rol especial que los lleva a su dashboard privado
 - Los dashboards privados son **apps separadas** que se construyen después, una a una
 
 **Decisión arquitectónica clave**: Single-tenant con dos roles de staff + usuarios suscriptores. NO multi-tenant.
@@ -46,7 +46,7 @@ Fase 1 se considera **cerrada funcionalmente**. Las versiones actuales son acept
 
 ### Sobre `/admin/blog/*` (herramienta temporal)
 - El formulario en `/admin/blog/nuevo` y sus rutas asociadas existen **solo para crear artículos de forma rápida** mientras no hay dashboard admin real.
-- **No es el hogar definitivo** del admin de contenido: su lugar correcto es el futuro **dashboard de Miguel (admin)**.
+- **No es el hogar definitivo** del admin de contenido: su lugar correcto es el futuro **dashboard de Admin (admin)**.
 - Cuando se construya el dashboard admin, esta herramienta provisional será absorbida por él.
 
 ### Modelo de datos de plantas
@@ -70,16 +70,16 @@ Fase 1 se considera **cerrada funcionalmente**. Las versiones actuales son acept
 - Datos típicos: productos, recetas, procesos, fotos, materia prima
 - No publica directamente en el blog
 
-### Miguel (rol: admin / operador digital / staff)
+### Admin (rol: admin / operador digital / staff)
 - Extrae datos de la base
 - Curación, redacción, publicación de artículos del blog
 - Administración de la plataforma (usuarios, BD, automatizaciones, datos, redes)
 
 ### Registro / autenticación
-- **Un solo flujo de registro** para todos los usuarios (suscriptores, Olga, Miguel)
+- **Un solo flujo de registro** para todos los usuarios (suscriptores, Olga, Admin)
 - Registro con **email/contraseña** (único camino habilitado en UI por ahora)
 - **Google OAuth aplazado**: cableado en la configuración de NextAuth pero no expuesto en UI; se activará en una fase posterior
-- **Primer usuario registrado = admin automáticamente** (Miguel)
+- **Primer usuario registrado = admin automáticamente** (Admin)
 - Admin asigna roles después: `suscriptora` → `productora` (Olga)
 - Olga puede usar el blog desde el día 1, sin esperar su dashboard
 
@@ -224,7 +224,7 @@ Fase 1 se considera **cerrada funcionalmente**. Las versiones actuales son acept
 
 **Funcionalidades:**
 - **Comentarios**: solo usuarios registrados, moderación reactiva (eliminables, no aprobados previamente)
-- **Autores**: sistema flexible (Miguel ahora, Olga después si aprende)
+- **Autores**: sistema flexible (Admin ahora, Olga después si aprende)
 - **Imágenes destacadas**: siempre obligatorias
 - **Búsqueda**: habilitada
 - **Newsletter**: integrado
@@ -247,7 +247,7 @@ Fase 1 se considera **cerrada funcionalmente**. Las versiones actuales son acept
 ### Dashboard de Olga (laboratorio)
 *En construcción con el usuario*
 
-**Acceso**: `botanicaob.com/laboratorio` (mismo patrón que `/admin` para Miguel)
+**Acceso**: `botanicaob.com/laboratorio` (mismo patrón que `/admin` para Admin)
 
 **Visualización**: Tablero **Kanban vitaminado** (idea, no religión — puede evolucionar)
 - Prioridad: **rapidez de carga**
@@ -397,7 +397,7 @@ Fase 1 se considera **cerrada funcionalmente**. Las versiones actuales son acept
 
 ---
 
-### Dashboard de Miguel (admin)
+### Dashboard de Admin (admin)
 *Pendiente*
 
 ---
@@ -481,7 +481,7 @@ Fase 1 se considera **cerrada funcionalmente**. Las versiones actuales son acept
 - Lotes, fases (F.A., F.O.), seguimiento temporal, stock y observaciones.
 - Flujos reales de trabajo a partir de su cuaderno de producción.
 
-**Fase 4 — Dashboard de Miguel (admin)**
+**Fase 4 — Dashboard de Admin (admin)**
 - Dashboard admin real.
 - Absorbe la herramienta temporal `/admin/blog/*` para gestión de contenido.
 - Administra usuarios, datos, automatizaciones y publicación.
@@ -497,4 +497,4 @@ Fase 1 se considera **cerrada funcionalmente**. Las versiones actuales son acept
 - ¿Necesita ver histórico de lotes?
 - ¿Necesita alertas? (materia prima baja, lote sin seguimiento)
 - ¿Hay más fases además de F.A. y F.O.?
-- ¿Quién puede editar qué en el laboratorio? (¿Olga sola o Miguel también?)
+- ¿Quién puede editar qué en el laboratorio? (¿Olga sola o Admin también?)

@@ -192,7 +192,7 @@ describe('middleware', () => {
     });
 
     it('allows access to /laboratorio for admin role', async () => {
-      getTokenMock.mockResolvedValue({ id: 'user-1', email: 'miguel@test.com', role: 'admin' });
+      getTokenMock.mockResolvedValue({ id: 'user-1', email: 'admin@test.com', role: 'admin' });
 
       const request = createMockRequest('/laboratorio');
       const result = await middleware(request);
@@ -224,7 +224,7 @@ describe('middleware', () => {
     });
 
     it('allows access to /admin for admin role', async () => {
-      getTokenMock.mockResolvedValue({ id: 'user-1', email: 'miguel@test.com', role: 'admin' });
+      getTokenMock.mockResolvedValue({ id: 'user-1', email: 'admin@test.com', role: 'admin' });
 
       const request = createMockRequest('/admin');
       const result = await middleware(request);
@@ -234,7 +234,7 @@ describe('middleware', () => {
     });
 
     it('allows access to nested /admin routes for admin role', async () => {
-      getTokenMock.mockResolvedValue({ id: 'user-1', email: 'miguel@test.com', role: 'admin' });
+      getTokenMock.mockResolvedValue({ id: 'user-1', email: 'admin@test.com', role: 'admin' });
 
       const request = createMockRequest('/admin/blog/nuevo');
       const result = await middleware(request);

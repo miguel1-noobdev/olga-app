@@ -65,7 +65,7 @@ describe('/laboratorio layout', () => {
 
   it('renders children for admin role', async () => {
     getServerSessionMock.mockResolvedValue({
-      user: { id: 'user-1', email: 'miguel@test.com', role: 'admin' },
+      user: { id: 'user-1', email: 'admin@test.com', role: 'admin' },
     });
 
     const jsx = await LaboratoryLayout({ children: <div>Protected content</div> });

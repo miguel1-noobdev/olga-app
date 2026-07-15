@@ -1,11 +1,8 @@
 import Link from 'next/link';
-import AdminNavbar from '@/components/admin/admin-navbar';
 
 export default function AdminPage() {
   return (
-    <>
-      <AdminNavbar />
-      <main className="min-h-screen bg-surface pt-32 pb-20 px-4 sm:px-6 lg:px-8">
+      <main className="min-h-full bg-surface px-6 py-10 md:px-10">
         <div className="max-w-7xl mx-auto">
           <h1 className="font-serif text-4xl text-on-surface mb-8">
             Panel de Administración
@@ -36,6 +33,18 @@ export default function AdminPage() {
               </p>
             </Link>
 
+            <Link
+              href="/admin/salud"
+              className="bg-white/50 backdrop-blur-[10px] border border-white/20 rounded-xl p-8 hover:bg-white/70 transition-all"
+            >
+              <h2 className="font-serif text-2xl text-on-surface mb-2">
+                Salud del sistema
+              </h2>
+              <p className="font-sans text-base text-on-surface-variant">
+                Ver el estado seguro de las capacidades esenciales
+              </p>
+            </Link>
+
             <div className="bg-white/30 backdrop-blur-[10px] border border-white/20 rounded-xl p-8 opacity-50">
               <h2 className="font-serif text-2xl text-on-surface mb-2">
                 Productos
@@ -56,6 +65,5 @@ export default function AdminPage() {
           </div>
         </div>
       </main>
-    </>
   );
 }

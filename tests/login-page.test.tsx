@@ -124,13 +124,13 @@ describe('LoginForm component', () => {
   it('navigates to /admin after admin login without callbackUrl', async () => {
     signInMock.mockResolvedValue({ ok: true, error: null });
     getSessionMock.mockResolvedValue({
-      user: { id: 'user-1', email: 'miguel@test.com', role: 'admin' },
+      user: { id: 'user-1', email: 'admin@test.com', role: 'admin' },
     });
 
     const user = userEvent.setup();
     render(<LoginForm />);
 
-    await user.type(screen.getByLabelText(/email/i), 'miguel@test.com');
+    await user.type(screen.getByLabelText(/email/i), 'admin@test.com');
     await user.type(screen.getByLabelText(/contraseña/i), 'password123');
     await user.click(screen.getByRole('button', { name: /iniciar sesión/i }));
 

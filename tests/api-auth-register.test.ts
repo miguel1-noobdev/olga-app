@@ -84,7 +84,7 @@ describe('/api/auth/register POST', () => {
     });
 
     const res = await callRegisterRoute({
-      email: 'miguel@botanicaob.com',
+      email: 'admin@botanicaob.com',
       password: 'secret456',
     });
 

@@ -31,10 +31,6 @@ vi.mock('@/lib/db/repository/article', () => ({
   })),
 }));
 
-vi.mock('@/components/admin/admin-navbar', () => ({
-  default: () => <nav data-testid="admin-navbar">AdminNavbar</nav>,
-}));
-
 import AdminBlogPage from '@/app/admin/blog/page';
 
 describe('/admin/blog page', () => {
