@@ -65,11 +65,11 @@ describe('/laboratorio/lotes/[lotId]/editar page', () => {
 
     render(await LaboratoryLotEditPage({ params: { lotId: 'lot-1' } }));
 
-    expect(screen.getByRole('form', { name: /edit lot/i })).toBeInTheDocument();
-    expect(screen.getByRole('spinbutton', { name: /target batch/i })).toHaveValue(500);
-    expect(screen.getByRole('spinbutton', { name: /target batch/i })).toBeEnabled();
-    expect(screen.getByRole('combobox', { name: /status/i })).toBeEnabled();
-    expect(screen.getByRole('link', { name: /back to lot/i })).toHaveAttribute(
+    expect(screen.getByRole('form', { name: /editar lote/i })).toBeInTheDocument();
+    expect(screen.getByRole('spinbutton', { name: /lote objetivo/i })).toHaveValue(500);
+    expect(screen.getByRole('spinbutton', { name: /lote objetivo/i })).toBeEnabled();
+    expect(screen.getByRole('combobox', { name: /estado/i })).toBeEnabled();
+    expect(screen.getByRole('link', { name: /volver al lote/i })).toHaveAttribute(
       'href',
       '/laboratorio/lotes/lot-1'
     );
@@ -80,9 +80,9 @@ describe('/laboratorio/lotes/[lotId]/editar page', () => {
 
     render(await LaboratoryLotEditPage({ params: { lotId: 'lot-1' } }));
 
-    expect(screen.getByRole('spinbutton', { name: /target batch/i })).toBeDisabled();
-    expect(screen.getByRole('combobox', { name: /status/i })).toBeEnabled();
-    expect(screen.getByRole('textbox', { name: /operational observations/i })).toBeEnabled();
+    expect(screen.getByRole('spinbutton', { name: /lote objetivo/i })).toBeDisabled();
+    expect(screen.getByRole('combobox', { name: /estado/i })).toBeEnabled();
+    expect(screen.getByRole('textbox', { name: /observaciones operativas/i })).toBeEnabled();
   });
 
   it('keeps all production controls read-only for completed lots', async () => {
@@ -90,9 +90,9 @@ describe('/laboratorio/lotes/[lotId]/editar page', () => {
 
     render(await LaboratoryLotEditPage({ params: { lotId: 'lot-1' } }));
 
-    expect(screen.getByRole('spinbutton', { name: /target batch/i })).toBeDisabled();
-    expect(screen.getByRole('combobox', { name: /status/i })).toBeDisabled();
-    expect(screen.getByRole('textbox', { name: /operational observations/i })).toBeDisabled();
+    expect(screen.getByRole('spinbutton', { name: /lote objetivo/i })).toBeDisabled();
+    expect(screen.getByRole('combobox', { name: /estado/i })).toBeDisabled();
+    expect(screen.getByRole('textbox', { name: /observaciones operativas/i })).toBeDisabled();
   });
 
   it('returns notFound when the canonical lot does not exist', async () => {

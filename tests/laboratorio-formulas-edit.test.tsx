@@ -111,13 +111,13 @@ describe('/laboratorio/formulas/[id]/edit page', () => {
     const jsx = await LaboratoryEditFormulaPage({ params: { id: 'formula-1' } });
     render(jsx);
 
-    expect(screen.getByRole('heading', { name: 'Edit formula', level: 1 })).toBeInTheDocument();
-    expect(screen.getByRole('form', { name: /edit formula/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /back to formulas/i })).toHaveAttribute(
+    expect(screen.getByRole('heading', { name: /editar fórmula/i, level: 1 })).toBeInTheDocument();
+    expect(screen.getByRole('form', { name: /editar fórmula/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /volver a fórmulas/i })).toHaveAttribute(
       'href',
       '/laboratorio/formulas'
     );
-    expect(screen.getByRole('button', { name: /update formula/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /actualizar fórmula/i })).toBeInTheDocument();
     expect(redirectMock).not.toHaveBeenCalled();
   });
 
@@ -130,43 +130,43 @@ describe('/laboratorio/formulas/[id]/edit page', () => {
     const jsx = await LaboratoryEditFormulaPage({ params: { id: 'formula-1' } });
     render(jsx);
 
-    expect(screen.getByRole('textbox', { name: /product name/i })).toHaveValue('Crema de lavanda');
-    expect(screen.getByRole('textbox', { name: /formula code/i })).toHaveValue('CF-001');
-    expect(screen.getByRole('textbox', { name: /product type/i })).toHaveValue('crema');
-    expect(screen.getByRole('spinbutton', { name: /target batch/i })).toHaveValue(500);
-    expect(screen.getByRole('combobox', { name: /status/i })).toHaveValue('validated');
+    expect(screen.getByRole('textbox', { name: /nombre del producto/i })).toHaveValue('Crema de lavanda');
+    expect(screen.getByRole('textbox', { name: /código de fórmula/i })).toHaveValue('CF-001');
+    expect(screen.getByRole('textbox', { name: /tipo de producto/i })).toHaveValue('crema');
+    expect(screen.getByRole('spinbutton', { name: /lote objetivo/i })).toHaveValue(500);
+    expect(screen.getByRole('combobox', { name: /estado/i })).toHaveValue('validated');
 
-    expect(screen.getByRole('textbox', { name: /aqueous phase ingredient 1 name/i })).toHaveValue(
+    expect(screen.getByRole('textbox', { name: /nombre del ingrediente 1 de la fase acuosa/i })).toHaveValue(
       'Agua purificada'
     );
     expect(
-      screen.getByRole('spinbutton', { name: /aqueous phase ingredient 1 grams/i })
+      screen.getByRole('spinbutton', { name: /gramos del ingrediente 1 de la fase acuosa/i })
     ).toHaveValue(300);
 
-    expect(screen.getByRole('textbox', { name: /oil phase ingredient 1 name/i })).toHaveValue(
+    expect(screen.getByRole('textbox', { name: /nombre del ingrediente 1 de la fase oleosa/i })).toHaveValue(
       'Aceite de almendras'
     );
-    expect(screen.getByRole('spinbutton', { name: /oil phase ingredient 1 grams/i })).toHaveValue(
+    expect(screen.getByRole('spinbutton', { name: /gramos del ingrediente 1 de la fase oleosa/i })).toHaveValue(
       100
     );
-    expect(screen.getByRole('textbox', { name: /oil phase ingredient 2 name/i })).toHaveValue(
+    expect(screen.getByRole('textbox', { name: /nombre del ingrediente 2 de la fase oleosa/i })).toHaveValue(
       'Manteca de karite'
     );
-    expect(screen.getByRole('spinbutton', { name: /oil phase ingredient 2 grams/i })).toHaveValue(
+    expect(screen.getByRole('spinbutton', { name: /gramos del ingrediente 2 de la fase oleosa/i })).toHaveValue(
       50
     );
 
     expect(
-      screen.getByRole('textbox', { name: /actives phase ingredient 1 name/i })
+      screen.getByRole('textbox', { name: /nombre del ingrediente 1 de la fase activos/i })
     ).toHaveValue('Extracto de lavanda');
     expect(
-      screen.getByRole('spinbutton', { name: /actives phase ingredient 1 grams/i })
+      screen.getByRole('spinbutton', { name: /gramos del ingrediente 1 de la fase activos/i })
     ).toHaveValue(10);
 
-    expect(screen.getByRole('textbox', { name: /procedure step 1/i })).toHaveValue(
+    expect(screen.getByRole('textbox', { name: /paso de procedimiento 1/i })).toHaveValue(
       'Mezclar la fase acuosa.'
     );
-    expect(screen.getByRole('textbox', { name: /procedure step 2/i })).toHaveValue(
+    expect(screen.getByRole('textbox', { name: /paso de procedimiento 2/i })).toHaveValue(
       'Agregar la fase oleosa lentamente.'
     );
   });

@@ -30,9 +30,9 @@ export interface FormulaFormProps {
 }
 
 const PHASE_LABELS: Record<FormulaPhaseKey, string> = {
-  aqueous: 'Aqueous phase',
-  oil: 'Oil phase',
-  actives: 'Actives phase',
+  aqueous: 'Fase acuosa',
+  oil: 'Fase oleosa',
+  actives: 'Fase activos',
 };
 
 function createLocalId(): string {
@@ -107,14 +107,14 @@ export default function FormulaForm({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const formLabel = mode === 'edit' ? 'Edit formula' : 'New formula';
+  const formLabel = mode === 'edit' ? 'Editar fórmula' : 'Nueva fórmula';
   const submitButtonLabel = isSubmitting
     ? mode === 'edit'
-      ? 'Updating...'
-      : 'Saving...'
+      ? 'Actualizando...'
+      : 'Guardando...'
     : mode === 'edit'
-      ? 'Update formula'
-      : 'Save formula';
+      ? 'Actualizar fórmula'
+      : 'Guardar fórmula';
 
   function updateField<K extends keyof FormulaFormValues>(field: K, value: FormulaFormValues[K]) {
     setValues((previous) => ({ ...previous, [field]: value }));
@@ -308,12 +308,12 @@ export default function FormulaForm({
       )}
 
       <fieldset className="bg-surface-container border border-surface-border rounded-2xl p-6 sm:p-8 space-y-6">
-        <legend className="font-headline text-xl text-on-surface px-2">Identity</legend>
+        <legend className="font-headline text-xl text-on-surface px-2">Identidad</legend>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
             <label htmlFor="productName" className={labelClassName}>
-              Product name
+              Nombre del producto
             </label>
             <input
               id="productName"
@@ -321,14 +321,14 @@ export default function FormulaForm({
               value={values.productName}
               onChange={(event) => updateField('productName', event.target.value)}
               className={inputClassName('productName')}
-              placeholder="e.g. Lavender cream"
+              placeholder="p. ej., Crema de lavanda"
             />
             <FieldError name="productName" />
           </div>
 
           <div>
             <label htmlFor="formulaCode" className={labelClassName}>
-              Formula code
+              Código de fórmula
             </label>
             <input
               id="formulaCode"
@@ -336,14 +336,14 @@ export default function FormulaForm({
               value={values.formulaCode}
               onChange={(event) => updateField('formulaCode', event.target.value)}
               className={inputClassName('formulaCode')}
-              placeholder="e.g. CF-001"
+              placeholder="p. ej., CF-001"
             />
             <FieldError name="formulaCode" />
           </div>
 
           <div>
             <label htmlFor="formulaCreatedAt" className={labelClassName}>
-              Created at
+              Fecha de creación
             </label>
             <input
               id="formulaCreatedAt"
@@ -357,7 +357,7 @@ export default function FormulaForm({
 
           <div>
             <label htmlFor="formulaVersion" className={labelClassName}>
-              Version
+              Versión de fórmula
             </label>
             <input
               id="formulaVersion"
@@ -372,12 +372,12 @@ export default function FormulaForm({
       </fieldset>
 
       <fieldset className="bg-surface-container border border-surface-border rounded-2xl p-6 sm:p-8 space-y-6">
-        <legend className="font-headline text-xl text-on-surface px-2">Classification</legend>
+        <legend className="font-headline text-xl text-on-surface px-2">Clasificación</legend>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
             <label htmlFor="productType" className={labelClassName}>
-              Product type
+              Tipo de producto
             </label>
             <input
               id="productType"
@@ -385,14 +385,14 @@ export default function FormulaForm({
               value={values.productType}
               onChange={(event) => updateField('productType', event.target.value)}
               className={inputClassName('productType')}
-              placeholder="e.g. Cream"
+              placeholder="p. ej., Crema"
             />
             <FieldError name="productType" />
           </div>
 
           <div>
             <label htmlFor="status" className={labelClassName}>
-              Status
+              Estado
             </label>
             <select
               id="status"
@@ -411,11 +411,11 @@ export default function FormulaForm({
       </fieldset>
 
       <fieldset className="bg-surface-container border border-surface-border rounded-2xl p-6 sm:p-8 space-y-6">
-        <legend className="font-headline text-xl text-on-surface px-2">Batch size</legend>
+        <legend className="font-headline text-xl text-on-surface px-2">Tamaño del lote</legend>
 
         <div>
           <label htmlFor="targetBatchGrams" className={labelClassName}>
-            Target batch (grams)
+            Lote objetivo (gramos)
           </label>
           <input
             id="targetBatchGrams"
@@ -425,14 +425,14 @@ export default function FormulaForm({
             value={values.targetBatchGrams}
             onChange={(event) => updateField('targetBatchGrams', event.target.value === '' ? '' : Number(event.target.value))}
             className={`${inputClassName('targetBatchGrams')} sm:w-1/2`}
-            placeholder="e.g. 500"
+            placeholder="p. ej., 500"
           />
           <FieldError name="targetBatchGrams" />
         </div>
       </fieldset>
 
       <fieldset className="bg-surface-container border border-surface-border rounded-2xl p-6 sm:p-8 space-y-8">
-        <legend className="font-headline text-xl text-on-surface px-2">Phases and ingredients</legend>
+        <legend className="font-headline text-xl text-on-surface px-2">Fases e ingredientes</legend>
 
         <FieldError name="phases" />
 
@@ -444,7 +444,7 @@ export default function FormulaForm({
               </h3>
 
               {values.phases[phase].length === 0 ? (
-                <p className="text-sm text-on-surface-variant">No ingredients added yet.</p>
+                <p className="text-sm text-on-surface-variant">Todavía no se agregaron ingredientes.</p>
               ) : (
                 <ul className="space-y-3">
                   {values.phases[phase].map((ingredient, index) => (
@@ -453,8 +453,8 @@ export default function FormulaForm({
                         type="text"
                         value={ingredient.ingredient}
                         onChange={(event) => updateIngredient(phase, index, { ingredient: event.target.value })}
-                        placeholder="Ingredient name"
-                        aria-label={`${PHASE_LABELS[phase]} ingredient ${index + 1} name`}
+                        placeholder="Nombre del ingrediente"
+                        aria-label={`Nombre del ingrediente ${index + 1} de la ${PHASE_LABELS[phase].toLowerCase()}`}
                         className={inputBaseClassName}
                       />
                       <input
@@ -468,16 +468,16 @@ export default function FormulaForm({
                           })
                         }
                         placeholder="g"
-                        aria-label={`${PHASE_LABELS[phase]} ingredient ${index + 1} grams`}
+                        aria-label={`Gramos del ingrediente ${index + 1} de la ${PHASE_LABELS[phase].toLowerCase()}`}
                         className={`${inputBaseClassName} w-28 shrink-0`}
                       />
                       <button
                         type="button"
                         onClick={() => removeIngredient(phase, index)}
                         className="px-3 py-3 text-sm text-error hover:text-on-error-container rounded-lg border border-surface-border hover:bg-error-container transition-colors"
-                        aria-label={`Remove ${PHASE_LABELS[phase]} ingredient ${index + 1}`}
+                        aria-label={`Eliminar ingrediente ${index + 1} de la ${PHASE_LABELS[phase].toLowerCase()}`}
                       >
-                        Remove
+                        Eliminar
                       </button>
                     </li>
                   ))}
@@ -489,7 +489,7 @@ export default function FormulaForm({
                 onClick={() => addIngredient(phase)}
                 className="text-sm font-medium text-primary hover:text-primary/80 underline"
               >
-                + Add ingredient to {PHASE_LABELS[phase].toLowerCase()}
+                + Agregar ingrediente a {PHASE_LABELS[phase].toLowerCase()}
               </button>
             </section>
           ))}
@@ -497,7 +497,7 @@ export default function FormulaForm({
       </fieldset>
 
       <fieldset className="bg-surface-container border border-surface-border rounded-2xl p-6 sm:p-8 space-y-6">
-        <legend className="font-headline text-xl text-on-surface px-2">Procedure</legend>
+        <legend className="font-headline text-xl text-on-surface px-2">Procedimiento</legend>
 
         <FieldError name="procedureSteps" />
 
@@ -510,8 +510,8 @@ export default function FormulaForm({
               <textarea
                 value={step.instruction}
                 onChange={(event) => updateProcedureStep(index, event.target.value)}
-                placeholder={`Step ${step.stepNumber} instruction`}
-                aria-label={`Procedure step ${step.stepNumber}`}
+                placeholder={`Instrucción del paso ${step.stepNumber}`}
+                aria-label={`Paso de procedimiento ${step.stepNumber}`}
                 rows={2}
                 className={inputBaseClassName}
               />
@@ -519,9 +519,9 @@ export default function FormulaForm({
                 type="button"
                 onClick={() => removeProcedureStep(index)}
                 className="px-3 py-3 text-sm text-error hover:text-on-error-container rounded-lg border border-surface-border hover:bg-error-container transition-colors"
-                aria-label={`Remove procedure step ${step.stepNumber}`}
+                aria-label={`Eliminar paso de procedimiento ${step.stepNumber}`}
               >
-                Remove
+                Eliminar
               </button>
             </li>
           ))}
@@ -532,15 +532,15 @@ export default function FormulaForm({
           onClick={addProcedureStep}
           className="text-sm font-medium text-primary hover:text-primary/80 underline"
         >
-          + Add procedure step
+          + Agregar paso de procedimiento
         </button>
       </fieldset>
 
       <fieldset className="bg-surface-container border border-surface-border rounded-2xl p-6 sm:p-8 space-y-6">
-        <legend className="font-headline text-xl text-on-surface px-2">Product objectives</legend>
+        <legend className="font-headline text-xl text-on-surface px-2">Objetivos del producto</legend>
 
         {values.productObjectives.length === 0 ? (
-          <p className="text-sm text-on-surface-variant">No objectives added yet.</p>
+          <p className="text-sm text-on-surface-variant">Todavía no se agregaron objetivos.</p>
         ) : (
           <ul className="space-y-3">
             {values.productObjectives.map((objective, index) => (
@@ -549,17 +549,17 @@ export default function FormulaForm({
                   type="text"
                   value={objective.value}
                   onChange={(event) => updateProductObjective(index, event.target.value)}
-                  placeholder="e.g. Hydrating"
-                  aria-label={`Product objective ${index + 1}`}
+                  placeholder="p. ej., Hidratante"
+                  aria-label={`Objetivo del producto ${index + 1}`}
                   className={inputBaseClassName}
                 />
                 <button
                   type="button"
                   onClick={() => removeProductObjective(index)}
                   className="px-3 py-3 text-sm text-error hover:text-on-error-container rounded-lg border border-surface-border hover:bg-error-container transition-colors"
-                  aria-label={`Remove product objective ${index + 1}`}
+                  aria-label={`Eliminar objetivo del producto ${index + 1}`}
                 >
-                  Remove
+                  Eliminar
                 </button>
               </li>
             ))}
@@ -571,19 +571,19 @@ export default function FormulaForm({
           onClick={addProductObjective}
           className="text-sm font-medium text-primary hover:text-primary/80 underline"
         >
-          + Add product objective
+          + Agregar objetivo del producto
         </button>
       </fieldset>
 
       <fieldset className="bg-surface-container border border-surface-border rounded-2xl p-6 sm:p-8 space-y-6">
-        <legend className="font-headline text-xl text-on-surface px-2">Technical data</legend>
+        <legend className="font-headline text-xl text-on-surface px-2">Datos técnicos</legend>
 
         <FieldError name="technicalData" />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <div>
             <label htmlFor="technicalData-finalPh" className={labelClassName}>
-              Final pH
+              pH final
             </label>
             <input
               id="technicalData-finalPh"
@@ -597,13 +597,13 @@ export default function FormulaForm({
                 })
               }
               className={inputBaseClassName}
-              placeholder="e.g. 5.5"
+              placeholder="p. ej., 5.5"
             />
           </div>
 
           <div>
             <label htmlFor="technicalData-productionTemperatureCelsius" className={labelClassName}>
-              Production temperature (°C)
+              Temperatura de producción (°C)
             </label>
             <input
               id="technicalData-productionTemperatureCelsius"
@@ -618,13 +618,13 @@ export default function FormulaForm({
                 })
               }
               className={inputBaseClassName}
-              placeholder="e.g. 75"
+              placeholder="p. ej., 75"
             />
           </div>
 
           <div>
             <label htmlFor="technicalData-mixingTimeMinutes" className={labelClassName}>
-              Mixing time (minutes)
+              Tiempo de mezcla (minutos)
             </label>
             <input
               id="technicalData-mixingTimeMinutes"
@@ -638,13 +638,13 @@ export default function FormulaForm({
                 })
               }
               className={inputBaseClassName}
-              placeholder="e.g. 20"
+              placeholder="p. ej., 20"
             />
           </div>
 
           <div>
             <label htmlFor="technicalData-preservative" className={labelClassName}>
-              Preservative
+              Conservante
             </label>
             <input
               id="technicalData-preservative"
@@ -657,7 +657,7 @@ export default function FormulaForm({
 
           <div>
             <label htmlFor="technicalData-fragrance" className={labelClassName}>
-              Fragrance
+              Fragancia
             </label>
             <input
               id="technicalData-fragrance"
@@ -684,18 +684,18 @@ export default function FormulaForm({
       </fieldset>
 
       <fieldset className="bg-surface-container border border-surface-border rounded-2xl p-6 sm:p-8 space-y-6">
-        <legend className="font-headline text-xl text-on-surface px-2">Product evaluation</legend>
+        <legend className="font-headline text-xl text-on-surface px-2">Evaluación del producto</legend>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {(
             [
-              ['texture', 'Texture'],
+              ['texture', 'Textura'],
               ['color', 'Color'],
-              ['smell', 'Smell'],
-              ['viscosity', 'Viscosity'],
-              ['absorption', 'Absorption'],
-              ['foam', 'Foam'],
-              ['stability', 'Stability'],
+              ['smell', 'Olor'],
+              ['viscosity', 'Viscosidad'],
+              ['absorption', 'Absorción'],
+              ['foam', 'Espuma'],
+              ['stability', 'Estabilidad'],
             ] as const
           ).map(([key, label]) => (
             <div key={key}>
@@ -715,14 +715,14 @@ export default function FormulaForm({
       </fieldset>
 
       <fieldset className="bg-surface-container border border-surface-border rounded-2xl p-6 sm:p-8 space-y-6">
-        <legend className="font-headline text-xl text-on-surface px-2">Use test</legend>
+        <legend className="font-headline text-xl text-on-surface px-2">Prueba de uso</legend>
 
         <FieldError name="useTest" />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
             <label htmlFor="useTest-approxExpirationDate" className={labelClassName}>
-              Approximate expiration date
+              Vencimiento aproximado
             </label>
             <input
               id="useTest-approxExpirationDate"
@@ -735,7 +735,7 @@ export default function FormulaForm({
         </div>
 
         {values.useTest.entries.length === 0 ? (
-          <p className="text-sm text-on-surface-variant">No test entries added yet.</p>
+          <p className="text-sm text-on-surface-variant">Todavía no se agregaron entradas de prueba.</p>
         ) : (
           <ul className="space-y-4">
             {values.useTest.entries.map((entry, index) => (
@@ -744,14 +744,14 @@ export default function FormulaForm({
                   type="date"
                   value={entry.date}
                   onChange={(event) => updateUseTestEntry(index, { date: event.target.value })}
-                  aria-label={`Use test entry ${index + 1} date`}
+                  aria-label={`Fecha de la entrada ${index + 1} de prueba de uso`}
                   className={`${inputBaseClassName} w-44 shrink-0`}
                 />
                 <textarea
                   value={entry.note}
                   onChange={(event) => updateUseTestEntry(index, { note: event.target.value })}
-                  placeholder="Observation note"
-                  aria-label={`Use test entry ${index + 1} note`}
+                  placeholder="Nota de observación"
+                  aria-label={`Nota de la entrada ${index + 1} de prueba de uso`}
                   rows={2}
                   className={inputBaseClassName}
                 />
@@ -759,9 +759,9 @@ export default function FormulaForm({
                   type="button"
                   onClick={() => removeUseTestEntry(index)}
                   className="px-3 py-3 text-sm text-error hover:text-on-error-container rounded-lg border border-surface-border hover:bg-error-container transition-colors"
-                  aria-label={`Remove use test entry ${index + 1}`}
+                  aria-label={`Eliminar entrada ${index + 1} de prueba de uso`}
                 >
-                  Remove
+                  Eliminar
                 </button>
               </li>
             ))}
@@ -773,7 +773,7 @@ export default function FormulaForm({
           onClick={addUseTestEntry}
           className="text-sm font-medium text-primary hover:text-primary/80 underline"
         >
-          + Add use test entry
+          + Agregar entrada de prueba de uso
         </button>
       </fieldset>
 
@@ -783,12 +783,12 @@ export default function FormulaForm({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {(
             [
-              ['function', 'Function'],
-              ['emulsionType', 'Emulsion type'],
-              ['dosage', 'Dosage'],
-              ['temperature', 'Temperature'],
-              ['compatibility', 'Compatibility'],
-              ['inconveniences', 'Inconveniences'],
+              ['function', 'Función'],
+              ['emulsionType', 'Tipo de emulsión'],
+              ['dosage', 'Dosificación'],
+              ['temperature', 'Temperatura'],
+              ['compatibility', 'Compatibilidad'],
+              ['inconveniences', 'Inconvenientes'],
               ['ph', 'pH'],
             ] as const
           ).map(([key, label]) => (
@@ -809,7 +809,7 @@ export default function FormulaForm({
       </fieldset>
 
       <fieldset className="bg-surface-container border border-surface-border rounded-2xl p-6 sm:p-8 space-y-6">
-        <legend className="font-headline text-xl text-on-surface px-2">Final observations</legend>
+        <legend className="font-headline text-xl text-on-surface px-2">Observaciones finales</legend>
 
         <textarea
           id="finalObservations"
@@ -817,8 +817,8 @@ export default function FormulaForm({
           onChange={(event) => updateField('finalObservations', event.target.value)}
           rows={4}
           className={inputBaseClassName}
-          placeholder="Any closing notes about the formula"
-          aria-label="Final observations"
+          placeholder="Notas finales sobre la fórmula"
+          aria-label="Observaciones finales"
         />
       </fieldset>
 
@@ -835,7 +835,7 @@ export default function FormulaForm({
           onClick={() => router.back()}
           className="px-8 py-3 bg-surface-container-high text-on-surface border border-surface-border rounded-full font-label text-sm font-bold uppercase tracking-wider hover:bg-surface-container-highest transition-all"
         >
-          Cancel
+          Cancelar
         </button>
       </div>
     </form>

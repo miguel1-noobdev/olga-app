@@ -21,18 +21,18 @@ export default async function LaboratoryCreateLotPage({ searchParams }: PageProp
           className="inline-flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors font-body text-sm"
         >
           <ArrowLeftIcon className="w-4 h-4" />
-          Back to lots
+          Volver a lotes
         </Link>
 
         <section className="bg-surface-container border border-surface-border rounded-2xl p-8">
-          <h1 className="font-headline text-3xl text-on-surface mb-2">Create lot</h1>
+          <h1 className="font-headline text-3xl text-on-surface mb-2">Crear lote</h1>
           <p className="font-body text-on-surface-variant mb-6">
-            Select a validated formula and set the target batch weight.
+            Seleccioná una fórmula validada y establecé el peso objetivo del lote.
           </p>
 
           {formulas.length === 0 ? (
             <p className="font-body text-on-surface-variant">
-              No validated formulas are available for lot creation.
+              No hay fórmulas validadas disponibles para crear un lote.
             </p>
           ) : (
             <LotCreationForm

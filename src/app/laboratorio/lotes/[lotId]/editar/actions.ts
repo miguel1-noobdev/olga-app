@@ -26,7 +26,7 @@ export async function submitLotEditUpdate(
   try {
     const currentLot = await repository.findById(lotId);
     if (!currentLot) {
-      return { success: false, error: 'Lot not found' };
+      return { success: false, error: 'Lote no encontrado' };
     }
 
     const update = toUpdateLotInput(values);
@@ -36,7 +36,7 @@ export async function submitLotEditUpdate(
     }
 
     if (!permissions.canRescaleSnapshot && update.targetBatchGrams !== undefined) {
-      return { success: false, error: 'Lot snapshot cannot be rescaled in its current status' };
+      return { success: false, error: 'La instantánea del lote no puede reescalarse en su estado actual' };
     }
 
     const record = await repository.update(lotId, update);
@@ -48,7 +48,7 @@ export async function submitLotEditUpdate(
 
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to update lot. Please try again.',
+      error: error instanceof Error ? error.message : 'No se pudo actualizar el lote. Intentelo de nuevo.',
     };
   }
 }

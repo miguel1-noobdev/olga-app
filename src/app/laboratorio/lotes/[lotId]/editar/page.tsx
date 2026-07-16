@@ -30,10 +30,10 @@ export default async function LaboratoryLotEditPage({ params }: PageProps) {
           className="inline-flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors font-body text-sm"
         >
           <ArrowLeftIcon className="w-4 h-4" />
-          Back to lot
+          Volver al lote
         </Link>
         <section className="bg-surface-container border border-surface-border rounded-2xl p-8">
-          <h1 className="font-headline text-3xl text-on-surface mb-2">Edit lot</h1>
+          <h1 className="font-headline text-3xl text-on-surface mb-2">Editar lote</h1>
           <p className="font-body text-on-surface-variant mb-6">{lot.lotCode}</p>
           <LotEditForm
             initialValues={toLotEditFormValues(lot)}

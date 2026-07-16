@@ -37,19 +37,19 @@ describe('LotEditForm', () => {
     );
 
     expect(
-      screen.getByRole('form', { name: /edit lot/i })
+      screen.getByRole('form', { name: /editar lote/i })
     ).toBeInTheDocument();
-    expect(screen.getByRole('combobox', { name: /status/i })).toHaveValue(
+    expect(screen.getByRole('combobox', { name: /estado/i })).toHaveValue(
       'planned'
     );
-    expect(screen.getByLabelText(/planned at/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/started at/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/completed at/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/planificado el/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/iniciado el/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/completado el/i)).toBeInTheDocument();
     expect(
-      screen.getByRole('textbox', { name: /operational observations/i })
+      screen.getByRole('textbox', { name: /observaciones operativas/i })
     ).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /update lot/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /actualizar lote/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /cancelar/i })).toBeInTheDocument();
   });
 
   it('exposes only the lifecycle-safe rescaling control among immutable lot fields', () => {
@@ -60,7 +60,7 @@ describe('LotEditForm', () => {
       />
     );
 
-    expect(screen.getByRole('spinbutton', { name: /target batch/i })).toBeEnabled();
+    expect(screen.getByRole('spinbutton', { name: /lote objetivo/i })).toBeEnabled();
     expect(screen.queryByLabelText(/lot number/i)).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/lot code/i)).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/formula snapshot/i)).not.toBeInTheDocument();
@@ -80,14 +80,14 @@ describe('LotEditForm', () => {
       />
     );
 
-    expect(screen.getByRole('combobox', { name: /status/i })).toHaveValue(
+    expect(screen.getByRole('combobox', { name: /estado/i })).toHaveValue(
       'in_progress'
     );
-    expect(screen.getByLabelText(/planned at/i)).toHaveValue('2026-04-15');
-    expect(screen.getByLabelText(/started at/i)).toHaveValue('2026-04-16');
-    expect(screen.getByLabelText(/completed at/i)).toHaveValue('2026-04-17');
+    expect(screen.getByLabelText(/planificado el/i)).toHaveValue('2026-04-15');
+    expect(screen.getByLabelText(/iniciado el/i)).toHaveValue('2026-04-16');
+    expect(screen.getByLabelText(/completado el/i)).toHaveValue('2026-04-17');
     expect(
-      screen.getByRole('textbox', { name: /operational observations/i })
+      screen.getByRole('textbox', { name: /observaciones operativas/i })
     ).toHaveValue('Use fresh water');
   });
 
@@ -101,7 +101,7 @@ describe('LotEditForm', () => {
 
     fireEvent.submit(screen.getByRole('form'));
 
-    expect(await screen.findByText(/status is required/i)).toBeInTheDocument();
+    expect(await screen.findByText(/el estado es obligatorio/i)).toBeInTheDocument();
     expect(submitLotEditMock).not.toHaveBeenCalled();
   });
 
@@ -114,14 +114,14 @@ describe('LotEditForm', () => {
     );
 
     await userEvent.selectOptions(
-      screen.getByRole('combobox', { name: /status/i }),
+      screen.getByRole('combobox', { name: /estado/i }),
       'in_progress'
     );
-    await userEvent.type(screen.getByLabelText(/planned at/i), '2026-04-20');
-    await userEvent.type(screen.getByLabelText(/started at/i), '2026-04-21');
-    await userEvent.type(screen.getByLabelText(/completed at/i), '2026-04-22');
+    await userEvent.type(screen.getByLabelText(/planificado el/i), '2026-04-20');
+    await userEvent.type(screen.getByLabelText(/iniciado el/i), '2026-04-21');
+    await userEvent.type(screen.getByLabelText(/completado el/i), '2026-04-22');
     await userEvent.type(
-      screen.getByRole('textbox', { name: /operational observations/i }),
+      screen.getByRole('textbox', { name: /observaciones operativas/i }),
       'Use fresh water'
     );
 
@@ -151,13 +151,13 @@ describe('LotEditForm', () => {
 
     submitLotEditMock.mockResolvedValue({
       success: false,
-      errors: { status: 'Server says status is invalid' },
+      errors: { status: 'El servidor dice que el estado es inválido' },
     });
 
     fireEvent.submit(screen.getByRole('form'));
 
     expect(
-      await screen.findByText(/server says status is invalid/i)
+      await screen.findByText(/el servidor dice que el estado es inválido/i)
     ).toBeInTheDocument();
   });
 
@@ -171,13 +171,13 @@ describe('LotEditForm', () => {
 
     submitLotEditMock.mockResolvedValue({
       success: false,
-      error: 'Server rejected the update',
+      error: 'El servidor rechazó la actualización',
     });
 
     fireEvent.submit(screen.getByRole('form'));
 
     expect(
-      await screen.findByText(/server rejected the update/i)
+      await screen.findByText(/el servidor rechazó la actualización/i)
     ).toBeInTheDocument();
   });
 
@@ -193,10 +193,10 @@ describe('LotEditForm', () => {
       () => new Promise((resolve) => setTimeout(() => resolve({ success: true }), 50))
     );
 
-    const submitButton = screen.getByRole('button', { name: /update lot/i });
+    const submitButton = screen.getByRole('button', { name: /actualizar lote/i });
     fireEvent.submit(screen.getByRole('form'));
 
     await waitFor(() => expect(submitButton).toBeDisabled());
-    expect(submitButton).toHaveTextContent(/updating/i);
+    expect(submitButton).toHaveTextContent(/actualizando/i);
   });
 });

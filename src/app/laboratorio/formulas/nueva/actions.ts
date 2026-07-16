@@ -29,7 +29,7 @@ export async function submitFormula(values: FormulaFormValues): Promise<SubmitFo
 
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to save formula. Please try again.',
+      error: error instanceof Error ? error.message : 'No se pudo guardar la fórmula. Inténtelo de nuevo.',
     };
   }
 }

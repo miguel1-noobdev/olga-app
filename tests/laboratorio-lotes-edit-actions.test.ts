@@ -53,7 +53,7 @@ describe('canonical submitLotEditUpdate server action', () => {
 
     await expect(submitLotEditUpdate('lot-1', buildValidForm())).resolves.toEqual({
       success: false,
-      error: 'Lot snapshot cannot be rescaled in its current status',
+      error: 'La instantánea del lote no puede reescalarse en su estado actual',
     });
     expect(updateMock).not.toHaveBeenCalled();
   });
@@ -63,7 +63,7 @@ describe('canonical submitLotEditUpdate server action', () => {
 
     await expect(submitLotEditUpdate('lot-1', values)).resolves.toEqual({
       success: false,
-      errors: { targetBatchGrams: 'Target batch must be greater than 0' },
+      errors: { targetBatchGrams: 'El lote objetivo debe ser mayor a 0' },
     });
     expect(connectToDatabaseMock).not.toHaveBeenCalled();
   });

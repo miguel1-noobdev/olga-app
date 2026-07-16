@@ -38,14 +38,14 @@ export function validateMinimumLotFollowUpForm(values: LotFollowUpFormValues): {
 
   const date = values.date.trim();
   if (!date) {
-    errors.date = 'Date is required';
+    errors.date = 'La fecha es obligatoria';
   } else if (Number.isNaN(new Date(date).getTime())) {
-    errors.date = 'Date is invalid';
+    errors.date = 'La fecha no es válida';
   }
 
   const note = values.note.trim();
   if (!note) {
-    errors.note = 'Note is required';
+    errors.note = 'La nota es obligatoria';
   }
 
   return {

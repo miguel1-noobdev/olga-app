@@ -92,7 +92,7 @@ describe('submitLotFollowUp server action', () => {
 
     expect(result.success).toBe(false);
     expect('error' in result && result.error).toBe(
-      'Failed to add follow-up entry. Please try again.'
+      'No se pudo agregar la entrada de seguimiento. Intentelo de nuevo.'
     );
   });
 });

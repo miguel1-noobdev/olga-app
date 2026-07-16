@@ -53,16 +53,16 @@ export function validateMinimumLotForm(values: LotFormValues): {
 
   const targetBatchGrams = toNumberOrNaN(values.targetBatchGrams);
   if (!Number.isFinite(targetBatchGrams) || targetBatchGrams <= 0) {
-    errors.targetBatchGrams = 'Target batch must be greater than 0';
+    errors.targetBatchGrams = 'El lote objetivo debe ser mayor a 0';
   }
 
   if (!LOT_STATUSES.includes(values.status)) {
-    errors.status = 'Status is required';
+    errors.status = 'El estado es obligatorio';
   }
 
   const plannedAt = values.plannedAt.trim();
   if (plannedAt && Number.isNaN(new Date(plannedAt).getTime())) {
-    errors.plannedAt = 'Planned date is invalid';
+    errors.plannedAt = 'La fecha de planificación no es válida';
   }
 
   return {

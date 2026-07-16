@@ -37,7 +37,7 @@ export default function LotCreationForm({
 
     const targetBatchGrams = Number(values.targetBatchGrams);
     if (!Number.isFinite(targetBatchGrams) || targetBatchGrams <= 0) {
-      setError('Target batch must be greater than 0');
+      setError('El lote objetivo debe ser mayor a 0');
       return;
     }
 
@@ -51,7 +51,7 @@ export default function LotCreationForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} aria-label="Create lot" className="space-y-6">
+    <form onSubmit={handleSubmit} aria-label="Crear lote" className="space-y-6">
       {error && (
         <div role="alert" className="rounded-lg bg-error-container border border-error/30 p-4 text-sm text-on-error-container">
           {error}
@@ -60,7 +60,7 @@ export default function LotCreationForm({
 
       <div>
         <label htmlFor="formulaId" className="block text-sm font-medium text-on-surface mb-2">
-          Source formula
+          Fórmula origen
         </label>
         <select
           id="formulaId"
@@ -83,7 +83,7 @@ export default function LotCreationForm({
 
       <div>
         <label htmlFor="targetBatchGrams" className="block text-sm font-medium text-on-surface mb-2">
-          Target batch (grams)
+          Lote objetivo (gramos)
         </label>
         <input
           id="targetBatchGrams"
@@ -101,14 +101,14 @@ export default function LotCreationForm({
         />
       </div>
 
-      <p className="font-body text-sm text-on-surface-variant">New lots begin in Planned status.</p>
+      <p className="font-body text-sm text-on-surface-variant">Los nuevos lotes comienzan en estado Planeado.</p>
 
       <button
         type="submit"
         disabled={isSubmitting}
         className="px-8 py-3 bg-primary text-on-primary rounded-full font-label text-sm font-bold uppercase tracking-wider disabled:opacity-50"
       >
-        {isSubmitting ? 'Creating...' : 'Create lot'}
+        {isSubmitting ? 'Creando...' : 'Crear lote'}
       </button>
     </form>
   );

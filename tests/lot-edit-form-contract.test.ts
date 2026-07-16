@@ -166,7 +166,7 @@ describe('lot edit form contract', () => {
       const result = validateMinimumLotEditForm(form);
 
       expect(result.valid).toBe(false);
-      expect(result.errors.plannedAt).toMatch(/invalid/i);
+      expect(result.errors.plannedAt).toMatch(/no es válida/i);
     });
 
     it('rejects an invalid started date', () => {
@@ -176,7 +176,7 @@ describe('lot edit form contract', () => {
       const result = validateMinimumLotEditForm(form);
 
       expect(result.valid).toBe(false);
-      expect(result.errors.startedAt).toMatch(/invalid/i);
+      expect(result.errors.startedAt).toMatch(/no es válida/i);
     });
 
     it('rejects an invalid completed date', () => {
@@ -186,7 +186,7 @@ describe('lot edit form contract', () => {
       const result = validateMinimumLotEditForm(form);
 
       expect(result.valid).toBe(false);
-      expect(result.errors.completedAt).toMatch(/invalid/i);
+      expect(result.errors.completedAt).toMatch(/no es válida/i);
     });
   });
 });

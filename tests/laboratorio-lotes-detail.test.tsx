@@ -97,14 +97,14 @@ describe('/laboratorio/lotes/[lotId] page', () => {
 
     expect(findByIdMock).toHaveBeenCalledWith('lot-1');
     expect(screen.getByRole('heading', { name: 'CF-001-L001', level: 1 })).toBeInTheDocument();
-    expect(screen.getByText('Formula provenance')).toBeInTheDocument();
+    expect(screen.getByText(/origen de la fórmula/i)).toBeInTheDocument();
     expect(screen.getByText('CF-001 — v1.0')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /view formula/i })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /ver fórmula/i })).toHaveAttribute(
       'href',
       '/laboratorio/formulas/formula-1'
     );
-    expect(screen.getByText('Operational summary')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Formula snapshot', level: 2 })).toBeInTheDocument();
+    expect(screen.getByText(/resumen operativo/i)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /instantánea de la fórmula/i, level: 2 })).toBeInTheDocument();
     expect(screen.getByText('Blend the phases.')).toBeInTheDocument();
     expect(screen.getByText('Stable texture.')).toBeInTheDocument();
   });
@@ -117,9 +117,9 @@ describe('/laboratorio/lotes/[lotId] page', () => {
       const jsx = await LaboratoryLotDetailPage({ params: { lotId: 'lot-1' } });
       render(jsx);
 
-      await userEvent.type(screen.getByLabelText('Date'), '2026-05-10');
-      await userEvent.type(screen.getByRole('textbox', { name: 'Note' }), 'Color remains stable.');
-      await userEvent.click(screen.getByRole('button', { name: 'Add entry' }));
+      await userEvent.type(screen.getByLabelText(/fecha/i), '2026-05-10');
+      await userEvent.type(screen.getByRole('textbox', { name: /nota/i }), 'Color remains stable.');
+      await userEvent.click(screen.getByRole('button', { name: /agregar entrada/i }));
 
       await waitFor(() => {
         expect(submitLotFollowUpMock).toHaveBeenCalledWith('lot-1', {

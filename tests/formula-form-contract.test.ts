@@ -643,7 +643,7 @@ describe('formula form contract', () => {
       const result = validateMinimumFormulaForm(form);
 
       expect(result.valid).toBe(false);
-      expect(result.errors.phases).toBe('Each ingredient must have a name and grams greater than 0');
+      expect(result.errors.phases).toBe('Cada ingrediente debe tener un nombre y gramos mayores a 0');
     });
 
     it('rejects final pH outside the 0-14 range', () => {
@@ -661,7 +661,7 @@ describe('formula form contract', () => {
       const result = validateMinimumFormulaForm(form);
 
       expect(result.valid).toBe(false);
-      expect(result.errors.technicalData).toBe('Final pH must be between 0 and 14');
+      expect(result.errors.technicalData).toBe('El pH final debe estar entre 0 y 14');
     });
 
     it('rejects negative technical data numbers', () => {
@@ -680,7 +680,7 @@ describe('formula form contract', () => {
 
       expect(result.valid).toBe(false);
       expect(result.errors.technicalData).toBe(
-        'Production temperature must be greater than or equal to 0'
+        'La temperatura de producción debe ser mayor o igual a 0'
       );
     });
 
@@ -699,7 +699,7 @@ describe('formula form contract', () => {
       const result = validateMinimumFormulaForm(form);
 
       expect(result.valid).toBe(false);
-      expect(result.errors.useTest).toBe('Each use test entry must have a date and a note');
+      expect(result.errors.useTest).toBe('Cada entrada de prueba de uso debe tener una fecha y una nota');
     });
   });
 });

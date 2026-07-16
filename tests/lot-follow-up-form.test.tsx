@@ -20,11 +20,11 @@ describe('LotFollowUpForm', () => {
     render(<LotFollowUpForm submitFollowUpEntry={submitFollowUpEntryMock} />);
 
     expect(
-      screen.getByRole('form', { name: /add follow-up entry/i })
+      screen.getByRole('form', { name: /agregar entrada de seguimiento/i })
     ).toBeInTheDocument();
-    expect(screen.getByLabelText(/date/i)).toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: /note/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /add entry/i })).toBeInTheDocument();
+    expect(screen.getByLabelText(/fecha/i)).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /nota/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /agregar entrada/i })).toBeInTheDocument();
   });
 
   it('populates fields from initial values', () => {
@@ -35,8 +35,8 @@ describe('LotFollowUpForm', () => {
       />
     );
 
-    expect(screen.getByLabelText(/date/i)).toHaveValue('2026-05-10');
-    expect(screen.getByRole('textbox', { name: /note/i })).toHaveValue(
+    expect(screen.getByLabelText(/fecha/i)).toHaveValue('2026-05-10');
+    expect(screen.getByRole('textbox', { name: /nota/i })).toHaveValue(
       'Initial note.'
     );
   });
@@ -46,17 +46,17 @@ describe('LotFollowUpForm', () => {
 
     fireEvent.submit(screen.getByRole('form'));
 
-    expect(await screen.findByText(/date is required/i)).toBeInTheDocument();
-    expect(await screen.findByText(/note is required/i)).toBeInTheDocument();
+    expect(await screen.findByText(/la fecha es obligatoria/i)).toBeInTheDocument();
+    expect(await screen.findByText(/la nota es obligatoria/i)).toBeInTheDocument();
     expect(submitFollowUpEntryMock).not.toHaveBeenCalled();
   });
 
   it('submits the form when all fields are valid', async () => {
     render(<LotFollowUpForm submitFollowUpEntry={submitFollowUpEntryMock} />);
 
-    await userEvent.type(screen.getByLabelText(/date/i), '2026-05-10');
+    await userEvent.type(screen.getByLabelText(/fecha/i), '2026-05-10');
     await userEvent.type(
-      screen.getByRole('textbox', { name: /note/i }),
+      screen.getByRole('textbox', { name: /nota/i }),
       'Texture is stable.'
     );
 
@@ -78,51 +78,51 @@ describe('LotFollowUpForm', () => {
   it('displays field errors returned by the submit handler', async () => {
     render(<LotFollowUpForm submitFollowUpEntry={submitFollowUpEntryMock} />);
 
-    await userEvent.type(screen.getByLabelText(/date/i), '2026-05-10');
+    await userEvent.type(screen.getByLabelText(/fecha/i), '2026-05-10');
     await userEvent.type(
-      screen.getByRole('textbox', { name: /note/i }),
+      screen.getByRole('textbox', { name: /nota/i }),
       'Texture is stable.'
     );
 
     submitFollowUpEntryMock.mockResolvedValue({
       success: false,
-      errors: { note: 'Server says note is too long' },
+      errors: { note: 'El servidor dice que la nota es demasiado larga' },
     });
 
     fireEvent.submit(screen.getByRole('form'));
 
     expect(
-      await screen.findByText(/server says note is too long/i)
+      await screen.findByText(/el servidor dice que la nota es demasiado larga/i)
     ).toBeInTheDocument();
   });
 
   it('displays a global error when the submit handler fails without field errors', async () => {
     render(<LotFollowUpForm submitFollowUpEntry={submitFollowUpEntryMock} />);
 
-    await userEvent.type(screen.getByLabelText(/date/i), '2026-05-10');
+    await userEvent.type(screen.getByLabelText(/fecha/i), '2026-05-10');
     await userEvent.type(
-      screen.getByRole('textbox', { name: /note/i }),
+      screen.getByRole('textbox', { name: /nota/i }),
       'Texture is stable.'
     );
 
     submitFollowUpEntryMock.mockResolvedValue({
       success: false,
-      error: 'Server rejected the entry',
+      error: 'El servidor rechazó la entrada',
     });
 
     fireEvent.submit(screen.getByRole('form'));
 
     expect(
-      await screen.findByText(/server rejected the entry/i)
+      await screen.findByText(/el servidor rechazó la entrada/i)
     ).toBeInTheDocument();
   });
 
   it('disables the submit button while submitting', async () => {
     render(<LotFollowUpForm submitFollowUpEntry={submitFollowUpEntryMock} />);
 
-    await userEvent.type(screen.getByLabelText(/date/i), '2026-05-10');
+    await userEvent.type(screen.getByLabelText(/fecha/i), '2026-05-10');
     await userEvent.type(
-      screen.getByRole('textbox', { name: /note/i }),
+      screen.getByRole('textbox', { name: /nota/i }),
       'Texture is stable.'
     );
 
@@ -133,10 +133,10 @@ describe('LotFollowUpForm', () => {
         )
     );
 
-    const submitButton = screen.getByRole('button', { name: /add entry/i });
+    const submitButton = screen.getByRole('button', { name: /agregar entrada/i });
     fireEvent.submit(screen.getByRole('form'));
 
     await waitFor(() => expect(submitButton).toBeDisabled());
-    expect(submitButton).toHaveTextContent(/adding/i);
+    expect(submitButton).toHaveTextContent(/agregando/i);
   });
 });

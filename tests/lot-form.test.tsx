@@ -35,16 +35,16 @@ describe('LotForm', () => {
   it('renders source formula context and the minimum lot fields', () => {
     render(<LotForm formula={mockFormula} submitLot={submitLotMock} />);
 
-    expect(screen.getByRole('form', { name: /create lot/i })).toBeInTheDocument();
+    expect(screen.getByRole('form', { name: /crear lote/i })).toBeInTheDocument();
     expect(screen.getByText('Lavender cream')).toBeInTheDocument();
     expect(screen.getByText('CF-001 — v1.0')).toBeInTheDocument();
     expect(screen.getByText('500 g')).toBeInTheDocument();
-    expect(screen.getByRole('spinbutton', { name: /target batch/i })).toHaveValue(500);
-    expect(screen.getByRole('combobox', { name: /status/i })).toHaveValue('planned');
-    expect(screen.getByLabelText(/planned at/i)).toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: /operational observations/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /create lot/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
+    expect(screen.getByRole('spinbutton', { name: /lote objetivo/i })).toHaveValue(500);
+    expect(screen.getByRole('combobox', { name: /estado/i })).toHaveValue('planned');
+    expect(screen.getByLabelText(/planificado el/i)).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /observaciones operativas/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /crear lote/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /cancelar/i })).toBeInTheDocument();
   });
 
   it('does not expose generated identity or snapshot fields as inputs', () => {
@@ -58,26 +58,26 @@ describe('LotForm', () => {
   it('displays validation errors when target batch is missing', async () => {
     render(<LotForm formula={mockFormula} submitLot={submitLotMock} />);
 
-    const targetBatchInput = screen.getByRole('spinbutton', { name: /target batch/i });
+    const targetBatchInput = screen.getByRole('spinbutton', { name: /lote objetivo/i });
     await userEvent.clear(targetBatchInput);
 
     fireEvent.submit(screen.getByRole('form'));
 
-    expect(await screen.findByText(/target batch must be greater than 0/i)).toBeInTheDocument();
+    expect(await screen.findByText(/el lote objetivo debe ser mayor a 0/i)).toBeInTheDocument();
     expect(submitLotMock).not.toHaveBeenCalled();
   });
 
   it('submits the form when all required fields are valid', async () => {
     render(<LotForm formula={mockFormula} submitLot={submitLotMock} />);
 
-    const targetBatchInput = screen.getByRole('spinbutton', { name: /target batch/i });
+    const targetBatchInput = screen.getByRole('spinbutton', { name: /lote objetivo/i });
     await userEvent.clear(targetBatchInput);
     await userEvent.type(targetBatchInput, '750');
 
-    await userEvent.selectOptions(screen.getByRole('combobox', { name: /status/i }), 'in_progress');
-    await userEvent.type(screen.getByLabelText(/planned at/i), '2026-04-20');
+    await userEvent.selectOptions(screen.getByRole('combobox', { name: /estado/i }), 'in_progress');
+    await userEvent.type(screen.getByLabelText(/planificado el/i), '2026-04-20');
     await userEvent.type(
-      screen.getByRole('textbox', { name: /operational observations/i }),
+      screen.getByRole('textbox', { name: /observaciones operativas/i }),
       'Use fresh water'
     );
 
@@ -102,12 +102,12 @@ describe('LotForm', () => {
 
     submitLotMock.mockResolvedValue({
       success: false,
-      errors: { targetBatchGrams: 'Server says batch is too large' },
+      errors: { targetBatchGrams: 'El servidor dice que el lote es demasiado grande' },
     });
 
     fireEvent.submit(screen.getByRole('form'));
 
-    expect(await screen.findByText(/server says batch is too large/i)).toBeInTheDocument();
+    expect(await screen.findByText(/el servidor dice que el lote es demasiado grande/i)).toBeInTheDocument();
   });
 
   it('displays a global error when the action fails without field errors', async () => {
@@ -115,12 +115,12 @@ describe('LotForm', () => {
 
     submitLotMock.mockResolvedValue({
       success: false,
-      error: 'Server rejected the lot',
+      error: 'El servidor rechazó el lote',
     });
 
     fireEvent.submit(screen.getByRole('form'));
 
-    expect(await screen.findByText(/server rejected the lot/i)).toBeInTheDocument();
+    expect(await screen.findByText(/el servidor rechazó el lote/i)).toBeInTheDocument();
   });
 
   it('disables the submit button while submitting', async () => {
@@ -130,10 +130,10 @@ describe('LotForm', () => {
       () => new Promise((resolve) => setTimeout(() => resolve({ success: true }), 50))
     );
 
-    const submitButton = screen.getByRole('button', { name: /create lot/i });
+    const submitButton = screen.getByRole('button', { name: /crear lote/i });
     fireEvent.submit(screen.getByRole('form'));
 
     await waitFor(() => expect(submitButton).toBeDisabled());
-    expect(submitButton).toHaveTextContent(/creating/i);
+    expect(submitButton).toHaveTextContent(/creando/i);
   });
 });

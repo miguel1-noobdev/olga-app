@@ -30,13 +30,13 @@ export default async function LaboratoryEditFormulaPage({ params }: PageProps) {
           className="inline-flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors font-body text-sm"
         >
           <ArrowLeftIcon className="w-4 h-4" />
-          Back to formulas
+          Volver a fórmulas
         </Link>
 
         <section className="bg-surface-container border border-surface-border rounded-2xl p-8">
-          <h1 className="font-headline text-3xl text-on-surface mb-2">Edit formula</h1>
+          <h1 className="font-headline text-3xl text-on-surface mb-2">Editar fórmula</h1>
           <p className="font-body text-on-surface-variant mb-8">
-            Update the formula identity, classification, phases, and procedure.
+            Actualizar la identidad, clasificación, fases y procedimiento de la fórmula.
           </p>
 
           <FormulaForm

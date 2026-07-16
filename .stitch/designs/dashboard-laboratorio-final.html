@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Laboratorio Final - Dashboard</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..900&amp;family=Public+Sans:wght@400;500;600&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-background": "#efecf8",
+                        "secondary-dim": "#eda500",
+                        "outline": "#76747f",
+                        "on-secondary-container": "#fff6ee",
+                        "on-primary-fixed-variant": "#006065",
+                        "on-error-container": "#ffa8a3",
+                        "surface-variant": "#252530",
+                        "surface-container-high": "#1f1f29",
+                        "on-surface": "#efecf8",
+                        "on-secondary-fixed-variant": "#6d4a00",
+                        "on-error": "#490006",
+                        "on-tertiary-fixed": "#064200",
+                        "on-tertiary": "#0d6100",
+                        "on-tertiary-fixed-variant": "#0d6200",
+                        "on-tertiary-container": "#0b5800",
+                        "error-container": "#9f0519",
+                        "surface-bright": "#2b2b38",
+                        "surface-container": "#191922",
+                        "surface-container-highest": "#252530",
+                        "surface-container-lowest": "#000000",
+                        "on-primary-container": "#00565a",
+                        "inverse-on-surface": "#55545e",
+                        "secondary": "#ffb204",
+                        "tertiary-dim": "#2be800",
+                        "background": "#0d0d15",
+                        "primary": "#96f8ff",
+                        "on-secondary-fixed": "#483000",
+                        "error": "#ff716c",
+                        "on-secondary": "#533700",
+                        "primary-dim": "#00e2ed",
+                        "error-dim": "#d7383b",
+                        "on-primary": "#005f64",
+                        "tertiary": "#8eff71",
+                        "surface-container-low": "#13131b",
+                        "surface": "#0d0d15",
+                        "secondary-fixed": "#ffc971",
+                        "secondary-fixed-dim": "#ffb629",
+                        "outline-variant": "#484750",
+                        "secondary-container": "#7f5700",
+                        "primary-container": "#00f1fd",
+                        "tertiary-fixed-dim": "#2be800",
+                        "tertiary-fixed": "#2ff801",
+                        "primary-fixed": "#00f1fd",
+                        "on-surface-variant": "#acaab5",
+                        "primary-fixed-dim": "#00e2ed",
+                        "inverse-surface": "#fcf8ff",
+                        "tertiary-container": "#2ff801",
+                        "surface-tint": "#96f8ff",
+                        "surface-dim": "#0d0d15",
+                        "inverse-primary": "#006a6f",
+                        "on-primary-fixed": "#004145"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Space Grotesk", "sans-serif"],
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["Geist", "sans-serif"],
+                        "label": ["Public Sans", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-surface text-on-surface font-body min-h-screen flex flex-col antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<nav class="bg-surface-container-low border-b border-outline-variant full-width top-0 z-50 flex justify-between items-center px-6 py-3 w-full max-w-full">
+<!-- Brand -->
+<div class="flex items-center gap-8">
+<div class="font-headline text-xl font-bold tracking-tighter text-primary">Laboratorio Final</div>
+<!-- Navigation Links -->
+<div class="hidden md:flex items-center gap-6">
+<a class="flex items-center gap-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-variant transition-colors duration-200 cursor-pointer active:opacity-80 px-2 py-1 rounded font-body text-label-md tracking-tight" href="#">
+<span class="material-symbols-outlined text-[18px]">science</span>
+                    Fórmulas
+                </a>
+<a class="flex items-center gap-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-variant transition-colors duration-200 cursor-pointer active:opacity-80 px-2 py-1 rounded font-body text-label-md tracking-tight" href="#">
+<span class="material-symbols-outlined text-[18px]">inventory_2</span>
+                    Lotes
+                </a>
+<a class="flex items-center gap-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-variant transition-colors duration-200 cursor-pointer active:opacity-80 px-2 py-1 rounded font-body text-label-md tracking-tight" href="#">
+<span class="material-symbols-outlined text-[18px]">yard</span>
+                    Mi jardín
+                </a>
+<a class="flex items-center gap-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-variant transition-colors duration-200 cursor-pointer active:opacity-80 px-2 py-1 rounded font-body text-label-md tracking-tight" href="#">
+<span class="material-symbols-outlined text-[18px]">opacity</span>
+                    Mis aceites
+                </a>
+</div>
+</div>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-4">
+<a class="text-on-surface-variant hover:text-on-surface hover:bg-surface-variant transition-colors duration-200 cursor-pointer active:opacity-80 px-3 py-1.5 rounded font-label text-sm font-medium" href="#">
+                Ver sitio público
+            </a>
+<button class="text-primary hover:bg-surface-variant transition-colors duration-200 cursor-pointer active:opacity-80 px-3 py-1.5 rounded font-label text-sm font-medium border border-primary/20 hover:border-primary/50">
+                Cerrar sesión
+            </button>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="flex-1 container mx-auto px-6 py-12 max-w-7xl">
+<!-- Header Section -->
+<header class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+<div>
+<h1 class="font-display text-4xl md:text-5xl font-bold text-on-surface tracking-tight">Hola, Olga</h1>
+<p class="font-body text-on-surface-variant mt-2 text-lg">Panel de operaciones del laboratorio</p>
+</div>
+<button class="bg-primary text-on-primary-container hover:bg-primary-dim transition-colors duration-200 px-5 py-2.5 rounded-DEFAULT font-label font-medium flex items-center gap-2 shadow-[0_0_15px_rgba(150,248,255,0.15)] hover:shadow-[0_0_20px_rgba(150,248,255,0.3)] w-fit">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add</span>
+                Nueva fórmula
+            </button>
+</header>
+<!-- Navigation Grid -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Card 1: Fórmulas -->
+<a class="group relative bg-surface-container border border-surface-bright hover:border-primary rounded-lg p-6 transition-all duration-300 flex flex-col h-full overflow-hidden" href="#">
+<div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+<div class="w-12 h-12 rounded-lg bg-surface-bright flex items-center justify-center mb-6 group-hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined text-3xl text-secondary group-hover:text-primary transition-colors">science</span>
+</div>
+<h2 class="font-headline text-xl font-bold text-on-surface mb-2 group-hover:text-primary transition-colors">Fórmulas</h2>
+<p class="font-body text-sm text-on-surface-variant flex-1">Diseñá y validá tus fórmulas.</p>
+<div class="mt-6 flex justify-end">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transform group-hover:translate-x-1 transition-all">arrow_forward</span>
+</div>
+</a>
+<!-- Card 2: Lotes -->
+<a class="group relative bg-surface-container border border-surface-bright hover:border-primary rounded-lg p-6 transition-all duration-300 flex flex-col h-full overflow-hidden" href="#">
+<div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+<div class="w-12 h-12 rounded-lg bg-surface-bright flex items-center justify-center mb-6 group-hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined text-3xl text-secondary group-hover:text-primary transition-colors">inventory_2</span>
+</div>
+<h2 class="font-headline text-xl font-bold text-on-surface mb-2 group-hover:text-primary transition-colors">Lotes</h2>
+<p class="font-body text-sm text-on-surface-variant flex-1">Registrá y seguí cada elaboración.</p>
+<div class="mt-6 flex justify-end">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transform group-hover:translate-x-1 transition-all">arrow_forward</span>
+</div>
+</a>
+<!-- Card 3: Mi jardín -->
+<a class="group relative bg-surface-container border border-surface-bright hover:border-tertiary rounded-lg p-6 transition-all duration-300 flex flex-col h-full overflow-hidden" href="#">
+<div class="absolute inset-0 bg-gradient-to-br from-tertiary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+<div class="w-12 h-12 rounded-lg bg-surface-bright flex items-center justify-center mb-6 group-hover:bg-tertiary/10 transition-colors">
+<span class="material-symbols-outlined text-3xl text-secondary group-hover:text-tertiary transition-colors">yard</span>
+</div>
+<h2 class="font-headline text-xl font-bold text-on-surface mb-2 group-hover:text-tertiary transition-colors">Mi jardín</h2>
+<p class="font-body text-sm text-on-surface-variant flex-1">Consultá tus plantas y sus propiedades.</p>
+<div class="mt-6 flex justify-end">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-tertiary transform group-hover:translate-x-1 transition-all">arrow_forward</span>
+</div>
+</a>
+<!-- Card 4: Mis aceites -->
+<a class="group relative bg-surface-container border border-surface-bright hover:border-secondary-dim rounded-lg p-6 transition-all duration-300 flex flex-col h-full overflow-hidden" href="#">
+<div class="absolute inset-0 bg-gradient-to-br from-secondary-dim/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+<div class="w-12 h-12 rounded-lg bg-surface-bright flex items-center justify-center mb-6 group-hover:bg-secondary-dim/10 transition-colors">
+<span class="material-symbols-outlined text-3xl text-secondary group-hover:text-secondary-dim transition-colors">opacity</span>
+</div>
+<h2 class="font-headline text-xl font-bold text-on-surface mb-2 group-hover:text-secondary-dim transition-colors">Mis aceites</h2>
+<p class="font-body text-sm text-on-surface-variant flex-1">Gestioná tus aceites e infusiones.</p>
+<div class="mt-6 flex justify-end">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-secondary-dim transform group-hover:translate-x-1 transition-all">arrow_forward</span>
+</div>
+</a>
+</section>
+</main>
+</body></html>

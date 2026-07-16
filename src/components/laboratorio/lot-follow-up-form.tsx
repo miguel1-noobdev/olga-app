@@ -83,7 +83,7 @@ export default function LotFollowUpForm({
   return (
     <form
       onSubmit={handleSubmit}
-      aria-label="Add follow-up entry"
+      aria-label="Agregar entrada de seguimiento"
       className="space-y-6"
     >
       {submitError && (
@@ -98,7 +98,7 @@ export default function LotFollowUpForm({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div>
           <label htmlFor="followUpDate" className={labelClassName}>
-            Date
+            Fecha
           </label>
           <input
             id="followUpDate"
@@ -113,7 +113,7 @@ export default function LotFollowUpForm({
 
       <div>
         <label htmlFor="followUpNote" className={labelClassName}>
-          Note
+          Nota
         </label>
         <textarea
           id="followUpNote"
@@ -121,7 +121,7 @@ export default function LotFollowUpForm({
           onChange={(event) => updateField('note', event.target.value)}
           rows={3}
           className={inputClassName('note')}
-          placeholder="e.g. Texture check, color observation, or stability note"
+          placeholder="p. ej., control de textura, observación de color o nota de estabilidad"
         />
         <FieldError name="note" />
       </div>
@@ -131,7 +131,7 @@ export default function LotFollowUpForm({
         disabled={isSubmitting}
         className="px-8 py-3 bg-primary text-on-primary rounded-full font-label text-sm font-bold uppercase tracking-wider hover:opacity-90 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {isSubmitting ? 'Adding...' : 'Add entry'}
+        {isSubmitting ? 'Agregando...' : 'Agregar entrada'}
       </button>
     </form>
   );

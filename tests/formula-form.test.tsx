@@ -20,24 +20,24 @@ describe('FormulaForm', () => {
   it('renders all minimum form sections in create mode', () => {
     render(<FormulaForm submitFormula={submitFormulaMock} />);
 
-    expect(screen.getByRole('form', { name: /new formula/i })).toBeInTheDocument();
-    expect(screen.getByRole('group', { name: /identity/i })).toBeInTheDocument();
-    expect(screen.getByRole('group', { name: /classification/i })).toBeInTheDocument();
-    expect(screen.getByRole('group', { name: /batch size/i })).toBeInTheDocument();
-    expect(screen.getByRole('group', { name: /phases and ingredients/i })).toBeInTheDocument();
-    expect(screen.getByRole('group', { name: /procedure/i })).toBeInTheDocument();
-    expect(screen.getByRole('group', { name: /product objectives/i })).toBeInTheDocument();
-    expect(screen.getByRole('group', { name: /technical data/i })).toBeInTheDocument();
-    expect(screen.getByRole('group', { name: /product evaluation/i })).toBeInTheDocument();
-    expect(screen.getByRole('group', { name: /use test/i })).toBeInTheDocument();
+    expect(screen.getByRole('form', { name: /nueva fórmula/i })).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: /identidad/i })).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: /clasificación/i })).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: /tamaño del lote/i })).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: /fases e ingredientes/i })).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: /procedimiento/i })).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: /objetivos del producto/i })).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: /datos técnicos/i })).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: /evaluación del producto/i })).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: /prueba de uso/i })).toBeInTheDocument();
     expect(screen.getByRole('group', { name: /inci/i })).toBeInTheDocument();
-    expect(screen.getByRole('group', { name: /final observations/i })).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: /observaciones finales/i })).toBeInTheDocument();
   });
 
   it('initializes with one empty procedure step', () => {
     render(<FormulaForm submitFormula={submitFormulaMock} />);
 
-    const procedureField = screen.getByRole('textbox', { name: /procedure step 1/i });
+    const procedureField = screen.getByRole('textbox', { name: /paso de procedimiento 1/i });
     expect(procedureField).toBeInTheDocument();
     expect(procedureField).toHaveValue('');
   });
@@ -45,78 +45,78 @@ describe('FormulaForm', () => {
   it('defaults status to draft', () => {
     render(<FormulaForm submitFormula={submitFormulaMock} />);
 
-    expect(screen.getByRole('combobox', { name: /status/i })).toHaveValue('draft');
+    expect(screen.getByRole('combobox', { name: /estado/i })).toHaveValue('draft');
   });
 
   it('allows adding and removing ingredients from a phase', async () => {
     render(<FormulaForm submitFormula={submitFormulaMock} />);
 
-    const addButton = screen.getByRole('button', { name: /add ingredient to aqueous phase/i });
+    const addButton = screen.getByRole('button', { name: /agregar ingrediente a fase acuosa/i });
     await userEvent.click(addButton);
 
-    expect(screen.getByRole('textbox', { name: /aqueous phase ingredient 1 name/i })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /nombre del ingrediente 1 de la fase acuosa/i })).toBeInTheDocument();
 
-    const removeButton = screen.getByRole('button', { name: /remove aqueous phase ingredient 1/i });
+    const removeButton = screen.getByRole('button', { name: /eliminar ingrediente 1 de la fase acuosa/i });
     await userEvent.click(removeButton);
 
-    expect(screen.queryByRole('textbox', { name: /aqueous phase ingredient 1 name/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('textbox', { name: /nombre del ingrediente 1 de la fase acuosa/i })).not.toBeInTheDocument();
   });
 
   it('allows adding and removing procedure steps', async () => {
     render(<FormulaForm submitFormula={submitFormulaMock} />);
 
-    const addButton = screen.getByRole('button', { name: /add procedure step/i });
+    const addButton = screen.getByRole('button', { name: /agregar paso de procedimiento/i });
     await userEvent.click(addButton);
 
-    expect(screen.getByRole('textbox', { name: /procedure step 2/i })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /paso de procedimiento 2/i })).toBeInTheDocument();
 
-    const removeButton = screen.getByRole('button', { name: /remove procedure step 2/i });
+    const removeButton = screen.getByRole('button', { name: /eliminar paso de procedimiento 2/i });
     await userEvent.click(removeButton);
 
-    expect(screen.queryByRole('textbox', { name: /procedure step 2/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('textbox', { name: /paso de procedimiento 2/i })).not.toBeInTheDocument();
   });
 
   it('allows adding and removing product objectives', async () => {
     render(<FormulaForm submitFormula={submitFormulaMock} />);
 
-    const addButton = screen.getByRole('button', { name: /add product objective/i });
+    const addButton = screen.getByRole('button', { name: /agregar objetivo del producto/i });
     await userEvent.click(addButton);
 
-    expect(screen.getByRole('textbox', { name: /product objective 1/i })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /objetivo del producto 1/i })).toBeInTheDocument();
 
-    const removeButton = screen.getByRole('button', { name: /remove product objective 1/i });
+    const removeButton = screen.getByRole('button', { name: /eliminar objetivo del producto 1/i });
     await userEvent.click(removeButton);
 
-    expect(screen.queryByRole('textbox', { name: /product objective 1/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('textbox', { name: /objetivo del producto 1/i })).not.toBeInTheDocument();
   });
 
   it('allows typing technical data values', async () => {
     render(<FormulaForm submitFormula={submitFormulaMock} />);
 
-    await userEvent.type(screen.getByRole('spinbutton', { name: /final ph/i }), '5.5');
+    await userEvent.type(screen.getByRole('spinbutton', { name: /ph final/i }), '5.5');
     await userEvent.type(
-      screen.getByRole('spinbutton', { name: /production temperature/i }),
+      screen.getByRole('spinbutton', { name: /temperatura de producción/i }),
       '75'
     );
-    await userEvent.type(screen.getByRole('textbox', { name: /preservative/i }), 'Sorbate');
+    await userEvent.type(screen.getByRole('textbox', { name: /conservante/i }), 'Sorbate');
 
-    expect(screen.getByRole('spinbutton', { name: /final ph/i })).toHaveValue(5.5);
-    expect(screen.getByRole('spinbutton', { name: /production temperature/i })).toHaveValue(75);
-    expect(screen.getByRole('textbox', { name: /preservative/i })).toHaveValue('Sorbate');
+    expect(screen.getByRole('spinbutton', { name: /ph final/i })).toHaveValue(5.5);
+    expect(screen.getByRole('spinbutton', { name: /temperatura de producción/i })).toHaveValue(75);
+    expect(screen.getByRole('textbox', { name: /conservante/i })).toHaveValue('Sorbate');
   });
 
   it('allows adding and removing use test entries', async () => {
     render(<FormulaForm submitFormula={submitFormulaMock} />);
 
-    const addButton = screen.getByRole('button', { name: /add use test entry/i });
+    const addButton = screen.getByRole('button', { name: /agregar entrada de prueba de uso/i });
     await userEvent.click(addButton);
 
-    expect(screen.getByRole('textbox', { name: /use test entry 1 note/i })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /nota de la entrada 1 de prueba de uso/i })).toBeInTheDocument();
 
-    const removeButton = screen.getByRole('button', { name: /remove use test entry 1/i });
+    const removeButton = screen.getByRole('button', { name: /eliminar entrada 1 de prueba de uso/i });
     await userEvent.click(removeButton);
 
-    expect(screen.queryByRole('textbox', { name: /use test entry 1 note/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('textbox', { name: /nota de la entrada 1 de prueba de uso/i })).not.toBeInTheDocument();
   });
 
   it('displays validation errors when submitting an empty form', async () => {
@@ -124,38 +124,38 @@ describe('FormulaForm', () => {
 
     fireEvent.submit(screen.getByRole('form'));
 
-    expect(await screen.findByText(/product name is required/i)).toBeInTheDocument();
-    expect(screen.getByText(/formula code is required/i)).toBeInTheDocument();
-    expect(screen.getByText(/product type is required/i)).toBeInTheDocument();
-    expect(screen.getByText(/target batch must be greater than 0/i)).toBeInTheDocument();
-    expect(screen.getByText(/at least one phase with ingredients is required/i)).toBeInTheDocument();
-    expect(screen.getByText(/at least one procedure step is required/i)).toBeInTheDocument();
+    expect(await screen.findByText(/el nombre del producto es obligatorio/i)).toBeInTheDocument();
+    expect(screen.getByText(/el código de fórmula es obligatorio/i)).toBeInTheDocument();
+    expect(screen.getByText(/el tipo de producto es obligatorio/i)).toBeInTheDocument();
+    expect(screen.getByText(/el lote objetivo debe ser mayor a 0/i)).toBeInTheDocument();
+    expect(screen.getByText(/se requiere al menos una fase con ingredientes/i)).toBeInTheDocument();
+    expect(screen.getByText(/se requiere al menos un paso de procedimiento/i)).toBeInTheDocument();
     expect(submitFormulaMock).not.toHaveBeenCalled();
   });
 
   it('displays a validation error for a partially filled ingredient row', async () => {
     render(<FormulaForm submitFormula={submitFormulaMock} />);
 
-    await userEvent.type(screen.getByRole('textbox', { name: /product name/i }), 'Lavender cream');
-    await userEvent.type(screen.getByRole('textbox', { name: /formula code/i }), 'CF-001');
-    await userEvent.type(screen.getByRole('textbox', { name: /product type/i }), 'cream');
-    await userEvent.type(screen.getByRole('spinbutton', { name: /target batch/i }), '500');
+    await userEvent.type(screen.getByRole('textbox', { name: /nombre del producto/i }), 'Lavender cream');
+    await userEvent.type(screen.getByRole('textbox', { name: /código de fórmula/i }), 'CF-001');
+    await userEvent.type(screen.getByRole('textbox', { name: /tipo de producto/i }), 'cream');
+    await userEvent.type(screen.getByRole('spinbutton', { name: /lote objetivo/i }), '500');
 
-    await userEvent.click(screen.getByRole('button', { name: /add ingredient to aqueous phase/i }));
+    await userEvent.click(screen.getByRole('button', { name: /agregar ingrediente a fase acuosa/i }));
     await userEvent.type(
-      screen.getByRole('textbox', { name: /aqueous phase ingredient 1 name/i }),
+      screen.getByRole('textbox', { name: /nombre del ingrediente 1 de la fase acuosa/i }),
       'Water'
     );
 
     await userEvent.type(
-      screen.getByRole('textbox', { name: /procedure step 1/i }),
+      screen.getByRole('textbox', { name: /paso de procedimiento 1/i }),
       'Mix aqueous phase'
     );
 
     fireEvent.submit(screen.getByRole('form'));
 
     expect(
-      await screen.findByText(/each ingredient must have a name and grams greater than 0/i)
+      await screen.findByText(/cada ingrediente debe tener un nombre y gramos mayores a 0/i)
     ).toBeInTheDocument();
     expect(submitFormulaMock).not.toHaveBeenCalled();
   });
@@ -163,32 +163,32 @@ describe('FormulaForm', () => {
   it('displays a validation error for an invalid final pH', async () => {
     render(<FormulaForm submitFormula={submitFormulaMock} />);
 
-    await userEvent.type(screen.getByRole('textbox', { name: /product name/i }), 'Lavender cream');
-    await userEvent.type(screen.getByRole('textbox', { name: /formula code/i }), 'CF-001');
-    await userEvent.type(screen.getByRole('textbox', { name: /product type/i }), 'cream');
-    await userEvent.type(screen.getByRole('spinbutton', { name: /target batch/i }), '500');
+    await userEvent.type(screen.getByRole('textbox', { name: /nombre del producto/i }), 'Lavender cream');
+    await userEvent.type(screen.getByRole('textbox', { name: /código de fórmula/i }), 'CF-001');
+    await userEvent.type(screen.getByRole('textbox', { name: /tipo de producto/i }), 'cream');
+    await userEvent.type(screen.getByRole('spinbutton', { name: /lote objetivo/i }), '500');
 
-    await userEvent.click(screen.getByRole('button', { name: /add ingredient to aqueous phase/i }));
+    await userEvent.click(screen.getByRole('button', { name: /agregar ingrediente a fase acuosa/i }));
     await userEvent.type(
-      screen.getByRole('textbox', { name: /aqueous phase ingredient 1 name/i }),
+      screen.getByRole('textbox', { name: /nombre del ingrediente 1 de la fase acuosa/i }),
       'Water'
     );
     await userEvent.type(
-      screen.getByRole('spinbutton', { name: /aqueous phase ingredient 1 grams/i }),
+      screen.getByRole('spinbutton', { name: /gramos del ingrediente 1 de la fase acuosa/i }),
       '500'
     );
 
     await userEvent.type(
-      screen.getByRole('textbox', { name: /procedure step 1/i }),
+      screen.getByRole('textbox', { name: /paso de procedimiento 1/i }),
       'Mix aqueous phase'
     );
 
-    await userEvent.type(screen.getByRole('spinbutton', { name: /final ph/i }), '15');
+    await userEvent.type(screen.getByRole('spinbutton', { name: /ph final/i }), '15');
 
     fireEvent.submit(screen.getByRole('form'));
 
     expect(
-      await screen.findByText(/final pH must be between 0 and 14/i)
+      await screen.findByText(/el pH final debe estar entre 0 y 14/i)
     ).toBeInTheDocument();
     expect(submitFormulaMock).not.toHaveBeenCalled();
   });
@@ -196,36 +196,36 @@ describe('FormulaForm', () => {
   it('displays a validation error for a use test entry missing a note', async () => {
     render(<FormulaForm submitFormula={submitFormulaMock} />);
 
-    await userEvent.type(screen.getByRole('textbox', { name: /product name/i }), 'Lavender cream');
-    await userEvent.type(screen.getByRole('textbox', { name: /formula code/i }), 'CF-001');
-    await userEvent.type(screen.getByRole('textbox', { name: /product type/i }), 'cream');
-    await userEvent.type(screen.getByRole('spinbutton', { name: /target batch/i }), '500');
+    await userEvent.type(screen.getByRole('textbox', { name: /nombre del producto/i }), 'Lavender cream');
+    await userEvent.type(screen.getByRole('textbox', { name: /código de fórmula/i }), 'CF-001');
+    await userEvent.type(screen.getByRole('textbox', { name: /tipo de producto/i }), 'cream');
+    await userEvent.type(screen.getByRole('spinbutton', { name: /lote objetivo/i }), '500');
 
-    await userEvent.click(screen.getByRole('button', { name: /add ingredient to aqueous phase/i }));
+    await userEvent.click(screen.getByRole('button', { name: /agregar ingrediente a fase acuosa/i }));
     await userEvent.type(
-      screen.getByRole('textbox', { name: /aqueous phase ingredient 1 name/i }),
+      screen.getByRole('textbox', { name: /nombre del ingrediente 1 de la fase acuosa/i }),
       'Water'
     );
     await userEvent.type(
-      screen.getByRole('spinbutton', { name: /aqueous phase ingredient 1 grams/i }),
+      screen.getByRole('spinbutton', { name: /gramos del ingrediente 1 de la fase acuosa/i }),
       '500'
     );
 
     await userEvent.type(
-      screen.getByRole('textbox', { name: /procedure step 1/i }),
+      screen.getByRole('textbox', { name: /paso de procedimiento 1/i }),
       'Mix aqueous phase'
     );
 
-    await userEvent.click(screen.getByRole('button', { name: /add use test entry/i }));
+    await userEvent.click(screen.getByRole('button', { name: /agregar entrada de prueba de uso/i }));
     await userEvent.type(
-      screen.getByRole('textbox', { name: /use test entry 1 note/i }),
+      screen.getByRole('textbox', { name: /nota de la entrada 1 de prueba de uso/i }),
       'Good texture'
     );
 
     fireEvent.submit(screen.getByRole('form'));
 
     expect(
-      await screen.findByText(/each use test entry must have a date and a note/i)
+      await screen.findByText(/cada entrada de prueba de uso debe tener una fecha y una nota/i)
     ).toBeInTheDocument();
     expect(submitFormulaMock).not.toHaveBeenCalled();
   });
@@ -233,23 +233,23 @@ describe('FormulaForm', () => {
   it('submits the form when all required fields are valid', async () => {
     render(<FormulaForm submitFormula={submitFormulaMock} />);
 
-    await userEvent.type(screen.getByRole('textbox', { name: /product name/i }), 'Lavender cream');
-    await userEvent.type(screen.getByRole('textbox', { name: /formula code/i }), 'CF-001');
-    await userEvent.type(screen.getByRole('textbox', { name: /product type/i }), 'cream');
-    await userEvent.type(screen.getByRole('spinbutton', { name: /target batch/i }), '500');
+    await userEvent.type(screen.getByRole('textbox', { name: /nombre del producto/i }), 'Lavender cream');
+    await userEvent.type(screen.getByRole('textbox', { name: /código de fórmula/i }), 'CF-001');
+    await userEvent.type(screen.getByRole('textbox', { name: /tipo de producto/i }), 'cream');
+    await userEvent.type(screen.getByRole('spinbutton', { name: /lote objetivo/i }), '500');
 
-    await userEvent.click(screen.getByRole('button', { name: /add ingredient to aqueous phase/i }));
+    await userEvent.click(screen.getByRole('button', { name: /agregar ingrediente a fase acuosa/i }));
     await userEvent.type(
-      screen.getByRole('textbox', { name: /aqueous phase ingredient 1 name/i }),
+      screen.getByRole('textbox', { name: /nombre del ingrediente 1 de la fase acuosa/i }),
       'Water'
     );
     await userEvent.type(
-      screen.getByRole('spinbutton', { name: /aqueous phase ingredient 1 grams/i }),
+      screen.getByRole('spinbutton', { name: /gramos del ingrediente 1 de la fase acuosa/i }),
       '500'
     );
 
     await userEvent.type(
-      screen.getByRole('textbox', { name: /procedure step 1/i }),
+      screen.getByRole('textbox', { name: /paso de procedimiento 1/i }),
       'Mix aqueous phase'
     );
 
@@ -271,38 +271,38 @@ describe('FormulaForm', () => {
   it('submits rich formula blocks with the form values', async () => {
     render(<FormulaForm submitFormula={submitFormulaMock} />);
 
-    await userEvent.type(screen.getByRole('textbox', { name: /product name/i }), 'Lavender cream');
-    await userEvent.type(screen.getByRole('textbox', { name: /formula code/i }), 'CF-001');
-    await userEvent.type(screen.getByRole('textbox', { name: /product type/i }), 'cream');
-    await userEvent.type(screen.getByRole('spinbutton', { name: /target batch/i }), '500');
+    await userEvent.type(screen.getByRole('textbox', { name: /nombre del producto/i }), 'Lavender cream');
+    await userEvent.type(screen.getByRole('textbox', { name: /código de fórmula/i }), 'CF-001');
+    await userEvent.type(screen.getByRole('textbox', { name: /tipo de producto/i }), 'cream');
+    await userEvent.type(screen.getByRole('spinbutton', { name: /lote objetivo/i }), '500');
 
-    await userEvent.click(screen.getByRole('button', { name: /add ingredient to aqueous phase/i }));
+    await userEvent.click(screen.getByRole('button', { name: /agregar ingrediente a fase acuosa/i }));
     await userEvent.type(
-      screen.getByRole('textbox', { name: /aqueous phase ingredient 1 name/i }),
+      screen.getByRole('textbox', { name: /nombre del ingrediente 1 de la fase acuosa/i }),
       'Water'
     );
     await userEvent.type(
-      screen.getByRole('spinbutton', { name: /aqueous phase ingredient 1 grams/i }),
+      screen.getByRole('spinbutton', { name: /gramos del ingrediente 1 de la fase acuosa/i }),
       '500'
     );
 
     await userEvent.type(
-      screen.getByRole('textbox', { name: /procedure step 1/i }),
+      screen.getByRole('textbox', { name: /paso de procedimiento 1/i }),
       'Mix aqueous phase'
     );
 
-    await userEvent.click(screen.getByRole('button', { name: /add product objective/i }));
+    await userEvent.click(screen.getByRole('button', { name: /agregar objetivo del producto/i }));
     await userEvent.type(
-      screen.getByRole('textbox', { name: /product objective 1/i }),
+      screen.getByRole('textbox', { name: /objetivo del producto 1/i }),
       'hydrating'
     );
 
-    await userEvent.type(screen.getByRole('spinbutton', { name: /final ph/i }), '5.5');
-    await userEvent.type(screen.getByRole('textbox', { name: /preservative/i }), 'Sorbate');
-    await userEvent.type(screen.getByRole('textbox', { name: /texture/i }), 'Creamy');
+    await userEvent.type(screen.getByRole('spinbutton', { name: /ph final/i }), '5.5');
+    await userEvent.type(screen.getByRole('textbox', { name: /conservante/i }), 'Sorbate');
+    await userEvent.type(screen.getByRole('textbox', { name: /textura/i }), 'Creamy');
 
     await userEvent.type(
-      screen.getByRole('textbox', { name: /final observations/i }),
+      screen.getByRole('textbox', { name: /observaciones finales/i }),
       'First batch'
     );
 
@@ -324,39 +324,39 @@ describe('FormulaForm', () => {
   it('displays a server error when the action fails', async () => {
     render(<FormulaForm submitFormula={submitFormulaMock} />);
 
-    await userEvent.type(screen.getByRole('textbox', { name: /product name/i }), 'Lavender cream');
-    await userEvent.type(screen.getByRole('textbox', { name: /formula code/i }), 'CF-001');
-    await userEvent.type(screen.getByRole('textbox', { name: /product type/i }), 'cream');
-    await userEvent.type(screen.getByRole('spinbutton', { name: /target batch/i }), '500');
+    await userEvent.type(screen.getByRole('textbox', { name: /nombre del producto/i }), 'Lavender cream');
+    await userEvent.type(screen.getByRole('textbox', { name: /código de fórmula/i }), 'CF-001');
+    await userEvent.type(screen.getByRole('textbox', { name: /tipo de producto/i }), 'cream');
+    await userEvent.type(screen.getByRole('spinbutton', { name: /lote objetivo/i }), '500');
 
-    await userEvent.click(screen.getByRole('button', { name: /add ingredient to aqueous phase/i }));
+    await userEvent.click(screen.getByRole('button', { name: /agregar ingrediente a fase acuosa/i }));
     await userEvent.type(
-      screen.getByRole('textbox', { name: /aqueous phase ingredient 1 name/i }),
+      screen.getByRole('textbox', { name: /nombre del ingrediente 1 de la fase acuosa/i }),
       'Water'
     );
     await userEvent.type(
-      screen.getByRole('spinbutton', { name: /aqueous phase ingredient 1 grams/i }),
+      screen.getByRole('spinbutton', { name: /gramos del ingrediente 1 de la fase acuosa/i }),
       '500'
     );
 
     await userEvent.type(
-      screen.getByRole('textbox', { name: /procedure step 1/i }),
+      screen.getByRole('textbox', { name: /paso de procedimiento 1/i }),
       'Mix aqueous phase'
     );
 
-    submitFormulaMock.mockResolvedValue({ success: false, error: 'Server rejected the formula' });
+    submitFormulaMock.mockResolvedValue({ success: false, error: 'El servidor rechazó la fórmula' });
 
     fireEvent.submit(screen.getByRole('form'));
 
-    expect(await screen.findByText(/server rejected the formula/i)).toBeInTheDocument();
+    expect(await screen.findByText(/el servidor rechazó la fórmula/i)).toBeInTheDocument();
   });
 
   describe('edit mode', () => {
     it('uses edit mode aria-label and submit button text', () => {
       render(<FormulaForm mode="edit" submitFormula={submitFormulaMock} />);
 
-      expect(screen.getByRole('form', { name: /edit formula/i })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /update formula/i })).toBeInTheDocument();
+      expect(screen.getByRole('form', { name: /editar fórmula/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /actualizar fórmula/i })).toBeInTheDocument();
     });
 
     it('initializes with provided values', () => {
@@ -374,15 +374,15 @@ describe('FormulaForm', () => {
 
       render(<FormulaForm mode="edit" initialValues={initialValues} submitFormula={submitFormulaMock} />);
 
-      expect(screen.getByRole('textbox', { name: /product name/i })).toHaveValue('Existing formula');
-      expect(screen.getByRole('textbox', { name: /formula code/i })).toHaveValue('CF-999');
-      expect(screen.getByRole('textbox', { name: /product type/i })).toHaveValue('Serum');
-      expect(screen.getByRole('spinbutton', { name: /target batch/i })).toHaveValue(250);
-      expect(screen.getByRole('textbox', { name: /product objective 1/i })).toHaveValue('hydrating');
-      expect(screen.getByRole('spinbutton', { name: /final ph/i })).toHaveValue(5.5);
-      expect(screen.getByRole('textbox', { name: /texture/i })).toHaveValue('Creamy');
-      expect(screen.getByRole('textbox', { name: /function/i })).toHaveValue('Emollient');
-      expect(screen.getByRole('textbox', { name: /final observations/i })).toHaveValue('Ready');
+      expect(screen.getByRole('textbox', { name: /nombre del producto/i })).toHaveValue('Existing formula');
+      expect(screen.getByRole('textbox', { name: /código de fórmula/i })).toHaveValue('CF-999');
+      expect(screen.getByRole('textbox', { name: /tipo de producto/i })).toHaveValue('Serum');
+      expect(screen.getByRole('spinbutton', { name: /lote objetivo/i })).toHaveValue(250);
+      expect(screen.getByRole('textbox', { name: /objetivo del producto 1/i })).toHaveValue('hydrating');
+      expect(screen.getByRole('spinbutton', { name: /ph final/i })).toHaveValue(5.5);
+      expect(screen.getByRole('textbox', { name: /textura/i })).toHaveValue('Creamy');
+      expect(screen.getByRole('textbox', { name: /función/i })).toHaveValue('Emollient');
+      expect(screen.getByRole('textbox', { name: /observaciones finales/i })).toHaveValue('Ready');
     });
 
     it('submits in edit mode using the provided submit action', async () => {
@@ -418,12 +418,12 @@ describe('FormulaForm', () => {
 
       fireEvent.submit(screen.getByRole('form'));
 
-      expect(await screen.findByText(/product name is required/i)).toBeInTheDocument();
-      expect(screen.getByText(/formula code is required/i)).toBeInTheDocument();
-      expect(screen.getByText(/product type is required/i)).toBeInTheDocument();
-      expect(screen.getByText(/target batch must be greater than 0/i)).toBeInTheDocument();
-      expect(screen.getByText(/at least one phase with ingredients is required/i)).toBeInTheDocument();
-      expect(screen.getByText(/at least one procedure step is required/i)).toBeInTheDocument();
+      expect(await screen.findByText(/el nombre del producto es obligatorio/i)).toBeInTheDocument();
+      expect(screen.getByText(/el código de fórmula es obligatorio/i)).toBeInTheDocument();
+      expect(screen.getByText(/el tipo de producto es obligatorio/i)).toBeInTheDocument();
+      expect(screen.getByText(/el lote objetivo debe ser mayor a 0/i)).toBeInTheDocument();
+      expect(screen.getByText(/se requiere al menos una fase con ingredientes/i)).toBeInTheDocument();
+      expect(screen.getByText(/se requiere al menos un paso de procedimiento/i)).toBeInTheDocument();
       expect(submitFormulaMock).not.toHaveBeenCalled();
     });
 
@@ -438,11 +438,11 @@ describe('FormulaForm', () => {
 
       render(<FormulaForm mode="edit" initialValues={initialValues} submitFormula={submitFormulaMock} />);
 
-      submitFormulaMock.mockResolvedValue({ success: false, error: 'Update rejected by server' });
+      submitFormulaMock.mockResolvedValue({ success: false, error: 'El servidor rechazó la actualización' });
 
       fireEvent.submit(screen.getByRole('form'));
 
-      expect(await screen.findByText(/update rejected by server/i)).toBeInTheDocument();
+      expect(await screen.findByText(/el servidor rechazó la actualización/i)).toBeInTheDocument();
     });
   });
 });

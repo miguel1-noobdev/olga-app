@@ -543,17 +543,17 @@ function hasPopulatedPhase(phases: FormulaPhaseFormValues): boolean {
 function validateTechnicalData(data: FormulaTechnicalDataFormValue): string | undefined {
   const finalPh = toOptionalNumber(data.finalPh);
   if (finalPh !== undefined && (finalPh < 0 || finalPh > 14)) {
-    return 'Final pH must be between 0 and 14';
+    return 'El pH final debe estar entre 0 y 14';
   }
 
   const temperature = toOptionalNumber(data.productionTemperatureCelsius);
   if (temperature !== undefined && temperature < 0) {
-    return 'Production temperature must be greater than or equal to 0';
+    return 'La temperatura de producción debe ser mayor o igual a 0';
   }
 
   const mixingTime = toOptionalNumber(data.mixingTimeMinutes);
   if (mixingTime !== undefined && mixingTime < 0) {
-    return 'Mixing time must be greater than or equal to 0';
+    return 'El tiempo de mezcla debe ser mayor o igual a 0';
   }
 
   return undefined;
@@ -574,41 +574,41 @@ export function validateMinimumFormulaForm(values: FormulaFormValues): {
   const errors: FormulaFormValidationError = {};
 
   if (values.productName.trim() === '') {
-    errors.productName = 'Product name is required';
+    errors.productName = 'El nombre del producto es obligatorio';
   }
 
   if (values.formulaCode.trim() === '') {
-    errors.formulaCode = 'Formula code is required';
+    errors.formulaCode = 'El código de fórmula es obligatorio';
   }
 
   if (values.formulaCreatedAt.trim() === '') {
-    errors.formulaCreatedAt = 'Creation date is required';
+    errors.formulaCreatedAt = 'La fecha de creación es obligatoria';
   }
 
   if (values.formulaVersion.trim() === '') {
-    errors.formulaVersion = 'Formula version is required';
+    errors.formulaVersion = 'La versión de fórmula es obligatoria';
   }
 
   if (values.productType.trim() === '') {
-    errors.productType = 'Product type is required';
+    errors.productType = 'El tipo de producto es obligatorio';
   }
 
   const targetBatchGrams = toNumberOrNaN(values.targetBatchGrams);
   if (!Number.isFinite(targetBatchGrams) || targetBatchGrams <= 0) {
-    errors.targetBatchGrams = 'Target batch must be greater than 0';
+    errors.targetBatchGrams = 'El lote objetivo debe ser mayor a 0';
   }
 
   if (hasPartialIngredientRow(values.phases)) {
-    errors.phases = 'Each ingredient must have a name and grams greater than 0';
+    errors.phases = 'Cada ingrediente debe tener un nombre y gramos mayores a 0';
   } else if (!hasPopulatedPhase(values.phases)) {
-    errors.phases = 'At least one phase with ingredients is required';
+    errors.phases = 'Se requiere al menos una fase con ingredientes';
   }
 
   const hasProcedureStep = values.procedureSteps.some(
     (step) => step.instruction.trim() !== ''
   );
   if (!hasProcedureStep) {
-    errors.procedureSteps = 'At least one procedure step is required';
+    errors.procedureSteps = 'Se requiere al menos un paso de procedimiento';
   }
 
   const technicalDataError = validateTechnicalData(values.technicalData);
@@ -617,7 +617,7 @@ export function validateMinimumFormulaForm(values: FormulaFormValues): {
   }
 
   if (hasPartialUseTestEntry(values.useTest)) {
-    errors.useTest = 'Each use test entry must have a date and a note';
+    errors.useTest = 'Cada entrada de prueba de uso debe tener una fecha y una nota';
   }
 
   return {

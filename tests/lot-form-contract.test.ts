@@ -92,7 +92,7 @@ describe('lot form contract', () => {
       const result = validateMinimumLotForm(form);
 
       expect(result.valid).toBe(false);
-      expect(result.errors.targetBatchGrams).toMatch(/greater than 0/i);
+      expect(result.errors.targetBatchGrams).toMatch(/mayor a 0/i);
     });
 
     it('rejects an invalid status value', () => {
@@ -112,7 +112,7 @@ describe('lot form contract', () => {
       const result = validateMinimumLotForm(form);
 
       expect(result.valid).toBe(false);
-      expect(result.errors.plannedAt).toMatch(/invalid/i);
+      expect(result.errors.plannedAt).toMatch(/no es válida/i);
     });
 
     it('accepts an empty planned date', () => {

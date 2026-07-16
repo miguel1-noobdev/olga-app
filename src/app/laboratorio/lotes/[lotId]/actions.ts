@@ -37,7 +37,7 @@ export async function submitLotFollowUp(
       error:
         error instanceof Error
           ? error.message
-          : 'Failed to add follow-up entry. Please try again.',
+          : 'No se pudo agregar la entrada de seguimiento. Intentelo de nuevo.',
     };
   }
 }

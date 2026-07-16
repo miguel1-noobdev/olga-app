@@ -34,7 +34,7 @@ describe('lot-follow-up-form-contract', () => {
       const { valid, errors } = validateMinimumLotFollowUpForm(values);
 
       expect(valid).toBe(false);
-      expect(errors.date).toBe('Date is required');
+      expect(errors.date).toBe('La fecha es obligatoria');
     });
 
     it('rejects an invalid date', () => {
@@ -42,7 +42,7 @@ describe('lot-follow-up-form-contract', () => {
       const { valid, errors } = validateMinimumLotFollowUpForm(values);
 
       expect(valid).toBe(false);
-      expect(errors.date).toBe('Date is invalid');
+      expect(errors.date).toBe('La fecha no es válida');
     });
 
     it('requires a note', () => {
@@ -50,7 +50,7 @@ describe('lot-follow-up-form-contract', () => {
       const { valid, errors } = validateMinimumLotFollowUpForm(values);
 
       expect(valid).toBe(false);
-      expect(errors.note).toBe('Note is required');
+      expect(errors.note).toBe('La nota es obligatoria');
     });
 
     it('rejects a note containing only whitespace', () => {
@@ -58,7 +58,7 @@ describe('lot-follow-up-form-contract', () => {
       const { valid, errors } = validateMinimumLotFollowUpForm(values);
 
       expect(valid).toBe(false);
-      expect(errors.note).toBe('Note is required');
+      expect(errors.note).toBe('La nota es obligatoria');
     });
 
     it('accepts valid values', () => {

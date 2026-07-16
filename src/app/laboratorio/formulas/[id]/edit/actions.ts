@@ -32,7 +32,7 @@ export async function submitFormulaUpdate(
 
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to update formula. Please try again.',
+      error: error instanceof Error ? error.message : 'No se pudo actualizar la fórmula. Inténtelo de nuevo.',
     };
   }
 }

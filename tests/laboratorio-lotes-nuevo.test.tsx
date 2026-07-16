@@ -75,7 +75,7 @@ describe('/laboratorio/lotes/nuevo', () => {
     render(jsx);
 
     expect(findByStatusMock).toHaveBeenCalledWith('validated');
-    expect(screen.getByRole('combobox', { name: /source formula/i })).toHaveValue(
+    expect(screen.getByRole('combobox', { name: /fórmula origen/i })).toHaveValue(
       validatedFormula.id
     );
     expect(screen.getByRole('option', { name: /lavender cream/i })).toHaveValue(
@@ -89,8 +89,8 @@ describe('/laboratorio/lotes/nuevo', () => {
     const jsx = await LaboratoryCreateLotPage({ searchParams: {} });
     render(jsx);
 
-    expect(screen.getByText('No validated formulas are available for lot creation.')).toBeInTheDocument();
-    expect(screen.queryByRole('form', { name: /create lot/i })).not.toBeInTheDocument();
+    expect(screen.getByText('No hay fórmulas validadas disponibles para crear un lote.')).toBeInTheDocument();
+    expect(screen.queryByRole('form', { name: /crear lote/i })).not.toBeInTheDocument();
   });
 
   it('submits the selected formula and target grams while keeping the initial lot status planned', async () => {
@@ -98,9 +98,9 @@ describe('/laboratorio/lotes/nuevo', () => {
     const jsx = await LaboratoryCreateLotPage({ searchParams: {} });
     render(jsx);
 
-    await userEvent.clear(screen.getByRole('spinbutton', { name: /target batch/i }));
-    await userEvent.type(screen.getByRole('spinbutton', { name: /target batch/i }), '200');
-    fireEvent.submit(screen.getByRole('form', { name: /create lot/i }));
+    await userEvent.clear(screen.getByRole('spinbutton', { name: /lote objetivo/i }));
+    await userEvent.type(screen.getByRole('spinbutton', { name: /lote objetivo/i }), '200');
+    fireEvent.submit(screen.getByRole('form', { name: /crear lote/i }));
 
     await waitFor(() => {
       expect(findByIdMock).toHaveBeenCalledWith(validatedFormula.id);
@@ -117,7 +117,7 @@ describe('/laboratorio/lotes/nuevo', () => {
 
     expect(result).toEqual({
       success: false,
-      error: 'Formula is no longer validated for lot creation.',
+      error: 'La fórmula ya no está validada para la creación de lotes.',
     });
     expect(createMock).not.toHaveBeenCalled();
   });

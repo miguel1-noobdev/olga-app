@@ -80,7 +80,7 @@ export default function LotForm({ formula, submitLot }: LotFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} aria-label="Create lot" className="space-y-8">
+    <form onSubmit={handleSubmit} aria-label="Crear lote" className="space-y-8">
       {submitError && (
         <div
           className="rounded-lg bg-red-50 border border-red-200 p-4 text-sm text-red-800"
@@ -92,7 +92,7 @@ export default function LotForm({ formula, submitLot }: LotFormProps) {
 
       <div className="rounded-lg bg-surface-container p-6 space-y-2">
         <h2 className="font-sans text-sm font-semibold uppercase tracking-wider text-on-surface-variant">
-          Source formula
+          Fórmula origen
         </h2>
         <p className="font-serif text-xl text-on-surface">{formula.productName}</p>
         <p className="font-sans text-sm text-on-surface-variant">
@@ -104,12 +104,12 @@ export default function LotForm({ formula, submitLot }: LotFormProps) {
       </div>
 
       <fieldset className="glass-card rounded-xl p-6 sm:p-8 space-y-6">
-        <legend className="font-serif text-xl text-on-surface px-2">Lot details</legend>
+        <legend className="font-serif text-xl text-on-surface px-2">Detalles del lote</legend>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
             <label htmlFor="targetBatchGrams" className={labelClassName}>
-              Target batch (grams)
+              Lote objetivo (gramos)
             </label>
             <input
               id="targetBatchGrams"
@@ -124,14 +124,14 @@ export default function LotForm({ formula, submitLot }: LotFormProps) {
                 )
               }
               className={`${inputClassName('targetBatchGrams')} sm:w-1/2`}
-              placeholder="e.g. 500"
+              placeholder="p. ej., 500"
             />
             <FieldError name="targetBatchGrams" />
           </div>
 
           <div>
             <label htmlFor="status" className={labelClassName}>
-              Status
+              Estado
             </label>
             <select
               id="status"
@@ -152,7 +152,7 @@ export default function LotForm({ formula, submitLot }: LotFormProps) {
 
           <div>
             <label htmlFor="plannedAt" className={labelClassName}>
-              Planned at (optional)
+              Planificado el (opcional)
             </label>
             <input
               id="plannedAt"
@@ -167,7 +167,7 @@ export default function LotForm({ formula, submitLot }: LotFormProps) {
 
         <div>
           <label htmlFor="operationalObservations" className={labelClassName}>
-            Operational observations (optional)
+            Observaciones operativas (opcional)
           </label>
           <textarea
             id="operationalObservations"
@@ -177,7 +177,7 @@ export default function LotForm({ formula, submitLot }: LotFormProps) {
             }
             rows={3}
             className={inputBaseClassName}
-            placeholder="Notes for the production run"
+            placeholder="Notas para la corrida de producción"
           />
         </div>
       </fieldset>
@@ -188,14 +188,14 @@ export default function LotForm({ formula, submitLot }: LotFormProps) {
           disabled={isSubmitting}
           className="px-8 py-3 bg-primary text-white rounded-full font-sans text-sm font-bold uppercase tracking-wider hover:opacity-90 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isSubmitting ? 'Creating...' : 'Create lot'}
+          {isSubmitting ? 'Creando...' : 'Crear lote'}
         </button>
         <button
           type="button"
           onClick={() => router.back()}
           className="px-8 py-3 bg-white/50 text-on-surface rounded-full font-sans text-sm font-bold uppercase tracking-wider hover:bg-white/70 transition-all"
         >
-          Cancel
+          Cancelar
         </button>
       </div>
     </form>

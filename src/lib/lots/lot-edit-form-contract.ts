@@ -94,7 +94,7 @@ export function validateMinimumLotEditForm(values: LotEditFormValues): {
   const errors: LotEditFormValidationError = {};
 
   if (!LOT_STATUSES.includes(values.status)) {
-    errors.status = 'Status is required';
+    errors.status = 'El estado es obligatorio';
   }
 
   const targetBatchGrams = values.targetBatchGrams?.trim();
@@ -102,22 +102,22 @@ export function validateMinimumLotEditForm(values: LotEditFormValues): {
     targetBatchGrams &&
     (!Number.isFinite(Number(targetBatchGrams)) || Number(targetBatchGrams) <= 0)
   ) {
-    errors.targetBatchGrams = 'Target batch must be greater than 0';
+    errors.targetBatchGrams = 'El lote objetivo debe ser mayor a 0';
   }
 
   const plannedAt = values.plannedAt.trim();
   if (plannedAt && Number.isNaN(new Date(plannedAt).getTime())) {
-    errors.plannedAt = 'Planned date is invalid';
+    errors.plannedAt = 'La fecha de planificación no es válida';
   }
 
   const startedAt = values.startedAt.trim();
   if (startedAt && Number.isNaN(new Date(startedAt).getTime())) {
-    errors.startedAt = 'Started date is invalid';
+    errors.startedAt = 'La fecha de inicio no es válida';
   }
 
   const completedAt = values.completedAt.trim();
   if (completedAt && Number.isNaN(new Date(completedAt).getTime())) {
-    errors.completedAt = 'Completed date is invalid';
+    errors.completedAt = 'La fecha de finalización no es válida';
   }
 
   return {
