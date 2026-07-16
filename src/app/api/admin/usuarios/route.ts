@@ -77,13 +77,13 @@ export async function PATCH(request: Request) {
           console.error('Audit failed and rollback failed:', auditError, rollbackError);
           return NextResponse.json(
             {
-              error: `Cambio aplicado pero auditoría falló. Estado actual: ${roleChange.role}. Error de auditoría: ${auditError instanceof Error ? auditError.message : 'Audit failed'}. Error de rollback: ${rollbackError instanceof Error ? rollbackError.message : 'Rollback failed'}`,
+              error: `Cambio aplicado pero auditoría falló. Estado actual: ${roleChange.role}. Error de auditoría. Error de rollback.`,
             },
             { status: 500 }
           );
         }
         return NextResponse.json(
-          { error: auditError instanceof Error ? auditError.message : 'Audit failed' },
+          { error: `Cambio revertido. La auditoría falló pero el rol fue restaurado a ${previousUser.role}.` },
           { status: 500 }
         );
       }
@@ -112,13 +112,13 @@ export async function PATCH(request: Request) {
           console.error('Audit failed and rollback failed:', auditError, rollbackError);
           return NextResponse.json(
             {
-              error: `Cambio aplicado pero auditoría falló. Estado actual: ${statusChange.accountStatus}. Error de auditoría: ${auditError instanceof Error ? auditError.message : 'Audit failed'}. Error de rollback: ${rollbackError instanceof Error ? rollbackError.message : 'Rollback failed'}`,
+              error: `Cambio aplicado pero auditoría falló. Estado actual: ${statusChange.accountStatus}. Error de auditoría. Error de rollback.`,
             },
             { status: 500 }
           );
         }
         return NextResponse.json(
-          { error: auditError instanceof Error ? auditError.message : 'Audit failed' },
+          { error: `Cambio revertido. La auditoría falló pero el estado fue restaurado a ${previousUser.accountStatus}.` },
           { status: 500 }
         );
       }
