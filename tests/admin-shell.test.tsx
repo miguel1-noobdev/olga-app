@@ -6,6 +6,11 @@ vi.mock('next/link', () => ({
   default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a>,
 }));
 
+vi.mock('next-auth/react', () => ({
+  signOut: vi.fn(),
+}));
+
+import AdminHeader from '@/components/admin/admin-header';
 import AdminShell from '@/components/admin/admin-shell';
 
 describe('AdminShell', () => {
@@ -30,5 +35,15 @@ describe('AdminShell', () => {
     );
 
     expect(screen.getByRole('link', { name: 'Ver sitio' })).toHaveAttribute('href', '/');
+  });
+});
+
+describe('AdminHeader', () => {
+  it('renders without errors', () => {
+    render(<AdminHeader />);
+
+    expect(screen.getByRole('heading', { name: 'Dashboard Admin' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Ver sitio' })).toHaveAttribute('href', '/');
+    expect(screen.getByRole('button', { name: 'Cerrar sesión' })).toBeInTheDocument();
   });
 });
