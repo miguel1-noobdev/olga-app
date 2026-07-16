@@ -53,7 +53,7 @@ export default function LotCreationForm({
   return (
     <form onSubmit={handleSubmit} aria-label="Create lot" className="space-y-6">
       {error && (
-        <div role="alert" className="rounded-lg bg-red-50 border border-red-200 p-4 text-sm text-red-800">
+        <div role="alert" className="rounded-lg bg-error-container border border-error/30 p-4 text-sm text-on-error-container">
           {error}
         </div>
       )}
@@ -101,12 +101,12 @@ export default function LotCreationForm({
         />
       </div>
 
-      <p className="font-sans text-sm text-on-surface-variant">New lots begin in Planned status.</p>
+      <p className="font-body text-sm text-on-surface-variant">New lots begin in Planned status.</p>
 
       <button
         type="submit"
         disabled={isSubmitting}
-        className="px-8 py-3 bg-primary text-white rounded-full font-sans text-sm font-bold uppercase tracking-wider disabled:opacity-50"
+        className="px-8 py-3 bg-primary text-on-primary rounded-full font-label text-sm font-bold uppercase tracking-wider disabled:opacity-50"
       >
         {isSubmitting ? 'Creating...' : 'Create lot'}
       </button>

@@ -279,14 +279,14 @@ export default function FormulaForm({
   function FieldError({ name }: { name: keyof FormulaFormValidationError }) {
     const message = errors[name];
     if (!message) return null;
-    return <p className="mt-1.5 text-sm text-red-700">{message}</p>;
+    return <p className="mt-1.5 text-sm text-error">{message}</p>;
   }
 
   const inputBaseClassName =
     'w-full px-4 py-3 bg-surface border border-surface-border rounded-lg text-on-surface placeholder-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors';
 
   const inputErrorClassName =
-    'border-red-300 focus:border-red-500 focus:ring-red-500/50';
+    'border-error focus:border-error focus:ring-error/50';
 
   function inputClassName(fieldName: keyof FormulaFormValidationError): string {
     return errors[fieldName]
@@ -300,15 +300,15 @@ export default function FormulaForm({
     <form onSubmit={handleSubmit} aria-label={formLabel} className="space-y-8">
       {submitError && (
         <div
-          className="rounded-lg bg-red-50 border border-red-200 p-4 text-sm text-red-800"
+          className="rounded-lg bg-error-container border border-error/30 p-4 text-sm text-on-error-container"
           role="alert"
         >
           {submitError}
         </div>
       )}
 
-      <fieldset className="glass-card rounded-xl p-6 sm:p-8 space-y-6">
-        <legend className="font-serif text-xl text-on-surface px-2">Identity</legend>
+      <fieldset className="bg-surface-container border border-surface-border rounded-2xl p-6 sm:p-8 space-y-6">
+        <legend className="font-headline text-xl text-on-surface px-2">Identity</legend>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
@@ -371,8 +371,8 @@ export default function FormulaForm({
         </div>
       </fieldset>
 
-      <fieldset className="glass-card rounded-xl p-6 sm:p-8 space-y-6">
-        <legend className="font-serif text-xl text-on-surface px-2">Classification</legend>
+      <fieldset className="bg-surface-container border border-surface-border rounded-2xl p-6 sm:p-8 space-y-6">
+        <legend className="font-headline text-xl text-on-surface px-2">Classification</legend>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
@@ -410,8 +410,8 @@ export default function FormulaForm({
         </div>
       </fieldset>
 
-      <fieldset className="glass-card rounded-xl p-6 sm:p-8 space-y-6">
-        <legend className="font-serif text-xl text-on-surface px-2">Batch size</legend>
+      <fieldset className="bg-surface-container border border-surface-border rounded-2xl p-6 sm:p-8 space-y-6">
+        <legend className="font-headline text-xl text-on-surface px-2">Batch size</legend>
 
         <div>
           <label htmlFor="targetBatchGrams" className={labelClassName}>
@@ -431,15 +431,15 @@ export default function FormulaForm({
         </div>
       </fieldset>
 
-      <fieldset className="glass-card rounded-xl p-6 sm:p-8 space-y-8">
-        <legend className="font-serif text-xl text-on-surface px-2">Phases and ingredients</legend>
+      <fieldset className="bg-surface-container border border-surface-border rounded-2xl p-6 sm:p-8 space-y-8">
+        <legend className="font-headline text-xl text-on-surface px-2">Phases and ingredients</legend>
 
         <FieldError name="phases" />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {(['aqueous', 'oil', 'actives'] as FormulaPhaseKey[]).map((phase) => (
             <section key={phase} aria-labelledby={`${phase}-heading`} className="space-y-4">
-              <h3 id={`${phase}-heading`} className="font-serif text-lg text-on-surface">
+              <h3 id={`${phase}-heading`} className="font-headline text-lg text-on-surface">
                 {PHASE_LABELS[phase]}
               </h3>
 
@@ -474,7 +474,7 @@ export default function FormulaForm({
                       <button
                         type="button"
                         onClick={() => removeIngredient(phase, index)}
-                        className="px-3 py-3 text-sm text-red-700 hover:text-red-900 rounded-lg border border-surface-border hover:bg-red-50 transition-colors"
+                        className="px-3 py-3 text-sm text-error hover:text-on-error-container rounded-lg border border-surface-border hover:bg-error-container transition-colors"
                         aria-label={`Remove ${PHASE_LABELS[phase]} ingredient ${index + 1}`}
                       >
                         Remove
@@ -496,8 +496,8 @@ export default function FormulaForm({
         </div>
       </fieldset>
 
-      <fieldset className="glass-card rounded-xl p-6 sm:p-8 space-y-6">
-        <legend className="font-serif text-xl text-on-surface px-2">Procedure</legend>
+      <fieldset className="bg-surface-container border border-surface-border rounded-2xl p-6 sm:p-8 space-y-6">
+        <legend className="font-headline text-xl text-on-surface px-2">Procedure</legend>
 
         <FieldError name="procedureSteps" />
 
@@ -518,7 +518,7 @@ export default function FormulaForm({
               <button
                 type="button"
                 onClick={() => removeProcedureStep(index)}
-                className="px-3 py-3 text-sm text-red-700 hover:text-red-900 rounded-lg border border-surface-border hover:bg-red-50 transition-colors"
+                className="px-3 py-3 text-sm text-error hover:text-on-error-container rounded-lg border border-surface-border hover:bg-error-container transition-colors"
                 aria-label={`Remove procedure step ${step.stepNumber}`}
               >
                 Remove
@@ -536,8 +536,8 @@ export default function FormulaForm({
         </button>
       </fieldset>
 
-      <fieldset className="glass-card rounded-xl p-6 sm:p-8 space-y-6">
-        <legend className="font-serif text-xl text-on-surface px-2">Product objectives</legend>
+      <fieldset className="bg-surface-container border border-surface-border rounded-2xl p-6 sm:p-8 space-y-6">
+        <legend className="font-headline text-xl text-on-surface px-2">Product objectives</legend>
 
         {values.productObjectives.length === 0 ? (
           <p className="text-sm text-on-surface-variant">No objectives added yet.</p>
@@ -556,7 +556,7 @@ export default function FormulaForm({
                 <button
                   type="button"
                   onClick={() => removeProductObjective(index)}
-                  className="px-3 py-3 text-sm text-red-700 hover:text-red-900 rounded-lg border border-surface-border hover:bg-red-50 transition-colors"
+                  className="px-3 py-3 text-sm text-error hover:text-on-error-container rounded-lg border border-surface-border hover:bg-error-container transition-colors"
                   aria-label={`Remove product objective ${index + 1}`}
                 >
                   Remove
@@ -575,8 +575,8 @@ export default function FormulaForm({
         </button>
       </fieldset>
 
-      <fieldset className="glass-card rounded-xl p-6 sm:p-8 space-y-6">
-        <legend className="font-serif text-xl text-on-surface px-2">Technical data</legend>
+      <fieldset className="bg-surface-container border border-surface-border rounded-2xl p-6 sm:p-8 space-y-6">
+        <legend className="font-headline text-xl text-on-surface px-2">Technical data</legend>
 
         <FieldError name="technicalData" />
 
@@ -683,8 +683,8 @@ export default function FormulaForm({
         </div>
       </fieldset>
 
-      <fieldset className="glass-card rounded-xl p-6 sm:p-8 space-y-6">
-        <legend className="font-serif text-xl text-on-surface px-2">Product evaluation</legend>
+      <fieldset className="bg-surface-container border border-surface-border rounded-2xl p-6 sm:p-8 space-y-6">
+        <legend className="font-headline text-xl text-on-surface px-2">Product evaluation</legend>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {(
@@ -714,8 +714,8 @@ export default function FormulaForm({
         </div>
       </fieldset>
 
-      <fieldset className="glass-card rounded-xl p-6 sm:p-8 space-y-6">
-        <legend className="font-serif text-xl text-on-surface px-2">Use test</legend>
+      <fieldset className="bg-surface-container border border-surface-border rounded-2xl p-6 sm:p-8 space-y-6">
+        <legend className="font-headline text-xl text-on-surface px-2">Use test</legend>
 
         <FieldError name="useTest" />
 
@@ -758,7 +758,7 @@ export default function FormulaForm({
                 <button
                   type="button"
                   onClick={() => removeUseTestEntry(index)}
-                  className="px-3 py-3 text-sm text-red-700 hover:text-red-900 rounded-lg border border-surface-border hover:bg-red-50 transition-colors"
+                  className="px-3 py-3 text-sm text-error hover:text-on-error-container rounded-lg border border-surface-border hover:bg-error-container transition-colors"
                   aria-label={`Remove use test entry ${index + 1}`}
                 >
                   Remove
@@ -777,8 +777,8 @@ export default function FormulaForm({
         </button>
       </fieldset>
 
-      <fieldset className="glass-card rounded-xl p-6 sm:p-8 space-y-6">
-        <legend className="font-serif text-xl text-on-surface px-2">INCI</legend>
+      <fieldset className="bg-surface-container border border-surface-border rounded-2xl p-6 sm:p-8 space-y-6">
+        <legend className="font-headline text-xl text-on-surface px-2">INCI</legend>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {(
@@ -808,8 +808,8 @@ export default function FormulaForm({
         </div>
       </fieldset>
 
-      <fieldset className="glass-card rounded-xl p-6 sm:p-8 space-y-6">
-        <legend className="font-serif text-xl text-on-surface px-2">Final observations</legend>
+      <fieldset className="bg-surface-container border border-surface-border rounded-2xl p-6 sm:p-8 space-y-6">
+        <legend className="font-headline text-xl text-on-surface px-2">Final observations</legend>
 
         <textarea
           id="finalObservations"
@@ -826,14 +826,14 @@ export default function FormulaForm({
         <button
           type="submit"
           disabled={isSubmitting}
-          className="px-8 py-3 bg-primary text-white rounded-full font-sans text-sm font-bold uppercase tracking-wider hover:opacity-90 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-8 py-3 bg-primary text-on-primary rounded-full font-label text-sm font-bold uppercase tracking-wider hover:opacity-90 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {submitButtonLabel}
         </button>
         <button
           type="button"
           onClick={() => router.back()}
-          className="px-8 py-3 bg-white/50 text-on-surface rounded-full font-sans text-sm font-bold uppercase tracking-wider hover:bg-white/70 transition-all"
+          className="px-8 py-3 bg-surface-container-high text-on-surface border border-surface-border rounded-full font-label text-sm font-bold uppercase tracking-wider hover:bg-surface-container-highest transition-all"
         >
           Cancel
         </button>

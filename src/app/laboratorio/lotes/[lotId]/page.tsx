@@ -22,14 +22,14 @@ interface PageProps {
 
 function IdentitySection({ lot }: { lot: LotRecord }) {
   return (
-    <section className="glass-card rounded-xl p-8">
+    <section className="bg-surface-container border border-surface-border rounded-2xl p-8">
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
-          <h1 className="font-serif text-3xl text-on-surface mb-2">{lot.lotCode}</h1>
-          <p className="font-sans text-sm text-on-surface-variant">Lot number {lot.lotNumber}</p>
+          <h1 className="font-headline text-3xl text-on-surface mb-2">{lot.lotCode}</h1>
+          <p className="font-body text-sm text-on-surface-variant">Lot number {lot.lotNumber}</p>
         </div>
         <span
-          className={`inline-flex self-start px-3 py-1 rounded-full text-xs font-sans font-semibold uppercase tracking-wider ${getLotStatusStyles(lot.status)}`}
+          className={`inline-flex self-start px-3 py-1 rounded-full text-xs font-label font-semibold uppercase tracking-wider ${getLotStatusStyles(lot.status)}`}
         >
           {LOT_STATUS_LABELS[lot.status]}
         </span>
@@ -41,16 +41,16 @@ function IdentitySection({ lot }: { lot: LotRecord }) {
 function FormulaProvenanceSection({ lot }: { lot: LotRecord }) {
   return (
     <section className="rounded-lg bg-surface-container p-6 space-y-2">
-      <h2 className="font-sans text-sm font-semibold uppercase tracking-wider text-on-surface-variant">
+      <h2 className="font-label text-sm font-semibold uppercase tracking-wider text-on-surface-variant">
         Formula provenance
       </h2>
-      <p className="font-serif text-xl text-on-surface">{lot.formulaSnapshot.productName}</p>
-      <p className="font-sans text-sm text-on-surface-variant">
+      <p className="font-headline text-xl text-on-surface">{lot.formulaSnapshot.productName}</p>
+      <p className="font-body text-sm text-on-surface-variant">
         {lot.formulaCode} — v{lot.formulaVersion}
       </p>
       <Link
         href={`/laboratorio/formulas/${lot.formulaId}`}
-        className="inline-block font-sans text-sm text-primary hover:text-primary/80 transition-colors"
+        className="inline-block font-body text-sm text-primary hover:text-primary/80 transition-colors"
       >
         View formula
       </Link>
@@ -61,7 +61,7 @@ function FormulaProvenanceSection({ lot }: { lot: LotRecord }) {
 function OperationalSection({ lot }: { lot: LotRecord }) {
   return (
     <SectionCard title="Operational summary">
-      <dl className="grid grid-cols-1 sm:grid-cols-2 gap-6 font-sans text-sm">
+      <dl className="grid grid-cols-1 sm:grid-cols-2 gap-6 font-body text-sm">
         <div>
           <dt className="font-semibold text-on-surface">Target batch</dt>
           <dd className="text-on-surface-variant">{lot.targetBatchGrams} g</dd>
@@ -97,8 +97,8 @@ function FormulaSnapshotSection({ snapshot }: { snapshot: LotRecord['formulaSnap
   return (
     <SectionCard title="Formula snapshot">
       <div className="rounded-lg bg-surface-container p-4 mb-6 space-y-1">
-        <p className="font-serif text-lg text-on-surface">{snapshot.productName}</p>
-        <p className="font-sans text-sm text-on-surface-variant">
+        <p className="font-headline text-lg text-on-surface">{snapshot.productName}</p>
+        <p className="font-body text-sm text-on-surface-variant">
           {snapshot.productType} — {snapshot.targetBatchGrams} g
         </p>
       </div>
@@ -119,7 +119,7 @@ function FollowUpSection({ entries }: { entries: LotRecord['followUp']['entries'
       ) : (
         <ul className="space-y-4">
           {entries.map((entry) => (
-            <li key={`${entry.date}-${entry.note}`} className="font-sans text-sm">
+            <li key={`${entry.date}-${entry.note}`} className="font-body text-sm">
               <span className="block text-on-surface-variant mb-0.5">{formatDate(entry.date)}</span>
               <p className="text-on-surface">{entry.note}</p>
             </li>
@@ -143,7 +143,7 @@ export default async function LaboratoryLotDetailPage({ params }: PageProps) {
       <div className="max-w-4xl mx-auto space-y-6">
         <Link
           href="/laboratorio/lotes"
-          className="inline-flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors font-sans text-sm"
+          className="inline-flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors font-body text-sm"
         >
           <ArrowLeftIcon className="w-4 h-4" />
           Back to lotes

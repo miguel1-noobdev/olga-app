@@ -69,7 +69,7 @@ export default function LotEditForm({
     'w-full px-4 py-3 bg-surface border border-surface-border rounded-lg text-on-surface placeholder-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors';
 
   const inputErrorClassName =
-    'border-red-300 focus:border-red-500 focus:ring-red-500/50';
+    'border-error focus:border-error focus:ring-error/50';
 
   function inputClassName(fieldName: keyof LotEditFormValidationError): string {
     return errors[fieldName]
@@ -82,22 +82,22 @@ export default function LotEditForm({
   function FieldError({ name }: { name: keyof LotEditFormValidationError }) {
     const message = errors[name];
     if (!message) return null;
-    return <p className="mt-1.5 text-sm text-red-700">{message}</p>;
+    return <p className="mt-1.5 text-sm text-error">{message}</p>;
   }
 
   return (
     <form onSubmit={handleSubmit} aria-label="Edit lot" className="space-y-8">
       {submitError && (
         <div
-          className="rounded-lg bg-red-50 border border-red-200 p-4 text-sm text-red-800"
+          className="rounded-lg bg-error-container border border-error/30 p-4 text-sm text-on-error-container"
           role="alert"
         >
           {submitError}
         </div>
       )}
 
-      <fieldset className="glass-card rounded-xl p-6 sm:p-8 space-y-6">
-        <legend className="font-serif text-xl text-on-surface px-2">
+      <fieldset className="bg-surface-container border border-surface-border rounded-2xl p-6 sm:p-8 space-y-6">
+        <legend className="font-headline text-xl text-on-surface px-2">
           Operational state
         </legend>
 
@@ -211,14 +211,14 @@ export default function LotEditForm({
         <button
           type="submit"
           disabled={isSubmitting || !permissions.canEditProduction}
-          className="px-8 py-3 bg-primary text-white rounded-full font-sans text-sm font-bold uppercase tracking-wider hover:opacity-90 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-8 py-3 bg-primary text-on-primary rounded-full font-label text-sm font-bold uppercase tracking-wider hover:opacity-90 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? 'Updating...' : 'Update lot'}
         </button>
         <button
           type="button"
           onClick={() => router.back()}
-          className="px-8 py-3 bg-white/50 text-on-surface rounded-full font-sans text-sm font-bold uppercase tracking-wider hover:bg-white/70 transition-all"
+          className="px-8 py-3 bg-surface-container-high text-on-surface border border-surface-border rounded-full font-label text-sm font-bold uppercase tracking-wider hover:bg-surface-container-highest transition-all"
         >
           Cancel
         </button>

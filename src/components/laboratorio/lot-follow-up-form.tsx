@@ -62,7 +62,7 @@ export default function LotFollowUpForm({
     'w-full px-4 py-3 bg-surface border border-surface-border rounded-lg text-on-surface placeholder-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors';
 
   const inputErrorClassName =
-    'border-red-300 focus:border-red-500 focus:ring-red-500/50';
+    'border-error focus:border-error focus:ring-error/50';
 
   function inputClassName(
     fieldName: keyof LotFollowUpFormValidationError
@@ -77,7 +77,7 @@ export default function LotFollowUpForm({
   function FieldError({ name }: { name: keyof LotFollowUpFormValidationError }) {
     const message = errors[name];
     if (!message) return null;
-    return <p className="mt-1.5 text-sm text-red-700">{message}</p>;
+    return <p className="mt-1.5 text-sm text-error">{message}</p>;
   }
 
   return (
@@ -88,7 +88,7 @@ export default function LotFollowUpForm({
     >
       {submitError && (
         <div
-          className="rounded-lg bg-red-50 border border-red-200 p-4 text-sm text-red-800"
+          className="rounded-lg bg-error-container border border-error/30 p-4 text-sm text-on-error-container"
           role="alert"
         >
           {submitError}
@@ -129,7 +129,7 @@ export default function LotFollowUpForm({
       <button
         type="submit"
         disabled={isSubmitting}
-        className="px-8 py-3 bg-primary text-white rounded-full font-sans text-sm font-bold uppercase tracking-wider hover:opacity-90 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+        className="px-8 py-3 bg-primary text-on-primary rounded-full font-label text-sm font-bold uppercase tracking-wider hover:opacity-90 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isSubmitting ? 'Adding...' : 'Add entry'}
       </button>
