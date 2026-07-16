@@ -70,10 +70,20 @@ export async function PATCH(request: Request) {
         await audit.record(createAdministrativeAuditEvent({
           type: 'role_changed', subjectUserId: userId, actorUserId: session.id, occurredAt,
         }));
-      } catch (error) {
-        await users.updateRole(userId, previousUser.role);
+      } catch (auditError) {
+        try {
+          await users.updateRole(userId, previousUser.role);
+        } catch (rollbackError) {
+          console.error('Audit failed and rollback failed:', auditError, rollbackError);
+          return NextResponse.json(
+            {
+              error: `Cambio aplicado pero auditoría falló. Estado actual: ${roleChange.role}. Error de auditoría: ${auditError instanceof Error ? auditError.message : 'Audit failed'}. Error de rollback: ${rollbackError instanceof Error ? rollbackError.message : 'Rollback failed'}`,
+            },
+            { status: 500 }
+          );
+        }
         return NextResponse.json(
-          { error: error instanceof Error ? error.message : 'Audit failed' },
+          { error: auditError instanceof Error ? auditError.message : 'Audit failed' },
           { status: 500 }
         );
       }
@@ -95,10 +105,20 @@ export async function PATCH(request: Request) {
         await audit.record(createAdministrativeAuditEvent({
           type: 'account_status_changed', subjectUserId: userId, actorUserId: session.id, occurredAt,
         }));
-      } catch (error) {
-        await users.updateAccountStatus(userId, previousUser.accountStatus);
+      } catch (auditError) {
+        try {
+          await users.updateAccountStatus(userId, previousUser.accountStatus);
+        } catch (rollbackError) {
+          console.error('Audit failed and rollback failed:', auditError, rollbackError);
+          return NextResponse.json(
+            {
+              error: `Cambio aplicado pero auditoría falló. Estado actual: ${statusChange.accountStatus}. Error de auditoría: ${auditError instanceof Error ? auditError.message : 'Audit failed'}. Error de rollback: ${rollbackError instanceof Error ? rollbackError.message : 'Rollback failed'}`,
+            },
+            { status: 500 }
+          );
+        }
         return NextResponse.json(
-          { error: error instanceof Error ? error.message : 'Audit failed' },
+          { error: auditError instanceof Error ? auditError.message : 'Audit failed' },
           { status: 500 }
         );
       }

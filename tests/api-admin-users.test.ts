@@ -206,4 +206,68 @@ describe('/api/admin/usuarios', () => {
       type: 'account_status_changed', subjectUserId: 'user-1', actorUserId: 'admin-1',
     }));
   });
+
+  it('reports both audit and rollback failures for a role change without reverting', async () => {
+    getCurrentUserMock.mockResolvedValue({ id: 'admin-1', role: 'admin' });
+    repositoryMock.findAll.mockResolvedValue([
+      {
+        id: 'user-1', email: 'user-1@example.com', role: 'suscriptora', accountStatus: 'active',
+        createdAt: '2026-07-16T00:00:00.000Z', passwordHash: 'secret',
+      },
+    ]);
+    repositoryMock.findById.mockResolvedValue({
+      id: 'user-1', email: 'user-1@example.com', role: 'suscriptora', accountStatus: 'active',
+      createdAt: '2026-07-16T00:00:00.000Z', passwordHash: 'secret',
+    });
+    recordMock.mockRejectedValue(new Error('Audit write failed'));
+    repositoryMock.updateRole
+      .mockResolvedValueOnce(undefined)
+      .mockRejectedValueOnce(new Error('Rollback role failed'));
+
+    const response = await PATCH(new Request('http://test/api/admin/usuarios', {
+      method: 'PATCH', body: JSON.stringify({ userId: 'user-1', role: 'productora', confirmed: true }),
+    }));
+
+    const body = await response.json();
+    expect(response.status).toBe(500);
+    expect(body.error).toContain('Cambio aplicado pero auditoría falló');
+    expect(body.error).toContain('Estado actual: productora');
+    expect(body.error).toContain('Error de auditoría: Audit write failed');
+    expect(body.error).toContain('Rollback role failed');
+    expect(repositoryMock.updateRole).toHaveBeenCalledTimes(2);
+    expect(repositoryMock.updateRole).toHaveBeenNthCalledWith(1, 'user-1', 'productora');
+    expect(repositoryMock.updateRole).toHaveBeenNthCalledWith(2, 'user-1', 'suscriptora');
+  });
+
+  it('reports both audit and rollback failures for an account status change without reverting', async () => {
+    getCurrentUserMock.mockResolvedValue({ id: 'admin-1', role: 'admin' });
+    repositoryMock.findAll.mockResolvedValue([
+      {
+        id: 'user-1', email: 'user-1@example.com', role: 'suscriptora', accountStatus: 'active',
+        createdAt: '2026-07-16T00:00:00.000Z', passwordHash: 'secret',
+      },
+    ]);
+    repositoryMock.findById.mockResolvedValue({
+      id: 'user-1', email: 'user-1@example.com', role: 'suscriptora', accountStatus: 'active',
+      createdAt: '2026-07-16T00:00:00.000Z', passwordHash: 'secret',
+    });
+    recordMock.mockRejectedValue(new Error('Audit write failed'));
+    repositoryMock.updateAccountStatus
+      .mockResolvedValueOnce(undefined)
+      .mockRejectedValueOnce(new Error('Rollback status failed'));
+
+    const response = await PATCH(new Request('http://test/api/admin/usuarios', {
+      method: 'PATCH', body: JSON.stringify({ userId: 'user-1', accountStatus: 'suspended', confirmed: true }),
+    }));
+
+    const body = await response.json();
+    expect(response.status).toBe(500);
+    expect(body.error).toContain('Cambio aplicado pero auditoría falló');
+    expect(body.error).toContain('Estado actual: suspended');
+    expect(body.error).toContain('Error de auditoría: Audit write failed');
+    expect(body.error).toContain('Rollback status failed');
+    expect(repositoryMock.updateAccountStatus).toHaveBeenCalledTimes(2);
+    expect(repositoryMock.updateAccountStatus).toHaveBeenNthCalledWith(1, 'user-1', 'suspended');
+    expect(repositoryMock.updateAccountStatus).toHaveBeenNthCalledWith(2, 'user-1', 'active');
+  });
 });
