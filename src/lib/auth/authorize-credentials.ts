@@ -25,6 +25,10 @@ export async function authorizeWithRepository(
     return null;
   }
 
+  if (user.accountStatus !== 'active') {
+    return null;
+  }
+
   return {
     id: user.id,
     email: user.email,

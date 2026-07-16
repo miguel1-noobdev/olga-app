@@ -25,7 +25,7 @@ Bootstrap a Next.js 14 App Router monolith (TypeScript + Tailwind) on the VPS. A
 | Option | Tradeoff | Verdict |
 |--------|----------|--------|
 | MDX files in `content/articles/` | First-class Next MDX, great SEO | Chosen |
-**Rationale**: Articles are curated by Olga/Miguel, not user-generated. MDX with frontmatter gives SSG, zero DB cost, and is trivially authored. Fase 1 does not include user-generated comments.
+**Rationale**: Articles are curated by Olga/Admin, not user-generated. MDX with frontmatter gives SSG, zero DB cost, and is trivially authored. Fase 1 does not include user-generated comments.
 
 ### Decision: One middleware for all protection
 | Option | Tradeoff | Verdict |

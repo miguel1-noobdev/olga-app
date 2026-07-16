@@ -1,23 +1,23 @@
 import type { ReactNode } from 'react';
-import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
-import { authOptions } from '@/lib/auth/options';
+import { getCurrentUser } from '@/lib/auth/current-user';
 import { isAdmin } from '@/lib/auth/roles';
+import AdminShell from '@/components/admin/admin-shell';
 
 interface AdminLayoutProps {
   children: ReactNode;
 }
 
 export default async function AdminLayout({ children }: AdminLayoutProps) {
-  const session = await getServerSession(authOptions);
+  const user = await getCurrentUser();
 
-  if (!session) {
+  if (!user) {
     redirect('/login');
   }
 
-  if (!isAdmin(session.user.role)) {
+  if (!isAdmin(user.role)) {
     redirect('/');
   }
 
-  return <>{children}</>;
+  return <AdminShell>{children}</AdminShell>;
 }

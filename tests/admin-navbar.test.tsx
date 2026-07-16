@@ -16,7 +16,7 @@ describe('AdminNavbar', () => {
   it('renders navigation links', () => {
     render(<AdminNavbar />);
 
-    expect(screen.getByRole('link', { name: /artículos/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /contenido/i })).toHaveAttribute('href', '/admin/contenido');
     expect(screen.getByRole('link', { name: /ver sitio/i })).toBeInTheDocument();
   });
 

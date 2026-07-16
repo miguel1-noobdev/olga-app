@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
-import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
-import { authOptions } from '@/lib/auth/options';
+import { getCurrentUser } from '@/lib/auth/current-user';
 import { isStaff } from '@/lib/auth/roles';
 import LaboratoryNavbar from '@/components/laboratorio/laboratory-navbar';
 
@@ -10,13 +9,13 @@ interface LaboratoryLayoutProps {
 }
 
 export default async function LaboratoryLayout({ children }: LaboratoryLayoutProps) {
-  const session = await getServerSession(authOptions);
+  const user = await getCurrentUser();
 
-  if (!session) {
+  if (!user) {
     redirect('/login');
   }
 
-  if (!isStaff(session.user.role)) {
+  if (!isStaff(user.role)) {
     redirect('/');
   }
 

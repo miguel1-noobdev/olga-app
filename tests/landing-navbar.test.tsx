@@ -61,7 +61,7 @@ describe('Landing Navbar', () => {
   it('renders the Admin entry for admin users', () => {
     useSessionMock.mockReturnValue({
       status: 'authenticated',
-      data: { user: { name: 'Miguel', email: 'miguel@test.com', role: 'admin' } },
+      data: { user: { name: 'Admin', email: 'admin@test.com', role: 'admin' } },
     });
 
     render(<Navbar />);
@@ -105,7 +105,7 @@ describe('Landing Navbar', () => {
   it('renders the Admin entry in the mobile menu for admin users', async () => {
     useSessionMock.mockReturnValue({
       status: 'authenticated',
-      data: { user: { name: 'Miguel', email: 'miguel@test.com', role: 'admin' } },
+      data: { user: { name: 'Admin', email: 'admin@test.com', role: 'admin' } },
     });
 
     const user = userEvent.setup();

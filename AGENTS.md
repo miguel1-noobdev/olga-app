@@ -8,7 +8,7 @@
 
 ## 1. ¿Qué es este proyecto?
 
-**Botánica Esencial OB** es una plataforma web para el negocio de cosmética natural artesanal de Olga (y operado digitalmente por Miguel).
+**Botánica Esencial OB** es una plataforma web para el negocio de cosmética natural artesanal de Olga (y operado digitalmente por Admin).
 
 **Tipo**: plataforma **informativa y didáctica**, NO es e-commerce.
 
@@ -16,7 +16,7 @@
 - **Visitantes anónimos** → ven la landing, pueden registrarse
 - **Usuarios suscriptores** → acceden al blog (solo registrados), reciben emails informativos
 - **Olga** (staff) → su dashboard privado ("laboratorio") para registrar producción
-- **Miguel** (admin) → dashboard admin para operación digital y publicación
+- **Admin** (admin) → dashboard admin para operación digital y publicación
 
 ---
 
@@ -122,7 +122,7 @@ El proyecto se construye en **4 fases** (ver CONTEXTO_PLATAFORMA.md para detalle
 1. **Fase 1** — Auth + Landing + Blog + Jardín Digital (cerrada funcionalmente; retoques y Google OAuth aplazados)
 2. **Fase 2** — Dominio de plantas: consolidar `plantas` como fuente de verdad, estructura pública vs. interna, carga de plantas, refinar `/jardin-digital` como proyección pública
 3. **Fase 3** — Dashboard de Olga (laboratorio): lotes, fases, seguimiento, stock sobre el dominio completo de plantas
-4. **Fase 4** — Dashboard de Miguel (admin): dashboard real que absorbe la herramienta temporal `/admin/blog/*`
+4. **Fase 4** — Dashboard de Admin (admin): dashboard real que absorbe la herramienta temporal `/admin/blog/*`
 
 ### 6.2 Approach: sección por sección
 
@@ -188,7 +188,7 @@ Si necesitás una imagen que no existe, **preguntale al usuario** antes de hacer
 ¿Podés resumir este proyecto en una línea?
 → Plataforma informativa (no e-commerce) para cosmética natural.
   Next.js + MongoDB en VPS propio. Single-tenant.
-  Olga carga producción, Miguel publica. Usuarios leen blog.
+  Olga carga producción, Admin publica. Usuarios leen blog.
 
 ¿Cuál es el primer paso?
 → SDD de Fase 1: Auth + Landing (sección por sección) + Blog.

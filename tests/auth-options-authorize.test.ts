@@ -81,4 +81,16 @@ describe('authorizeWithRepository', () => {
       role: 'productora',
     });
   });
+
+  it('rejects a suspended account even when its password is valid', async () => {
+    const created = await repo.create({ email: 'suspended@botanicaob.com', password: 'secret123' });
+    await repo.updateAccountStatus(created.id, 'suspended');
+
+    const user = await authorizeWithRepository(repo, {
+      email: 'suspended@botanicaob.com',
+      password: 'secret123',
+    });
+
+    expect(user).toBeNull();
+  });
 });

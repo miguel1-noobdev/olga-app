@@ -84,7 +84,7 @@ export default function Footer() {
           </p>
           <div className="text-center md:text-right">
             <p className="text-black text-sm font-bold">
-              Creado por Miguel P.
+              Creado por Admin
             </p>
             <p className="text-black/70 text-xs font-bold">IA_Soluciones Web</p>
           </div>

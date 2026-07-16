@@ -146,4 +146,27 @@ describe('UserRepository', () => {
       expect(updated?.role).toBe('productora');
     });
   });
+
+  describe('admin directory access status', () => {
+    it('lists users with the active default status', async () => {
+      await repo.create({ email: 'one@botanicaob.com', password: 'secret123' });
+      await repo.create({ email: 'two@botanicaob.com', password: 'secret456' });
+
+      const users = await repo.findAll();
+
+      expect(users).toHaveLength(2);
+      expect(users.map((user) => user.accountStatus)).toEqual(['active', 'active']);
+    });
+
+    it('changes only to an approved access status', async () => {
+      const user = await repo.create({ email: 'reader@botanicaob.com', password: 'secret123' });
+
+      await repo.updateAccountStatus(user.id, 'suspended');
+      expect((await repo.findById(user.id))?.accountStatus).toBe('suspended');
+
+      await expect(repo.updateAccountStatus(user.id, 'deleted' as never)).rejects.toThrow(
+        'Unsupported account status'
+      );
+    });
+  });
 });

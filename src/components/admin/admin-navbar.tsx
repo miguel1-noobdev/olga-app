@@ -12,16 +12,16 @@ export default function AdminNavbar() {
             <span className="font-serif text-xl text-primary">A</span>
           </div>
           <span className="font-serif text-xl text-on-surface">
-            Admin Panel
+            Dashboard Admin
           </span>
         </Link>
 
         <div className="flex items-center gap-6">
           <Link
-            href="/admin/blog"
+            href="/admin/contenido"
             className="font-sans text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-primary transition-colors"
           >
-            Artículos
+            Contenido
           </Link>
           <Link
             href="/"

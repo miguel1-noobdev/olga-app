@@ -4,7 +4,7 @@ import type { Role } from '@/lib/db/models/user';
  * Canonical role values used across the application.
  *
  * Olga's private laboratory access is locked to the `productora` role.
- * Miguel's admin access is locked to the `admin` role.
+ * Admin access is locked to the `admin` role.
  * Public registered users receive the `suscriptora` role.
  */
 export const ROLES = {

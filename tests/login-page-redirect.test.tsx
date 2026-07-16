@@ -50,7 +50,7 @@ describe('/login page', () => {
 
   it('redirects admin users to /admin', async () => {
     getServerSessionMock.mockResolvedValue({
-      user: { id: 'user-1', email: 'miguel@test.com', role: 'admin' },
+      user: { id: 'user-1', email: 'admin@test.com', role: 'admin' },
     });
 
     await LoginPage();

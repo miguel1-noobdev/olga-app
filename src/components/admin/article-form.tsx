@@ -12,7 +12,7 @@ interface ArticleFormData {
   imageAlt: string;
 }
 
-export default function ArticleForm() {
+export default function ArticleForm({ successHref = '/admin/contenido' }: { successHref?: string }) {
   const router = useRouter();
   const [formData, setFormData] = useState<ArticleFormData>({
     title: '',
@@ -42,7 +42,7 @@ export default function ArticleForm() {
         throw new Error(data.error || 'Error al crear artículo');
       }
 
-      router.push('/admin/blog');
+      router.push(successHref);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error desconocido');
     } finally {
@@ -152,7 +152,7 @@ export default function ArticleForm() {
               disabled={loading}
               className="px-8 py-3 bg-primary text-white rounded-full font-sans text-sm font-bold uppercase tracking-wider hover:opacity-90 transition-all shadow-md disabled:opacity-50"
             >
-              {loading ? 'Guardando...' : 'Publicar Artículo'}
+              {loading ? 'Guardando...' : 'Crear borrador'}
             </button>
             <button
               type="button"
