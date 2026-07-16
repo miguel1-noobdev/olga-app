@@ -39,4 +39,20 @@ describe('Admin content lifecycle', () => {
     expect(unpublished).toEqual({ published: false, publishedAt: null, unpublishedAt: expect.any(Date) });
     expect(getArticleLifecycleState({ ...unpublished, reviewedAt: null })).toBe('unpublished');
   });
+
+  it('blocks publishing an article that was previously unpublished until it is reviewed again', () => {
+    const previouslyUnpublished = {
+      published: false,
+      reviewedAt: new Date('2026-07-15T00:00:00.000Z'),
+      unpublishedAt: new Date('2026-07-16T00:00:00.000Z'),
+    };
+
+    expect(canPublishArticle(previouslyUnpublished)).toBe(false);
+    expect(getArticleLifecycleState(previouslyUnpublished)).toBe('unpublished');
+
+    const reReviewed = reviewArticle(previouslyUnpublished);
+
+    expect(reReviewed.unpublishedAt).toBeNull();
+    expect(canPublishArticle({ published: false, reviewedAt: reReviewed.reviewedAt, unpublishedAt: reReviewed.unpublishedAt })).toBe(true);
+  });
 });

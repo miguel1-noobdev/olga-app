@@ -33,7 +33,7 @@ export function reviewArticle({
 }
 
 export function canPublishArticle(article: ArticleLifecycleInput): boolean {
-  return !article.published && article.reviewedAt !== null;
+  return !article.published && article.reviewedAt !== null && article.unpublishedAt === null;
 }
 
 export function unpublishArticle({

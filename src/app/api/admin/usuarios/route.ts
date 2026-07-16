@@ -51,6 +51,11 @@ export async function PATCH(request: Request) {
   const directory = await users.findAll();
   const occurredAt = new Date().toISOString();
 
+  const previousUser = await users.findById(userId);
+  if (!previousUser) {
+    return NextResponse.json({ error: 'User not found' }, { status: 400 });
+  }
+
   if (typeof role === 'string') {
     const roleChange = { role, confirmed };
     if (canApplyRoleChange(roleChange)) {
@@ -61,9 +66,17 @@ export async function PATCH(request: Request) {
         return NextResponse.json({ error: 'Rejected mutation' }, { status: 400 });
       }
       await users.updateRole(userId, roleChange.role);
-      await audit.record(createAdministrativeAuditEvent({
-        type: 'role_changed', subjectUserId: userId, actorUserId: session.id, occurredAt,
-      }));
+      try {
+        await audit.record(createAdministrativeAuditEvent({
+          type: 'role_changed', subjectUserId: userId, actorUserId: session.id, occurredAt,
+        }));
+      } catch (error) {
+        await users.updateRole(userId, previousUser.role);
+        return NextResponse.json(
+          { error: error instanceof Error ? error.message : 'Audit failed' },
+          { status: 500 }
+        );
+      }
       return NextResponse.json({ success: true });
     }
   }
@@ -78,9 +91,17 @@ export async function PATCH(request: Request) {
         return NextResponse.json({ error: 'Rejected mutation' }, { status: 400 });
       }
       await users.updateAccountStatus(userId, statusChange.accountStatus);
-      await audit.record(createAdministrativeAuditEvent({
-        type: 'account_status_changed', subjectUserId: userId, actorUserId: session.id, occurredAt,
-      }));
+      try {
+        await audit.record(createAdministrativeAuditEvent({
+          type: 'account_status_changed', subjectUserId: userId, actorUserId: session.id, occurredAt,
+        }));
+      } catch (error) {
+        await users.updateAccountStatus(userId, previousUser.accountStatus);
+        return NextResponse.json(
+          { error: error instanceof Error ? error.message : 'Audit failed' },
+          { status: 500 }
+        );
+      }
       return NextResponse.json({ success: true });
     }
   }

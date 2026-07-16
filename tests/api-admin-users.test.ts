@@ -6,6 +6,7 @@ const { getServerSessionMock, getCurrentUserMock, connectMock, repositoryMock, r
   connectMock: vi.fn(),
   repositoryMock: {
     findAll: vi.fn(),
+    findById: vi.fn(),
     updateRole: vi.fn(),
     updateAccountStatus: vi.fn(),
   },
@@ -51,6 +52,10 @@ describe('/api/admin/usuarios', () => {
 
   it('applies only a confirmed approved mutation and records its redacted audit event', async () => {
     getCurrentUserMock.mockResolvedValue({ id: 'admin-1', role: 'admin' });
+    repositoryMock.findById.mockResolvedValue({
+      id: 'user-1', email: 'user-1@example.com', role: 'suscriptora', accountStatus: 'active',
+      createdAt: '2026-07-16T00:00:00.000Z', passwordHash: 'secret',
+    });
     const cancelled = await PATCH(new Request('http://test/api/admin/usuarios', {
       method: 'PATCH', body: JSON.stringify({ userId: 'user-1', role: 'productora', confirmed: false }),
     }));
@@ -75,6 +80,10 @@ describe('/api/admin/usuarios', () => {
 
   it('rejects an Admin attempt to suspend or demote their own account', async () => {
     getCurrentUserMock.mockResolvedValue({ id: 'admin-1', role: 'admin' });
+    repositoryMock.findById.mockResolvedValue({
+      id: 'admin-1', email: 'admin-1@example.com', role: 'admin', accountStatus: 'active',
+      createdAt: '2026-07-16T00:00:00.000Z', passwordHash: 'secret',
+    });
     repositoryMock.findAll.mockResolvedValue([
       {
         id: 'admin-1', email: 'admin-1@example.com', role: 'admin', accountStatus: 'active',
@@ -97,6 +106,10 @@ describe('/api/admin/usuarios', () => {
 
   it('rejects a mutation that would remove the last active admin', async () => {
     getCurrentUserMock.mockResolvedValue({ id: 'admin-2', role: 'admin' });
+    repositoryMock.findById.mockResolvedValue({
+      id: 'admin-1', email: 'admin-1@example.com', role: 'admin', accountStatus: 'active',
+      createdAt: '2026-07-16T00:00:00.000Z', passwordHash: 'secret',
+    });
     repositoryMock.findAll.mockResolvedValue([
       {
         id: 'admin-1', email: 'admin-1@example.com', role: 'admin', accountStatus: 'active',
@@ -119,6 +132,10 @@ describe('/api/admin/usuarios', () => {
 
   it('allows demoting one admin when another active admin remains', async () => {
     getCurrentUserMock.mockResolvedValue({ id: 'admin-2', role: 'admin' });
+    repositoryMock.findById.mockResolvedValue({
+      id: 'admin-1', email: 'admin-1@example.com', role: 'admin', accountStatus: 'active',
+      createdAt: '2026-07-16T00:00:00.000Z', passwordHash: 'secret',
+    });
     repositoryMock.findAll.mockResolvedValue([
       {
         id: 'admin-1', email: 'admin-1@example.com', role: 'admin', accountStatus: 'active',
@@ -136,5 +153,57 @@ describe('/api/admin/usuarios', () => {
 
     expect(demoted.status).toBe(200);
     expect(repositoryMock.updateRole).toHaveBeenCalledWith('admin-1', 'productora');
+  });
+
+  it('rolls back a role change when audit recording fails', async () => {
+    getCurrentUserMock.mockResolvedValue({ id: 'admin-1', role: 'admin' });
+    repositoryMock.findAll.mockResolvedValue([
+      {
+        id: 'user-1', email: 'user-1@example.com', role: 'suscriptora', accountStatus: 'active',
+        createdAt: '2026-07-16T00:00:00.000Z', passwordHash: 'secret',
+      },
+    ]);
+    repositoryMock.findById.mockResolvedValue({
+      id: 'user-1', email: 'user-1@example.com', role: 'suscriptora', accountStatus: 'active',
+      createdAt: '2026-07-16T00:00:00.000Z', passwordHash: 'secret',
+    });
+    recordMock.mockRejectedValue(new Error('Audit write failed'));
+
+    const response = await PATCH(new Request('http://test/api/admin/usuarios', {
+      method: 'PATCH', body: JSON.stringify({ userId: 'user-1', role: 'productora', confirmed: true }),
+    }));
+
+    expect(response.status).toBe(500);
+    expect(repositoryMock.updateRole).toHaveBeenCalledWith('user-1', 'productora');
+    expect(repositoryMock.updateRole).toHaveBeenCalledWith('user-1', 'suscriptora');
+    expect(recordMock).toHaveBeenCalledWith(expect.objectContaining({
+      type: 'role_changed', subjectUserId: 'user-1', actorUserId: 'admin-1',
+    }));
+  });
+
+  it('rolls back an account status change when audit recording fails', async () => {
+    getCurrentUserMock.mockResolvedValue({ id: 'admin-1', role: 'admin' });
+    repositoryMock.findAll.mockResolvedValue([
+      {
+        id: 'user-1', email: 'user-1@example.com', role: 'suscriptora', accountStatus: 'active',
+        createdAt: '2026-07-16T00:00:00.000Z', passwordHash: 'secret',
+      },
+    ]);
+    repositoryMock.findById.mockResolvedValue({
+      id: 'user-1', email: 'user-1@example.com', role: 'suscriptora', accountStatus: 'active',
+      createdAt: '2026-07-16T00:00:00.000Z', passwordHash: 'secret',
+    });
+    recordMock.mockRejectedValue(new Error('Audit write failed'));
+
+    const response = await PATCH(new Request('http://test/api/admin/usuarios', {
+      method: 'PATCH', body: JSON.stringify({ userId: 'user-1', accountStatus: 'suspended', confirmed: true }),
+    }));
+
+    expect(response.status).toBe(500);
+    expect(repositoryMock.updateAccountStatus).toHaveBeenCalledWith('user-1', 'suspended');
+    expect(repositoryMock.updateAccountStatus).toHaveBeenCalledWith('user-1', 'active');
+    expect(recordMock).toHaveBeenCalledWith(expect.objectContaining({
+      type: 'account_status_changed', subjectUserId: 'user-1', actorUserId: 'admin-1',
+    }));
   });
 });

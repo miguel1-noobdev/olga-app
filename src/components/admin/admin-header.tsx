@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { signOut } from 'next-auth/react';
 
 export default function AdminHeader() {
   return (
@@ -9,12 +10,21 @@ export default function AdminHeader() {
         </p>
         <h1 className="font-serif text-2xl text-on-surface">Dashboard Admin</h1>
       </div>
-      <Link
-        href="/"
-        className="font-sans text-sm font-semibold text-on-surface-variant transition-colors hover:text-primary"
-      >
-        Ver sitio
-      </Link>
+      <div className="flex items-center gap-6">
+        <Link
+          href="/"
+          className="font-sans text-sm font-semibold text-on-surface-variant transition-colors hover:text-primary"
+        >
+          Ver sitio
+        </Link>
+        <button
+          type="button"
+          onClick={() => signOut({ callbackUrl: '/' })}
+          className="font-sans text-sm font-semibold text-on-surface-variant transition-colors hover:text-primary"
+        >
+          Cerrar sesión
+        </button>
+      </div>
     </header>
   );
 }
