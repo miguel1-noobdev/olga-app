@@ -23,6 +23,17 @@ export interface ApprovedDirectoryUser {
 const APPROVED_ACCOUNT_STATUSES: readonly AccountStatus[] = ['active', 'suspended'];
 const APPROVED_ROLES: readonly Role[] = [ROLES.SUSCRIPTORA, ROLES.PRODUCTORA, ROLES.ADMIN];
 
+export function isLastActiveAdmin(
+  users: Pick<AdminUserRecord, 'id' | 'role' | 'accountStatus'>[],
+  targetUserId: string,
+): boolean {
+  const activeAdmins = users.filter(
+    (user) => user.role === ROLES.ADMIN && user.accountStatus === 'active',
+  );
+
+  return activeAdmins.length === 1 && activeAdmins[0].id === targetUserId;
+}
+
 export function approvedDirectoryUser(user: AdminUserRecord): ApprovedDirectoryUser {
   return {
     id: user.id,

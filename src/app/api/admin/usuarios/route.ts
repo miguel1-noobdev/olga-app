@@ -4,6 +4,7 @@ import {
   canApplyRoleChange,
   canApplyStatusChange,
   approvedDirectoryUser,
+  isLastActiveAdmin,
 } from '@/lib/admin/users/role-change';
 import {
   createAdministrativeAuditEvent,
@@ -47,11 +48,15 @@ export async function PATCH(request: Request) {
   await connectToDatabase();
   const users = createUserRepository();
   const audit = createAdministrativeAuditRepository();
+  const directory = await users.findAll();
   const occurredAt = new Date().toISOString();
 
   if (typeof role === 'string') {
     const roleChange = { role, confirmed };
     if (canApplyRoleChange(roleChange)) {
+      if (roleChange.role !== 'admin' && isLastActiveAdmin(directory, userId)) {
+        return NextResponse.json({ error: 'Rejected mutation' }, { status: 400 });
+      }
       if (userId === session.id && roleChange.role !== 'admin') {
         return NextResponse.json({ error: 'Rejected mutation' }, { status: 400 });
       }
@@ -66,6 +71,9 @@ export async function PATCH(request: Request) {
   if (typeof accountStatus === 'string') {
     const statusChange = { accountStatus, confirmed };
     if (canApplyStatusChange(statusChange)) {
+      if (statusChange.accountStatus === 'suspended' && isLastActiveAdmin(directory, userId)) {
+        return NextResponse.json({ error: 'Rejected mutation' }, { status: 400 });
+      }
       if (userId === session.id && statusChange.accountStatus === 'suspended') {
         return NextResponse.json({ error: 'Rejected mutation' }, { status: 400 });
       }
