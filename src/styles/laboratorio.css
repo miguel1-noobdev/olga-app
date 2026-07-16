@@ -1,0 +1,93 @@
+/* Tokyo-neon Laboratory theme.
+   Apply by wrapping any laboratory page with <div class="lab-root">.
+   Dark is the default mode for this operational workspace. */
+
+.lab-root {
+  /* Core palette */
+  --color-background: #0d0d15;
+  --color-on-background: #efecf8;
+  --color-surface: #0d0d15;
+  --color-on-surface: #efecf8;
+  --color-on-surface-variant: #acaab5;
+
+  /* Surfaces */
+  --color-surface-container: #191922;
+  --color-surface-container-low: #13131b;
+  --color-surface-container-lowest: #000000;
+  --color-surface-container-high: #1f1f29;
+  --color-surface-container-highest: #252530;
+  --color-surface-bright: #2b2b38;
+  --color-surface-dim: #0d0d15;
+  --color-surface-variant: #252530;
+  --color-surface-tint: #96f8ff;
+  --color-surface-border: #2b2b38;
+  --color-surface-border-variant: #484750;
+
+  /* Primary — cyan neon */
+  --color-primary: #96f8ff;
+  --color-primary-dim: #00e2ed;
+  --color-primary-container: #00f1fd;
+  --color-primary-fixed: #00f1fd;
+  --color-primary-fixed-dim: #00e2ed;
+  --color-on-primary: #005f64;
+  --color-on-primary-container: #00565a;
+  --color-on-primary-fixed: #004145;
+  --color-on-primary-fixed-variant: #006065;
+
+  /* Secondary — amber/cyber gold */
+  --color-secondary: #ffb204;
+  --color-secondary-dim: #eda500;
+  --color-secondary-container: #7f5700;
+  --color-secondary-fixed: #ffc971;
+  --color-secondary-fixed-dim: #ffb629;
+  --color-on-secondary: #533700;
+  --color-on-secondary-container: #fff6ee;
+  --color-on-secondary-fixed: #483000;
+  --color-on-secondary-fixed-variant: #6d4a00;
+
+  /* Tertiary — lime */
+  --color-tertiary: #8eff71;
+  --color-tertiary-dim: #2be800;
+  --color-tertiary-container: #2ff801;
+  --color-tertiary-fixed: #2ff801;
+  --color-tertiary-fixed-dim: #2be800;
+  --color-on-tertiary: #0d6100;
+  --color-on-tertiary-container: #0b5800;
+  --color-on-tertiary-fixed: #064200;
+  --color-on-tertiary-fixed-variant: #0d6200;
+
+  /* Error */
+  --color-error: #ff716c;
+  --color-error-dim: #d7383b;
+  --color-error-container: #9f0519;
+  --color-on-error: #490006;
+  --color-on-error-container: #ffa8a3;
+
+  /* Inverse */
+  --color-inverse-surface: #fcf8ff;
+  --color-inverse-on-surface: #55545e;
+  --color-inverse-primary: #006a6f;
+
+  /* Outlines */
+  --color-outline: #76747f;
+  --color-outline-variant: #484750;
+
+  /* Typography */
+  --font-headline: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-label: "Public Sans", ui-sans-serif, system-ui, sans-serif;
+
+  color: var(--color-on-surface);
+  background-color: var(--color-surface);
+  font-family: var(--font-body);
+}
+
+.lab-root h1,
+.lab-root h2,
+.lab-root h3,
+.lab-root h4,
+.lab-root h5,
+.lab-root h6 {
+  font-family: var(--font-headline);
+}

@@ -3,8 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-const { getServerSessionMock, getCurrentUserMock, redirectMock, signOutMock } = vi.hoisted(() => ({
-  getServerSessionMock: vi.fn(),
+const { getCurrentUserMock, redirectMock, signOutMock } = vi.hoisted(() => ({
   getCurrentUserMock: vi.fn(),
   redirectMock: vi.fn((path: string) => {
     throw new Error(`NEXT_REDIRECT ${path}`);
@@ -13,7 +12,7 @@ const { getServerSessionMock, getCurrentUserMock, redirectMock, signOutMock } = 
 }));
 
 vi.mock('next-auth', () => ({
-  getServerSession: getServerSessionMock,
+  getServerSession: vi.fn(),
 }));
 vi.mock('@/lib/auth/current-user', () => ({ getCurrentUser: getCurrentUserMock }));
 
@@ -76,8 +75,8 @@ describe('/laboratorio layout', () => {
     const jsx = await LaboratoryLayout({ children: <div>Protected content</div> });
     render(jsx);
 
-    expect(screen.getByRole('link', { name: /home/i })).toHaveAttribute('href', '/laboratorio');
-    expect(screen.getByRole('link', { name: /formulas/i })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /laboratorio final/i })).toHaveAttribute('href', '/laboratorio');
+    expect(screen.getByRole('link', { name: /fórmulas/i })).toHaveAttribute(
       'href',
       '/laboratorio/formulas'
     );
@@ -85,16 +84,16 @@ describe('/laboratorio layout', () => {
       'href',
       '/laboratorio/lotes'
     );
-    expect(screen.getByRole('link', { name: /plants/i })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /mi jardín/i })).toHaveAttribute(
       'href',
       '/laboratorio/plantas'
     );
-    expect(screen.getByRole('link', { name: /oils/i })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /mis aceites/i })).toHaveAttribute(
       'href',
       '/laboratorio/aceites'
     );
-    expect(screen.getByRole('link', { name: /public site/i })).toHaveAttribute('href', '/');
-    expect(screen.getByRole('button', { name: /sign out/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /ver sitio público/i })).toHaveAttribute('href', '/');
+    expect(screen.getByRole('button', { name: /cerrar sesión/i })).toBeInTheDocument();
   });
 
   it('calls signOut with the public home callbackUrl when sign out is clicked', async () => {
@@ -104,7 +103,7 @@ describe('/laboratorio layout', () => {
     const jsx = await LaboratoryLayout({ children: <div>Protected content</div> });
     render(jsx);
 
-    const signOutButton = screen.getByRole('button', { name: /sign out/i });
+    const signOutButton = screen.getByRole('button', { name: /cerrar sesión/i });
     await user.click(signOutButton);
 
     expect(signOutMock).toHaveBeenCalledTimes(1);

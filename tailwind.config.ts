@@ -5,20 +5,73 @@ const config: Config = {
     "./src/app/**/*.{ts,tsx}",
     "./src/components/**/*.{ts,tsx}"
   ],
+  darkMode: "class",
   theme: {
     extend: {
       colors: {
-        // Glassmorphism palette — source of truth: ideas/designUI/CONTEXTO_PLATAFORMA.md
-        primary: "#334537",            // Verde botanico — headings, primary CTAs, navbar
-        secondary: "#e9c349",          // Dorado — accents, links, secondary CTAs
-        surface: "#f4fbf2",            // Crema — page background, glass card tint base
-        "surface-container": "#e9f0e7",// Tinted surface for sections / hover states
-        "surface-border": "#dde4db",   // Hairline borders for glass cards and dividers
-        "on-surface": "#161d18",       // Default body text on surface
-        "on-surface-variant": "#3a4239"// Muted body text on surface
+        /* Design tokens are CSS variables so they can be redefined per scope.
+           Default (:root) values are the public glassmorphism palette.
+           Laboratory scope (.lab-root) overrides them with Tokyo-neon tokens. */
+        background: "var(--color-background)",
+        "on-background": "var(--color-on-background)",
+        surface: "var(--color-surface)",
+        "on-surface": "var(--color-on-surface)",
+        "on-surface-variant": "var(--color-on-surface-variant)",
+        "surface-container": "var(--color-surface-container)",
+        "surface-container-low": "var(--color-surface-container-low)",
+        "surface-container-lowest": "var(--color-surface-container-lowest)",
+        "surface-container-high": "var(--color-surface-container-high)",
+        "surface-container-highest": "var(--color-surface-container-highest)",
+        "surface-bright": "var(--color-surface-bright)",
+        "surface-dim": "var(--color-surface-dim)",
+        "surface-variant": "var(--color-surface-variant)",
+        "surface-tint": "var(--color-surface-tint)",
+        "surface-border": "var(--color-surface-border)",
+        "surface-border-variant": "var(--color-surface-border-variant)",
+        primary: "var(--color-primary)",
+        "primary-dim": "var(--color-primary-dim)",
+        "primary-container": "var(--color-primary-container)",
+        "primary-fixed": "var(--color-primary-fixed)",
+        "primary-fixed-dim": "var(--color-primary-fixed-dim)",
+        "on-primary": "var(--color-on-primary)",
+        "on-primary-container": "var(--color-on-primary-container)",
+        "on-primary-fixed": "var(--color-on-primary-fixed)",
+        "on-primary-fixed-variant": "var(--color-on-primary-fixed-variant)",
+        secondary: "var(--color-secondary)",
+        "secondary-dim": "var(--color-secondary-dim)",
+        "secondary-container": "var(--color-secondary-container)",
+        "secondary-fixed": "var(--color-secondary-fixed)",
+        "secondary-fixed-dim": "var(--color-secondary-fixed-dim)",
+        "on-secondary": "var(--color-on-secondary)",
+        "on-secondary-container": "var(--color-on-secondary-container)",
+        "on-secondary-fixed": "var(--color-on-secondary-fixed)",
+        "on-secondary-fixed-variant": "var(--color-on-secondary-fixed-variant)",
+        tertiary: "var(--color-tertiary)",
+        "tertiary-dim": "var(--color-tertiary-dim)",
+        "tertiary-container": "var(--color-tertiary-container)",
+        "tertiary-fixed": "var(--color-tertiary-fixed)",
+        "tertiary-fixed-dim": "var(--color-tertiary-fixed-dim)",
+        "on-tertiary": "var(--color-on-tertiary)",
+        "on-tertiary-container": "var(--color-on-tertiary-container)",
+        "on-tertiary-fixed": "var(--color-on-tertiary-fixed)",
+        "on-tertiary-fixed-variant": "var(--color-on-tertiary-fixed-variant)",
+        error: "var(--color-error)",
+        "error-dim": "var(--color-error-dim)",
+        "error-container": "var(--color-error-container)",
+        "on-error": "var(--color-on-error)",
+        "on-error-container": "var(--color-on-error-container)",
+        "inverse-surface": "var(--color-inverse-surface)",
+        "inverse-on-surface": "var(--color-inverse-on-surface)",
+        "inverse-primary": "var(--color-inverse-primary)",
+        outline: "var(--color-outline)",
+        "outline-variant": "var(--color-outline-variant)",
       },
       fontFamily: {
-        // Playfair Display — headlines, brand mark, display copy
+        /* Scope-aware fonts. Default is the public site (Playfair / Plus Jakarta). */
+        headline: ["var(--font-headline)", "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "ui-sans-serif", "system-ui", "sans-serif"],
+        body: ["var(--font-body)", "ui-sans-serif", "system-ui", "sans-serif"],
+        label: ["var(--font-label)", "ui-sans-serif", "system-ui", "sans-serif"],
         serif: [
           "var(--font-serif)",
           "Playfair Display",
@@ -26,7 +79,6 @@ const config: Config = {
           "Georgia",
           "serif"
         ],
-        // Plus Jakarta Sans — body, labels, UI
         sans: [
           "var(--font-sans)",
           "Plus Jakarta Sans",
@@ -47,18 +99,15 @@ const config: Config = {
         glass: "20px"
       }
     },
-    // Design system tokens must be available as part of the public API, not
-    // only when a component happens to use them. The landing sections, blog
-    // components, and shared primitives all consume these utilities.
     safelist: [
       "glass-card",
       "gold-border",
       "backdrop-blur-glass",
       {
-        pattern: /^(bg|text|border)-(primary|secondary|surface|surface-container|surface-border|on-surface|on-surface-variant)$/
+        pattern: /^(bg|text|border)-(surface|surface-container|surface-border|on-surface|on-surface-variant|primary|secondary|tertiary|error|outline)(-.*)?$/
       },
       {
-        pattern: /^font-(serif|sans)$/
+        pattern: /^font-(serif|sans|headline|display|body|label)$/
       }
     ]
   },

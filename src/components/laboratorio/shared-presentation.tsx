@@ -9,10 +9,10 @@ import type { PlantRecord } from '@/lib/db/repository/plant';
 
 export function formatDate(isoDate: string | null | undefined): string {
   if (!isoDate) {
-    return 'Not set';
+    return 'Sin fecha';
   }
 
-  return new Date(isoDate).toLocaleDateString('en-US', {
+  return new Date(isoDate).toLocaleDateString('es-ES', {
     timeZone: 'UTC',
     day: 'numeric',
     month: 'short',
@@ -21,75 +21,75 @@ export function formatDate(isoDate: string | null | undefined): string {
 }
 
 export const FORMULA_STATUS_LABELS: Record<FormulaStatus, string> = {
-  draft: 'Draft',
-  testing: 'Testing',
-  validated: 'Validated',
-  archived: 'Archived',
-  discarded: 'Discarded',
+  draft: 'Borrador',
+  testing: 'En pruebas',
+  validated: 'Validada',
+  archived: 'Archivada',
+  discarded: 'Descartada',
 };
 
 export function getFormulaStatusStyles(status: FormulaStatus): string {
   switch (status) {
     case 'validated':
-      return 'bg-primary/15 text-primary';
+      return 'bg-primary/15 text-primary border border-primary/20';
     case 'testing':
-      return 'bg-secondary/20 text-on-surface';
+      return 'bg-secondary/15 text-secondary border border-secondary/20';
     case 'draft':
-      return 'bg-surface-container text-on-surface-variant';
+      return 'bg-surface-container text-on-surface-variant border border-surface-border';
     case 'archived':
-      return 'bg-surface-border text-on-surface-variant';
+      return 'bg-surface-container-low text-on-surface-variant border border-surface-border';
     case 'discarded':
-      return 'bg-red-100 text-red-800';
+      return 'bg-error/15 text-error border border-error/20';
     default:
-      return 'bg-surface-container text-on-surface-variant';
+      return 'bg-surface-container text-on-surface-variant border border-surface-border';
   }
 }
 
 export const LOT_STATUS_LABELS: Record<LotStatus, string> = {
-  planned: 'Planned',
-  in_progress: 'In progress',
-  completed: 'Completed',
-  cancelled: 'Cancelled',
+  planned: 'Planeado',
+  in_progress: 'En progreso',
+  completed: 'Completado',
+  cancelled: 'Cancelado',
 };
 
 export function getLotStatusStyles(status: LotStatus): string {
   switch (status) {
     case 'completed':
-      return 'bg-primary/15 text-primary';
+      return 'bg-primary/15 text-primary border border-primary/20';
     case 'in_progress':
-      return 'bg-secondary/20 text-on-surface';
+      return 'bg-secondary/15 text-secondary border border-secondary/20';
     case 'planned':
-      return 'bg-surface-container text-on-surface-variant';
+      return 'bg-surface-container text-on-surface-variant border border-surface-border';
     case 'cancelled':
-      return 'bg-red-100 text-red-800';
+      return 'bg-error/15 text-error border border-error/20';
     default:
-      return 'bg-surface-container text-on-surface-variant';
+      return 'bg-surface-container text-on-surface-variant border border-surface-border';
   }
 }
 
 export const OIL_PHASE_LABELS: Record<string, string> = {
-  oil: 'Oil',
-  aqueous: 'Aqueous',
-  active: 'Active',
-  emulsifier: 'Emulsifier',
-  preservative: 'Preservative',
-  other: 'Other',
+  oil: 'Oleosa',
+  aqueous: 'Acuosa',
+  active: 'Activo',
+  emulsifier: 'Emulsificante',
+  preservative: 'Conservante',
+  other: 'Otro',
 };
 
 export function getOilPhaseStyles(phase: string): string {
   switch (phase.toLowerCase()) {
     case 'oil':
-      return 'bg-secondary/20 text-on-surface';
+      return 'bg-secondary/15 text-secondary border border-secondary/20';
     case 'aqueous':
-      return 'bg-blue-100 text-blue-800';
+      return 'bg-primary/15 text-primary border border-primary/20';
     case 'active':
-      return 'bg-primary/15 text-primary';
+      return 'bg-tertiary/15 text-tertiary border border-tertiary/20';
     case 'emulsifier':
-      return 'bg-surface-container text-on-surface-variant';
+      return 'bg-surface-container text-on-surface-variant border border-surface-border';
     case 'preservative':
-      return 'bg-red-100 text-red-800';
+      return 'bg-error/15 text-error border border-error/20';
     default:
-      return 'bg-surface-container text-on-surface-variant';
+      return 'bg-surface-container text-on-surface-variant border border-surface-border';
   }
 }
 
@@ -108,7 +108,7 @@ export function OilPhaseBadge({ phase }: { phase?: string }) {
 
   return (
     <span
-      className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-sans font-semibold uppercase tracking-wider ${getOilPhaseStyles(phase)}`}
+      className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-label font-semibold uppercase tracking-wider ${getOilPhaseStyles(phase)}`}
     >
       {formatOilPhase(phase)}
     </span>
@@ -136,10 +136,10 @@ export function ObservationsPreview({ observations }: { observations?: string })
 }
 
 export function OilCountSummary({ count }: { count: number }) {
-  const label = count === 1 ? 'oil registered' : 'oils registered';
+  const label = count === 1 ? 'aceite registrado' : 'aceites registrados';
 
   return (
-    <p className="font-sans text-sm text-on-surface-variant">
+    <p className="font-body text-sm text-on-surface-variant">
       {count} {label}
     </p>
   );
@@ -174,10 +174,10 @@ export function hasPlantInternalNotes(plant: PlantRecord): boolean {
 }
 
 export function PlantCountSummary({ count }: { count: number }) {
-  const label = count === 1 ? 'plant registered' : 'plants registered';
+  const label = count === 1 ? 'planta registrada' : 'plantas registradas';
 
   return (
-    <p className="font-sans text-sm text-on-surface-variant">
+    <p className="font-body text-sm text-on-surface-variant">
       {count} {label}
     </p>
   );
@@ -208,12 +208,12 @@ export function PhaseIngredientList({
 
   return (
     <div className="mb-4 last:mb-0">
-      <h3 className="font-sans text-sm font-semibold text-on-surface mb-2">{title}</h3>
+      <h3 className="font-body text-sm font-semibold text-on-surface mb-2">{title}</h3>
       <ul className="divide-y divide-surface-border">
         {ingredients.map((item) => (
           <li
             key={`${item.ingredient}-${item.grams}`}
-            className="flex justify-between py-2 font-sans text-sm text-on-surface-variant"
+            className="flex justify-between py-2 font-body text-sm text-on-surface-variant"
           >
             <span>{item.ingredient}</span>
             <span className="font-medium text-on-surface">{item.grams} g</span>
@@ -232,27 +232,27 @@ export function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className="glass-card rounded-xl p-6">
-      <h2 className="font-serif text-xl text-on-surface mb-4">{title}</h2>
+    <section className="bg-surface-container border border-surface-border rounded-2xl p-6">
+      <h2 className="font-headline text-xl text-on-surface mb-4">{title}</h2>
       {children}
     </section>
   );
 }
 
 export function EmptySectionMessage({ children }: { children: React.ReactNode }) {
-  return <p className="font-sans text-sm text-on-surface-variant italic">{children}</p>;
+  return <p className="font-body text-sm text-on-surface-variant italic">{children}</p>;
 }
 
 export function PhasesSection({ phases }: { phases?: FormulaPhase }) {
   return (
-    <SectionCard title="Phases and ingredients">
+    <SectionCard title="Fases e ingredientes">
       {!hasPhases(phases) ? (
-        <EmptySectionMessage>No phases registered.</EmptySectionMessage>
+        <EmptySectionMessage>No hay fases registradas.</EmptySectionMessage>
       ) : (
         <>
-          <PhaseIngredientList title="Aqueous phase" ingredients={phases?.aqueous} />
-          <PhaseIngredientList title="Oil phase" ingredients={phases?.oil} />
-          <PhaseIngredientList title="Actives" ingredients={phases?.actives} />
+          <PhaseIngredientList title="Fase acuosa" ingredients={phases?.aqueous} />
+          <PhaseIngredientList title="Fase oleosa" ingredients={phases?.oil} />
+          <PhaseIngredientList title="Activos" ingredients={phases?.actives} />
         </>
       )}
     </SectionCard>
@@ -261,17 +261,17 @@ export function PhasesSection({ phases }: { phases?: FormulaPhase }) {
 
 export function ProcedureSection({ steps }: { steps: FormulaProcedureStep[] }) {
   return (
-    <SectionCard title="Procedure">
+    <SectionCard title="Procedimiento">
       {steps.length === 0 ? (
-        <EmptySectionMessage>No procedure steps registered.</EmptySectionMessage>
+        <EmptySectionMessage>No hay pasos de procedimiento registrados.</EmptySectionMessage>
       ) : (
         <ol className="space-y-4">
           {steps.map((step) => (
             <li key={step.stepNumber} className="flex gap-4">
-              <span className="flex-shrink-0 w-8 h-8 rounded-full bg-surface-container flex items-center justify-center font-sans text-sm font-semibold text-on-surface">
+              <span className="flex-shrink-0 w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center font-body text-sm font-semibold text-on-surface">
                 {step.stepNumber}
               </span>
-              <p className="font-sans text-sm text-on-surface-variant pt-1.5">
+              <p className="font-body text-sm text-on-surface-variant pt-1.5">
                 {step.instruction}
               </p>
             </li>
@@ -300,14 +300,14 @@ export function ProductionInstructionsSection({
   technicalData?: FormulaTechnicalDataSnapshot;
 }) {
   return (
-    <SectionCard title="Production instructions">
+    <SectionCard title="Instrucciones de producción">
       {!hasTechnicalData(technicalData) ? (
-        <EmptySectionMessage>No production instructions registered.</EmptySectionMessage>
+        <EmptySectionMessage>No hay instrucciones de producción registradas.</EmptySectionMessage>
       ) : (
-        <dl className="grid grid-cols-1 sm:grid-cols-3 gap-6 font-sans text-sm">
+        <dl className="grid grid-cols-1 sm:grid-cols-3 gap-6 font-body text-sm">
           {technicalData?.productionTemperatureCelsius !== undefined && (
             <div>
-              <dt className="font-semibold text-on-surface">Production temperature</dt>
+              <dt className="font-semibold text-on-surface">Temperatura de producción</dt>
               <dd className="text-on-surface-variant">
                 {technicalData.productionTemperatureCelsius} °C
               </dd>
@@ -315,7 +315,7 @@ export function ProductionInstructionsSection({
           )}
           {technicalData?.mixingTimeMinutes !== undefined && (
             <div>
-              <dt className="font-semibold text-on-surface">Mixing time</dt>
+              <dt className="font-semibold text-on-surface">Tiempo de mezcla</dt>
               <dd className="text-on-surface-variant">
                 {technicalData.mixingTimeMinutes} min
               </dd>
@@ -323,7 +323,7 @@ export function ProductionInstructionsSection({
           )}
           {technicalData?.preservative !== undefined && (
             <div>
-              <dt className="font-semibold text-on-surface">Preservative</dt>
+              <dt className="font-semibold text-on-surface">Conservante</dt>
               <dd className="text-on-surface-variant">{technicalData.preservative}</dd>
             </div>
           )}

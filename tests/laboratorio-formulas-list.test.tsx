@@ -63,11 +63,11 @@ describe('/laboratorio/formulas page', () => {
     const jsx = await LaboratoryFormulasPage();
     render(jsx);
 
-    expect(screen.getByRole('link', { name: /back to laboratory/i })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /volver al laboratorio/i })).toHaveAttribute(
       'href',
       '/laboratorio'
     );
-    expect(screen.getByRole('link', { name: /new formula/i })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /nueva fórmula/i })).toHaveAttribute(
       'href',
       '/laboratorio/formulas/nueva'
     );
@@ -112,23 +112,23 @@ describe('/laboratorio/formulas page', () => {
     const jsx = await LaboratoryFormulasPage();
     render(jsx);
 
-    expect(screen.getByText('Laboratory — Formulas')).toBeInTheDocument();
+    expect(screen.getByText('Laboratorio — Fórmulas')).toBeInTheDocument();
 
-    const lavenderCard = screen.getByRole('link', { name: /view details for crema de lavanda/i });
-    const calendulaCard = screen.getByRole('link', { name: /view details for aceite de calendula/i });
+    const lavenderCard = screen.getByRole('link', { name: /ver detalles de crema de lavanda/i });
+    const calendulaCard = screen.getByRole('link', { name: /ver detalles de aceite de calendula/i });
 
     expect(within(lavenderCard).getByText('Crema de lavanda')).toBeInTheDocument();
     expect(within(lavenderCard).getByText('CF-001')).toBeInTheDocument();
     expect(within(lavenderCard).getByText('1.0')).toBeInTheDocument();
-    expect(within(lavenderCard).getByText('Jan 15, 2026')).toBeInTheDocument();
-    expect(within(lavenderCard).getByText('Draft')).toBeInTheDocument();
+    expect(within(lavenderCard).getByText('15 ene 2026')).toBeInTheDocument();
+    expect(within(lavenderCard).getByText('Borrador')).toBeInTheDocument();
     expect(lavenderCard).toHaveAttribute('href', '/laboratorio/formulas/formula-1');
 
     expect(within(calendulaCard).getByText('Aceite de calendula')).toBeInTheDocument();
     expect(within(calendulaCard).getByText('CF-002')).toBeInTheDocument();
     expect(within(calendulaCard).getByText('2.0')).toBeInTheDocument();
-    expect(within(calendulaCard).getByText('Feb 1, 2026')).toBeInTheDocument();
-    expect(within(calendulaCard).getByText('Validated')).toBeInTheDocument();
+    expect(within(calendulaCard).getByText('1 feb 2026')).toBeInTheDocument();
+    expect(within(calendulaCard).getByText('Validada')).toBeInTheDocument();
     expect(calendulaCard).toHaveAttribute('href', '/laboratorio/formulas/formula-2');
   });
 
@@ -142,9 +142,9 @@ describe('/laboratorio/formulas page', () => {
     const jsx = await LaboratoryFormulasPage();
     render(jsx);
 
-    expect(screen.getByText('No formulas registered yet')).toBeInTheDocument();
+    expect(screen.getByText('No hay fórmulas registradas todavía')).toBeInTheDocument();
     expect(
-      screen.getByText('Your laboratory formulas will appear here once they are created.')
+      screen.getByText('Tus fórmulas del laboratorio aparecerán aquí una vez creadas.')
     ).toBeInTheDocument();
   });
 
@@ -154,11 +154,11 @@ describe('/laboratorio/formulas page', () => {
     });
 
     const statuses: Array<{ status: string; label: string }> = [
-      { status: 'draft', label: 'Draft' },
-      { status: 'testing', label: 'Testing' },
-      { status: 'validated', label: 'Validated' },
-      { status: 'archived', label: 'Archived' },
-      { status: 'discarded', label: 'Discarded' },
+      { status: 'draft', label: 'Borrador' },
+      { status: 'testing', label: 'En pruebas' },
+      { status: 'validated', label: 'Validada' },
+      { status: 'archived', label: 'Archivada' },
+      { status: 'discarded', label: 'Descartada' },
     ];
 
     findAllMock.mockResolvedValue(
@@ -186,7 +186,7 @@ describe('/laboratorio/formulas page', () => {
     }
   });
 
-  it('falls back to "Not set" when formulaCreatedAt is missing', async () => {
+  it('falls back to "Sin fecha" when formulaCreatedAt is missing', async () => {
     getServerSessionMock.mockResolvedValue({
       user: { id: 'user-1', email: 'olga@test.com', role: 'productora' },
     });
@@ -211,7 +211,7 @@ describe('/laboratorio/formulas page', () => {
     const jsx = await LaboratoryFormulasPage();
     render(jsx);
 
-    const card = screen.getByRole('link', { name: /view details for formula without date/i });
-    expect(within(card).getByText('Not set')).toBeInTheDocument();
+    const card = screen.getByRole('link', { name: /ver detalles de formula without date/i });
+    expect(within(card).getByText('Sin fecha')).toBeInTheDocument();
   });
 });

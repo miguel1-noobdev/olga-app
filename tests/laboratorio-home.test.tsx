@@ -51,7 +51,7 @@ describe('/laboratorio home page', () => {
     const jsx = await LaboratoryHomePage();
     render(jsx);
 
-    expect(screen.getByRole('link', { name: /new formula/i })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /nueva fórmula/i })).toHaveAttribute(
       'href',
       '/laboratorio/formulas/nueva'
     );
@@ -65,14 +65,12 @@ describe('/laboratorio home page', () => {
     const jsx = await LaboratoryHomePage();
     render(jsx);
 
-    expect(screen.getByText('Laboratory')).toBeInTheDocument();
+    expect(screen.getByText('Hola, Olga')).toBeInTheDocument();
     expect(
-      screen.getByText(
-        'Private workspace for production planning and raw material consultation.'
-      )
+      screen.getByText('Panel de operaciones del laboratorio')
     ).toBeInTheDocument();
 
-    expect(screen.getByRole('link', { name: /formulas/i })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /fórmulas/i })).toHaveAttribute(
       'href',
       '/laboratorio/formulas'
     );
@@ -80,27 +78,13 @@ describe('/laboratorio home page', () => {
       'href',
       '/laboratorio/lotes'
     );
-    expect(screen.getByRole('link', { name: /plants/i })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /mi jardín/i })).toHaveAttribute(
       'href',
       '/laboratorio/plantas'
     );
-    expect(screen.getByRole('link', { name: /oils/i })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /mis aceites/i })).toHaveAttribute(
       'href',
       '/laboratorio/aceites'
     );
-  });
-
-  it('displays the suggested workflow hint', async () => {
-    getServerSessionMock.mockResolvedValue({
-      user: { id: 'user-1', email: 'olga@test.com', role: 'productora' },
-    });
-
-    const jsx = await LaboratoryHomePage();
-    render(jsx);
-
-    expect(screen.getByText('Suggested flow')).toBeInTheDocument();
-    expect(
-      screen.getByText(/work starts from a formula/i)
-    ).toBeInTheDocument();
   });
 });

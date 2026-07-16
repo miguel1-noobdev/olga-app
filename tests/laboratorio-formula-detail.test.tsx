@@ -179,10 +179,10 @@ describe('/laboratorio/formulas/[id] page', () => {
 
     expect(screen.getByRole('heading', { name: 'Crema de lavanda', level: 1 })).toBeInTheDocument();
     expect(screen.getByText('CF-001 — v1.0 — crema')).toBeInTheDocument();
-    expect(screen.getByText('Validated')).toBeInTheDocument();
+    expect(screen.getByText('Validada')).toBeInTheDocument();
     expect(screen.getByText('500 g')).toBeInTheDocument();
-    expect(screen.getByText('Jan 15, 2026')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /back to formulas/i })).toHaveAttribute(
+    expect(screen.getByText('15 ene 2026')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /volver a fórmulas/i })).toHaveAttribute(
       'href',
       '/laboratorio/formulas'
     );
@@ -197,7 +197,7 @@ describe('/laboratorio/formulas/[id] page', () => {
     const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
     render(jsx);
 
-    const createLotLink = screen.getByRole('link', { name: /create lot/i });
+    const createLotLink = screen.getByRole('link', { name: /crear lote/i });
     expect(createLotLink).toBeInTheDocument();
     expect(createLotLink).toHaveAttribute('href', '/laboratorio/lotes/nuevo?formulaId=formula-1');
   });
@@ -211,7 +211,7 @@ describe('/laboratorio/formulas/[id] page', () => {
     const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-42' } });
     render(jsx);
 
-    expect(screen.getByRole('link', { name: /create lot/i })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /crear lote/i })).toHaveAttribute(
       'href',
       '/laboratorio/lotes/nuevo?formulaId=formula-42'
     );
@@ -226,7 +226,7 @@ describe('/laboratorio/formulas/[id] page', () => {
     const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
     render(jsx);
 
-    expect(screen.queryByRole('link', { name: /create lot/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /crear lote/i })).not.toBeInTheDocument();
   });
 
   it('loads lots for the current formula', async () => {
@@ -251,7 +251,7 @@ describe('/laboratorio/formulas/[id] page', () => {
     render(jsx);
 
     expect(screen.getByRole('heading', { name: 'Lotes' })).toBeInTheDocument();
-    expect(screen.getByText('No Lotes registered for this formula.')).toBeInTheDocument();
+    expect(screen.getByText('No hay lotes registrados para esta fórmula.')).toBeInTheDocument();
   });
 
   it('renders the lot list with basic fields', async () => {
@@ -285,12 +285,12 @@ describe('/laboratorio/formulas/[id] page', () => {
     const scoped = within(section as HTMLElement);
     expect(scoped.getByText('CF-001-L001')).toBeInTheDocument();
     expect(scoped.getByText('CF-001-L002')).toBeInTheDocument();
-    expect(scoped.getByText('Planned')).toBeInTheDocument();
-    expect(scoped.getByText('In progress')).toBeInTheDocument();
-    expect(scoped.getByText(/Lot number 1/)).toBeInTheDocument();
-    expect(scoped.getByText(/Lot number 2/)).toBeInTheDocument();
-    expect(scoped.getByText(/500 g target/)).toBeInTheDocument();
-    expect(scoped.getByText(/750 g target/)).toBeInTheDocument();
+    expect(scoped.getByText('Planeado')).toBeInTheDocument();
+    expect(scoped.getByText('En progreso')).toBeInTheDocument();
+    expect(scoped.getByText(/Lote n\.º 1/)).toBeInTheDocument();
+    expect(scoped.getByText(/Lote n\.º 2/)).toBeInTheDocument();
+    expect(scoped.getByText(/500 g de objetivo/)).toBeInTheDocument();
+    expect(scoped.getByText(/750 g de objetivo/)).toBeInTheDocument();
   });
 
   it('renders a canonical detail link for each Lote', async () => {
@@ -368,9 +368,9 @@ describe('/laboratorio/formulas/[id] page', () => {
     const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
     render(jsx);
 
-    expect(screen.getByText(/Planned: Feb 1, 2026/)).toBeInTheDocument();
-    expect(screen.getByText(/Started: Feb 5, 2026/)).toBeInTheDocument();
-    expect(screen.getByText(/Completed: Feb 10, 2026/)).toBeInTheDocument();
+    expect(screen.getByText(/Planificado: 1 feb 2026/)).toBeInTheDocument();
+    expect(screen.getByText(/Iniciado: 5 feb 2026/)).toBeInTheDocument();
+    expect(screen.getByText(/Completado: 10 feb 2026/)).toBeInTheDocument();
   });
 
   it('renders every lot status label without crashing', async () => {
@@ -401,7 +401,7 @@ describe('/laboratorio/formulas/[id] page', () => {
     const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
     render(jsx);
 
-    expect(screen.getByRole('heading', { name: 'Objectives' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Objetivos' })).toBeInTheDocument();
     expect(screen.getByText('hidratante')).toBeInTheDocument();
     expect(screen.getByText('calmante')).toBeInTheDocument();
   });
@@ -415,16 +415,16 @@ describe('/laboratorio/formulas/[id] page', () => {
     const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
     render(jsx);
 
-    expect(screen.getByRole('heading', { name: 'Phases and ingredients' })).toBeInTheDocument();
-    expect(screen.getByText('Aqueous phase')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Fases e ingredientes' })).toBeInTheDocument();
+    expect(screen.getByText('Fase acuosa')).toBeInTheDocument();
     expect(screen.getByText('Agua purificada')).toBeInTheDocument();
     expect(screen.getByText('300 g')).toBeInTheDocument();
-    expect(screen.getByText('Oil phase')).toBeInTheDocument();
+    expect(screen.getByText('Fase oleosa')).toBeInTheDocument();
     expect(screen.getByText('Aceite de almendras')).toBeInTheDocument();
     expect(screen.getByText('100 g')).toBeInTheDocument();
     expect(screen.getByText('Manteca de karite')).toBeInTheDocument();
     expect(screen.getByText('50 g')).toBeInTheDocument();
-    expect(screen.getByText('Actives')).toBeInTheDocument();
+    expect(screen.getByText('Activos')).toBeInTheDocument();
     expect(screen.getByText('Extracto de lavanda')).toBeInTheDocument();
     expect(screen.getByText('10 g')).toBeInTheDocument();
   });
@@ -438,7 +438,7 @@ describe('/laboratorio/formulas/[id] page', () => {
     const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
     render(jsx);
 
-    expect(screen.getByRole('heading', { name: 'Procedure' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Procedimiento' })).toBeInTheDocument();
     expect(screen.getByText('1')).toBeInTheDocument();
     expect(screen.getByText('Mezclar la fase acuosa.')).toBeInTheDocument();
     expect(screen.getByText('2')).toBeInTheDocument();
@@ -454,19 +454,19 @@ describe('/laboratorio/formulas/[id] page', () => {
     const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
     render(jsx);
 
-    const section = screen.getByRole('heading', { name: 'Technical data' }).closest('section');
+    const section = screen.getByRole('heading', { name: 'Datos técnicos' }).closest('section');
     expect(section).toBeInTheDocument();
 
     const scoped = within(section as HTMLElement);
-    expect(scoped.getByText('Final pH')).toBeInTheDocument();
+    expect(scoped.getByText('pH final')).toBeInTheDocument();
     expect(scoped.getByText('5.5')).toBeInTheDocument();
-    expect(scoped.getByText('Production temperature')).toBeInTheDocument();
+    expect(scoped.getByText('Temperatura de producción')).toBeInTheDocument();
     expect(scoped.getByText('65°C')).toBeInTheDocument();
-    expect(scoped.getByText('Mixing time')).toBeInTheDocument();
+    expect(scoped.getByText('Tiempo de mezcla')).toBeInTheDocument();
     expect(scoped.getByText('20 min')).toBeInTheDocument();
-    expect(scoped.getByText('Preservative')).toBeInTheDocument();
+    expect(scoped.getByText('Conservante')).toBeInTheDocument();
     expect(scoped.getByText('Cosgard')).toBeInTheDocument();
-    expect(scoped.getByText('Fragrance')).toBeInTheDocument();
+    expect(scoped.getByText('Fragancia')).toBeInTheDocument();
     expect(scoped.getByText('Lavanda')).toBeInTheDocument();
     expect(scoped.getByText('Color')).toBeInTheDocument();
     expect(scoped.getByText('Blanco cremoso')).toBeInTheDocument();
@@ -481,13 +481,13 @@ describe('/laboratorio/formulas/[id] page', () => {
     const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
     render(jsx);
 
-    const section = screen.getByRole('heading', { name: 'Product evaluation' }).closest('section');
+    const section = screen.getByRole('heading', { name: 'Evaluación del producto' }).closest('section');
     expect(section).toBeInTheDocument();
 
     const scoped = within(section as HTMLElement);
-    expect(scoped.getByText('Texture')).toBeInTheDocument();
+    expect(scoped.getByText('Textura')).toBeInTheDocument();
     expect(scoped.getByText('Cremosa')).toBeInTheDocument();
-    expect(scoped.getByText('Absorption')).toBeInTheDocument();
+    expect(scoped.getByText('Absorción')).toBeInTheDocument();
     expect(scoped.getByText('Rapida')).toBeInTheDocument();
   });
 
@@ -500,11 +500,11 @@ describe('/laboratorio/formulas/[id] page', () => {
     const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
     render(jsx);
 
-    expect(screen.getByRole('heading', { name: 'Use test' })).toBeInTheDocument();
-    expect(screen.getByText('Approximate expiration')).toBeInTheDocument();
-    expect(screen.getByText('Jul 15, 2026')).toBeInTheDocument();
-    expect(screen.getByText('Entries')).toBeInTheDocument();
-    expect(screen.getByText('Feb 1, 2026')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Prueba de uso' })).toBeInTheDocument();
+    expect(screen.getByText('Vencimiento aproximado')).toBeInTheDocument();
+    expect(screen.getByText('15 jul 2026')).toBeInTheDocument();
+    expect(screen.getByText('Entradas')).toBeInTheDocument();
+    expect(screen.getByText('1 feb 2026')).toBeInTheDocument();
     expect(screen.getByText('Primera prueba: buena textura.')).toBeInTheDocument();
   });
 
@@ -518,9 +518,9 @@ describe('/laboratorio/formulas/[id] page', () => {
     render(jsx);
 
     expect(screen.getByRole('heading', { name: 'INCI' })).toBeInTheDocument();
-    expect(screen.getByText('Function')).toBeInTheDocument();
+    expect(screen.getByText('Función')).toBeInTheDocument();
     expect(screen.getByText('Hidratante')).toBeInTheDocument();
-    expect(screen.getByText('Emulsion type')).toBeInTheDocument();
+    expect(screen.getByText('Tipo de emulsión')).toBeInTheDocument();
     expect(screen.getByText('O/W')).toBeInTheDocument();
     expect(screen.getByText('pH')).toBeInTheDocument();
     expect(screen.getByText('5.0 - 6.0')).toBeInTheDocument();
@@ -535,7 +535,7 @@ describe('/laboratorio/formulas/[id] page', () => {
     const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
     render(jsx);
 
-    expect(screen.getByRole('heading', { name: 'Final observations' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Observaciones finales' })).toBeInTheDocument();
     expect(screen.getByText('Conservar en lugar fresco y seco.')).toBeInTheDocument();
   });
 
@@ -558,14 +558,14 @@ describe('/laboratorio/formulas/[id] page', () => {
     const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
     render(jsx);
 
-    expect(screen.getByText('No objectives registered.')).toBeInTheDocument();
-    expect(screen.getByText('No phases registered.')).toBeInTheDocument();
-    expect(screen.getByText('No procedure steps registered.')).toBeInTheDocument();
-    expect(screen.getByText('No technical data registered.')).toBeInTheDocument();
-    expect(screen.getByText('No product evaluation registered.')).toBeInTheDocument();
-    expect(screen.getByText('No use test data registered.')).toBeInTheDocument();
-    expect(screen.getByText('No INCI data registered.')).toBeInTheDocument();
-    expect(screen.getByText('No final observations registered.')).toBeInTheDocument();
+    expect(screen.getByText('No hay objetivos registrados.')).toBeInTheDocument();
+    expect(screen.getByText('No hay fases registradas.')).toBeInTheDocument();
+    expect(screen.getByText('No hay pasos de procedimiento registrados.')).toBeInTheDocument();
+    expect(screen.getByText('No hay datos técnicos registrados.')).toBeInTheDocument();
+    expect(screen.getByText('No hay evaluación del producto registrada.')).toBeInTheDocument();
+    expect(screen.getByText('No hay datos de prueba de uso registrados.')).toBeInTheDocument();
+    expect(screen.getByText('No hay datos INCI registrados.')).toBeInTheDocument();
+    expect(screen.getByText('No hay observaciones finales registradas.')).toBeInTheDocument();
   });
 
   it('renders only the phases that have ingredients', async () => {
@@ -584,11 +584,11 @@ describe('/laboratorio/formulas/[id] page', () => {
     const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
     render(jsx);
 
-    expect(screen.getByRole('heading', { name: 'Phases and ingredients' })).toBeInTheDocument();
-    expect(screen.getByText('Aqueous phase')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Fases e ingredientes' })).toBeInTheDocument();
+    expect(screen.getByText('Fase acuosa')).toBeInTheDocument();
     expect(screen.getByText('Agua purificada')).toBeInTheDocument();
-    expect(screen.queryByText('Oil phase')).not.toBeInTheDocument();
-    expect(screen.queryByText('Actives')).not.toBeInTheDocument();
+    expect(screen.queryByText('Fase oleosa')).not.toBeInTheDocument();
+    expect(screen.queryByText('Activos')).not.toBeInTheDocument();
   });
 
   it('renders only provided technical data fields', async () => {
@@ -606,15 +606,15 @@ describe('/laboratorio/formulas/[id] page', () => {
     const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
     render(jsx);
 
-    const section = screen.getByRole('heading', { name: 'Technical data' }).closest('section');
+    const section = screen.getByRole('heading', { name: 'Datos técnicos' }).closest('section');
     const scoped = within(section as HTMLElement);
 
-    expect(scoped.getByText('Final pH')).toBeInTheDocument();
+    expect(scoped.getByText('pH final')).toBeInTheDocument();
     expect(scoped.getByText('5.5')).toBeInTheDocument();
-    expect(scoped.getByText('Mixing time')).toBeInTheDocument();
+    expect(scoped.getByText('Tiempo de mezcla')).toBeInTheDocument();
     expect(scoped.getByText('20 min')).toBeInTheDocument();
-    expect(scoped.queryByText('Production temperature')).not.toBeInTheDocument();
-    expect(scoped.queryByText('Preservative')).not.toBeInTheDocument();
+    expect(scoped.queryByText('Temperatura de producción')).not.toBeInTheDocument();
+    expect(scoped.queryByText('Conservante')).not.toBeInTheDocument();
   });
 
   it('renders only provided product evaluation fields', async () => {
@@ -631,13 +631,13 @@ describe('/laboratorio/formulas/[id] page', () => {
     const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
     render(jsx);
 
-    const section = screen.getByRole('heading', { name: 'Product evaluation' }).closest('section');
+    const section = screen.getByRole('heading', { name: 'Evaluación del producto' }).closest('section');
     const scoped = within(section as HTMLElement);
 
-    expect(scoped.getByText('Texture')).toBeInTheDocument();
+    expect(scoped.getByText('Textura')).toBeInTheDocument();
     expect(scoped.getByText('Cremosa')).toBeInTheDocument();
     expect(scoped.queryByText('Color')).not.toBeInTheDocument();
-    expect(scoped.queryByText('Smell')).not.toBeInTheDocument();
+    expect(scoped.queryByText('Olor')).not.toBeInTheDocument();
   });
 
   it('renders only provided INCI fields', async () => {
@@ -658,11 +658,11 @@ describe('/laboratorio/formulas/[id] page', () => {
     const section = screen.getByRole('heading', { name: 'INCI' }).closest('section');
     const scoped = within(section as HTMLElement);
 
-    expect(scoped.getByText('Function')).toBeInTheDocument();
+    expect(scoped.getByText('Función')).toBeInTheDocument();
     expect(scoped.getByText('Hidratante')).toBeInTheDocument();
     expect(scoped.getByText('pH')).toBeInTheDocument();
     expect(scoped.getByText('5.0 - 6.0')).toBeInTheDocument();
-    expect(scoped.queryByText('Emulsion type')).not.toBeInTheDocument();
+    expect(scoped.queryByText('Tipo de emulsión')).not.toBeInTheDocument();
   });
 
   it('renders use test with only expiration date', async () => {
@@ -680,9 +680,9 @@ describe('/laboratorio/formulas/[id] page', () => {
     const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
     render(jsx);
 
-    expect(screen.getByText('Approximate expiration')).toBeInTheDocument();
-    expect(screen.getByText('Jul 15, 2026')).toBeInTheDocument();
-    expect(screen.queryByText('Entries')).not.toBeInTheDocument();
+    expect(screen.getByText('Vencimiento aproximado')).toBeInTheDocument();
+    expect(screen.getByText('15 jul 2026')).toBeInTheDocument();
+    expect(screen.queryByText('Entradas')).not.toBeInTheDocument();
   });
 
   it('renders use test with only entries', async () => {
@@ -700,9 +700,9 @@ describe('/laboratorio/formulas/[id] page', () => {
     const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
     render(jsx);
 
-    expect(screen.queryByText('Approximate expiration')).not.toBeInTheDocument();
-    expect(screen.getByText('Entries')).toBeInTheDocument();
-    expect(screen.getByText('Feb 1, 2026')).toBeInTheDocument();
+    expect(screen.queryByText('Vencimiento aproximado')).not.toBeInTheDocument();
+    expect(screen.getByText('Entradas')).toBeInTheDocument();
+    expect(screen.getByText('1 feb 2026')).toBeInTheDocument();
     expect(screen.getByText('Primera prueba.')).toBeInTheDocument();
   });
 
@@ -718,13 +718,19 @@ describe('/laboratorio/formulas/[id] page', () => {
     const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
     render(jsx);
 
-    expect(screen.getByText('No final observations registered.')).toBeInTheDocument();
+    expect(screen.getByText('No hay observaciones finales registradas.')).toBeInTheDocument();
   });
 
   it('renders every status label without crashing', async () => {
-    const statuses = ['draft', 'testing', 'validated', 'archived', 'discarded'] as const;
+    const statuses: Array<{ status: typeof mockFormula.status; label: string }> = [
+      { status: 'draft', label: 'Borrador' },
+      { status: 'testing', label: 'En pruebas' },
+      { status: 'validated', label: 'Validada' },
+      { status: 'archived', label: 'Archivada' },
+      { status: 'discarded', label: 'Descartada' },
+    ];
 
-    for (const status of statuses) {
+    for (const { status, label } of statuses) {
       vi.clearAllMocks();
       getServerSessionMock.mockResolvedValue({
         user: { id: 'user-1', email: 'olga@test.com', role: 'productora' },
@@ -734,7 +740,7 @@ describe('/laboratorio/formulas/[id] page', () => {
       const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
       const { unmount } = render(jsx);
 
-      expect(screen.getByText(status.charAt(0).toUpperCase() + status.slice(1))).toBeInTheDocument();
+      expect(screen.getByText(label)).toBeInTheDocument();
       unmount();
     }
   });

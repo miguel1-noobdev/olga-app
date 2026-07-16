@@ -15,17 +15,17 @@ export default async function LaboratoryLotesPage() {
     <main className="min-h-screen bg-surface py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto space-y-8">
         <div className="space-y-2">
-          <h1 className="font-serif text-4xl text-on-surface">Laboratory — Lotes</h1>
-          <p className="font-sans text-on-surface-variant">
-            Track every production lot from one canonical workspace.
+          <h1 className="font-headline text-4xl text-on-surface">Laboratorio — Lotes</h1>
+          <p className="font-body text-on-surface-variant">
+            Seguí cada lote de producción desde un solo espacio de trabajo.
           </p>
         </div>
 
         {lots.length === 0 ? (
-          <section className="glass-card rounded-xl p-8 text-center space-y-2">
-            <h2 className="font-serif text-2xl text-on-surface">No lots registered yet</h2>
-            <p className="font-sans text-sm text-on-surface-variant">
-              Lots will appear here once they are created from a validated formula.
+          <section className="bg-surface-container border border-surface-border rounded-2xl p-8 text-center space-y-2">
+            <h2 className="font-headline text-2xl text-on-surface">No hay lotes registrados todavía</h2>
+            <p className="font-body text-sm text-on-surface-variant">
+              Los lotes aparecerán aquí cuando se creen desde una fórmula validada.
             </p>
           </section>
         ) : (
@@ -34,24 +34,24 @@ export default async function LaboratoryLotesPage() {
               <li key={lot.id}>
                 <Link
                   href={`/laboratorio/lotes/${lot.id}`}
-                  aria-label={`View details for ${lot.lotCode}`}
-                  className="block glass-card rounded-xl p-6 hover:border-primary/50 transition-colors"
+                  aria-label={`Ver detalles de ${lot.lotCode}`}
+                  className="block bg-surface-container border border-surface-border rounded-2xl p-6 hover:border-primary/50 transition-colors group"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <h2 className="font-serif text-xl text-on-surface">{lot.lotCode}</h2>
-                      <p className="font-sans text-sm text-on-surface-variant">
+                      <h2 className="font-headline text-xl text-on-surface">{lot.lotCode}</h2>
+                      <p className="font-body text-sm text-on-surface-variant">
                         {lot.formulaSnapshot.productName}
                       </p>
                     </div>
                     <span
-                      className={`inline-flex px-2 py-0.5 rounded-full text-xs font-sans font-medium uppercase tracking-wider ${getLotStatusStyles(lot.status)}`}
+                      className={`inline-flex px-2 py-0.5 rounded-full text-xs font-label font-medium uppercase tracking-wider ${getLotStatusStyles(lot.status)}`}
                     >
                       {LOT_STATUS_LABELS[lot.status]}
                     </span>
                   </div>
-                  <p className="mt-4 font-sans text-sm text-on-surface-variant">
-                    Lot number {lot.lotNumber} — {lot.targetBatchGrams} g target
+                  <p className="mt-4 font-body text-sm text-on-surface-variant">
+                    Lote número {lot.lotNumber} — {lot.targetBatchGrams} g objetivo
                   </p>
                 </Link>
               </li>

@@ -64,7 +64,7 @@ describe('/laboratorio/plantas page', () => {
     const jsx = await LaboratoryPlantsPage();
     render(jsx);
 
-    expect(screen.getByText('No plants registered yet')).toBeInTheDocument();
+    expect(screen.getByText('No hay plantas registradas todavía')).toBeInTheDocument();
     expect(redirectMock).not.toHaveBeenCalled();
   });
 
@@ -78,7 +78,7 @@ describe('/laboratorio/plantas page', () => {
     const jsx = await LaboratoryPlantsPage();
     render(jsx);
 
-    expect(screen.getByRole('link', { name: /back to laboratory/i })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /volver al laboratorio/i })).toHaveAttribute(
       'href',
       '/laboratorio'
     );
@@ -114,13 +114,13 @@ describe('/laboratorio/plantas page', () => {
     const jsx = await LaboratoryPlantsPage();
     render(jsx);
 
-    expect(screen.getByText('Laboratory — Plants')).toBeInTheDocument();
+    expect(screen.getByText('Laboratorio — Plantas')).toBeInTheDocument();
     expect(
       screen.getByText(
-        'Internal inventory of botanical raw materials available for formulas and production.'
+        'Inventario interno de materias primas botánicas disponibles para fórmulas y producción.'
       )
     ).toBeInTheDocument();
-    expect(screen.getByText('2 plants registered')).toBeInTheDocument();
+    expect(screen.getByText('2 plantas registradas')).toBeInTheDocument();
 
     const table = screen.getByRole('table');
     const rows = within(table).getAllByRole('row');
@@ -129,12 +129,12 @@ describe('/laboratorio/plantas page', () => {
 
     const headers = within(rows[0]).getAllByRole('columnheader');
     expect(headers.map((h) => h.textContent)).toEqual([
-      'Common name',
-      'Scientific name',
-      'Family',
-      'Used parts',
-      'Extracts',
-      'Internal notes',
+      'Nombre común',
+      'Nombre científico',
+      'Familia',
+      'Partes usadas',
+      'Extractos',
+      'Notas internas',
     ]);
 
     const firstDataRow = rows[1];
@@ -182,7 +182,7 @@ describe('/laboratorio/plantas page', () => {
     const rows = within(table).getAllByRole('row');
 
     expect(rows).toHaveLength(3);
-    expect(within(rows[1]).getByText('Has notes')).toBeInTheDocument();
+    expect(within(rows[1]).getByText('Con notas')).toBeInTheDocument();
     expect(within(rows[2]).getByText('—')).toBeInTheDocument();
   });
 
@@ -196,10 +196,10 @@ describe('/laboratorio/plantas page', () => {
     const jsx = await LaboratoryPlantsPage();
     render(jsx);
 
-    expect(screen.getByText('No plants registered yet')).toBeInTheDocument();
+    expect(screen.getByText('No hay plantas registradas todavía')).toBeInTheDocument();
     expect(
       screen.getByText(
-        'Your laboratory plant inventory is empty. Plants must be added by an administrator before they can be used in formulas and lots.'
+        'Tu inventario de plantas del laboratorio está vacío. Las plantas deben ser agregadas por una administradora antes de poder usarse en fórmulas y lotes.'
       )
     ).toBeInTheDocument();
   });

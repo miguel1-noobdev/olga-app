@@ -38,24 +38,26 @@ describe('glassmorphism design tokens (T-003)', () => {
       config = loadTailwindConfig();
     });
 
-    it('extends theme.colors with the primary verde botanico', () => {
-      expect(config.theme.extend.colors.primary).toBe('#334537');
+    it('extends theme.colors with the primary token as a CSS variable', () => {
+      expect(config.theme.extend.colors.primary).toBe('var(--color-primary)');
     });
 
-    it('extends theme.colors with the secondary dorado accent', () => {
-      expect(config.theme.extend.colors.secondary).toBe('#e9c349');
+    it('extends theme.colors with the secondary token as a CSS variable', () => {
+      expect(config.theme.extend.colors.secondary).toBe('var(--color-secondary)');
     });
 
-    it('extends theme.colors with the surface crema background', () => {
-      expect(config.theme.extend.colors.surface).toBe('#f4fbf2');
+    it('extends theme.colors with the surface token as a CSS variable', () => {
+      expect(config.theme.extend.colors.surface).toBe('var(--color-surface)');
     });
 
-    it('extends theme.colors with the surface container', () => {
-      expect(config.theme.extend.colors['surface-container']).toBe('#e9f0e7');
+    it('extends theme.colors with the surface container token as a CSS variable', () => {
+      expect(config.theme.extend.colors['surface-container']).toBe(
+        'var(--color-surface-container)'
+      );
     });
 
-    it('extends theme.colors with the surface border / variant', () => {
-      expect(config.theme.extend.colors['surface-border']).toBe('#dde4db');
+    it('extends theme.colors with the surface border token as a CSS variable', () => {
+      expect(config.theme.extend.colors['surface-border']).toBe('var(--color-surface-border)');
     });
 
     it('extends theme.fontFamily with Playfair Display for headlines', () => {
@@ -90,35 +92,35 @@ describe('glassmorphism design tokens (T-003)', () => {
       resolved = resolveConfig(loadTailwindConfig() as Config);
     });
 
-    it('resolves the primary color to #334537', () => {
+    it('resolves the primary color to the CSS variable', () => {
       // Tailwind normalizes `theme.extend.colors.primary` into `theme.colors.primary`
       expect(
         (resolved.theme?.colors as unknown as Record<string, string>).primary
-      ).toBe('#334537');
+      ).toBe('var(--color-primary)');
     });
 
-    it('resolves the secondary color to #e9c349', () => {
+    it('resolves the secondary color to the CSS variable', () => {
       expect(
         (resolved.theme?.colors as unknown as Record<string, string>).secondary
-      ).toBe('#e9c349');
+      ).toBe('var(--color-secondary)');
     });
 
-    it('resolves the surface color to #f4fbf2', () => {
+    it('resolves the surface color to the CSS variable', () => {
       expect(
         (resolved.theme?.colors as unknown as Record<string, string>).surface
-      ).toBe('#f4fbf2');
+      ).toBe('var(--color-surface)');
     });
 
-    it('resolves the surface-container color to #e9f0e7', () => {
+    it('resolves the surface-container color to the CSS variable', () => {
       expect(
         (resolved.theme?.colors as unknown as Record<string, string>)['surface-container']
-      ).toBe('#e9f0e7');
+      ).toBe('var(--color-surface-container)');
     });
 
-    it('resolves the surface-border color to #dde4db', () => {
+    it('resolves the surface-border color to the CSS variable', () => {
       expect(
         (resolved.theme?.colors as unknown as Record<string, string>)['surface-border']
-      ).toBe('#dde4db');
+      ).toBe('var(--color-surface-border)');
     });
 
     it('resolves the serif font family to start with the CSS variable', () => {
@@ -172,6 +174,17 @@ describe('glassmorphism design tokens (T-003)', () => {
     it('defines a .gold-border utility for hairline gold accents', () => {
       expect(source).toMatch(/\.gold-border\s*\{/);
     });
+
+    it('declares default public palette values in :root', () => {
+      const rootMatch = source.match(/:root\s*\{([^}]*)\}/s);
+      expect(rootMatch).toBeTruthy();
+      const root = rootMatch?.[1] ?? '';
+      expect(root).toMatch(/--color-primary:\s*#334537/);
+      expect(root).toMatch(/--color-secondary:\s*#e9c349/);
+      expect(root).toMatch(/--color-surface:\s*#f4fbf2/);
+      expect(root).toMatch(/--color-surface-container:\s*#e9f0e7/);
+      expect(root).toMatch(/--color-surface-border:\s*#dde4db/);
+    });
   });
 
   describe('compiled utility output (token -> CSS chain)', () => {
@@ -223,35 +236,34 @@ describe('glassmorphism design tokens (T-003)', () => {
       }
     });
 
-    it('emits a .bg-primary rule resolved to rgb(51 69 55 / ...)', () => {
-      // Tailwind 3.4 emits colors as `rgb(R G B / var(--tw-*-opacity, 1))`
-      // so opacity modifiers (bg-primary/50) work via CSS variables.
+    it('emits a .bg-primary rule referencing the CSS variable', () => {
+      // Colors are opaque CSS variables so Tailwind emits them as-is.
       expect(compiled).toMatch(
-        /\.bg-primary\s*\{[^}]*background-color:\s*rgb\(\s*51\s+69\s+55\b/i
+        /\.bg-primary\s*\{[^}]*background-color:\s*var\(--color-primary\)/i
       );
     });
 
-    it('emits a .text-secondary rule resolved to rgb(233 195 73 / ...)', () => {
+    it('emits a .text-secondary rule referencing the CSS variable', () => {
       expect(compiled).toMatch(
-        /\.text-secondary\s*\{[^}]*color:\s*rgb\(\s*233\s+195\s+73\b/i
+        /\.text-secondary\s*\{[^}]*color:\s*var\(--color-secondary\)/i
       );
     });
 
-    it('emits a .bg-surface rule resolved to rgb(244 251 242 / ...)', () => {
+    it('emits a .bg-surface rule referencing the CSS variable', () => {
       expect(compiled).toMatch(
-        /\.bg-surface\s*\{[^}]*background-color:\s*rgb\(\s*244\s+251\s+242\b/i
+        /\.bg-surface\s*\{[^}]*background-color:\s*var\(--color-surface\)/i
       );
     });
 
-    it('emits a .bg-surface-container rule resolved to rgb(233 240 231 / ...)', () => {
+    it('emits a .bg-surface-container rule referencing the CSS variable', () => {
       expect(compiled).toMatch(
-        /\.bg-surface-container\s*\{[^}]*background-color:\s*rgb\(\s*233\s+240\s+231\b/i
+        /\.bg-surface-container\s*\{[^}]*background-color:\s*var\(--color-surface-container\)/i
       );
     });
 
-    it('emits a .border-surface-border rule resolved to rgb(221 228 219 / ...)', () => {
+    it('emits a .border-surface-border rule referencing the CSS variable', () => {
       expect(compiled).toMatch(
-        /\.border-surface-border\s*\{[^}]*border-color:\s*rgb\(\s*221\s+228\s+219\b/i
+        /\.border-surface-border\s*\{[^}]*border-color:\s*var\(--color-surface-border\)/i
       );
     });
 

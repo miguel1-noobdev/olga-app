@@ -20,58 +20,58 @@ export default async function LaboratoryPlantsPage() {
         <div className="mb-10 space-y-4">
           <Link
             href="/laboratorio"
-            className="inline-flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors font-sans text-sm"
+            className="inline-flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors font-body text-sm"
           >
             <ArrowLeftIcon className="w-4 h-4" />
-            Back to laboratory
+            Volver al laboratorio
           </Link>
 
           <div>
-            <h1 className="font-serif text-4xl text-on-surface mb-2">
-              Laboratory — Plants
+            <h1 className="font-headline text-4xl text-on-surface mb-2">
+              Laboratorio — Plantas
             </h1>
-            <p className="font-sans text-lg text-on-surface-variant">
-              Internal inventory of botanical raw materials available for formulas and production.
+            <p className="font-body text-lg text-on-surface-variant">
+              Inventario interno de materias primas botánicas disponibles para fórmulas y producción.
             </p>
           </div>
         </div>
 
         {plants.length === 0 ? (
-          <div className="glass-card rounded-xl p-12 text-center">
+          <div className="bg-surface-container border border-surface-border rounded-2xl p-12 text-center">
             <LeafIcon className="w-12 h-12 mx-auto mb-4 text-on-surface-variant" />
-            <p className="font-sans text-lg text-on-surface font-medium mb-1">
-              No plants registered yet
+            <p className="font-body text-lg text-on-surface font-medium mb-1">
+              No hay plantas registradas todavía
             </p>
-            <p className="font-sans text-sm text-on-surface-variant max-w-md mx-auto">
-              Your laboratory plant inventory is empty. Plants must be added by an administrator before they can be used in formulas and lots.
+            <p className="font-body text-sm text-on-surface-variant max-w-md mx-auto">
+              Tu inventario de plantas del laboratorio está vacío. Las plantas deben ser agregadas por una administradora antes de poder usarse en fórmulas y lotes.
             </p>
           </div>
         ) : (
-          <div className="glass-card rounded-xl overflow-hidden">
-            <div className="px-6 py-4 border-b border-surface-border bg-surface-container/50">
+          <div className="bg-surface-container border border-surface-border rounded-2xl overflow-hidden">
+            <div className="px-6 py-4 border-b border-surface-border bg-surface-container-high/50">
               <PlantCountSummary count={plants.length} />
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left min-w-[52rem]">
-                <thead className="bg-surface-container border-b border-surface-border">
+                <thead className="bg-surface-container-high border-b border-surface-border">
                   <tr>
-                    <th className="px-6 py-4 font-sans text-sm font-semibold text-on-surface">
-                      Common name
+                    <th className="px-6 py-4 font-body text-sm font-semibold text-on-surface">
+                      Nombre común
                     </th>
-                    <th className="px-6 py-4 font-sans text-sm font-semibold text-on-surface">
-                      Scientific name
+                    <th className="px-6 py-4 font-body text-sm font-semibold text-on-surface">
+                      Nombre científico
                     </th>
-                    <th className="px-6 py-4 font-sans text-sm font-semibold text-on-surface">
-                      Family
+                    <th className="px-6 py-4 font-body text-sm font-semibold text-on-surface">
+                      Familia
                     </th>
-                    <th className="px-6 py-4 font-sans text-sm font-semibold text-on-surface">
-                      Used parts
+                    <th className="px-6 py-4 font-body text-sm font-semibold text-on-surface">
+                      Partes usadas
                     </th>
-                    <th className="px-6 py-4 font-sans text-sm font-semibold text-on-surface">
-                      Extracts
+                    <th className="px-6 py-4 font-body text-sm font-semibold text-on-surface">
+                      Extractos
                     </th>
-                    <th className="px-6 py-4 font-sans text-sm font-semibold text-on-surface">
-                      Internal notes
+                    <th className="px-6 py-4 font-body text-sm font-semibold text-on-surface">
+                      Notas internas
                     </th>
                   </tr>
                 </thead>
@@ -79,29 +79,29 @@ export default async function LaboratoryPlantsPage() {
                   {plants.map((plant) => (
                     <tr
                       key={plant.id}
-                      className="hover:bg-surface-container/40 transition-colors"
+                      className="hover:bg-surface-container/60 transition-colors"
                     >
-                      <td className="px-6 py-4 font-sans text-sm font-medium text-on-surface">
+                      <td className="px-6 py-4 font-body text-sm font-medium text-on-surface">
                         {plant.commonName}
                       </td>
-                      <td className="px-6 py-4 font-sans text-sm text-on-surface-variant italic">
+                      <td className="px-6 py-4 font-body text-sm text-on-surface-variant italic">
                         {plant.scientificName}
                       </td>
                       <td className="px-6 py-4">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-sans text-xs">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-body text-xs border border-surface-border">
                           {plant.family}
                         </span>
                       </td>
-                      <td className="px-6 py-4 font-sans text-sm text-on-surface-variant">
+                      <td className="px-6 py-4 font-body text-sm text-on-surface-variant">
                         {formatPlantList(plant.usedParts)}
                       </td>
-                      <td className="px-6 py-4 font-sans text-sm text-on-surface-variant">
+                      <td className="px-6 py-4 font-body text-sm text-on-surface-variant">
                         {formatPlantExtracts(plant.availableExtracts)}
                       </td>
-                      <td className="px-6 py-4 font-sans text-sm text-on-surface-variant">
+                      <td className="px-6 py-4 font-body text-sm text-on-surface-variant">
                         {hasPlantInternalNotes(plant) ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded bg-secondary/15 text-on-surface font-sans text-xs">
-                            Has notes
+                          <span className="inline-flex items-center px-2 py-0.5 rounded bg-secondary/15 text-on-surface font-body text-xs border border-secondary/20">
+                            Con notas
                           </span>
                         ) : (
                           '—'

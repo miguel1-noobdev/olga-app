@@ -1,34 +1,52 @@
 import Link from 'next/link';
-import { FlaskIcon, LeafIcon, ArrowRightIcon, PlusIcon } from '@/components/ui/icons';
-import type { ReactNode } from 'react';
 
 interface HubCardProps {
   href: string;
   title: string;
   description: string;
-  icon: ReactNode;
+  icon: string;
+  accent: 'primary' | 'tertiary' | 'secondary-dim';
 }
 
-function HubCard({ href, title, description, icon }: HubCardProps) {
+function HubCard({ href, title, description, icon, accent }: HubCardProps) {
+  const hoverBorder = accent === 'tertiary'
+    ? 'hover:border-tertiary'
+    : accent === 'secondary-dim'
+      ? 'hover:border-secondary-dim'
+      : 'hover:border-primary';
+  const hoverText = accent === 'tertiary'
+    ? 'group-hover:text-tertiary'
+    : accent === 'secondary-dim'
+      ? 'group-hover:text-secondary-dim'
+      : 'group-hover:text-primary';
+  const iconHoverBg = accent === 'tertiary'
+    ? 'group-hover:bg-tertiary/10'
+    : accent === 'secondary-dim'
+      ? 'group-hover:bg-secondary-dim/10'
+      : 'group-hover:bg-primary/10';
+  const gradient = accent === 'tertiary'
+    ? 'from-tertiary/5'
+    : accent === 'secondary-dim'
+      ? 'from-secondary-dim/5'
+      : 'from-primary/5';
+
   return (
     <Link
       href={href}
-      className="glass-card rounded-xl p-6 block hover:no-underline group"
+      className={`group relative bg-surface-container border border-surface-bright ${hoverBorder} rounded-lg p-6 transition-all duration-300 flex flex-col h-full overflow-hidden`}
     >
-      <div className="flex items-start gap-4">
-        <div className="shrink-0 p-3 rounded-lg bg-surface-container text-primary">
+      <div className={`absolute inset-0 bg-gradient-to-br ${gradient} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none`} />
+      <div className={`w-12 h-12 rounded-lg bg-surface-bright flex items-center justify-center mb-6 ${iconHoverBg} transition-colors`}>
+        <span className={`material-symbols-outlined text-3xl text-secondary ${hoverText} transition-colors`} style={{ fontVariationSettings: "'FILL' 1" }}>
           {icon}
-        </div>
-        <div className="flex-1 min-w-0">
-          <h2 className="font-serif text-xl text-on-surface mb-1">{title}</h2>
-          <p className="font-sans text-sm text-on-surface-variant mb-4">
-            {description}
-          </p>
-          <span className="inline-flex items-center gap-1 text-sm font-sans font-medium text-primary group-hover:underline">
-            Open
-            <ArrowRightIcon className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-          </span>
-        </div>
+        </span>
+      </div>
+      <h2 className={`font-headline text-xl font-bold text-on-surface mb-2 ${hoverText} transition-colors`}>{title}</h2>
+      <p className="font-body text-sm text-on-surface-variant flex-1">{description}</p>
+      <div className="mt-6 flex justify-end">
+        <span className={`material-symbols-outlined text-on-surface-variant ${hoverText} transform group-hover:translate-x-1 transition-all`}>
+          arrow_forward
+        </span>
       </div>
     </Link>
   );
@@ -36,65 +54,51 @@ function HubCard({ href, title, description, icon }: HubCardProps) {
 
 export default async function LaboratoryHomePage() {
   return (
-    <main className="min-h-screen bg-surface py-20 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-5xl mx-auto">
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-10">
-          <div>
-            <h1 className="font-serif text-4xl text-on-surface mb-2">
-              Laboratory
-            </h1>
-            <p className="font-sans text-lg text-on-surface-variant">
-              Private workspace for production planning and raw material consultation.
-            </p>
-          </div>
-
-          <Link
-            href="/laboratorio/formulas/nueva"
-            className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-primary text-white font-sans text-sm font-medium hover:bg-primary/90 transition-colors"
-          >
-            <PlusIcon className="w-4 h-4" />
-            New formula
-          </Link>
+    <main className="flex-1 container mx-auto px-6 py-12 max-w-7xl">
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+        <div>
+          <h1 className="font-display text-4xl md:text-5xl font-bold text-on-surface tracking-tight">Hola, Olga</h1>
+          <p className="font-body text-on-surface-variant mt-2 text-lg">Panel de operaciones del laboratorio</p>
         </div>
+        <Link
+          href="/laboratorio/formulas/nueva"
+          className="bg-primary text-on-primary-container hover:bg-primary-dim transition-colors duration-200 px-5 py-2.5 rounded-DEFAULT font-label font-medium flex items-center gap-2 shadow-[0_0_15px_rgba(150,248,255,0.15)] hover:shadow-[0_0_20px_rgba(150,248,255,0.3)] w-fit"
+        >
+          <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>add</span>
+          Nueva fórmula
+        </Link>
+      </header>
 
-        <section className="glass-card rounded-xl p-6 mb-8">
-          <h2 className="font-sans text-sm font-semibold uppercase tracking-wider text-on-surface-variant mb-2">
-            Suggested flow
-          </h2>
-          <p className="font-sans text-sm text-on-surface">
-            Work starts from a formula. Once a formula is ready, create production lots
-            from it. Consult plants and oils as reference when designing or adjusting
-            a formula.
-          </p>
-        </section>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <HubCard
-            href="/laboratorio/formulas"
-            title="Formulas"
-            description="Browse, create and edit product formulas."
-            icon={<FlaskIcon className="w-6 h-6" />}
-          />
-          <HubCard
-            href="/laboratorio/lotes"
-            title="Lotes"
-            description="View and follow up all production Lotes."
-            icon={<FlaskIcon className="w-6 h-6" />}
-          />
-          <HubCard
-            href="/laboratorio/plantas"
-            title="Plants"
-            description="Consult the internal botanical inventory."
-            icon={<LeafIcon className="w-6 h-6" />}
-          />
-          <HubCard
-            href="/laboratorio/aceites"
-            title="Oils"
-            description="Review oils, phases and recommended percentages."
-            icon={<FlaskIcon className="w-6 h-6" />}
-          />
-        </div>
-      </div>
+      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <HubCard
+          href="/laboratorio/formulas"
+          title="Fórmulas"
+          description="Diseñá y validá tus fórmulas."
+          icon="science"
+          accent="primary"
+        />
+        <HubCard
+          href="/laboratorio/lotes"
+          title="Lotes"
+          description="Registrá y seguí cada elaboración."
+          icon="inventory_2"
+          accent="primary"
+        />
+        <HubCard
+          href="/laboratorio/plantas"
+          title="Mi jardín"
+          description="Consultá tus plantas y sus propiedades."
+          icon="yard"
+          accent="tertiary"
+        />
+        <HubCard
+          href="/laboratorio/aceites"
+          title="Mis aceites"
+          description="Gestioná tus aceites e infusiones."
+          icon="opacity"
+          accent="secondary-dim"
+        />
+      </section>
     </main>
   );
 }

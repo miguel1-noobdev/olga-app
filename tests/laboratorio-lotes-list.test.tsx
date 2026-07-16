@@ -71,11 +71,11 @@ describe('/laboratorio/lotes page', () => {
 
     expect(findAllMock).toHaveBeenCalledOnce();
     const lotLink = screen.getByRole('link', {
-      name: /view details for cf-001-l001/i,
+      name: /ver detalles de cf-001-l001/i,
     });
     expect(lotLink).toHaveAttribute('href', '/laboratorio/lotes/lot-1');
     expect(within(lotLink).getByText('Lavender cream')).toBeInTheDocument();
-    expect(within(lotLink).getByText('Planned')).toBeInTheDocument();
+    expect(within(lotLink).getByText('Planeado')).toBeInTheDocument();
   });
 
   it('renders the canonical empty state when no lots exist', async () => {
@@ -84,9 +84,9 @@ describe('/laboratorio/lotes page', () => {
     const jsx = await LaboratoryLotesPage();
     render(jsx);
 
-    expect(screen.getByText('No lots registered yet')).toBeInTheDocument();
+    expect(screen.getByText('No hay lotes registrados todavía')).toBeInTheDocument();
     expect(
-      screen.getByText('Lots will appear here once they are created from a validated formula.')
+      screen.getByText('Los lotes aparecerán aquí cuando se creen desde una fórmula validada.')
     ).toBeInTheDocument();
   });
 });

@@ -44,7 +44,7 @@ describe('/laboratorio/aceites page', () => {
     const jsx = await LaboratoryOilsPage();
     render(jsx);
 
-    expect(screen.getByText('No oils registered yet')).toBeInTheDocument();
+    expect(screen.getByText('No hay aceites registrados todavía')).toBeInTheDocument();
     expect(redirectMock).not.toHaveBeenCalled();
   });
 
@@ -58,7 +58,7 @@ describe('/laboratorio/aceites page', () => {
     const jsx = await LaboratoryOilsPage();
     render(jsx);
 
-    expect(screen.getByRole('link', { name: /back to laboratory/i })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /volver al laboratorio/i })).toHaveAttribute(
       'href',
       '/laboratorio'
     );
@@ -99,9 +99,9 @@ describe('/laboratorio/aceites page', () => {
     const jsx = await LaboratoryOilsPage();
     render(jsx);
 
-    expect(screen.getByText('Laboratory — Oils')).toBeInTheDocument();
-    expect(screen.getByText('Available oils for formulas')).toBeInTheDocument();
-    expect(screen.getByText('2 oils registered')).toBeInTheDocument();
+    expect(screen.getByText('Laboratorio — Aceites')).toBeInTheDocument();
+    expect(screen.getByText('Aceites disponibles para fórmulas')).toBeInTheDocument();
+    expect(screen.getByText('2 aceites registrados')).toBeInTheDocument();
 
     const table = screen.getByRole('table');
     const rows = within(table).getAllByRole('row');
@@ -110,19 +110,19 @@ describe('/laboratorio/aceites page', () => {
 
     const headers = within(rows[0]).getAllByRole('columnheader');
     expect(headers.map((h) => h.textContent)).toEqual([
-      'Name',
+      'Nombre',
       'INCI',
       'HLB',
-      'Phase',
-      'Recommended %',
-      'Observations',
+      'Fase',
+      '% recomendado',
+      'Observaciones',
     ]);
 
     const firstDataRow = rows[1];
     expect(within(firstDataRow).getByText('Aceite de almendras dulces')).toBeInTheDocument();
     expect(within(firstDataRow).getByText('Prunus Amygdalus Dulcis Oil')).toBeInTheDocument();
     expect(within(firstDataRow).getByText('6.5')).toBeInTheDocument();
-    expect(within(firstDataRow).getByText('Oil')).toBeInTheDocument();
+    expect(within(firstDataRow).getByText('Oleosa')).toBeInTheDocument();
     expect(within(firstDataRow).getByText('10%')).toBeInTheDocument();
     expect(within(firstDataRow).getByText('Emoliente suave.')).toBeInTheDocument();
 
@@ -199,7 +199,7 @@ describe('/laboratorio/aceites page', () => {
     const jsx = await LaboratoryOilsPage();
     render(jsx);
 
-    expect(screen.getByText('Active')).toBeInTheDocument();
+    expect(screen.getByText('Activo')).toBeInTheDocument();
     expect(screen.getByText('unknown-phase')).toBeInTheDocument();
   });
 
@@ -213,9 +213,9 @@ describe('/laboratorio/aceites page', () => {
     const jsx = await LaboratoryOilsPage();
     render(jsx);
 
-    expect(screen.getByText('No oils registered yet')).toBeInTheDocument();
+    expect(screen.getByText('No hay aceites registrados todavía')).toBeInTheDocument();
     expect(
-      screen.getByText('Your laboratory oils will appear here once they are created.')
+      screen.getByText('Tus aceites del laboratorio aparecerán aquí una vez creados.')
     ).toBeInTheDocument();
   });
 });

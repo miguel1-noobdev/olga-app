@@ -20,9 +20,9 @@ export default async function LaboratoryLayout({ children }: LaboratoryLayoutPro
   }
 
   return (
-    <>
+    <div className="lab-root min-h-screen flex flex-col">
       <LaboratoryNavbar />
       {children}
-    </>
+    </div>
   );
 }

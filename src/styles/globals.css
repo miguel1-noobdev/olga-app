@@ -1,9 +1,73 @@
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@300..900&family=Public+Sans:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap");
+@import "./laboratorio.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  html {
+  :root {
+    /* Public site glassmorphism palette (default) */
+    --color-background: #f4fbf2;
+    --color-on-background: #161d18;
+    --color-surface: #f4fbf2;
+    --color-on-surface: #161d18;
+    --color-on-surface-variant: #3a4239;
+    --color-surface-container: #e9f0e7;
+    --color-surface-container-low: #eef5ec;
+    --color-surface-container-lowest: #ffffff;
+    --color-surface-container-high: #dfe6dd;
+    --color-surface-container-highest: #d4dbd2;
+    --color-surface-bright: #f8fff6;
+    --color-surface-dim: #dbe2d9;
+    --color-surface-variant: #e9f0e7;
+    --color-surface-tint: #334537;
+    --color-surface-border: #dde4db;
+    --color-surface-border-variant: #c8d0c6;
+    --color-primary: #334537;
+    --color-primary-dim: #2a3a2e;
+    --color-primary-container: #e9f0e7;
+    --color-primary-fixed: #e9f0e7;
+    --color-primary-fixed-dim: #d4dbd2;
+    --color-on-primary: #ffffff;
+    --color-on-primary-container: #161d18;
+    --color-on-primary-fixed: #161d18;
+    --color-on-primary-fixed-variant: #3a4239;
+    --color-secondary: #e9c349;
+    --color-secondary-dim: #d4af37;
+    --color-secondary-container: #fdf6d6;
+    --color-secondary-fixed: #fdf6d6;
+    --color-secondary-fixed-dim: #f4e6b0;
+    --color-on-secondary: #161d18;
+    --color-on-secondary-container: #161d18;
+    --color-on-secondary-fixed: #161d18;
+    --color-on-secondary-fixed-variant: #3a4239;
+    --color-tertiary: #7a9e7e;
+    --color-tertiary-dim: #6a8b6e;
+    --color-tertiary-container: #e9f0e7;
+    --color-tertiary-fixed: #e9f0e7;
+    --color-tertiary-fixed-dim: #d4dbd2;
+    --color-on-tertiary: #161d18;
+    --color-on-tertiary-container: #161d18;
+    --color-on-tertiary-fixed: #161d18;
+    --color-on-tertiary-fixed-variant: #3a4239;
+    --color-error: #b3261e;
+    --color-error-dim: #8c1d17;
+    --color-error-container: #f9dedc;
+    --color-on-error: #ffffff;
+    --color-on-error-container: #410e0b;
+    --color-inverse-surface: #2f322f;
+    --color-inverse-on-surface: #f4fbf2;
+    --color-inverse-primary: #7a9e7e;
+    --color-outline: #6f7970;
+    --color-outline-variant: #bfc9c1;
+
+    --font-headline: var(--font-serif);
+    --font-display: var(--font-serif);
+    --font-body: var(--font-sans);
+    --font-label: var(--font-sans);
+
     background-color: theme("colors.surface");
     color: theme("colors.on-surface");
     font-family: theme("fontFamily.sans");
@@ -50,5 +114,22 @@
   /* Hairline gold accent for special CTAs and dividers. */
   .gold-border {
     border: 1px solid #d4af37;
+  }
+
+  /* Material Symbols sizing helper used by the Laboratory Tokyo-neon design. */
+  .material-symbols-outlined {
+    font-family: "Material Symbols Outlined";
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: "liga";
+    -webkit-font-smoothing: antialiased;
   }
 }
