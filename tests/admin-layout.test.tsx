@@ -2,8 +2,9 @@ import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 
-const { getServerSessionMock, redirectMock } = vi.hoisted(() => ({
+const { getServerSessionMock, getCurrentUserMock, redirectMock } = vi.hoisted(() => ({
   getServerSessionMock: vi.fn(),
+  getCurrentUserMock: vi.fn(),
   redirectMock: vi.fn((path: string) => {
     throw new Error(`NEXT_REDIRECT ${path}`);
   }),
@@ -12,6 +13,7 @@ const { getServerSessionMock, redirectMock } = vi.hoisted(() => ({
 vi.mock('next-auth', () => ({
   getServerSession: getServerSessionMock,
 }));
+vi.mock('@/lib/auth/current-user', () => ({ getCurrentUser: getCurrentUserMock }));
 
 vi.mock('next/navigation', () => ({
   redirect: redirectMock,
@@ -25,7 +27,7 @@ describe('/admin layout', () => {
   });
 
   it('redirects unauthenticated users to /login', async () => {
-    getServerSessionMock.mockResolvedValue(null);
+    getCurrentUserMock.mockResolvedValue(null);
 
     await expect(AdminLayout({ children: <div>Protected content</div> })).rejects.toThrow(
       'NEXT_REDIRECT /login'
@@ -35,9 +37,7 @@ describe('/admin layout', () => {
   });
 
   it('redirects authenticated non-admin users to /', async () => {
-    getServerSessionMock.mockResolvedValue({
-      user: { id: 'user-1', email: 'reader@test.com', role: 'suscriptora' },
-    });
+    getCurrentUserMock.mockResolvedValue({ id: 'user-1', email: 'reader@test.com', role: 'suscriptora' });
 
     await expect(AdminLayout({ children: <div>Protected content</div> })).rejects.toThrow(
       'NEXT_REDIRECT /'
@@ -47,9 +47,7 @@ describe('/admin layout', () => {
   });
 
   it('redirects productora users to /', async () => {
-    getServerSessionMock.mockResolvedValue({
-      user: { id: 'user-1', email: 'olga@test.com', role: 'productora' },
-    });
+    getCurrentUserMock.mockResolvedValue({ id: 'user-1', email: 'olga@test.com', role: 'productora' });
 
     await expect(AdminLayout({ children: <div>Protected content</div> })).rejects.toThrow(
       'NEXT_REDIRECT /'
@@ -59,9 +57,7 @@ describe('/admin layout', () => {
   });
 
   it('renders children for admin role', async () => {
-    getServerSessionMock.mockResolvedValue({
-      user: { id: 'admin-1', email: 'admin@test.com', role: 'admin' },
-    });
+    getCurrentUserMock.mockResolvedValue({ id: 'admin-1', email: 'admin@test.com', role: 'admin' });
 
     const jsx = await AdminLayout({ children: <div>Protected content</div> });
     render(jsx);

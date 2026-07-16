@@ -1,12 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { getServerSessionMock, plantCreateMock, oilUpdateMock } = vi.hoisted(() => ({
+const { getServerSessionMock, getCurrentUserMock, plantCreateMock, oilUpdateMock } = vi.hoisted(() => ({
   getServerSessionMock: vi.fn(),
+  getCurrentUserMock: vi.fn(),
   plantCreateMock: vi.fn(),
   oilUpdateMock: vi.fn(),
 }));
 
 vi.mock('next-auth', () => ({ getServerSession: getServerSessionMock }));
+vi.mock('@/lib/auth/current-user', () => ({ getCurrentUser: getCurrentUserMock }));
 vi.mock('@/lib/db/connect', () => ({ connectToDatabase: vi.fn() }));
 vi.mock('@/lib/db/repository/plant', () => ({
   createPlantRepository: vi.fn(() => ({ create: plantCreateMock, update: vi.fn() })),
@@ -25,7 +27,7 @@ describe('POST /api/admin/botanico/[catalog]', () => {
   });
 
   it('rejects a non-Admin before it can create a canonical plant', async () => {
-    getServerSessionMock.mockResolvedValue({ user: { role: 'productora' } });
+    getCurrentUserMock.mockResolvedValue({ role: 'productora' });
 
     const response = await POST(
       new Request('http://localhost/api/admin/botanico/plants', {
@@ -40,7 +42,7 @@ describe('POST /api/admin/botanico/[catalog]', () => {
   });
 
   it('stores a valid plant through the canonical plantas repository', async () => {
-    getServerSessionMock.mockResolvedValue({ user: { role: 'admin' } });
+    getCurrentUserMock.mockResolvedValue({ role: 'admin' });
 
     const response = await POST(
       new Request('http://localhost/api/admin/botanico/plants', {
@@ -60,7 +62,7 @@ describe('POST /api/admin/botanico/[catalog]', () => {
   });
 
   it('returns validation errors without changing an oil/extract record', async () => {
-    getServerSessionMock.mockResolvedValue({ user: { role: 'admin' } });
+    getCurrentUserMock.mockResolvedValue({ role: 'admin' });
 
     const response = await POST(
       new Request('http://localhost/api/admin/botanico/oils', {

@@ -57,6 +57,18 @@ export default function AdminPage() {
               </p>
             </Link>
 
+            <Link
+              href="/admin/usuarios"
+              className="bg-white/50 backdrop-blur-[10px] border border-white/20 rounded-xl p-8 hover:bg-white/70 transition-all"
+            >
+              <h2 className="font-serif text-2xl text-on-surface mb-2">
+                Usuarios
+              </h2>
+              <p className="font-sans text-base text-on-surface-variant">
+                Gestionar roles y estados de acceso confirmados
+              </p>
+            </Link>
+
             <div className="bg-white/30 backdrop-blur-[10px] border border-white/20 rounded-xl p-8 opacity-50">
               <h2 className="font-serif text-2xl text-on-surface mb-2">
                 Productos

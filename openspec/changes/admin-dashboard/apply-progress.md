@@ -4,6 +4,14 @@
 
 PR1 tasks 1.1–1.7 and PR2 tasks 2.1–2.3 are complete in Strict TDD mode. PR2 is the second slice of the user-approved feature-branch chain and is based on PR1; PR3–PR4 were not started.
 
+## PR4 Follow-up: Persisted Account Middleware Gate
+
+- Scope: revalidate the current persisted account status and role for `/blog`, `/jardin-digital`, `/laboratorio`, and `/admin` after JWT decoding.
+- RED: `tests/middleware.test.ts` failed for suspended JWT access across all four routes, a missing/unavailable account, and a stale elevated JWT role.
+- GREEN: middleware uses an internal server-side account check, fails closed to `/` for missing, suspended, malformed, or unavailable account reads, and applies staff boundaries to the persisted role rather than the JWT claim.
+- Verification: `npm run test:run -- tests/middleware.test.ts` — 25 tests passed; `npx tsc --noEmit` — passed.
+- Non-goals: content, botanical catalog, lots, UI, commits, pushes, and review lifecycle.
+
 ## Approved Decisions
 
 - Application readiness is the bounded route/service capability signal only.

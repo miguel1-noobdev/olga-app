@@ -3,8 +3,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-const { getServerSessionMock, redirectMock, signOutMock } = vi.hoisted(() => ({
+const { getServerSessionMock, getCurrentUserMock, redirectMock, signOutMock } = vi.hoisted(() => ({
   getServerSessionMock: vi.fn(),
+  getCurrentUserMock: vi.fn(),
   redirectMock: vi.fn((path: string) => {
     throw new Error(`NEXT_REDIRECT ${path}`);
   }),
@@ -14,6 +15,7 @@ const { getServerSessionMock, redirectMock, signOutMock } = vi.hoisted(() => ({
 vi.mock('next-auth', () => ({
   getServerSession: getServerSessionMock,
 }));
+vi.mock('@/lib/auth/current-user', () => ({ getCurrentUser: getCurrentUserMock }));
 
 vi.mock('next/navigation', () => ({
   redirect: redirectMock,
@@ -31,7 +33,7 @@ describe('/laboratorio layout', () => {
   });
 
   it('redirects unauthenticated users to /login', async () => {
-    getServerSessionMock.mockResolvedValue(null);
+    getCurrentUserMock.mockResolvedValue(null);
 
     await expect(LaboratoryLayout({ children: <div>Protected content</div> })).rejects.toThrow(
       'NEXT_REDIRECT /login'
@@ -41,9 +43,7 @@ describe('/laboratorio layout', () => {
   });
 
   it('redirects authenticated non-staff users to /', async () => {
-    getServerSessionMock.mockResolvedValue({
-      user: { id: 'user-1', email: 'reader@test.com', role: 'suscriptora' },
-    });
+    getCurrentUserMock.mockResolvedValue({ id: 'user-1', email: 'reader@test.com', role: 'suscriptora' });
 
     await expect(LaboratoryLayout({ children: <div>Protected content</div> })).rejects.toThrow(
       'NEXT_REDIRECT /'
@@ -53,9 +53,7 @@ describe('/laboratorio layout', () => {
   });
 
   it('renders children for productora role', async () => {
-    getServerSessionMock.mockResolvedValue({
-      user: { id: 'user-1', email: 'olga@test.com', role: 'productora' },
-    });
+    getCurrentUserMock.mockResolvedValue({ id: 'user-1', email: 'olga@test.com', role: 'productora' });
 
     const jsx = await LaboratoryLayout({ children: <div>Protected content</div> });
     render(jsx);
@@ -64,9 +62,7 @@ describe('/laboratorio layout', () => {
   });
 
   it('renders children for admin role', async () => {
-    getServerSessionMock.mockResolvedValue({
-      user: { id: 'user-1', email: 'admin@test.com', role: 'admin' },
-    });
+    getCurrentUserMock.mockResolvedValue({ id: 'user-1', email: 'admin@test.com', role: 'admin' });
 
     const jsx = await LaboratoryLayout({ children: <div>Protected content</div> });
     render(jsx);
@@ -75,9 +71,7 @@ describe('/laboratorio layout', () => {
   });
 
   it('renders persistent laboratory navigation for staff', async () => {
-    getServerSessionMock.mockResolvedValue({
-      user: { id: 'user-1', email: 'olga@test.com', role: 'productora' },
-    });
+    getCurrentUserMock.mockResolvedValue({ id: 'user-1', email: 'olga@test.com', role: 'productora' });
 
     const jsx = await LaboratoryLayout({ children: <div>Protected content</div> });
     render(jsx);
@@ -105,9 +99,7 @@ describe('/laboratorio layout', () => {
 
   it('calls signOut with the public home callbackUrl when sign out is clicked', async () => {
     const user = userEvent.setup();
-    getServerSessionMock.mockResolvedValue({
-      user: { id: 'user-1', email: 'olga@test.com', role: 'productora' },
-    });
+    getCurrentUserMock.mockResolvedValue({ id: 'user-1', email: 'olga@test.com', role: 'productora' });
 
     const jsx = await LaboratoryLayout({ children: <div>Protected content</div> });
     render(jsx);

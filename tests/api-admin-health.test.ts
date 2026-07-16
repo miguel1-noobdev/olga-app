@@ -1,11 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { getServerSessionMock, getHealthReportMock } = vi.hoisted(() => ({
+const { getServerSessionMock, getCurrentUserMock, getHealthReportMock } = vi.hoisted(() => ({
   getServerSessionMock: vi.fn(),
+  getCurrentUserMock: vi.fn(),
   getHealthReportMock: vi.fn(),
 }));
 
 vi.mock('next-auth', () => ({ getServerSession: getServerSessionMock }));
+vi.mock('@/lib/auth/current-user', () => ({ getCurrentUser: getCurrentUserMock }));
 vi.mock('@/lib/admin/health', () => ({ getHealthReport: getHealthReportMock }));
 
 import { GET } from '@/app/api/admin/health/route';
@@ -16,7 +18,7 @@ describe('GET /api/admin/health', () => {
   });
 
   it('returns 401 without a session and never invokes a health probe', async () => {
-    getServerSessionMock.mockResolvedValue(null);
+    getCurrentUserMock.mockResolvedValue(null);
 
     const response = await GET();
 
@@ -26,7 +28,7 @@ describe('GET /api/admin/health', () => {
   });
 
   it('returns 403 for non-admin sessions and the exact safe report for Admin', async () => {
-    getServerSessionMock.mockResolvedValue({ user: { role: 'suscriptora' } });
+    getCurrentUserMock.mockResolvedValue({ role: 'suscriptora' });
     const denied = await GET();
     expect(denied.status).toBe(403);
     expect(await denied.json()).toEqual({ error: 'Forbidden' });
@@ -40,7 +42,7 @@ describe('GET /api/admin/health', () => {
         details: { credentialsProviderConfigured: true, googleProviderConfigured: false, jwtSessionStrategy: true },
       },
     };
-    getServerSessionMock.mockResolvedValue({ user: { role: 'admin' } });
+    getCurrentUserMock.mockResolvedValue({ role: 'admin' });
     getHealthReportMock.mockResolvedValue(report);
 
     const allowed = await GET();

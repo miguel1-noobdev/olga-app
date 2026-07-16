@@ -12,7 +12,7 @@ How to run the project locally, execute checks, and deploy to the VPS. This docu
    ```bash
    cp .env.example .env.local
    ```
-   Add at least `NEXTAUTH_SECRET` and `NEXTAUTH_URL` (see [Required environment variables](#required-environment-variables)).
+   Add at least `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, and `INTERNAL_ACCOUNT_CHECK_ORIGIN` (see [Required environment variables](#required-environment-variables)).
 3. Install dependencies:
    ```bash
    npm install
@@ -30,10 +30,11 @@ How to run the project locally, execute checks, and deploy to the VPS. This docu
 | `MONGODB_URI` | Yes | `mongodb://localhost:27017/botanica-ob` | Used by the app and by all `scripts/`. |
 | `NEXTAUTH_SECRET` | At runtime | Generate with `openssl rand -base64 32` | NextAuth JWT signing secret. Login will fail without it. |
 | `NEXTAUTH_URL` | Recommended | `http://localhost:3000` | Used by NextAuth for callback URLs. |
+| `INTERNAL_ACCOUNT_CHECK_ORIGIN` | At runtime | `http://127.0.0.1:3000` | Trusted origin for middleware's persisted-account check. Use the loopback Next.js listener on the VPS, or a bare HTTPS origin. HTTP is accepted only for `localhost`, `127.0.0.1`, or `[::1]`. |
 | `GOOGLE_CLIENT_ID` | Only if enabling Google OAuth | Google Cloud Console | Google auth is wired but **not exposed in the UI**. |
 | `GOOGLE_CLIENT_SECRET` | Only if enabling Google OAuth | Google Cloud Console | Never commit this value. |
 
-> **Current reality:** `.env.example` only lists `MONGODB_URI`. Copy it and add the other variables manually for local development or production.
+> **Current reality:** `.env.example` provides local-safe MongoDB and loopback account-check defaults. Add NextAuth values manually for local development or production.
 
 ## MongoDB startup
 
@@ -84,7 +85,7 @@ There is **no deploy automation** in the repo today. The current manual flow is:
    npm ci
    npm run build
    ```
-2. **Environment**: create `.env.local` on the VPS with at least `MONGODB_URI`, `NEXTAUTH_SECRET`, and `NEXTAUTH_URL`. Do not commit it.
+2. **Environment**: create `.env.local` on the VPS with at least `MONGODB_URI`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, and `INTERNAL_ACCOUNT_CHECK_ORIGIN=http://127.0.0.1:3000`. Do not commit it. The account check fails closed if this value is absent or invalid.
 3. **Database**: make sure MongoDB is reachable from the app process (local Docker container, managed Atlas cluster, etc.).
 4. **Process manager**: start the app with PM2, for example:
    ```bash

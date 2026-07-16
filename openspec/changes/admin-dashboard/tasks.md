@@ -51,7 +51,8 @@ Chain strategy: pending
 
 ## Phase 4: PR4 — Users, Roles, and Minimal Activity
 
-- [ ] 4.1 Gate: approve access-status transitions, activity vocabulary, and retention; stop without them.
-- [ ] 4.2 RED: test protected approved-field directory, confirm/cancel/reject, one-user role changes, unapproved-status denial, and event redaction.
-- [ ] 4.3 GREEN/REFACTOR: add `src/lib/admin/users/{role-change,activity}.ts` and `src/app/admin/usuarios/*`; expose approved operational summaries only.
-- [ ] 4.4 Verify PR4 command; accept Admin-confirmed approved mutations only. Non-goals: credentials/tokens/raw auth, surveillance, unapproved statuses, Stitch.
+- [x] 4.1 Gate: approved access-status transitions (`active`/`suspended`), audit vocabulary (role/access-status changes), and permanent retention only for administrative audit events.
+- [x] 4.2 RED: tested protected approved-field directory, confirm/cancel/reject, one-user role changes, unapproved-status denial, and event redaction.
+- [x] 4.3 GREEN/REFACTOR: added `src/lib/admin/users/{role-change,activity}.ts` and `src/app/admin/usuarios/*`; exposes approved operational summaries only.
+- [x] 4.4 Verify PR4 command; accepted Admin-confirmed approved mutations only. Non-goals: credentials/tokens/raw auth, surveillance, unapproved statuses, Stitch.
+- [x] 4.5 Follow-up security fix: middleware revalidates the persisted active account and current role for every protected route; suspended, missing, malformed, and unavailable-account checks fail closed without exposing errors. Non-goals: content, botanical catalog, lots, and UI.

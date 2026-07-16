@@ -1,13 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { getServerSessionMock, reviewMock, publishMock, unpublishMock } = vi.hoisted(() => ({
+const { getServerSessionMock, getCurrentUserMock, reviewMock, publishMock, unpublishMock } = vi.hoisted(() => ({
   getServerSessionMock: vi.fn(),
+  getCurrentUserMock: vi.fn(),
   reviewMock: vi.fn(),
   publishMock: vi.fn(),
   unpublishMock: vi.fn(),
 }));
 
 vi.mock('next-auth', () => ({ getServerSession: getServerSessionMock }));
+vi.mock('@/lib/auth/current-user', () => ({ getCurrentUser: getCurrentUserMock }));
 vi.mock('@/lib/db/connect', () => ({ connectToDatabase: vi.fn() }));
 vi.mock('@/lib/db/repository/article', () => ({
   createArticleRepository: vi.fn(() => ({ review: reviewMock, publish: publishMock, unpublish: unpublishMock })),
@@ -19,7 +21,7 @@ describe('PATCH /api/admin/articles/[id]', () => {
   beforeEach(() => vi.clearAllMocks());
 
   it('rejects non-Admin lifecycle mutations', async () => {
-    getServerSessionMock.mockResolvedValue({ user: { role: 'suscriptora' } });
+    getCurrentUserMock.mockResolvedValue({ role: 'suscriptora' });
 
     const response = await PATCH(new Request('http://localhost/api/admin/articles/a1', {
       method: 'PATCH',
@@ -31,7 +33,7 @@ describe('PATCH /api/admin/articles/[id]', () => {
   });
 
   it('reviews, publishes, and unpublishes only the selected article', async () => {
-    getServerSessionMock.mockResolvedValue({ user: { role: 'admin' } });
+    getCurrentUserMock.mockResolvedValue({ role: 'admin' });
 
     for (const action of ['review', 'publish', 'unpublish']) {
       const response = await PATCH(new Request('http://localhost/api/admin/articles/a1', {

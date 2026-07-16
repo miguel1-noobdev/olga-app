@@ -1,17 +1,16 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/options';
+import { getCurrentUser } from '@/lib/auth/current-user';
 import { isAdmin } from '@/lib/auth/roles';
 import { getHealthReport } from '@/lib/admin/health';
 
 export async function GET() {
-  const session = await getServerSession(authOptions);
+  const user = await getCurrentUser();
 
-  if (!session) {
+  if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  if (!isAdmin(session.user.role)) {
+  if (!isAdmin(user.role)) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 

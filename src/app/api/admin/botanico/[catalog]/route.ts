@@ -1,6 +1,5 @@
-import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server';
-import { authOptions } from '@/lib/auth/options';
+import { getCurrentUser } from '@/lib/auth/current-user';
 import { saveOilCatalogEntry, savePlantCatalogEntry } from '@/lib/admin/botanico/catalog';
 import { connectToDatabase } from '@/lib/db/connect';
 import { createOilRepository } from '@/lib/db/repository/oil';
@@ -11,9 +10,9 @@ interface RouteContext {
 }
 
 export async function POST(request: Request, { params }: RouteContext) {
-  const session = await getServerSession(authOptions);
+  const user = await getCurrentUser();
 
-  if (!session || session.user.role !== 'admin') {
+  if (!user || user.role !== 'admin') {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
