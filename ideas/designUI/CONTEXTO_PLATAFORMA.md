@@ -16,12 +16,12 @@ Plataforma single-tenant con dos roles diferenciados.
 | Pública | Visitantes anónimos | Landing completa, pueden registrarse |
 | Restringida | Usuarios registrados (suscriptores) | Blog (parte de la landing) + emails informativos |
 | Privada | Olga (cuenta staff) | Dashboard de producción — su "laboratorio" |
-| Privada | Admin (admin) | Dashboard admin — operación digital, publicación, administración |
+| Privada | Admin (admin) | Dashboard admin — operación digital, publicación, administración y soporte de Laboratorio |
 
 **Reglas de acceso:**
 - Visitantes anónimos: ven la landing completa, NO acceden al blog
 - Usuarios suscriptores (registrados con email/contraseña; Google OAuth aplazado): acceden al blog + reciben emails informativos
-- Olga y Admin: tienen cuentas con rol especial que los lleva a su dashboard privado
+- Olga y Admin: tienen cuentas con rol especial que los lleva a su dashboard privado; Admin conserva acceso staff de soporte al Laboratorio
 - Los dashboards privados son **apps separadas** que se construyen después, una a una
 
 **Decisión arquitectónica clave**: Single-tenant con dos roles de staff + usuarios suscriptores. NO multi-tenant.
@@ -74,13 +74,14 @@ Fase 1 se considera **cerrada funcionalmente**. Las versiones actuales son acept
 - Extrae datos de la base
 - Curación, redacción, publicación de artículos del blog
 - Administración de la plataforma (usuarios, BD, automatizaciones, datos, redes)
+- Acceso staff de soporte al Laboratorio de Olga
 
 ### Registro / autenticación
 - **Un solo flujo de registro** para todos los usuarios (suscriptores, Olga, Admin)
 - Registro con **email/contraseña** (único camino habilitado en UI por ahora)
 - **Google OAuth aplazado**: cableado en la configuración de NextAuth pero no expuesto en UI; se activará en una fase posterior
-- **Primer usuario registrado = admin automáticamente** (Admin)
-- Admin asigna roles después: `suscriptora` → `productora` (Olga)
+- Todo registro público crea una cuenta `suscriptora`; nunca concede admin automáticamente
+- El primer Admin se provisiona explícitamente mediante el script seguro y el runbook operativo; después Admin asigna roles: `suscriptora` → `productora` (Olga)
 - Olga puede usar el blog desde el día 1, sin esperar su dashboard
 
 ---
@@ -247,7 +248,7 @@ Fase 1 se considera **cerrada funcionalmente**. Las versiones actuales son acept
 ### Dashboard de Olga (laboratorio)
 *En construcción con el usuario*
 
-**Acceso**: `botanicaob.com/laboratorio` (mismo patrón que `/admin` para Admin)
+**Acceso**: `botanicaob.com/laboratorio` para roles staff `productora` y `admin`; Admin conserva acceso de soporte (mismo patrón que `/admin` para Admin)
 
 ### Archivo reconciliado: experimento de UI de Laboratorio descartado
 - El experimento `feat/laboratorio-hub-stitch` queda descartado: no se incorpora código, QA ni documentación de implementación como autoridad.

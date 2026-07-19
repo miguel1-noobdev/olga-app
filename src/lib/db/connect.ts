@@ -1,6 +1,37 @@
 import mongoose from 'mongoose';
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/botanica-ob';
+const LOCAL_MONGODB_URI = 'mongodb://localhost:27017/botanica-ob';
+
+export function isValidMongoUri(uri: string): boolean {
+  try {
+    const parsed = new URL(uri);
+    return parsed.protocol === 'mongodb:' || parsed.protocol === 'mongodb+srv:';
+  } catch {
+    return false;
+  }
+}
+
+export function resolveMongoUri(environment: NodeJS.ProcessEnv = process.env): string {
+  const mongodbUri = environment.MONGODB_URI?.trim();
+
+  if (environment.NODE_ENV === 'production') {
+    if (mongodbUri && isValidMongoUri(mongodbUri)) {
+      return mongodbUri;
+    }
+
+    throw new Error(
+      'Database configuration error: MONGODB_URI must be set to a valid MongoDB connection URI in production.'
+    );
+  }
+
+  if (!mongodbUri) return LOCAL_MONGODB_URI;
+
+  if (!isValidMongoUri(mongodbUri)) {
+    throw new Error('Database configuration error: MONGODB_URI must be a valid MongoDB connection URI.');
+  }
+
+  return mongodbUri;
+}
 
 interface MongooseCache {
   conn: typeof mongoose | null;
@@ -15,7 +46,7 @@ export async function connectToDatabase() {
   }
 
   if (!cached.promise) {
-    cached.promise = mongoose.connect(MONGODB_URI).then((m) => m);
+    cached.promise = mongoose.connect(resolveMongoUri()).then((m) => m);
   }
 
   cached.conn = await cached.promise;

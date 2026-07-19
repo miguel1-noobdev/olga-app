@@ -1,41 +1,40 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import { UserModel } from '../src/lib/db/models/user';
-
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/botanica-ob';
+import { readAdminProvisioningEnvironment } from './admin-provisioning-environment';
+import { createAdminAccountRecoveryUpdate } from './admin-account-recovery';
 
 async function resetPassword() {
-  try {
-    console.log('Conectando a MongoDB...');
-    await mongoose.connect(MONGODB_URI);
-    console.log('✓ Conectado\n');
+  let config;
 
-    const email = 'admin@botanicaob.com';
-    const newPassword = 'Admin123!';
-    
-    console.log(`Reseteando contraseña para: ${email}`);
-    const passwordHash = await bcrypt.hash(newPassword, 10);
+  try {
+    config = readAdminProvisioningEnvironment();
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : 'Configuration error.');
+    process.exitCode = 1;
+    return;
+  }
+
+  try {
+    console.log('Connecting to MongoDB...');
+    await mongoose.connect(config.MONGODB_URI);
+    const passwordHash = await bcrypt.hash(config.ADMIN_PASSWORD, 10);
     
     const result = await UserModel.updateOne(
-      { email },
-      { passwordHash }
+      { email: config.ADMIN_EMAIL },
+      { $set: createAdminAccountRecoveryUpdate(passwordHash) }
     );
     
     if (result.modifiedCount > 0) {
-      console.log('✓ Contraseña actualizada exitosamente\n');
-      console.log('========================================');
-      console.log('Credenciales:');
-      console.log('Email: admin@botanicaob.com');
-      console.log('Password: Admin123!');
-      console.log('========================================');
+      console.log('Password updated.');
     } else {
-      console.log('No se pudo actualizar la contraseña');
+      console.log('No password was updated.');
     }
 
     await mongoose.disconnect();
-  } catch (error) {
-    console.error('Error:', error);
-    process.exit(1);
+  } catch {
+    console.error('Password reset failed. Check database connectivity and retry.');
+    process.exitCode = 1;
   }
 }
 

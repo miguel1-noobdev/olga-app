@@ -27,7 +27,7 @@ How to run the project locally, execute checks, and deploy to the VPS. This docu
 
 | Variable | Required | Source / example | Notes |
 |----------|----------|------------------|-------|
-| `MONGODB_URI` | Yes | `mongodb://localhost:27017/botanica-ob` | Used by the app and by all `scripts/`. |
+| `MONGODB_URI` | Yes in production | Local MongoDB connection URI | Production requires a valid MongoDB URI and never falls back to localhost. Non-production without this variable uses the local-safe fallback. |
 | `NEXTAUTH_SECRET` | At runtime | Generate with `openssl rand -base64 32` | NextAuth JWT signing secret. Login will fail without it. |
 | `NEXTAUTH_URL` | Recommended | `http://localhost:3000` | Used by NextAuth for callback URLs. |
 | `INTERNAL_ACCOUNT_CHECK_ORIGIN` | At runtime | `http://127.0.0.1:3000` | Trusted origin for middleware's persisted-account check. Use the loopback Next.js listener on the VPS, or a bare HTTPS origin. HTTP is accepted only for `localhost`, `127.0.0.1`, or `[::1]`. |
@@ -35,6 +35,16 @@ How to run the project locally, execute checks, and deploy to the VPS. This docu
 | `GOOGLE_CLIENT_SECRET` | Only if enabling Google OAuth | Google Cloud Console | Never commit this value. |
 
 > **Current reality:** `.env.example` provides local-safe MongoDB and loopback account-check defaults. Add NextAuth values manually for local development or production.
+
+### Privileged admin provisioning
+
+The first public registration never becomes an administrator. Provision or recover an administrator only through `scripts/create-admin.ts` or `scripts/reset-password.ts` with these required environment variable names:
+
+- `MONGODB_URI`
+- `ADMIN_EMAIL`
+- `ADMIN_PASSWORD`
+
+Use a password manager or the deployment secret store. For local one-off work in zsh, follow the silent interactive password-prompt procedure in [`docs/scripts.md`](./scripts.md#privileged-admin-scripts) and run the selected script with `npx tsx`; never inline a password in a shell command or save it in a committed environment file. Both scripts fail before connecting when a required value is absent or invalid and never print credentials.
 
 ## MongoDB startup
 
@@ -73,8 +83,8 @@ The workflow uses Node.js 20 and the `npm` cache.
 
 - **Email and password** is the only login path exposed to end users in the UI.
 - **Google OAuth** is configured in `src/lib/auth/options.ts` but intentionally **not shown in the UI**. It stays disabled until the brand owner explicitly decides to turn it on.
-- Roles exist (`suscriptora`, `productora`, `admin`), but today only `suscriptora` and `admin` are exercised in the UI.
-- The **first user registered through `/register`** automatically receives the `admin` role.
+- Roles exist (`suscriptora`, `productora`, `admin`). Public registration creates only `suscriptora` accounts.
+- `productora` and `admin` are staff roles for the Laboratorio; `admin` retains staff support access to Olga's Laboratorio.
 
 ## VPS deploy (manual, high-level)
 
@@ -85,7 +95,7 @@ There is **no deploy automation** in the repo today. The current manual flow is:
    npm ci
    npm run build
    ```
-2. **Environment**: create `.env.local` on the VPS with at least `MONGODB_URI`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, and `INTERNAL_ACCOUNT_CHECK_ORIGIN=http://127.0.0.1:3000`. Do not commit it. The account check fails closed if this value is absent or invalid.
+2. **Environment**: create `.env.local` on the VPS with a valid `MONGODB_URI`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, and `INTERNAL_ACCOUNT_CHECK_ORIGIN=http://127.0.0.1:3000`. Do not commit it. The app rejects an absent or invalid `MONGODB_URI` in production; the account check also fails closed if its value is absent or invalid.
 3. **Database**: make sure MongoDB is reachable from the app process (local Docker container, managed Atlas cluster, etc.).
 4. **Process manager**: start the app with PM2, for example:
    ```bash
@@ -110,7 +120,7 @@ There is **no deploy automation** in the repo today. The current manual flow is:
 - [ ] MongoDB is not running → `docker compose up -d mongo`
 - [ ] `NEXTAUTH_SECRET` is missing → the app may build, but login will fail
 - [ ] `MONGODB_URI` points to the wrong database → scripts will affect the wrong data
-- [ ] `npx ts-node` is not available → install `ts-node` globally or add it as a dev dependency
+- [ ] `npx tsx` is not available → run `npm install`, then retry the verified local invocation
 
 ## Remaining operational gaps
 

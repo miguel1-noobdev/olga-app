@@ -2,7 +2,7 @@
 
 One-off TypeScript utilities in `scripts/` for local development, content seeding, and admin tasks.
 
-All scripts read `MONGODB_URI` from the environment and fall back to `mongodb://localhost:27017/botanica-ob` unless noted otherwise.
+Each script documents its own configuration requirements. The secured admin scripts never fall back to a local database or embedded credentials.
 
 ## Quick path
 
@@ -10,24 +10,46 @@ All scripts read `MONGODB_URI` from the environment and fall back to `mongodb://
 2. Ensure `MONGODB_URI` is exported or present in `.env.local`.
 3. Run from the repo root:
    ```bash
-   npx ts-node scripts/<script-name>.ts
+   npx tsx scripts/<script-name>.ts
    ```
 4. Read the script output carefully before acting on it.
+
+## Privileged admin scripts
+
+`create-admin.ts` and `reset-password.ts` require all of these environment variable names:
+
+- `MONGODB_URI`
+- `ADMIN_EMAIL`
+- `ADMIN_PASSWORD`
+
+Load the values through the deployment secret store or a password manager-backed shell session. Do not place them in source files, command history, or committed environment files. Run the selected script only after the variables are present in its process environment, then clear them. The scripts reject missing or malformed values before opening a database connection and do not print credentials.
+
+For a local one-off run in zsh, load `MONGODB_URI` and `ADMIN_EMAIL` from an ignored, owner-readable environment file that does not contain a password. Then prompt for the password separately so it is not recorded in shell history:
+
+```bash
+set -a
+. ./.env.admin.local
+set +a
+read -r -s 'ADMIN_PASSWORD?Admin password: '
+printf '\n'
+export ADMIN_PASSWORD
+npx tsx scripts/create-admin.ts
+unset ADMIN_PASSWORD
+```
+
+Use `scripts/reset-password.ts` in the final command when recovering access. Keep `.env.admin.local` out of version control and remove the exported password immediately after the script finishes.
 
 ## Script reference
 
 | Script | Purpose | When to use | Command | Warnings |
 |--------|---------|-------------|---------|----------|
-| `check-articles.ts` | List every article in the database. | Verify published content or debug article counts. | `npx ts-node scripts/check-articles.ts` | Read-only. |
-| `check-users.ts` | List every user, role, and password-hash prefix. | Audit accounts after registration or after running user scripts. | `npx ts-node scripts/check-users.ts` | Exposes role and hash prefix; run locally only. |
-| `create-admin.ts` | Create or update a hardcoded admin user. | Bootstrap an admin account quickly (legacy helper). | `npx ts-node scripts/create-admin.ts` | Hardcoded email `admin@botanicaob.com` and password `Admin2024!`. Rotate the password immediately after login. |
-| `create-admin-proper.ts` | Delete the existing `admin@botanicaob.com` user and recreate it via the repository layer. | Reset the admin account cleanly. | `npx ts-node scripts/create-admin-proper.ts` | **Destructive**: deletes the existing admin user before recreating. Hardcoded password `Admin123!`. |
-| `create-productora.ts` | Create or update Olga's laboratory account with the `productora` role. | Prepare a real Olga account for testing the private laboratorio flow. | `OLGA_EMAIL=olga@example.com OLGA_PASSWORD=... npx ts-node scripts/create-productora.ts` | Reads credentials from environment variables; no hardcoded secrets. Safe to re-run: updates role and password if the user already exists. |
-| `create-test-user.ts` | Create `test@botanica.com` / `Test123!` with role `admin` if missing. | Smoke-test the registration/login flow. | `npx ts-node scripts/create-test-user.ts` | Hardcoded test credentials. Never use in production. |
-| `reset-password.ts` | Reset `admin@botanicaob.com` password to `Admin123!`. | Recover admin access. | `npx ts-node scripts/reset-password.ts` | Hardcoded password. Rotate after login. |
-| `seed-articles.ts` | Seed three starter articles and publish them. | Populate the blog on a fresh database. | `npx ts-node scripts/seed-articles.ts` | Safe to re-run: skips articles whose slug already exists. |
-| `seed-plants.ts` | Sync plant seeds from `seed-plants.data.ts` into the database. | Initialize or refresh the plant catalog. | `npx ts-node scripts/seed-plants.ts` | Upserts by scientific-name slug; existing manual edits may be overwritten. |
-| `test-login.ts` | Verify `admin@botanicaob.com` / `Admin123!` and fix the password hash if invalid. | Diagnose login failures. | `npx ts-node scripts/test-login.ts` | Mutates the password hash when the check fails. |
+| `check-articles.ts` | List every article in the database. | Verify published content or debug article counts. | `npx tsx scripts/check-articles.ts` | Read-only. |
+| `check-users.ts` | List every user, role, and password-hash prefix. | Audit accounts after registration or after running user scripts. | `npx tsx scripts/check-users.ts` | Exposes role and hash prefix; run locally only. |
+| `create-admin.ts` | Create or update the designated admin account. | Explicitly provision the first admin or recover staff administration. | `npx tsx scripts/create-admin.ts` | Requires `MONGODB_URI`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD`. Safe to re-run for the designated account. |
+| `create-productora.ts` | Create or update Olga's laboratory account with the `productora` role. | Prepare a real Olga account for testing the private laboratorio flow. | `npx tsx scripts/create-productora.ts` | Load variables through an ignored environment file and prompt silently for the password. Run only when Olga's account change is explicitly intended. |
+| `reset-password.ts` | Reset the designated admin password. | Recover admin access. | `npx tsx scripts/reset-password.ts` | Requires `MONGODB_URI`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD`. |
+| `seed-articles.ts` | Seed three starter articles and publish them. | Populate the blog on a fresh database. | `npx tsx scripts/seed-articles.ts` | Safe to re-run: skips articles whose slug already exists. |
+| `seed-plants.ts` | Sync plant seeds from `seed-plants.data.ts` into the database. | Initialize or refresh the plant catalog. | `npx tsx scripts/seed-plants.ts` | Upserts by scientific-name slug; existing manual edits may be overwritten. |
 
 ## Supporting files
 
@@ -40,7 +62,5 @@ All scripts read `MONGODB_URI` from the environment and fall back to `mongodb://
 ## Notes
 
 - Scripts output a mix of Spanish and English; this reflects how they were written iteratively and is harmless.
-- `npx ts-node` is used because that is what the existing README already references. If `ts-node` is not installed locally, install it globally or add it as a dev dependency.
-- `create-admin.ts` is the only script that **does not fall back** to a localhost URI; it exits immediately if `MONGODB_URI` is missing.
-- `create-test-user.ts` falls back to `mongodb://localhost:27017/botanica-esencial` (different database name) if `MONGODB_URI` is not set; all other scripts fall back to `botanica-ob`.
-- Prefer `create-admin-proper.ts` over `create-admin.ts` for new setups, but remember that both use hardcoded passwords.
+- Run TypeScript scripts with `npx tsx`; this is the verified local invocation.
+- `create-admin.ts` and `reset-password.ts` are the approved admin provisioning path. They require `MONGODB_URI`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD` and never use a fallback URI.

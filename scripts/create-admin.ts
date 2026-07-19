@@ -1,60 +1,50 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import { UserModel } from '../src/lib/db/models/user';
-
-const MONGODB_URI = process.env.MONGODB_URI;
+import { readAdminProvisioningEnvironment } from './admin-provisioning-environment';
+import { applyAdminAccountRecovery } from './admin-account-recovery';
 
 async function createAdminUser() {
-  if (!MONGODB_URI) {
-    console.error('MONGODB_URI no está definido en .env');
-    process.exit(1);
+  let config;
+
+  try {
+    config = readAdminProvisioningEnvironment();
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : 'Configuration error.');
+    process.exitCode = 1;
+    return;
   }
 
   try {
-    console.log('Conectando a MongoDB Atlas...');
-    console.log('URI:', MONGODB_URI.replace(/:[^:]*@/, ':****@')); // Oculta el password
-    
-    await mongoose.connect(MONGODB_URI, {
+    console.log('Connecting to MongoDB...');
+    await mongoose.connect(config.MONGODB_URI, {
       serverSelectionTimeoutMS: 5000,
       connectTimeoutMS: 5000,
     });
-    console.log('✓ Conectado a MongoDB Atlas');
-
-    // Crear usuario admin
-    const email = 'admin@botanicaob.com';
-    const password = 'Admin2024!';
-    const passwordHash = await bcrypt.hash(password, 10);
-
-    console.log(`\nCreando usuario admin: ${email}`);
+    console.log('Connected to MongoDB.');
+    const passwordHash = await bcrypt.hash(config.ADMIN_PASSWORD, 10);
     
-    const existingUser = await UserModel.findOne({ email });
+    const existingUser = await UserModel.findOne({ email: config.ADMIN_EMAIL });
     if (existingUser) {
-      console.log('⚠ El usuario ya existe, actualizando a admin...');
-      existingUser.role = 'admin';
-      existingUser.passwordHash = passwordHash;
+      applyAdminAccountRecovery(existingUser, passwordHash);
       await existingUser.save();
-      console.log('✓ Usuario actualizado a admin');
+      console.log('Admin account updated.');
     } else {
       const user = new UserModel({
-        email,
+        email: config.ADMIN_EMAIL,
         passwordHash,
         role: 'admin',
+        accountStatus: 'active',
       });
       await user.save();
-      console.log('✓ Usuario admin creado exitosamente');
+      console.log('Admin account created.');
     }
 
-    console.log('\n========================================');
-    console.log('Credenciales de acceso:');
-    console.log('Email: admin@botanicaob.com');
-    console.log('Password: Admin2024!');
-    console.log('========================================\n');
-
     await mongoose.disconnect();
-    console.log('✓ Desconectado de MongoDB Atlas');
-  } catch (error) {
-    console.error('Error:', error);
-    process.exit(1);
+    console.log('Disconnected from MongoDB.');
+  } catch {
+    console.error('Admin provisioning failed. Check database connectivity and retry.');
+    process.exitCode = 1;
   }
 }
 

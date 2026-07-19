@@ -31,21 +31,21 @@ describe('/api/auth/register POST', () => {
   });
 
   afterEach(async () => {
+    vi.restoreAllMocks();
     vi.clearAllMocks();
     await mongoose.disconnect();
     await mongoServer.stop();
   });
 
-  it('creates a user and returns 201 with userId', async () => {
+  it('accepts a new registration without exposing an account identifier', async () => {
     const res = await callRegisterRoute({
       email: 'olga@botanicaob.com',
       password: 'secret123',
     });
 
-    expect(res.status).toBe(201);
+    expect(res.status).toBe(202);
     const json = await res.json();
-    expect(json.message).toBe('User created successfully');
-    expect(json.userId).toBeDefined();
+    expect(json).toEqual({ message: 'Registration request accepted' });
   });
 
   it('stores a bcrypt hashed password, not plaintext', async () => {
@@ -69,10 +69,9 @@ describe('/api/auth/register POST', () => {
       password: 'secret123',
     });
 
-    const json = await res.json();
     const { createUserRepository } = await import('@/lib/db/repository/user');
     const repo = createUserRepository();
-    const user = await repo.findById(json.userId);
+    const user = await repo.findByEmail('olga@botanicaob.com');
 
     expect(user?.role).toBe('suscriptora');
   });
@@ -88,28 +87,45 @@ describe('/api/auth/register POST', () => {
       password: 'secret456',
     });
 
-    const json = await res.json();
     const { createUserRepository } = await import('@/lib/db/repository/user');
     const repo = createUserRepository();
-    const user = await repo.findById(json.userId);
+    const user = await repo.findByEmail('admin@botanicaob.com');
 
     expect(user?.role).toBe('suscriptora');
   });
 
-  it('returns 409 when the email already exists', async () => {
-    await callRegisterRoute({
+  it('returns the same generic accepted response for new and duplicate email registrations', async () => {
+    const newRegistration = await callRegisterRoute({
       email: 'olga@botanicaob.com',
       password: 'secret123',
     });
 
-    const res = await callRegisterRoute({
+    const duplicateRegistration = await callRegisterRoute({
       email: 'olga@botanicaob.com',
       password: 'other-password',
     });
 
-    expect(res.status).toBe(409);
-    const json = await res.json();
-    expect(json.error).toMatch(/already exists|ya existe/i);
+    expect(duplicateRegistration.status).toBe(newRegistration.status);
+    expect(await duplicateRegistration.json()).toEqual(await newRegistration.json());
+  });
+
+  it('returns the generic response when a concurrent registration hits the unique email index', async () => {
+    const { createUserRepository } = await import('@/lib/db/repository/user');
+    vi.spyOn(await import('@/lib/db/repository/user'), 'createUserRepository')
+      .mockImplementation(() => ({
+        ...createUserRepository(),
+        create: async () => {
+          throw Object.assign(new Error('Duplicate key'), { code: 11000 });
+        },
+      }));
+
+    const res = await callRegisterRoute({
+      email: 'olga@botanicaob.com',
+      password: 'secret123',
+    });
+
+    expect(res.status).toBe(202);
+    expect(await res.json()).toEqual({ message: 'Registration request accepted' });
   });
 
   it('returns 400 when email or password is missing', async () => {

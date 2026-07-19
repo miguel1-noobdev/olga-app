@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
+import { resolveMongoUri } from '@/lib/db/connect';
 import { HEALTH_TIMEOUT_MS, runBoundedHealthCheck, type HealthCheck } from '../types';
-
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/botanica-ob';
 
 const unavailableDetails = {
   pingReachedServer: false,
@@ -14,7 +13,7 @@ export async function checkMongoHealth(
   return runBoundedHealthCheck(
     'mongo',
     async () => {
-      const client = new mongoose.mongo.MongoClient(MONGODB_URI, {
+      const client = new mongoose.mongo.MongoClient(resolveMongoUri(), {
         serverSelectionTimeoutMS: Math.max(1, timeoutMs ?? HEALTH_TIMEOUT_MS),
       });
 

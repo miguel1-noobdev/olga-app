@@ -9,7 +9,7 @@ This is **not an e-commerce site**. It explains the brand, shares content with r
 - **Landing page** with nine sections: Hero, Products, Methods, Diario (blog preview), Glosario preview, Olga profile, Sign-up, Social links, Footer.
 - **Email/password authentication**: registration, login, logout, role-based access.
 - **Subscriber-only areas**: `/blog` and `/jardin-digital` are protected by middleware; anonymous visitors are redirected to `/login`.
-- **Admin area**: `/admin` and `/admin/blog/nuevo` are restricted to the `admin` role. The first registered user automatically becomes `admin`.
+- **Admin area**: `/admin` and `/admin/blog/nuevo` are restricted to the explicitly provisioned `admin` role.
 - **Article publishing**: simple creation form at `/admin/blog/nuevo` that publishes immediately. No drafts, no edit flow yet.
 - **MongoDB storage** for users, articles, and plants, with in-memory MongoDB for tests.
 - **CI pipeline** via GitHub Actions: install, build, test, and script typecheck.
@@ -19,6 +19,8 @@ This is **not an e-commerce site**. It explains the brand, shares content with r
 - **Email and password is the only working login path for end users.**
 - Google OAuth is wired in NextAuth config but intentionally **not exposed in the UI**. It remains deferred until the brand owner explicitly enables it.
 - Roles exist (`suscriptora`, `productora`, `admin`), but today only `suscriptora` and `admin` are exercised in the UI.
+- Public registration creates `suscriptora` accounts only. The first admin is provisioned explicitly through the secured admin script.
+- `admin` retains staff support access to the Laboratorio alongside `productora`.
 
 ## Blog reality
 
@@ -75,15 +77,9 @@ npm run typecheck:scripts # Type-check files under scripts/
 
 > For the full local/deploy runbook see [`docs/runbook.md`](./docs/runbook.md). For a detailed scripts reference see [`docs/scripts.md`](./docs/scripts.md).
 
-### Create an admin user
+### Provision an admin user
 
-The first user registered through `/register` becomes `admin` automatically. You can also use:
-
-```bash
-npx ts-node scripts/create-admin.ts
-```
-
-See [`docs/scripts.md`](./docs/scripts.md) for the exact credentials each script creates.
+Public registration never grants administrative access. Use `scripts/create-admin.ts` only after its required `MONGODB_URI`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD` variables have been loaded through a secret-safe environment. From zsh, invoke privileged scripts with `npx tsx` and use the silent password prompt documented in [`docs/scripts.md`](./docs/scripts.md); never put a password in a command line or environment file.
 
 ## CI
 

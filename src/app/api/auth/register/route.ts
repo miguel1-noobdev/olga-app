@@ -2,6 +2,14 @@ import { NextResponse } from 'next/server';
 import { createUserRepository } from '@/lib/db/repository/user';
 import { connectToDatabase } from '@/lib/db/connect';
 
+function isDuplicateEmailError(error: unknown): boolean {
+  return (
+    error instanceof Error &&
+    (error.message.includes('already exists') ||
+      (typeof error === 'object' && error !== null && 'code' in error && error.code === 11000))
+  );
+}
+
 export async function POST(request: Request) {
   try {
     await connectToDatabase();
@@ -17,19 +25,19 @@ export async function POST(request: Request) {
     }
 
     const repo = createUserRepository();
-    const user = await repo.create({ email, password });
+    await repo.create({ email, password });
 
     return NextResponse.json(
-      { message: 'User created successfully', userId: user.id },
-      { status: 201 }
+      { message: 'Registration request accepted' },
+      { status: 202 }
     );
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Registration failed';
 
-    if (message.includes('already exists')) {
+    if (isDuplicateEmailError(error)) {
       return NextResponse.json(
-        { error: 'A user with this email already exists' },
-        { status: 409 }
+        { message: 'Registration request accepted' },
+        { status: 202 }
       );
     }
 
