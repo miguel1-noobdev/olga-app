@@ -46,21 +46,18 @@ export function getFormulaStatusStyles(status: FormulaStatus): string {
 }
 
 export const LOT_STATUS_LABELS: Record<LotStatus, string> = {
-  planned: 'Planeado',
-  in_progress: 'En progreso',
-  completed: 'Completado',
-  cancelled: 'Cancelado',
+  in_production: 'En producción',
+  finalized: 'Finalizado',
+  discarded: 'Descartado',
 };
 
 export function getLotStatusStyles(status: LotStatus): string {
   switch (status) {
-    case 'completed':
+    case 'finalized':
       return 'bg-primary/15 text-primary border border-primary/20';
-    case 'in_progress':
+    case 'in_production':
       return 'bg-secondary/15 text-secondary border border-secondary/20';
-    case 'planned':
-      return 'bg-surface-container text-on-surface-variant border border-surface-border';
-    case 'cancelled':
+    case 'discarded':
       return 'bg-error/15 text-error border border-error/20';
     default:
       return 'bg-surface-container text-on-surface-variant border border-surface-border';

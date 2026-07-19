@@ -26,7 +26,7 @@ export function createEmptyLotForm(
   return {
     formulaId,
     targetBatchGrams: defaultTargetBatchGrams,
-    status: 'planned',
+    status: 'in_production',
     plannedAt: '',
     operationalObservations: '',
   };

@@ -7,12 +7,12 @@ import {
 
 describe('lot form contract', () => {
   describe('createEmptyLotForm', () => {
-    it('returns a planned lot seeded from the source formula defaults', () => {
+    it('returns an in-production lot seeded from the source formula defaults', () => {
       const form = createEmptyLotForm('formula-1', 500);
 
       expect(form.formulaId).toBe('formula-1');
       expect(form.targetBatchGrams).toBe(500);
-      expect(form.status).toBe('planned');
+      expect(form.status).toBe('in_production');
       expect(form.plannedAt).toBe('');
       expect(form.operationalObservations).toBe('');
     });
@@ -22,7 +22,7 @@ describe('lot form contract', () => {
     it('maps form values to the repository input shape', () => {
       const form = createEmptyLotForm('formula-1', 500);
       form.targetBatchGrams = 750;
-      form.status = 'in_progress';
+      form.status = 'in_production';
       form.plannedAt = '2026-04-15';
       form.operationalObservations = 'Use fresh distilled water';
 
@@ -30,7 +30,7 @@ describe('lot form contract', () => {
 
       expect(input.formulaId).toBe('formula-1');
       expect(input.targetBatchGrams).toBe(750);
-      expect(input.status).toBe('in_progress');
+      expect(input.status).toBe('in_production');
       expect(input.plannedAt).toEqual(new Date('2026-04-15'));
       expect(input.operationalObservations).toBe('Use fresh distilled water');
     });
@@ -97,7 +97,7 @@ describe('lot form contract', () => {
 
     it('rejects an invalid status value', () => {
       const form = createEmptyLotForm('formula-1', 500);
-      form.status = 'invalid-status' as unknown as 'planned';
+      form.status = 'invalid-status' as unknown as 'in_production';
 
       const result = validateMinimumLotForm(form);
 

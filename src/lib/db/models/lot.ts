@@ -5,16 +5,16 @@ import type {
   FormulaProcedureStep,
 } from '@/lib/formulas/formula-types';
 import type {
-  LotStatus,
+  LotStorageStatus,
   FormulaSnapshot,
   FormulaTechnicalDataSnapshot,
   LotFollowUp,
   LotFollowUpEntry,
 } from '@/lib/lots/lot-types';
-import { LOT_STATUSES } from '@/lib/lots/lot-types';
+import { LOT_STORAGE_STATUSES } from '@/lib/lots/lot-types';
 
-export type { LotStatus, FormulaSnapshot, FormulaTechnicalDataSnapshot, LotFollowUp, LotFollowUpEntry } from '@/lib/lots/lot-types';
-export { LOT_STATUSES } from '@/lib/lots/lot-types';
+export type { LotStorageStatus, FormulaSnapshot, FormulaTechnicalDataSnapshot, LotFollowUp, LotFollowUpEntry } from '@/lib/lots/lot-types';
+export { LOT_STORAGE_STATUSES } from '@/lib/lots/lot-types';
 
 export interface ILot extends Document {
   formulaId: Types.ObjectId;
@@ -22,7 +22,7 @@ export interface ILot extends Document {
   formulaVersion: string;
   lotNumber: number;
   lotCode: string;
-  status: LotStatus;
+  status: LotStorageStatus;
   targetBatchGrams: number;
   formulaSnapshot: FormulaSnapshot;
   followUp: LotFollowUp;
@@ -177,8 +177,8 @@ const LotSchema = new Schema<ILot>(
     },
     status: {
       type: String,
-      enum: LOT_STATUSES,
-      default: 'planned',
+      enum: LOT_STORAGE_STATUSES,
+      default: 'in_production',
       required: true,
     },
     targetBatchGrams: {
@@ -225,4 +225,17 @@ const LotSchema = new Schema<ILot>(
 
 LotSchema.index({ formulaId: 1, lotNumber: 1 }, { unique: true });
 
-export const LotModel: Model<ILot> = mongoose.models.Lot ?? mongoose.model<ILot>('Lot', LotSchema);
+const cachedLotModel = mongoose.models.Lot as Model<ILot> | undefined;
+const cachedStatusValues = (
+  cachedLotModel?.schema.path('status') as { enumValues?: string[] } | undefined
+)?.enumValues;
+
+if (
+  cachedLotModel &&
+  !LOT_STORAGE_STATUSES.every((status) => cachedStatusValues?.includes(status))
+) {
+  mongoose.deleteModel('Lot');
+}
+
+export const LotModel: Model<ILot> =
+  (mongoose.models.Lot as Model<ILot> | undefined) ?? mongoose.model<ILot>('Lot', LotSchema);

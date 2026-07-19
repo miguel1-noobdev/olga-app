@@ -18,6 +18,7 @@ vi.mock('@/lib/auth/current-user', () => ({ getCurrentUser: getCurrentUserMock }
 
 vi.mock('next/navigation', () => ({
   redirect: redirectMock,
+  usePathname: () => '/laboratorio',
 }));
 
 vi.mock('next-auth/react', () => ({

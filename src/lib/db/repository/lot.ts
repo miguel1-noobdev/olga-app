@@ -1,10 +1,12 @@
 import { LotModel, ILot } from '../models/lot';
 import { FormulaModel, IFormula } from '../models/formula';
+import { isLotStatus } from '@/lib/lots/lot-types';
 import type {
   LotRecord,
   CreateLotInput,
   UpdateLotInput,
   LotStatus,
+  LotStorageStatus,
   FormulaSnapshot,
   LotFollowUp,
 } from '@/lib/lots/lot-types';
@@ -26,9 +28,9 @@ export class LotLifecycleError extends Error {
   ) {
     super(
       reason === 'completed_freeze'
-        ? 'Lot production fields and snapshot are frozen once completed'
+        ? 'Lot production fields and snapshot are frozen once terminal'
         : reason === 'snapshot_regeneration_not_allowed'
-          ? 'Lot snapshots can only be regenerated while planned or cancelled'
+          ? 'Lot snapshots can only be regenerated while in production'
           : 'Lot not found'
     );
     this.name = 'LotLifecycleError';
@@ -36,8 +38,12 @@ export class LotLifecycleError extends Error {
 }
 
 export class LotValidationError extends Error {
-  constructor(public readonly reason: 'target_batch_grams_invalid') {
-    super('targetBatchGrams must be greater than 0');
+  constructor(public readonly reason: 'target_batch_grams_invalid' | 'lot_status_invalid') {
+    super(
+      reason === 'target_batch_grams_invalid'
+        ? 'targetBatchGrams must be greater than 0'
+        : 'Estado de lote no válido'
+    );
     this.name = 'LotValidationError';
   }
 }
@@ -111,6 +117,31 @@ function toSnapshot(plain: Record<string, unknown>): FormulaSnapshot {
   };
 }
 
+function toOperationalStatus(status: LotStorageStatus): LotStatus {
+  switch (status) {
+    case 'planned':
+    case 'in_progress':
+      return 'in_production';
+    case 'completed':
+      return 'finalized';
+    case 'cancelled':
+      return 'discarded';
+    default:
+      return status;
+  }
+}
+
+function toStoredStatuses(status: LotStatus): LotStorageStatus[] {
+  switch (status) {
+    case 'in_production':
+      return ['in_production', 'planned', 'in_progress'];
+    case 'finalized':
+      return ['finalized', 'completed'];
+    case 'discarded':
+      return ['discarded', 'cancelled'];
+  }
+}
+
 function toLotRecord(doc: ILot): LotRecord {
   const plain = JSON.parse(JSON.stringify(doc.toObject ? doc.toObject() : doc));
 
@@ -121,7 +152,7 @@ function toLotRecord(doc: ILot): LotRecord {
     formulaVersion: plain.formulaVersion,
     lotNumber: plain.lotNumber,
     lotCode: plain.lotCode,
-    status: plain.status,
+    status: toOperationalStatus(plain.status as LotStorageStatus),
     targetBatchGrams: plain.targetBatchGrams,
     formulaSnapshot: toSnapshot(plain.formulaSnapshot),
     followUp: {
@@ -258,6 +289,10 @@ export function createLotRepository(): LotRepository {
         throw new LotValidationError('target_batch_grams_invalid');
       }
 
+      if (input.status !== undefined && !isLotStatus(input.status)) {
+        throw new LotValidationError('lot_status_invalid');
+      }
+
       const maxRetries = 5;
       let lastError: Error | undefined;
 
@@ -277,13 +312,13 @@ export function createLotRepository(): LotRepository {
             formulaVersion: formula.formulaVersion,
             lotNumber,
             lotCode,
-            status: input.status ?? 'planned',
+            status: input.status ?? 'in_production',
             targetBatchGrams: input.targetBatchGrams,
             formulaSnapshot: snapshot,
             operationalObservations: input.operationalObservations,
             followUp: input.followUp,
             plannedAt: input.plannedAt,
-            startedAt: input.startedAt,
+            startedAt: new Date(),
             completedAt: input.completedAt,
           });
 
@@ -325,7 +360,7 @@ export function createLotRepository(): LotRepository {
     },
 
     async findByStatus(status: LotStatus): Promise<LotRecord[]> {
-      const lots = await LotModel.find({ status }).sort({ lotCode: 1 });
+      const lots = await LotModel.find({ status: { $in: toStoredStatuses(status) } }).sort({ lotCode: 1 });
       return lots.map(toLotRecord);
     },
 
@@ -344,7 +379,13 @@ export function createLotRepository(): LotRepository {
         input.startedAt !== undefined ||
         input.completedAt !== undefined;
 
-      if (lot.status === 'completed' && hasProductionChanges) {
+      const status = toOperationalStatus(lot.status);
+
+      if (input.status !== undefined && !isLotStatus(input.status)) {
+        throw new LotValidationError('lot_status_invalid');
+      }
+
+      if ((status === 'finalized' || status === 'discarded') && hasProductionChanges) {
         throw new LotLifecycleError('completed_freeze');
       }
 
@@ -353,13 +394,20 @@ export function createLotRepository(): LotRepository {
 
       if (input.status !== undefined) {
         $set.status = input.status;
+
+        if (
+          (input.status === 'finalized' || input.status === 'discarded') &&
+          input.completedAt === undefined
+        ) {
+          $set.completedAt = new Date(new Date().toISOString().slice(0, 10));
+        }
       }
       if (input.targetBatchGrams !== undefined) {
         if (input.targetBatchGrams <= 0) {
           throw new LotValidationError('target_batch_grams_invalid');
         }
 
-        if (lot.status !== 'planned' && lot.status !== 'cancelled') {
+        if (status !== 'in_production') {
           throw new LotLifecycleError('snapshot_regeneration_not_allowed');
         }
 
@@ -392,7 +440,7 @@ export function createLotRepository(): LotRepository {
 
       const updateFilter: Record<string, unknown> = { _id: id };
       if (hasProductionChanges) {
-        updateFilter.status = { $ne: 'completed' };
+        updateFilter.status = { $nin: ['finalized', 'discarded', 'completed', 'cancelled'] };
       }
 
       const updated = await LotModel.findOneAndUpdate(updateFilter, updateOps, {

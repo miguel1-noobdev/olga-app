@@ -40,7 +40,7 @@ describe('LotForm', () => {
     expect(screen.getByText('CF-001 — v1.0')).toBeInTheDocument();
     expect(screen.getByText('500 g')).toBeInTheDocument();
     expect(screen.getByRole('spinbutton', { name: /lote objetivo/i })).toHaveValue(500);
-    expect(screen.getByRole('combobox', { name: /estado/i })).toHaveValue('planned');
+    expect(screen.getByRole('combobox', { name: /estado/i })).toHaveValue('in_production');
     expect(screen.getByLabelText(/planificado el/i)).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: /observaciones operativas/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /crear lote/i })).toBeInTheDocument();
@@ -74,7 +74,7 @@ describe('LotForm', () => {
     await userEvent.clear(targetBatchInput);
     await userEvent.type(targetBatchInput, '750');
 
-    await userEvent.selectOptions(screen.getByRole('combobox', { name: /estado/i }), 'in_progress');
+    await userEvent.selectOptions(screen.getByRole('combobox', { name: /estado/i }), 'finalized');
     await userEvent.type(screen.getByLabelText(/planificado el/i), '2026-04-20');
     await userEvent.type(
       screen.getByRole('textbox', { name: /observaciones operativas/i }),
@@ -90,7 +90,7 @@ describe('LotForm', () => {
       expect.objectContaining({
         formulaId: 'formula-1',
         targetBatchGrams: 750,
-        status: 'in_progress',
+        status: 'finalized',
         plannedAt: '2026-04-20',
         operationalObservations: 'Use fresh water',
       })

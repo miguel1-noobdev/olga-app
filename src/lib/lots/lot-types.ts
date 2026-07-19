@@ -3,14 +3,29 @@ import {
   FormulaProcedureStep,
 } from '@/lib/formulas/formula-types';
 
-export type LotStatus = 'planned' | 'in_progress' | 'completed' | 'cancelled';
+export type LotStatus = 'in_production' | 'finalized' | 'discarded';
 
-export const LOT_STATUSES: LotStatus[] = [
+export type LegacyLotStatus = 'planned' | 'in_progress' | 'completed' | 'cancelled';
+
+export type LotStorageStatus = LotStatus | LegacyLotStatus;
+
+export const LOT_STATUSES = [
+  'in_production',
+  'finalized',
+  'discarded',
+] as const satisfies readonly LotStatus[];
+
+export const LOT_STORAGE_STATUSES = [
+  ...LOT_STATUSES,
   'planned',
   'in_progress',
   'completed',
   'cancelled',
-];
+] as const satisfies readonly LotStorageStatus[];
+
+export function isLotStatus(status: unknown): status is LotStatus {
+  return typeof status === 'string' && LOT_STATUSES.includes(status as LotStatus);
+}
 
 export interface FormulaTechnicalDataSnapshot {
   productionTemperatureCelsius?: number;

@@ -266,14 +266,16 @@ export default function FormulaForm({
     const result = await submitFormula(values);
     setIsSubmitting(false);
 
-    if (!result.success) {
-      if ('errors' in result) {
-        setErrors(result.errors);
-      } else {
-        setSubmitError(result.error);
-      }
+    if (result.success) {
+      router.push(result.redirectTo);
+      return;
     }
-    // Success is handled by the server action redirect.
+
+    if ('errors' in result) {
+      setErrors(result.errors);
+    } else {
+      setSubmitError(result.error);
+    }
   }
 
   function FieldError({ name }: { name: keyof FormulaFormValidationError }) {
@@ -283,7 +285,7 @@ export default function FormulaForm({
   }
 
   const inputBaseClassName =
-    'w-full px-4 py-3 bg-surface border border-surface-border rounded-lg text-on-surface placeholder-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors';
+    'w-full min-w-0 bg-surface-container-high border border-outline-variant rounded px-3 py-2.5 text-sm text-on-surface placeholder-on-surface-variant focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors';
 
   const inputErrorClassName =
     'border-error focus:border-error focus:ring-error/50';
@@ -294,161 +296,251 @@ export default function FormulaForm({
       : inputBaseClassName;
   }
 
-  const labelClassName = 'block text-sm font-medium text-on-surface mb-2';
+  const labelClassName =
+    'mb-1 block text-xs font-label uppercase tracking-wide text-on-surface-variant';
+  const cardClassName =
+    'min-w-0 overflow-hidden rounded-lg border border-outline-variant bg-surface-container p-5 shadow-lg md:p-6';
+  const headingClassName =
+    'flex items-center border-b border-outline-variant pb-3 text-lg font-bold uppercase tracking-wide text-primary';
 
   return (
-    <form onSubmit={handleSubmit} aria-label={formLabel} className="space-y-8">
+    <form onSubmit={handleSubmit} aria-label={formLabel} className="w-full min-w-0 space-y-6">
       {submitError && (
         <div
-          className="rounded-lg bg-error-container border border-error/30 p-4 text-sm text-on-error-container"
+          className="rounded border border-error/30 bg-error-container p-4 text-sm text-on-error-container"
           role="alert"
         >
           {submitError}
         </div>
       )}
 
-      <fieldset className="bg-surface-container border border-surface-border rounded-2xl p-6 sm:p-8 space-y-6">
-        <legend className="font-headline text-xl text-on-surface px-2">Identidad</legend>
+      <fieldset className={cardClassName}>
+        <legend className="sr-only">Información básica de la fórmula</legend>
+        <h2 className={headingClassName}>
+          <span className="material-symbols-outlined mr-2 text-primary" aria-hidden="true">
+            science
+          </span>
+          Información básica de la fórmula
+        </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div>
-            <label htmlFor="productName" className={labelClassName}>
-              Nombre del producto
-            </label>
-            <input
-              id="productName"
-              type="text"
-              value={values.productName}
-              onChange={(event) => updateField('productName', event.target.value)}
-              className={inputClassName('productName')}
-              placeholder="p. ej., Crema de lavanda"
-            />
-            <FieldError name="productName" />
-          </div>
+        <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <fieldset className="contents">
+            <legend className="sr-only">Identidad</legend>
+            <div className="md:col-span-2 lg:col-span-2">
+              <label htmlFor="productName" className={labelClassName}>
+                Nombre del producto
+              </label>
+              <input
+                id="productName"
+                type="text"
+                value={values.productName}
+                onChange={(event) => updateField('productName', event.target.value)}
+                className={inputClassName('productName')}
+                placeholder="p. ej., Crema de lavanda"
+              />
+              <FieldError name="productName" />
+            </div>
 
-          <div>
-            <label htmlFor="formulaCode" className={labelClassName}>
-              Código de fórmula
-            </label>
-            <input
-              id="formulaCode"
-              type="text"
-              value={values.formulaCode}
-              onChange={(event) => updateField('formulaCode', event.target.value)}
-              className={inputClassName('formulaCode')}
-              placeholder="p. ej., CF-001"
-            />
-            <FieldError name="formulaCode" />
-          </div>
+            <div>
+              <label htmlFor="formulaCode" className={labelClassName}>
+                Código de fórmula
+              </label>
+              <input
+                id="formulaCode"
+                type="text"
+                value={values.formulaCode}
+                onChange={(event) => updateField('formulaCode', event.target.value)}
+                className={inputClassName('formulaCode')}
+                placeholder="p. ej., CF-001"
+              />
+              <FieldError name="formulaCode" />
+            </div>
 
-          <div>
-            <label htmlFor="formulaCreatedAt" className={labelClassName}>
-              Fecha de creación
-            </label>
-            <input
-              id="formulaCreatedAt"
-              type="date"
-              value={values.formulaCreatedAt}
-              onChange={(event) => updateField('formulaCreatedAt', event.target.value)}
-              className={inputClassName('formulaCreatedAt')}
-            />
-            <FieldError name="formulaCreatedAt" />
-          </div>
+            <div>
+              <label htmlFor="formulaVersion" className={labelClassName}>
+                Versión
+              </label>
+              <input
+                id="formulaVersion"
+                type="text"
+                value={values.formulaVersion}
+                onChange={(event) => updateField('formulaVersion', event.target.value)}
+                className={inputClassName('formulaVersion')}
+              />
+              <FieldError name="formulaVersion" />
+            </div>
 
-          <div>
-            <label htmlFor="formulaVersion" className={labelClassName}>
-              Versión de fórmula
-            </label>
-            <input
-              id="formulaVersion"
-              type="text"
-              value={values.formulaVersion}
-              onChange={(event) => updateField('formulaVersion', event.target.value)}
-              className={inputClassName('formulaVersion')}
-            />
-            <FieldError name="formulaVersion" />
-          </div>
+            <div>
+              <label htmlFor="formulaCreatedAt" className={labelClassName}>
+                Fecha de elaboración
+              </label>
+              <input
+                id="formulaCreatedAt"
+                type="date"
+                value={values.formulaCreatedAt}
+                onChange={(event) => updateField('formulaCreatedAt', event.target.value)}
+                className={inputClassName('formulaCreatedAt')}
+              />
+              <FieldError name="formulaCreatedAt" />
+            </div>
+          </fieldset>
+
+          <fieldset className="contents">
+            <legend className="sr-only">Clasificación</legend>
+            <div className="md:col-span-2 lg:col-span-2">
+              <label htmlFor="productType" className={labelClassName}>
+                Tipo de producto
+              </label>
+              <input
+                id="productType"
+                type="text"
+                value={values.productType}
+                onChange={(event) => updateField('productType', event.target.value)}
+                className={inputClassName('productType')}
+                placeholder="p. ej., Crema"
+              />
+              <FieldError name="productType" />
+            </div>
+
+            <div className="md:col-span-2 lg:col-span-2">
+              <label htmlFor="status" className={labelClassName}>
+                Estado
+              </label>
+              <select
+                id="status"
+                value={values.status}
+                onChange={(event) => updateField('status', event.target.value as FormulaStatus)}
+                className={inputBaseClassName}
+              >
+                {FORMULA_STATUSES.map((status) => (
+                  <option key={status} value={status}>
+                    {FORMULA_STATUS_LABELS[status]}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </fieldset>
+
+          <fieldset className="contents">
+            <legend className="sr-only">Tamaño del lote</legend>
+            <div>
+              <label htmlFor="targetBatchGrams" className={labelClassName}>
+                Lote objetivo (g)
+              </label>
+              <input
+                id="targetBatchGrams"
+                type="number"
+                min={0}
+                step={1}
+                value={values.targetBatchGrams}
+                onChange={(event) =>
+                  updateField('targetBatchGrams', event.target.value === '' ? '' : Number(event.target.value))
+                }
+                className={inputClassName('targetBatchGrams')}
+                placeholder="p. ej., 500"
+              />
+              <FieldError name="targetBatchGrams" />
+            </div>
+          </fieldset>
+
+          <fieldset className="contents md:col-span-2 lg:col-span-2">
+            <legend className="sr-only">Objetivos del producto</legend>
+            <div>
+              <div className="mb-1 flex items-center justify-between gap-3">
+                <h3 className="text-xs font-label uppercase tracking-wide text-on-surface-variant">
+                  Objetivo del producto
+                </h3>
+              </div>
+              {values.productObjectives.length === 0 ? (
+                <p className="text-sm text-on-surface-variant">Todavía no se agregaron objetivos.</p>
+              ) : (
+                <ul className="space-y-3">
+                  {values.productObjectives.map((objective, index) => (
+                    <li
+                      key={objective.id}
+                      className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start"
+                    >
+                      <input
+                        type="text"
+                        value={objective.value}
+                        onChange={(event) => updateProductObjective(index, event.target.value)}
+                        placeholder="p. ej., Hidratante"
+                        aria-label={`Objetivo del producto ${index + 1}`}
+                        className={inputBaseClassName}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeProductObjective(index)}
+                        className="w-full rounded border border-outline-variant px-3 py-2.5 text-sm text-error transition-colors hover:bg-error-container hover:text-on-error-container sm:w-auto"
+                        aria-label={`Eliminar objetivo del producto ${index + 1}`}
+                      >
+                        Eliminar
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <button
+                type="button"
+                onClick={addProductObjective}
+                className="mt-3 inline-flex items-center gap-1 rounded border border-primary-dim px-3 py-2 text-sm text-primary transition-colors hover:bg-surface-container-high"
+              >
+                <span className="material-symbols-outlined text-base" aria-hidden="true">
+                  add
+                </span>
+                + Agregar objetivo del producto
+              </button>
+            </div>
+          </fieldset>
         </div>
       </fieldset>
 
-      <fieldset className="bg-surface-container border border-surface-border rounded-2xl p-6 sm:p-8 space-y-6">
-        <legend className="font-headline text-xl text-on-surface px-2">Clasificación</legend>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div>
-            <label htmlFor="productType" className={labelClassName}>
-              Tipo de producto
-            </label>
-            <input
-              id="productType"
-              type="text"
-              value={values.productType}
-              onChange={(event) => updateField('productType', event.target.value)}
-              className={inputClassName('productType')}
-              placeholder="p. ej., Crema"
-            />
-            <FieldError name="productType" />
-          </div>
-
-          <div>
-            <label htmlFor="status" className={labelClassName}>
-              Estado
-            </label>
-            <select
-              id="status"
-              value={values.status}
-              onChange={(event) => updateField('status', event.target.value as FormulaStatus)}
-              className={inputBaseClassName}
-            >
-              {FORMULA_STATUSES.map((status) => (
-                <option key={status} value={status}>
-                  {FORMULA_STATUS_LABELS[status]}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-      </fieldset>
-
-      <fieldset className="bg-surface-container border border-surface-border rounded-2xl p-6 sm:p-8 space-y-6">
-        <legend className="font-headline text-xl text-on-surface px-2">Tamaño del lote</legend>
-
-        <div>
-          <label htmlFor="targetBatchGrams" className={labelClassName}>
-            Lote objetivo (gramos)
-          </label>
-          <input
-            id="targetBatchGrams"
-            type="number"
-            min={0}
-            step={1}
-            value={values.targetBatchGrams}
-            onChange={(event) => updateField('targetBatchGrams', event.target.value === '' ? '' : Number(event.target.value))}
-            className={`${inputClassName('targetBatchGrams')} sm:w-1/2`}
-            placeholder="p. ej., 500"
-          />
-          <FieldError name="targetBatchGrams" />
-        </div>
-      </fieldset>
-
-      <fieldset className="bg-surface-container border border-surface-border rounded-2xl p-6 sm:p-8 space-y-8">
-        <legend className="font-headline text-xl text-on-surface px-2">Fases e ingredientes</legend>
+      <fieldset className={cardClassName}>
+        <legend className="sr-only">Fases e ingredientes</legend>
+        <h2 className={`${headingClassName} text-secondary`}>
+          <span className="material-symbols-outlined mr-2 text-sm" aria-hidden="true">
+            water_drop
+          </span>
+          Fases e ingredientes
+        </h2>
 
         <FieldError name="phases" />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="mt-5 space-y-4">
           {(['aqueous', 'oil', 'actives'] as FormulaPhaseKey[]).map((phase) => (
-            <section key={phase} aria-labelledby={`${phase}-heading`} className="space-y-4">
-              <h3 id={`${phase}-heading`} className="font-headline text-lg text-on-surface">
-                {PHASE_LABELS[phase]}
-              </h3>
+            <section
+              key={phase}
+              aria-labelledby={`${phase}-heading`}
+              className="min-w-0 rounded border border-outline-variant/50 bg-surface-container-lowest p-4"
+            >
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <h3
+                  id={`${phase}-heading`}
+                  className="font-label text-sm font-bold uppercase tracking-wide text-on-surface"
+                >
+                  {PHASE_LABELS[phase]}
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => addIngredient(phase)}
+                  className="inline-flex items-center gap-1 text-xs text-on-surface-variant transition-colors hover:text-primary"
+                >
+                  <span className="material-symbols-outlined text-sm" aria-hidden="true">
+                    add
+                  </span>
+                  Fila
+                </button>
+              </div>
 
               {values.phases[phase].length === 0 ? (
                 <p className="text-sm text-on-surface-variant">Todavía no se agregaron ingredientes.</p>
               ) : (
                 <ul className="space-y-3">
                   {values.phases[phase].map((ingredient, index) => (
-                    <li key={ingredient.id} className="flex gap-3 items-start">
+                    <li
+                      key={ingredient.id}
+                      className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_7rem_auto] sm:items-end"
+                    >
                       <input
                         type="text"
                         value={ingredient.ingredient}
@@ -469,12 +561,12 @@ export default function FormulaForm({
                         }
                         placeholder="g"
                         aria-label={`Gramos del ingrediente ${index + 1} de la ${PHASE_LABELS[phase].toLowerCase()}`}
-                        className={`${inputBaseClassName} w-28 shrink-0`}
+                        className={inputBaseClassName}
                       />
                       <button
                         type="button"
                         onClick={() => removeIngredient(phase, index)}
-                        className="px-3 py-3 text-sm text-error hover:text-on-error-container rounded-lg border border-surface-border hover:bg-error-container transition-colors"
+                        className="w-full rounded border border-outline-variant px-3 py-2.5 text-sm text-error transition-colors hover:bg-error-container hover:text-on-error-container sm:w-auto"
                         aria-label={`Eliminar ingrediente ${index + 1} de la ${PHASE_LABELS[phase].toLowerCase()}`}
                       >
                         Eliminar
@@ -487,7 +579,7 @@ export default function FormulaForm({
               <button
                 type="button"
                 onClick={() => addIngredient(phase)}
-                className="text-sm font-medium text-primary hover:text-primary/80 underline"
+                className="mt-3 text-sm font-medium text-primary underline hover:text-primary/80"
               >
                 + Agregar ingrediente a {PHASE_LABELS[phase].toLowerCase()}
               </button>
@@ -496,91 +588,73 @@ export default function FormulaForm({
         </div>
       </fieldset>
 
-      <fieldset className="bg-surface-container border border-surface-border rounded-2xl p-6 sm:p-8 space-y-6">
-        <legend className="font-headline text-xl text-on-surface px-2">Procedimiento</legend>
-
-        <FieldError name="procedureSteps" />
-
-        <ol className="space-y-4">
-          {values.procedureSteps.map((step, index) => (
-            <li key={step.id} className="flex gap-3 items-start">
-              <span className="mt-3 w-6 h-6 rounded-full bg-primary/10 text-primary text-sm font-medium flex items-center justify-center shrink-0">
-                {step.stepNumber}
+      <div className="grid min-w-0 grid-cols-1 gap-6 lg:grid-cols-2">
+        <fieldset className={cardClassName}>
+          <legend className="sr-only">Procedimiento</legend>
+          <div className="flex items-center justify-between gap-3 border-b border-outline-variant pb-3">
+            <h2 className="flex items-center font-headline text-lg font-bold uppercase tracking-wide text-tertiary">
+              <span className="material-symbols-outlined mr-2 text-sm" aria-hidden="true">
+                format_list_numbered
               </span>
-              <textarea
-                value={step.instruction}
-                onChange={(event) => updateProcedureStep(index, event.target.value)}
-                placeholder={`Instrucción del paso ${step.stepNumber}`}
-                aria-label={`Paso de procedimiento ${step.stepNumber}`}
-                rows={2}
-                className={inputBaseClassName}
-              />
-              <button
-                type="button"
-                onClick={() => removeProcedureStep(index)}
-                className="px-3 py-3 text-sm text-error hover:text-on-error-container rounded-lg border border-surface-border hover:bg-error-container transition-colors"
-                aria-label={`Eliminar paso de procedimiento ${step.stepNumber}`}
+              Procedimiento
+            </h2>
+            <button
+              type="button"
+              onClick={addProcedureStep}
+              aria-label="+ Agregar paso de procedimiento"
+              className="inline-flex items-center gap-1 rounded border border-primary-dim px-2 py-1 text-xs text-primary transition-colors hover:bg-surface-container-high"
+            >
+              <span className="material-symbols-outlined text-sm" aria-hidden="true">
+                add
+              </span>
+              Paso
+            </button>
+          </div>
+
+          <FieldError name="procedureSteps" />
+
+          <ol className="mt-5 space-y-3">
+            {values.procedureSteps.map((step, index) => (
+              <li
+                key={step.id}
+                className="grid grid-cols-1 gap-3 sm:grid-cols-[1.5rem_minmax(0,1fr)_auto] sm:items-start"
               >
-                Eliminar
-              </button>
-            </li>
-          ))}
-        </ol>
-
-        <button
-          type="button"
-          onClick={addProcedureStep}
-          className="text-sm font-medium text-primary hover:text-primary/80 underline"
-        >
-          + Agregar paso de procedimiento
-        </button>
-      </fieldset>
-
-      <fieldset className="bg-surface-container border border-surface-border rounded-2xl p-6 sm:p-8 space-y-6">
-        <legend className="font-headline text-xl text-on-surface px-2">Objetivos del producto</legend>
-
-        {values.productObjectives.length === 0 ? (
-          <p className="text-sm text-on-surface-variant">Todavía no se agregaron objetivos.</p>
-        ) : (
-          <ul className="space-y-3">
-            {values.productObjectives.map((objective, index) => (
-              <li key={objective.id} className="flex gap-3 items-start">
-                <input
-                  type="text"
-                  value={objective.value}
-                  onChange={(event) => updateProductObjective(index, event.target.value)}
-                  placeholder="p. ej., Hidratante"
-                  aria-label={`Objetivo del producto ${index + 1}`}
+                <span className="mt-3 flex h-6 w-6 shrink-0 items-center justify-center rounded bg-surface-container-high text-sm font-medium text-on-surface-variant">
+                  {step.stepNumber}
+                </span>
+                <textarea
+                  value={step.instruction}
+                  onChange={(event) => updateProcedureStep(index, event.target.value)}
+                  placeholder={`Instrucción del paso ${step.stepNumber}`}
+                  aria-label={`Paso de procedimiento ${step.stepNumber}`}
+                  rows={2}
                   className={inputBaseClassName}
                 />
                 <button
                   type="button"
-                  onClick={() => removeProductObjective(index)}
-                  className="px-3 py-3 text-sm text-error hover:text-on-error-container rounded-lg border border-surface-border hover:bg-error-container transition-colors"
-                  aria-label={`Eliminar objetivo del producto ${index + 1}`}
+                  onClick={() => removeProcedureStep(index)}
+                  className="w-full rounded border border-outline-variant px-3 py-2.5 text-sm text-error transition-colors hover:bg-error-container hover:text-on-error-container sm:w-auto"
+                  aria-label={`Eliminar paso de procedimiento ${step.stepNumber}`}
                 >
                   Eliminar
                 </button>
               </li>
             ))}
-          </ul>
-        )}
+          </ol>
+        </fieldset>
 
-        <button
-          type="button"
-          onClick={addProductObjective}
-          className="text-sm font-medium text-primary hover:text-primary/80 underline"
-        >
-          + Agregar objetivo del producto
-        </button>
-      </fieldset>
+        <fieldset className={cardClassName}>
+          <legend className="sr-only">Datos técnicos</legend>
+          <h2 className={headingClassName}>
+            <span className="material-symbols-outlined mr-2 text-sm" aria-hidden="true">
+              tune
+            </span>
+            Datos técnicos
+          </h2>
 
-      <fieldset className="bg-surface-container border border-surface-border rounded-2xl p-6 sm:p-8 space-y-6">
-        <legend className="font-headline text-xl text-on-surface px-2">Datos técnicos</legend>
+          <FieldError name="technicalData" />
 
-        <FieldError name="technicalData" />
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor="technicalData-finalPh" className={labelClassName}>
               pH final
@@ -680,13 +754,20 @@ export default function FormulaForm({
               className={inputBaseClassName}
             />
           </div>
-        </div>
-      </fieldset>
+          </div>
+        </fieldset>
+      </div>
 
-      <fieldset className="bg-surface-container border border-surface-border rounded-2xl p-6 sm:p-8 space-y-6">
-        <legend className="font-headline text-xl text-on-surface px-2">Evaluación del producto</legend>
+      <fieldset className={cardClassName}>
+        <legend className="sr-only">Evaluación del producto</legend>
+        <h2 className={headingClassName}>
+          <span className="material-symbols-outlined mr-2 text-sm" aria-hidden="true">
+            fact_check
+          </span>
+          Evaluación del producto
+        </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {(
             [
               ['texture', 'Textura'],
@@ -714,13 +795,32 @@ export default function FormulaForm({
         </div>
       </fieldset>
 
-      <fieldset className="bg-surface-container border border-surface-border rounded-2xl p-6 sm:p-8 space-y-6">
-        <legend className="font-headline text-xl text-on-surface px-2">Prueba de uso</legend>
+      <div className="grid min-w-0 grid-cols-1 gap-6 lg:grid-cols-2">
+        <fieldset className={cardClassName}>
+          <legend className="sr-only">Prueba de uso</legend>
+          <div className="flex items-center justify-between gap-3 border-b border-outline-variant pb-3">
+            <h2 className="flex items-center font-headline text-lg font-bold uppercase tracking-wide text-primary">
+              <span className="material-symbols-outlined mr-2 text-sm" aria-hidden="true">
+                group
+              </span>
+              Prueba de uso
+            </h2>
+            <button
+              type="button"
+              onClick={addUseTestEntry}
+              aria-label="+ Agregar entrada de prueba de uso"
+              className="inline-flex items-center gap-1 rounded border border-primary-dim px-2 py-1 text-xs text-primary transition-colors hover:bg-surface-container-high"
+            >
+              <span className="material-symbols-outlined text-sm" aria-hidden="true">
+                add
+              </span>
+              Fila
+            </button>
+          </div>
 
-        <FieldError name="useTest" />
+          <FieldError name="useTest" />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div>
+          <div className="mb-5 mt-5 border-b border-outline-variant/30 pb-4">
             <label htmlFor="useTest-approxExpirationDate" className={labelClassName}>
               Vencimiento aproximado
             </label>
@@ -729,58 +829,58 @@ export default function FormulaForm({
               type="date"
               value={values.useTest.approxExpirationDate}
               onChange={(event) => updateUseTest({ approxExpirationDate: event.target.value })}
-              className={inputBaseClassName}
+              className={`${inputBaseClassName} sm:w-1/2`}
             />
           </div>
-        </div>
 
-        {values.useTest.entries.length === 0 ? (
-          <p className="text-sm text-on-surface-variant">Todavía no se agregaron entradas de prueba.</p>
-        ) : (
-          <ul className="space-y-4">
-            {values.useTest.entries.map((entry, index) => (
-              <li key={entry.id} className="flex gap-3 items-start">
-                <input
-                  type="date"
-                  value={entry.date}
-                  onChange={(event) => updateUseTestEntry(index, { date: event.target.value })}
-                  aria-label={`Fecha de la entrada ${index + 1} de prueba de uso`}
-                  className={`${inputBaseClassName} w-44 shrink-0`}
-                />
-                <textarea
-                  value={entry.note}
-                  onChange={(event) => updateUseTestEntry(index, { note: event.target.value })}
-                  placeholder="Nota de observación"
-                  aria-label={`Nota de la entrada ${index + 1} de prueba de uso`}
-                  rows={2}
-                  className={inputBaseClassName}
-                />
-                <button
-                  type="button"
-                  onClick={() => removeUseTestEntry(index)}
-                  className="px-3 py-3 text-sm text-error hover:text-on-error-container rounded-lg border border-surface-border hover:bg-error-container transition-colors"
-                  aria-label={`Eliminar entrada ${index + 1} de prueba de uso`}
+          {values.useTest.entries.length === 0 ? (
+            <p className="text-sm text-on-surface-variant">Todavía no se agregaron entradas de prueba.</p>
+          ) : (
+            <ul className="space-y-3">
+              {values.useTest.entries.map((entry, index) => (
+                <li
+                  key={entry.id}
+                  className="grid grid-cols-1 gap-3 sm:grid-cols-[11rem_minmax(0,1fr)_auto] sm:items-start"
                 >
-                  Eliminar
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
+                  <input
+                    type="date"
+                    value={entry.date}
+                    onChange={(event) => updateUseTestEntry(index, { date: event.target.value })}
+                    aria-label={`Fecha de la entrada ${index + 1} de prueba de uso`}
+                    className={inputBaseClassName}
+                  />
+                  <textarea
+                    value={entry.note}
+                    onChange={(event) => updateUseTestEntry(index, { note: event.target.value })}
+                    placeholder="Nota de observación"
+                    aria-label={`Nota de la entrada ${index + 1} de prueba de uso`}
+                    rows={2}
+                    className={inputBaseClassName}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeUseTestEntry(index)}
+                    className="w-full rounded border border-outline-variant px-3 py-2.5 text-sm text-error transition-colors hover:bg-error-container hover:text-on-error-container sm:w-auto"
+                    aria-label={`Eliminar entrada ${index + 1} de prueba de uso`}
+                  >
+                    Eliminar
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </fieldset>
 
-        <button
-          type="button"
-          onClick={addUseTestEntry}
-          className="text-sm font-medium text-primary hover:text-primary/80 underline"
-        >
-          + Agregar entrada de prueba de uso
-        </button>
-      </fieldset>
+        <fieldset className={cardClassName}>
+          <legend className="sr-only">INCI</legend>
+          <h2 className={`${headingClassName} text-primary`}>
+            <span className="material-symbols-outlined mr-2 text-sm" aria-hidden="true">
+              inventory_2
+            </span>
+            INCI / Propiedades
+          </h2>
 
-      <fieldset className="bg-surface-container border border-surface-border rounded-2xl p-6 sm:p-8 space-y-6">
-        <legend className="font-headline text-xl text-on-surface px-2">INCI</legend>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
           {(
             [
               ['function', 'Función'],
@@ -805,37 +905,47 @@ export default function FormulaForm({
               />
             </div>
           ))}
-        </div>
-      </fieldset>
+          </div>
+        </fieldset>
+      </div>
 
-      <fieldset className="bg-surface-container border border-surface-border rounded-2xl p-6 sm:p-8 space-y-6">
-        <legend className="font-headline text-xl text-on-surface px-2">Observaciones finales</legend>
+      <fieldset className={cardClassName}>
+        <legend className="sr-only">Observaciones finales</legend>
+        <h2 className={`${headingClassName} text-secondary-fixed-dim`}>
+          <span className="material-symbols-outlined mr-2 text-sm" aria-hidden="true">
+            speaker_notes
+          </span>
+          Observaciones finales
+        </h2>
 
         <textarea
           id="finalObservations"
           value={values.finalObservations}
           onChange={(event) => updateField('finalObservations', event.target.value)}
           rows={4}
-          className={inputBaseClassName}
+          className={`${inputBaseClassName} mt-5 resize-y`}
           placeholder="Notas finales sobre la fórmula"
           aria-label="Observaciones finales"
         />
       </fieldset>
 
-      <div className="flex flex-col sm:flex-row gap-4 pt-4">
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="px-8 py-3 bg-primary text-on-primary rounded-full font-label text-sm font-bold uppercase tracking-wider hover:opacity-90 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {submitButtonLabel}
-        </button>
+      <div className="mt-8 flex flex-col items-stretch gap-4 border-t border-outline-variant pt-6 sm:flex-row sm:items-center sm:justify-end">
         <button
           type="button"
           onClick={() => router.back()}
-          className="px-8 py-3 bg-surface-container-high text-on-surface border border-surface-border rounded-full font-label text-sm font-bold uppercase tracking-wider hover:bg-surface-container-highest transition-all"
+          className="rounded border border-primary-dim bg-transparent px-6 py-2.5 text-sm font-bold uppercase tracking-wider text-primary transition-colors hover:bg-surface-container-high"
         >
           Cancelar
+        </button>
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="inline-flex items-center justify-center rounded bg-primary-container px-8 py-2.5 text-sm font-bold uppercase tracking-wider text-on-primary-container transition-all hover:bg-primary hover:shadow-[0_0_15px_rgba(0,241,253,0.3)] disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <span className="material-symbols-outlined mr-2 text-sm" aria-hidden="true">
+            save
+          </span>
+          {submitButtonLabel}
         </button>
       </div>
     </form>

@@ -22,25 +22,30 @@ interface PageProps {
 
 function IdentitySection({ lot }: { lot: LotRecord }) {
   return (
-    <section className="bg-surface-container border border-surface-border rounded-2xl p-8">
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+    <section className="bg-surface-container border border-[#B6FF00] rounded-2xl p-8 shadow-[0_0_24px_rgba(182,255,0,0.35)]">
+      <div data-testid="lot-detail-summary" className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
         <div>
-          <h1 className="font-headline text-3xl text-on-surface mb-2">{lot.lotCode}</h1>
-          <p className="font-body text-sm text-on-surface-variant">Número de lote {lot.lotNumber}</p>
+          <p className="font-label text-sm font-semibold uppercase tracking-wider text-primary mb-2">
+            Número de Lote
+          </p>
+          <h1 className="font-headline text-3xl text-on-surface">{lot.lotCode}</h1>
         </div>
-        <span
-          className={`inline-flex self-start px-3 py-1 rounded-full text-xs font-label font-semibold uppercase tracking-wider ${getLotStatusStyles(lot.status)}`}
-        >
-          {LOT_STATUS_LABELS[lot.status]}
-        </span>
+        <div className="space-y-4">
+          <span
+            className={`inline-flex self-start px-3 py-1 rounded-full text-xs font-label font-semibold uppercase tracking-wider ${getLotStatusStyles(lot.status)}`}
+          >
+            {LOT_STATUS_LABELS[lot.status]}
+          </span>
+          <FormulaProvenance lot={lot} />
+        </div>
       </div>
     </section>
   );
 }
 
-function FormulaProvenanceSection({ lot }: { lot: LotRecord }) {
+function FormulaProvenance({ lot }: { lot: LotRecord }) {
   return (
-    <section className="rounded-lg bg-surface-container p-6 space-y-2">
+    <div className="space-y-2">
       <h2 className="font-label text-sm font-semibold uppercase tracking-wider text-on-surface-variant">
         Origen de la fórmula
       </h2>
@@ -54,13 +59,25 @@ function FormulaProvenanceSection({ lot }: { lot: LotRecord }) {
       >
         Ver fórmula
       </Link>
-    </section>
+    </div>
   );
 }
 
 function OperationalSection({ lot }: { lot: LotRecord }) {
   return (
-    <SectionCard title="Resumen operativo">
+    <section
+      data-testid="lot-operational-summary"
+      className="rounded-2xl border border-[#FF0000] bg-surface-container p-8 shadow-[0_0_24px_rgba(255,0,0,0.35)]"
+    >
+      <div className="mb-6 flex items-center justify-between gap-4">
+        <h2 className="font-headline text-2xl text-[#FF0000]">Resumen operativo</h2>
+        <Link
+          href={`/laboratorio/lotes/${lot.id}/editar`}
+          className="font-label text-sm font-semibold text-[#B6FF00] transition-colors hover:text-[#B6FF00]/80"
+        >
+          Editar resumen operativo
+        </Link>
+      </div>
       <dl className="grid grid-cols-1 sm:grid-cols-2 gap-6 font-body text-sm">
         <div>
           <dt className="font-semibold text-on-surface">Lote objetivo</dt>
@@ -71,15 +88,11 @@ function OperationalSection({ lot }: { lot: LotRecord }) {
           <dd className="text-on-surface-variant">{LOT_STATUS_LABELS[lot.status]}</dd>
         </div>
         <div>
-          <dt className="font-semibold text-on-surface">Planificado el</dt>
-          <dd className="text-on-surface-variant">{formatDate(lot.plannedAt)}</dd>
+          <dt className="font-semibold text-on-surface">Fecha de inicio</dt>
+          <dd className="text-on-surface-variant">{formatDate(lot.createdAt)}</dd>
         </div>
         <div>
-          <dt className="font-semibold text-on-surface">Iniciado el</dt>
-          <dd className="text-on-surface-variant">{formatDate(lot.startedAt)}</dd>
-        </div>
-        <div>
-          <dt className="font-semibold text-on-surface">Completado el</dt>
+          <dt className="font-semibold text-on-surface">Fecha de completado</dt>
           <dd className="text-on-surface-variant">{formatDate(lot.completedAt)}</dd>
         </div>
         <div className="sm:col-span-2">
@@ -89,7 +102,7 @@ function OperationalSection({ lot }: { lot: LotRecord }) {
           </dd>
         </div>
       </dl>
-    </SectionCard>
+    </section>
   );
 }
 
@@ -149,12 +162,11 @@ export default async function LaboratoryLotDetailPage({ params }: PageProps) {
           Volver a lotes
         </Link>
         <IdentitySection lot={lot} />
-        <FormulaProvenanceSection lot={lot} />
         <OperationalSection lot={lot} />
         <FormulaSnapshotSection snapshot={lot.formulaSnapshot} />
         <FollowUpSection entries={lot.followUp.entries} />
         <SectionCard title="Agregar entrada de seguimiento">
-          <LotFollowUpForm submitFollowUpEntry={(values) => submitLotFollowUp(lot.id, values)} />
+          <LotFollowUpForm submitFollowUpEntry={submitLotFollowUp.bind(null, lot.id)} />
         </SectionCard>
       </div>
     </main>

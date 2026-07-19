@@ -1,6 +1,11 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import type { FormulaFormProps } from '@/components/laboratorio/formula-form';
+
+const { formulaFormPropsMock } = vi.hoisted(() => ({
+  formulaFormPropsMock: vi.fn(),
+}));
 
 const { getServerSessionMock, redirectMock } = vi.hoisted(() => ({
   getServerSessionMock: vi.fn(),
@@ -56,6 +61,20 @@ vi.mock('next/link', () => ({
 vi.mock('@/app/laboratorio/formulas/[id]/edit/actions', () => ({
   submitFormulaUpdate: vi.fn(),
 }));
+
+vi.mock('@/components/laboratorio/formula-form', async () => {
+  const actual = await vi.importActual<typeof import('@/components/laboratorio/formula-form')>(
+    '@/components/laboratorio/formula-form'
+  );
+
+  return {
+    ...actual,
+    default: (props: FormulaFormProps) => {
+      formulaFormPropsMock(props);
+      return React.createElement(actual.default, props);
+    },
+  };
+});
 
 import LaboratoryEditFormulaPage from '@/app/laboratorio/formulas/[id]/edit/page';
 
@@ -169,5 +188,20 @@ describe('/laboratorio/formulas/[id]/edit page', () => {
     expect(screen.getByRole('textbox', { name: /paso de procedimiento 2/i })).toHaveValue(
       'Agregar la fase oleosa lentamente.'
     );
+  });
+
+  it('passes a callable bound submit action to FormulaForm', async () => {
+    getServerSessionMock.mockResolvedValue({
+      user: { id: 'user-1', email: 'olga@test.com', role: 'productora' },
+    });
+    findByIdMock.mockResolvedValue(mockFormula);
+
+    const jsx = await LaboratoryEditFormulaPage({ params: { id: 'formula-1' } });
+    render(jsx);
+
+    const submitFormula = formulaFormPropsMock.mock.lastCall?.[0]?.submitFormula;
+
+    expect(submitFormula).toEqual(expect.any(Function));
+    expect(submitFormula.name).toMatch(/^bound /);
   });
 });

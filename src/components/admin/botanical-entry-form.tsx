@@ -14,6 +14,12 @@ interface BotanicalEntryFormProps {
     name?: string;
     inciName?: string;
     recommendedPercentage?: number | null;
+    solubility?: string;
+    skinTypes?: string[];
+    absorption?: string;
+    properties?: string[] | { oral: string[]; topical: string[] };
+    images?: Array<{ url: string; alt: string }>;
+    notes?: string;
   };
   entryId?: string;
 }
@@ -36,6 +42,12 @@ export default function BotanicalEntryForm({ kind, initialValues = {}, entryId }
     name: String(initialValues.name ?? ''),
     inciName: String(initialValues.inciName ?? ''),
     recommendedPercentage: initialValues.recommendedPercentage?.toString() ?? '',
+    solubility: String(initialValues.solubility ?? ''),
+    skinTypes: initialValues.skinTypes?.join('\n') ?? '',
+    absorption: String(initialValues.absorption ?? ''),
+    properties: Array.isArray(initialValues.properties) ? initialValues.properties.join('\n') : '',
+    images: initialValues.images?.map(({ url, alt }) => `${url} | ${alt}`).join('\n') ?? '',
+    notes: String(initialValues.notes ?? ''),
   });
   const [error, setError] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -55,6 +67,16 @@ export default function BotanicalEntryForm({ kind, initialValues = {}, entryId }
           name: values.name,
           inciName: values.inciName || undefined,
           recommendedPercentage: values.recommendedPercentage === '' ? null : Number(values.recommendedPercentage),
+          solubility: values.solubility || undefined,
+          skinTypes: values.skinTypes.split('\n').map((value) => value.trim()).filter(Boolean),
+          absorption: values.absorption || undefined,
+          properties: values.properties.split('\n').map((value) => value.trim()).filter(Boolean),
+          images: values.images
+            .split('\n')
+            .map((value) => value.split('|').map((part) => part.trim()))
+            .filter(([url, alt]) => url && alt)
+            .map(([url, alt]) => ({ url, alt })),
+          notes: values.notes || undefined,
         };
 
     try {
@@ -103,6 +125,24 @@ export default function BotanicalEntryForm({ kind, initialValues = {}, entryId }
           </label>
           <label className="block text-sm font-semibold text-on-surface">Porcentaje recomendado
             <input type="number" value={values.recommendedPercentage} onChange={(event) => setValues({ ...values, recommendedPercentage: event.target.value })} className="mt-2 w-full rounded-lg border p-3" />
+          </label>
+          <label className="block text-sm font-semibold text-on-surface">Solubilidad
+            <input value={values.solubility} onChange={(event) => setValues({ ...values, solubility: event.target.value })} className="mt-2 w-full rounded-lg border p-3" />
+          </label>
+          <label className="block text-sm font-semibold text-on-surface">Tipos de piel
+            <textarea value={values.skinTypes} onChange={(event) => setValues({ ...values, skinTypes: event.target.value })} className="mt-2 w-full rounded-lg border p-3" />
+          </label>
+          <label className="block text-sm font-semibold text-on-surface">Absorción
+            <input value={values.absorption} onChange={(event) => setValues({ ...values, absorption: event.target.value })} className="mt-2 w-full rounded-lg border p-3" />
+          </label>
+          <label className="block text-sm font-semibold text-on-surface">Propiedades
+            <textarea value={values.properties} onChange={(event) => setValues({ ...values, properties: event.target.value })} className="mt-2 w-full rounded-lg border p-3" />
+          </label>
+          <label className="block text-sm font-semibold text-on-surface">Imágenes
+            <textarea value={values.images} onChange={(event) => setValues({ ...values, images: event.target.value })} className="mt-2 w-full rounded-lg border p-3" />
+          </label>
+          <label className="block text-sm font-semibold text-on-surface">Notas
+            <textarea value={values.notes} onChange={(event) => setValues({ ...values, notes: event.target.value })} className="mt-2 w-full rounded-lg border p-3" />
           </label>
         </>
       )}

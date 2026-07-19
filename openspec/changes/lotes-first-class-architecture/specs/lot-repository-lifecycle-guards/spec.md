@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Repository-level enforcement of snapshot regeneration and immutability rules based on the four lot lifecycle statuses: `planned`, `in_progress`, `completed`, and `cancelled`. `in_progress` blocks target-gram changes and snapshot regeneration, while `completed` freezes all production data; no MongoDB migration or schema changes.
+Repository-level enforcement of snapshot regeneration and immutability rules based on the canonical lot lifecycle: `in_production`, `finalized`, and `discarded`. Only `in_production` can modify production data or regenerate its own snapshot; both terminal statuses freeze production data. Legacy stored values are read-normalized only; no MongoDB migration or schema changes.
 
 ## Requirements
 
@@ -18,29 +18,21 @@ Recovery from a broken release MUST use a Git revert only when the target versio
 
 ### Requirement: Editable Snapshot Regeneration
 
-The system MUST allow target-gram edits and snapshot regeneration only when lot status is `planned` or `cancelled`.
+The system MUST allow target-gram edits and snapshot regeneration only when lot status is `in_production`.
 
 When target grams change on an editable lot, the system MUST rescale that lot's existing snapshot proportionally without re-reading the formula.
 
-#### Scenario: Planned lot target gram change
+#### Scenario: In-production lot target gram change
 
-- GIVEN a lot with status `planned` and a 100g snapshot
+- GIVEN a lot with status `in_production` and a 100g snapshot
 - WHEN target grams change to 200g via `LotRepository.update()`
 - THEN the snapshot is rescaled proportionally to 200g
 
-#### Scenario: Cancelled lot target gram change
+### Requirement: Terminal Production Freeze
 
-- GIVEN a lot with status `cancelled` and a 100g snapshot
-- WHEN target grams change to 200g via `LotRepository.update()`
-- THEN that lot's snapshot is rescaled proportionally to 200g
+The system MUST reject snapshot and all production field mutations when lot status is `finalized` or `discarded`.
 
-### Requirement: In-Progress Snapshot Freeze and Completed Production Freeze
-
-The system MUST reject target-gram changes and snapshot regeneration when lot status is `in_progress`.
-
-The system MUST reject snapshot and all production field mutations when lot status is `completed`.
-
-Follow-up entries MUST remain appendable on every status, including `completed`.
+Follow-up entries MUST remain appendable on every status, including `finalized`.
 
 #### Scenario: Completed lot mutation rejected
 

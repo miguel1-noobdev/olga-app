@@ -10,6 +10,13 @@ import {
 
 const submitFollowUpEntryMock =
   vi.fn<(values: LotFollowUpFormValues) => Promise<SubmitLotFollowUpResult>>();
+const { routerPushMock } = vi.hoisted(() => ({
+  routerPushMock: vi.fn(),
+}));
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: routerPushMock }),
+}));
 
 describe('LotFollowUpForm', () => {
   beforeEach(() => {
@@ -60,7 +67,10 @@ describe('LotFollowUpForm', () => {
       'Texture is stable.'
     );
 
-    submitFollowUpEntryMock.mockResolvedValue({ success: true });
+    submitFollowUpEntryMock.mockResolvedValue({
+      success: true,
+      redirectTo: '/laboratorio/lotes/lot-1',
+    });
 
     fireEvent.submit(screen.getByRole('form'));
 
@@ -73,6 +83,7 @@ describe('LotFollowUpForm', () => {
         note: 'Texture is stable.',
       })
     );
+    expect(routerPushMock).toHaveBeenCalledWith('/laboratorio/lotes/lot-1');
   });
 
   it('displays field errors returned by the submit handler', async () => {
@@ -129,7 +140,14 @@ describe('LotFollowUpForm', () => {
     submitFollowUpEntryMock.mockImplementation(
       () =>
         new Promise((resolve) =>
-          setTimeout(() => resolve({ success: true }), 50)
+          setTimeout(
+            () =>
+              resolve({
+                success: true,
+                redirectTo: '/laboratorio/lotes/lot-1',
+              }),
+            50
+          )
         )
     );
 

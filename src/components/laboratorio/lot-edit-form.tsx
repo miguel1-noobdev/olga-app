@@ -55,14 +55,16 @@ export default function LotEditForm({
     const result = await submitLotEdit(values);
     setIsSubmitting(false);
 
-    if (!result.success) {
-      if ('errors' in result) {
-        setErrors(result.errors);
-      } else {
-        setSubmitError(result.error);
-      }
+    if (result.success) {
+      router.push(result.redirectTo);
+      return;
     }
-    // Success is handled by the server action redirect.
+
+    if ('errors' in result) {
+      setErrors(result.errors);
+    } else {
+      setSubmitError(result.error);
+    }
   }
 
   const inputBaseClassName =
@@ -139,36 +141,6 @@ export default function LotEditForm({
               className={inputClassName('targetBatchGrams')}
             />
             <FieldError name="targetBatchGrams" />
-          </div>
-
-          <div>
-            <label htmlFor="plannedAt" className={labelClassName}>
-              Planificado el (opcional)
-            </label>
-            <input
-              id="plannedAt"
-              type="date"
-              value={values.plannedAt}
-              onChange={(event) => updateField('plannedAt', event.target.value)}
-              disabled={!permissions.canEditProduction}
-              className={inputClassName('plannedAt')}
-            />
-            <FieldError name="plannedAt" />
-          </div>
-
-          <div>
-            <label htmlFor="startedAt" className={labelClassName}>
-              Iniciado el (opcional)
-            </label>
-            <input
-              id="startedAt"
-              type="date"
-              value={values.startedAt}
-              onChange={(event) => updateField('startedAt', event.target.value)}
-              disabled={!permissions.canEditProduction}
-              className={inputClassName('startedAt')}
-            />
-            <FieldError name="startedAt" />
           </div>
 
           <div>

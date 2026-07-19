@@ -132,7 +132,7 @@ function createMockLot(overrides: Partial<LotRecord> = {}): LotRecord {
     formulaVersion: '1.0',
     lotNumber: 1,
     lotCode: 'CF-001-L001',
-    status: 'planned',
+    status: 'in_production',
     targetBatchGrams: 500,
     formulaSnapshot: {
       productName: 'Crema de lavanda',
@@ -186,6 +186,203 @@ describe('/laboratorio/formulas/[id] page', () => {
       'href',
       '/laboratorio/formulas'
     );
+  });
+
+  it('renders the compact header metadata and formula actions', async () => {
+    getServerSessionMock.mockResolvedValue({
+      user: { id: 'user-1', email: 'olga@test.com', role: 'productora' },
+    });
+    findByIdMock.mockResolvedValue(mockFormula);
+
+    const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
+    render(jsx);
+
+    const header = screen.getByRole('banner');
+    expect(within(header).getByRole('heading', { name: 'Crema de lavanda', level: 1 })).toBeInTheDocument();
+    expect(within(header).getByText('CF-001 — v1.0 — crema')).toBeInTheDocument();
+    expect(within(header).getByText('500 g')).toBeInTheDocument();
+    expect(within(header).getByText('15 ene 2026')).toBeInTheDocument();
+    expect(within(header).getByRole('link', { name: 'Editar fórmula' })).toHaveAttribute(
+      'href',
+      '/laboratorio/formulas/formula-1/edit'
+    );
+    expect(within(header).getByRole('link', { name: /crear lote/i })).toHaveAttribute(
+      'href',
+      '/laboratorio/lotes/nuevo?formulaId=formula-1'
+    );
+  });
+
+  it('renders the approved responsive bento columns without horizontal overflow', async () => {
+    getServerSessionMock.mockResolvedValue({
+      user: { id: 'user-1', email: 'olga@test.com', role: 'productora' },
+    });
+    findByIdMock.mockResolvedValue(mockFormula);
+
+    const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
+    render(jsx);
+
+    const main = screen.getByRole('main');
+    const grid = main.querySelector('[class~="md:grid-cols-12"]') as HTMLElement;
+    const primaryColumn = grid?.querySelector('[class~="md:col-span-8"]') as HTMLElement;
+    const secondaryColumn = grid?.querySelector('[class~="md:col-span-4"]') as HTMLElement;
+
+    expect(main).toHaveClass('overflow-x-hidden');
+    expect(grid).toBeInTheDocument();
+    expect(grid).toHaveClass('grid', 'grid-cols-1', 'gap-6', 'min-w-0');
+    expect(primaryColumn).toBeInTheDocument();
+    expect(primaryColumn).toHaveClass('min-w-0', 'space-y-6');
+    expect(secondaryColumn).toBeInTheDocument();
+    expect(secondaryColumn).toHaveClass('min-w-0', 'space-y-6');
+
+    const primaryHeadings = Array.from(primaryColumn.querySelectorAll('h2')).map(
+      (heading) => heading.textContent
+    );
+    expect(primaryHeadings).toEqual([
+      'Fases e ingredientes',
+      'Procedimiento',
+      'Evaluación del producto',
+      'Prueba de uso',
+      'INCI',
+    ]);
+
+    const secondaryHeadings = Array.from(secondaryColumn.querySelectorAll('h2')).map(
+      (heading) => heading.textContent
+    );
+    expect(secondaryHeadings).toEqual([
+      'Lotes',
+      'Objetivos',
+      'Datos técnicos',
+      'Observaciones finales',
+    ]);
+  });
+
+  it('renders the Stitch Tokyo Neon header hierarchy and metadata icons', async () => {
+    getServerSessionMock.mockResolvedValue({
+      user: { id: 'user-1', email: 'olga@test.com', role: 'productora' },
+    });
+    findByIdMock.mockResolvedValue(mockFormula);
+
+    const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
+    render(jsx);
+
+    const main = screen.getByRole('main');
+    const container = main.firstElementChild as HTMLElement;
+    const header = screen.getByRole('banner');
+
+    expect(main).toHaveClass('bg-surface');
+    expect(container).toHaveClass('max-w-7xl');
+    expect(within(header).getByRole('heading', { name: 'Crema de lavanda', level: 1 })).toHaveClass(
+      'text-primary',
+      'drop-shadow-[0_0_12px_rgba(150,248,255,0.25)]'
+    );
+    expect(within(header).getByText('tag')).toHaveClass('material-symbols-outlined');
+    expect(within(header).getByText('history')).toHaveClass('material-symbols-outlined');
+    expect(within(header).getByText('category')).toHaveClass('material-symbols-outlined');
+    expect(within(header).getByText('calendar_today')).toHaveClass('material-symbols-outlined');
+    expect(within(header).getByText('scale')).toHaveClass('material-symbols-outlined');
+    expect(within(header).getByLabelText('Estado validada')).toHaveClass('bg-primary');
+    expect(within(header).getByRole('link', { name: 'Editar fórmula' })).toHaveClass(
+      'border-primary/40'
+    );
+    expect(within(header).getByRole('link', { name: /crear lote/i })).toHaveClass('bg-primary');
+  });
+
+  it('renders Stitch section accents and compact inner tiles', async () => {
+    getServerSessionMock.mockResolvedValue({
+      user: { id: 'user-1', email: 'olga@test.com', role: 'productora' },
+    });
+    findByIdMock.mockResolvedValue(mockFormula);
+
+    const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
+    render(jsx);
+
+    const phases = screen.getByRole('heading', { name: 'Fases e ingredientes' }).closest('section');
+    const procedure = screen.getByRole('heading', { name: 'Procedimiento' }).closest('section');
+    const evaluation = screen.getByRole('heading', { name: 'Evaluación del producto' }).closest('section');
+    const useTest = screen.getByRole('heading', { name: 'Prueba de uso' }).closest('section');
+    const technical = screen.getByRole('heading', { name: 'Datos técnicos' }).closest('section');
+    const inci = screen.getByRole('heading', { name: 'INCI' }).closest('section');
+    const lots = screen.getByRole('heading', { name: 'Lotes' }).closest('section');
+    const objectives = screen.getByRole('heading', { name: 'Objetivos' }).closest('section');
+    const finalObservations = screen
+      .getByRole('heading', { name: 'Observaciones finales' })
+      .closest('section');
+
+    expect(phases).toHaveClass('bg-surface-container', 'border-outline-variant', 'rounded-lg', 'shadow-lg');
+    expect(within(phases as HTMLElement).getByText('science')).toHaveClass(
+      'material-symbols-outlined',
+      'text-secondary'
+    );
+    expect(screen.getByRole('heading', { name: 'Fases e ingredientes' })).toHaveClass('text-secondary');
+    const phaseGrid = phases?.querySelector('[class~="sm:grid-cols-3"]') as HTMLElement;
+    expect(phaseGrid).toHaveClass('grid', 'grid-cols-1', 'sm:grid-cols-3', 'min-w-0');
+    expect(within(phases as HTMLElement).getByText('Fase acuosa').closest('article')).toHaveClass(
+      'border-outline-variant',
+      'bg-surface-container-lowest'
+    );
+    expect(within(phases as HTMLElement).getByText('Agua purificada').closest('li')).toHaveClass(
+      'border-b',
+      'border-outline-variant'
+    );
+
+    expect(procedure).toHaveClass('border-outline-variant');
+    expect(within(procedure as HTMLElement).getByText('account_tree')).toHaveClass('text-tertiary');
+    expect(screen.getByRole('heading', { name: 'Procedimiento' })).toHaveClass('text-tertiary');
+    expect(evaluation).toHaveClass('border-outline-variant');
+    expect(within(evaluation as HTMLElement).getByText('fact_check')).toHaveClass('text-tertiary');
+    expect(screen.getByRole('heading', { name: 'Evaluación del producto' })).toHaveClass('text-tertiary');
+    expect(within(evaluation as HTMLElement).getByText('Cremosa').closest('div')).toHaveClass(
+      'bg-surface-container-lowest'
+    );
+    expect(evaluation?.querySelector('dl')).toHaveClass('grid', 'grid-cols-1', 'sm:grid-cols-2');
+    expect(technical).toHaveClass('border-outline-variant');
+    expect(within(technical as HTMLElement).getByText('settings')).toHaveClass('text-secondary');
+    expect(screen.getByRole('heading', { name: 'Datos técnicos' })).toHaveClass('text-secondary');
+    expect(inci).toHaveClass('border-outline-variant');
+    expect(within(inci as HTMLElement).getByText('menu_book')).toHaveClass('text-tertiary');
+    expect(screen.getByRole('heading', { name: 'INCI' })).toHaveClass('text-tertiary');
+    expect(screen.getByRole('heading', { name: 'Lotes' })).toHaveClass('text-primary');
+    expect(screen.getByRole('heading', { name: 'Objetivos' })).toHaveClass('text-primary');
+    expect(screen.getByRole('heading', { name: 'Prueba de uso' })).toHaveClass('text-primary');
+    expect(screen.getByRole('heading', { name: 'Observaciones finales' })).toHaveClass('text-tertiary');
+    expect(lots).toBeInTheDocument();
+    expect(objectives).toBeInTheDocument();
+    expect(useTest).toBeInTheDocument();
+    expect(finalObservations).toBeInTheDocument();
+  });
+
+  it('keeps empty sections readable inside their assigned bento columns', async () => {
+    getServerSessionMock.mockResolvedValue({
+      user: { id: 'user-1', email: 'olga@test.com', role: 'productora' },
+    });
+    findByIdMock.mockResolvedValue({
+      ...mockFormula,
+      productObjectives: [],
+      phases: undefined,
+      procedureSteps: [],
+      technicalData: undefined,
+      productEvaluation: undefined,
+      useTest: undefined,
+      inci: undefined,
+      finalObservations: '',
+    });
+
+    const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
+    render(jsx);
+
+    const grid = screen.getByRole('main').querySelector('[class~="md:grid-cols-12"]') as HTMLElement;
+    const primaryColumn = grid?.querySelector('[class~="md:col-span-8"]') as HTMLElement;
+    const secondaryColumn = grid?.querySelector('[class~="md:col-span-4"]') as HTMLElement;
+
+    expect(within(primaryColumn).getByText('No hay fases registradas.')).toBeInTheDocument();
+    expect(within(primaryColumn).getByText('No hay pasos de procedimiento registrados.')).toBeInTheDocument();
+    expect(within(primaryColumn).getByText('No hay evaluación del producto registrada.')).toBeInTheDocument();
+    expect(within(primaryColumn).getByText('No hay datos de prueba de uso registrados.')).toBeInTheDocument();
+    expect(within(primaryColumn).getByText('No hay datos INCI registrados.')).toBeInTheDocument();
+    expect(within(secondaryColumn).getByText('No hay lotes registrados para esta fórmula.')).toBeInTheDocument();
+    expect(within(secondaryColumn).getByText('No hay objetivos registrados.')).toBeInTheDocument();
+    expect(within(secondaryColumn).getByText('No hay datos técnicos registrados.')).toBeInTheDocument();
+    expect(within(secondaryColumn).getByText('No hay observaciones finales registradas.')).toBeInTheDocument();
   });
 
   it('renders a create Lote link pointing to canonical creation with formula context', async () => {
@@ -264,14 +461,14 @@ describe('/laboratorio/formulas/[id] page', () => {
         id: 'lot-1',
         lotNumber: 1,
         lotCode: 'CF-001-L001',
-        status: 'planned',
+        status: 'in_production',
         targetBatchGrams: 500,
       }),
       createMockLot({
         id: 'lot-2',
         lotNumber: 2,
         lotCode: 'CF-001-L002',
-        status: 'in_progress',
+        status: 'finalized',
         targetBatchGrams: 750,
       }),
     ]);
@@ -285,8 +482,8 @@ describe('/laboratorio/formulas/[id] page', () => {
     const scoped = within(section as HTMLElement);
     expect(scoped.getByText('CF-001-L001')).toBeInTheDocument();
     expect(scoped.getByText('CF-001-L002')).toBeInTheDocument();
-    expect(scoped.getByText('Planeado')).toBeInTheDocument();
-    expect(scoped.getByText('En progreso')).toBeInTheDocument();
+    expect(scoped.getByText('En producción')).toBeInTheDocument();
+    expect(scoped.getByText('Finalizado')).toBeInTheDocument();
     expect(scoped.getByText(/Lote n\.º 1/)).toBeInTheDocument();
     expect(scoped.getByText(/Lote n\.º 2/)).toBeInTheDocument();
     expect(scoped.getByText(/500 g de objetivo/)).toBeInTheDocument();
@@ -303,14 +500,14 @@ describe('/laboratorio/formulas/[id] page', () => {
         id: 'lot-1',
         lotNumber: 1,
         lotCode: 'CF-001-L001',
-        status: 'planned',
+        status: 'in_production',
         targetBatchGrams: 500,
       }),
       createMockLot({
         id: 'lot-2',
         lotNumber: 2,
         lotCode: 'CF-001-L002',
-        status: 'in_progress',
+        status: 'finalized',
         targetBatchGrams: 750,
       }),
     ]);
@@ -374,7 +571,7 @@ describe('/laboratorio/formulas/[id] page', () => {
   });
 
   it('renders every lot status label without crashing', async () => {
-    const statuses: LotRecord['status'][] = ['planned', 'in_progress', 'completed', 'cancelled'];
+    const statuses: LotRecord['status'][] = ['in_production', 'finalized', 'discarded'];
 
     for (const status of statuses) {
       vi.clearAllMocks();

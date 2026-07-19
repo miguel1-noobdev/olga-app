@@ -1,17 +1,14 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import type { ReactNode } from 'react';
 import { connectToDatabase } from '@/lib/db/connect';
 import { createFormulaRepository } from '@/lib/db/repository/formula';
 import { createLotRepository } from '@/lib/db/repository/lot';
-import { FormulaRecord } from '@/lib/formulas/formula-types';
+import { FormulaIngredient, FormulaRecord } from '@/lib/formulas/formula-types';
 import { LotRecord } from '@/lib/lots/lot-types';
-import { ArrowLeftIcon, PlusIcon } from '@/components/ui/icons';
 import {
   formatDate,
-  SectionCard,
   EmptySectionMessage,
-  PhasesSection,
-  ProcedureSection,
   FORMULA_STATUS_LABELS,
   getFormulaStatusStyles,
   LOT_STATUS_LABELS,
@@ -22,51 +19,152 @@ interface PageProps {
   params: { id: string };
 }
 
-function IdentitySection({ formula }: { formula: FormulaRecord }) {
-  return (
-    <section className="bg-surface-container border border-surface-border rounded-2xl p-8">
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
-        <div>
-          <h1 className="font-headline text-3xl text-on-surface mb-2">{formula.productName}</h1>
-          <p className="font-body text-sm text-on-surface-variant">
-            {formula.formulaCode} — v{formula.formulaVersion} — {formula.productType}
-          </p>
-        </div>
-        <span
-          className={`inline-flex self-start px-3 py-1 rounded-full text-xs font-label font-semibold uppercase tracking-wider ${getFormulaStatusStyles(formula.status)}`}
-        >
-          {FORMULA_STATUS_LABELS[formula.status]}
-        </span>
-      </div>
+const FORMULA_STATUS_ACCENTS: Record<FormulaRecord['status'], string> = {
+  draft: 'bg-on-surface-variant',
+  testing: 'bg-secondary',
+  validated: 'bg-primary',
+  archived: 'bg-on-surface-variant',
+  discarded: 'bg-error',
+};
 
-      <dl className="grid grid-cols-1 sm:grid-cols-2 gap-6 font-body text-sm">
-        <div>
-          <dt className="font-semibold text-on-surface">Lote objetivo</dt>
-          <dd className="text-on-surface-variant">{formula.targetBatchGrams} g</dd>
-        </div>
-        <div>
-          <dt className="font-semibold text-on-surface">Creada el</dt>
-          <dd className="text-on-surface-variant">{formatDate(formula.formulaCreatedAt)}</dd>
-        </div>
-      </dl>
+function MaterialIcon({ name, className = '' }: { name: string; className?: string }) {
+  return (
+    <span className={`material-symbols-outlined ${className}`} aria-hidden="true">
+      {name}
+    </span>
+  );
+}
+
+function FormulaSectionCard({
+  title,
+  icon,
+  accent = 'text-primary',
+  children,
+}: {
+  title: string;
+  icon: string;
+  accent?: string;
+  children: ReactNode;
+}) {
+  return (
+    <section className="overflow-hidden rounded-lg border border-outline-variant bg-surface-container shadow-lg shadow-primary/5">
+      <div className="flex items-center gap-3 border-b border-outline-variant px-5 py-4">
+        <MaterialIcon name={icon} className={`text-[20px] ${accent}`} />
+        <h2 className={`font-headline text-lg font-bold tracking-tight ${accent}`}>{title}</h2>
+      </div>
+      <div className="min-w-0 p-5">{children}</div>
     </section>
   );
 }
 
-function LotsSection({ formulaId, lots }: { formulaId: string; lots: LotRecord[] }) {
+function ValueTile({ label, value }: { label: string; value: ReactNode }) {
   return (
-    <SectionCard title="Lotes">
+    <div className="min-w-0 rounded-lg border border-outline-variant/60 bg-surface-container-lowest p-3">
+      <dt className="font-label text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">
+        {label}
+      </dt>
+      <dd className="mt-1 break-words font-body text-sm text-on-surface">{value}</dd>
+    </div>
+  );
+}
+
+function PhaseCard({
+  title,
+  ingredients,
+}: {
+  title: string;
+  ingredients?: FormulaIngredient[];
+}) {
+  if (!ingredients || ingredients.length === 0) {
+    return null;
+  }
+
+  return (
+    <article className="min-w-0 rounded-lg border border-outline-variant bg-surface-container-lowest p-4">
+      <div className="mb-3 flex items-center gap-2">
+        <span className="h-2 w-2 rounded-full bg-secondary shadow-[0_0_8px_rgba(255,178,4,0.7)]" />
+        <h3 className="font-label text-xs font-bold uppercase tracking-wider text-secondary">{title}</h3>
+      </div>
+      <ul className="divide-y divide-outline-variant">
+        {ingredients.map((item) => (
+          <li
+            key={`${item.ingredient}-${item.grams}`}
+            className="flex min-w-0 justify-between gap-3 border-b border-outline-variant py-2 last:border-b-0 font-body text-sm"
+          >
+            <span className="min-w-0 break-words text-on-surface-variant">{item.ingredient}</span>
+            <span className="shrink-0 font-medium text-on-surface">{item.grams} g</span>
+          </li>
+        ))}
+      </ul>
+    </article>
+  );
+}
+
+function IdentitySection({ formula }: { formula: FormulaRecord }) {
+  return (
+    <div className="border-b border-outline-variant pb-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="break-words font-headline text-3xl font-bold tracking-tight text-primary drop-shadow-[0_0_12px_rgba(150,248,255,0.25)]">
+              {formula.productName}
+            </h1>
+            <span
+              className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-label font-semibold uppercase tracking-wider ${getFormulaStatusStyles(formula.status)}`}
+            >
+              <span
+                aria-label={`Estado ${FORMULA_STATUS_LABELS[formula.status].toLowerCase()}`}
+                className={`h-2 w-2 rounded-full ${FORMULA_STATUS_ACCENTS[formula.status]}`}
+              />
+              {FORMULA_STATUS_LABELS[formula.status]}
+            </span>
+          </div>
+          <span className="sr-only">
+            {formula.formulaCode} — v{formula.formulaVersion} — {formula.productType}
+          </span>
+        </div>
+      </div>
+
+      <div className="mt-5 flex flex-wrap gap-x-5 gap-y-3 font-body text-xs text-on-surface-variant">
+        <span className="inline-flex items-center gap-2">
+          <MaterialIcon name="tag" className="text-[17px] text-primary" />
+          {formula.formulaCode}
+        </span>
+        <span className="inline-flex items-center gap-2">
+          <MaterialIcon name="history" className="text-[17px] text-primary" />
+          v{formula.formulaVersion}
+        </span>
+        <span className="inline-flex items-center gap-2">
+          <MaterialIcon name="category" className="text-[17px] text-primary" />
+          {formula.productType}
+        </span>
+        <span className="inline-flex items-center gap-2">
+          <MaterialIcon name="calendar_today" className="text-[17px] text-primary" />
+          {formatDate(formula.formulaCreatedAt)}
+        </span>
+        <span className="inline-flex items-center gap-2">
+          <MaterialIcon name="scale" className="text-[17px] text-primary" />
+          {formula.targetBatchGrams} g
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function LotsSection({ lots }: { lots: LotRecord[] }) {
+  return (
+    <FormulaSectionCard title="Lotes" icon="inventory_2">
       {lots.length === 0 ? (
         <EmptySectionMessage>No hay lotes registrados para esta fórmula.</EmptySectionMessage>
       ) : (
-        <ul className="space-y-4">
+        <ul className="space-y-3">
           {lots.map((lot) => (
             <li
               key={lot.id}
-              className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 rounded-lg bg-surface-container"
+              className="flex min-w-0 flex-col gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest p-3 sm:flex-row sm:items-center sm:justify-between"
             >
-              <div className="space-y-1">
-                <div className="flex items-center gap-3">
+              <div className="min-w-0 space-y-1">
+                <div className="flex min-w-0 flex-wrap items-center gap-2">
                   <Link
                     href={`/laboratorio/lotes/${lot.id}`}
                     className="font-body text-sm font-semibold text-on-surface hover:text-primary transition-colors"
@@ -74,8 +172,9 @@ function LotsSection({ formulaId, lots }: { formulaId: string; lots: LotRecord[]
                     {lot.lotCode}
                   </Link>
                   <span
-                    className={`inline-flex px-2 py-0.5 rounded-full text-xs font-label font-medium uppercase tracking-wider ${getLotStatusStyles(lot.status)}`}
+                    className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-label font-medium uppercase tracking-wider ${getLotStatusStyles(lot.status)}`}
                   >
+                    <span className="h-1.5 w-1.5 rounded-full bg-current" />
                     {LOT_STATUS_LABELS[lot.status]}
                   </span>
                 </div>
@@ -98,23 +197,26 @@ function LotsSection({ formulaId, lots }: { formulaId: string; lots: LotRecord[]
           ))}
         </ul>
       )}
-    </SectionCard>
+    </FormulaSectionCard>
   );
 }
 
 function ObjectivesSection({ objectives }: { objectives: string[] }) {
   return (
-    <SectionCard title="Objetivos">
+    <FormulaSectionCard title="Objetivos" icon="target">
       {objectives.length === 0 ? (
         <EmptySectionMessage>No hay objetivos registrados.</EmptySectionMessage>
       ) : (
-        <ul className="list-disc list-inside font-body text-sm text-on-surface-variant space-y-1">
+        <ul className="space-y-2 font-body text-sm text-on-surface-variant">
           {objectives.map((objective) => (
-            <li key={objective}>{objective}</li>
+            <li key={objective} className="flex items-start gap-2">
+              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+              <span>{objective}</span>
+            </li>
           ))}
         </ul>
       )}
-    </SectionCard>
+    </FormulaSectionCard>
   );
 }
 
@@ -131,25 +233,19 @@ function TechnicalDataSection({ data }: { data?: FormulaRecord['technicalData'] 
   const hasAnyValue = fields.some((field) => field.value !== undefined && field.value !== null);
 
   return (
-    <SectionCard title="Datos técnicos">
+    <FormulaSectionCard title="Datos técnicos" icon="settings" accent="text-secondary">
       {!hasAnyValue ? (
         <EmptySectionMessage>No hay datos técnicos registrados.</EmptySectionMessage>
       ) : (
-        <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 font-body text-sm">
+        <dl className="grid grid-cols-1 gap-3 font-body text-sm sm:grid-cols-2">
           {fields.map(({ label, value, suffix }) =>
             value !== undefined && value !== null ? (
-              <div key={label}>
-                <dt className="font-semibold text-on-surface">{label}</dt>
-                <dd className="text-on-surface-variant">
-                  {value}
-                  {suffix ?? ''}
-                </dd>
-              </div>
+              <ValueTile key={label} label={label} value={`${value}${suffix ?? ''}`} />
             ) : null
           )}
         </dl>
       )}
-    </SectionCard>
+    </FormulaSectionCard>
   );
 }
 
@@ -171,22 +267,19 @@ function ProductEvaluationSection({
   const hasAnyValue = fields.some((field) => field.value !== undefined && field.value !== '');
 
   return (
-    <SectionCard title="Evaluación del producto">
+    <FormulaSectionCard title="Evaluación del producto" icon="fact_check" accent="text-tertiary">
       {!hasAnyValue ? (
         <EmptySectionMessage>No hay evaluación del producto registrada.</EmptySectionMessage>
       ) : (
-        <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 font-body text-sm">
+        <dl className="grid grid-cols-1 gap-3 font-body text-sm sm:grid-cols-2">
           {fields.map(({ label, value }) =>
             value !== undefined && value !== '' ? (
-              <div key={label}>
-                <dt className="font-semibold text-on-surface">{label}</dt>
-                <dd className="text-on-surface-variant">{value}</dd>
-              </div>
+              <ValueTile key={label} label={label} value={value} />
             ) : null
           )}
         </dl>
       )}
-    </SectionCard>
+    </FormulaSectionCard>
   );
 }
 
@@ -195,28 +288,29 @@ function UseTestSection({ useTest }: { useTest?: FormulaRecord['useTest'] }) {
   const hasExpiration = Boolean(useTest?.approxExpirationDate);
 
   return (
-    <SectionCard title="Prueba de uso">
+    <FormulaSectionCard title="Prueba de uso" icon="event_note">
       {!hasEntries && !hasExpiration ? (
         <EmptySectionMessage>No hay datos de prueba de uso registrados.</EmptySectionMessage>
       ) : (
         <div className="space-y-4">
           {hasExpiration && (
-            <div>
-              <h3 className="font-body text-sm font-semibold text-on-surface mb-1">
-                Vencimiento aproximado
-              </h3>
-              <p className="font-body text-sm text-on-surface-variant">
-                {formatDate(useTest?.approxExpirationDate ?? undefined)}
-              </p>
-            </div>
+            <dl>
+              <ValueTile
+                label="Vencimiento aproximado"
+                value={formatDate(useTest?.approxExpirationDate ?? undefined)}
+              />
+            </dl>
           )}
           {hasEntries && (
             <div>
               <h3 className="font-body text-sm font-semibold text-on-surface mb-2">Entradas</h3>
               <ul className="space-y-3">
                 {useTest?.entries.map((entry) => (
-                  <li key={`${entry.date}-${entry.note}`} className="font-body text-sm">
-                    <span className="block text-on-surface-variant mb-0.5">
+                  <li
+                    key={`${entry.date}-${entry.note}`}
+                    className="rounded-lg border border-outline-variant/60 bg-surface-container-lowest p-3 font-body text-sm"
+                  >
+                    <span className="block text-xs text-on-surface-variant mb-1">
                       {formatDate(entry.date)}
                     </span>
                     <p className="text-on-surface">{entry.note}</p>
@@ -227,7 +321,7 @@ function UseTestSection({ useTest }: { useTest?: FormulaRecord['useTest'] }) {
           )}
         </div>
       )}
-    </SectionCard>
+    </FormulaSectionCard>
   );
 }
 
@@ -245,36 +339,81 @@ function InciSection({ inci }: { inci?: FormulaRecord['inci'] }) {
   const hasAnyValue = fields.some((field) => field.value !== undefined && field.value !== '');
 
   return (
-    <SectionCard title="INCI">
+    <FormulaSectionCard title="INCI" icon="menu_book" accent="text-tertiary">
       {!hasAnyValue ? (
         <EmptySectionMessage>No hay datos INCI registrados.</EmptySectionMessage>
       ) : (
-        <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 font-body text-sm">
+        <dl className="grid grid-cols-1 gap-3 font-body text-sm sm:grid-cols-2">
           {fields.map(({ label, value }) =>
             value !== undefined && value !== '' ? (
-              <div key={label}>
-                <dt className="font-semibold text-on-surface">{label}</dt>
-                <dd className="text-on-surface-variant">{value}</dd>
-              </div>
+              <ValueTile key={label} label={label} value={value} />
             ) : null
           )}
         </dl>
       )}
-    </SectionCard>
+    </FormulaSectionCard>
   );
 }
 
 function FinalObservationsSection({ observations }: { observations?: string }) {
   return (
-    <SectionCard title="Observaciones finales">
+    <FormulaSectionCard title="Observaciones finales" icon="notes" accent="text-tertiary">
       {!observations || observations.trim() === '' ? (
         <EmptySectionMessage>No hay observaciones finales registradas.</EmptySectionMessage>
       ) : (
-        <p className="font-body text-sm text-on-surface-variant whitespace-pre-wrap">
+        <p className="rounded-lg border border-outline-variant/60 bg-surface-container-lowest p-3 font-body text-sm text-on-surface-variant whitespace-pre-wrap">
           {observations}
         </p>
       )}
-    </SectionCard>
+    </FormulaSectionCard>
+  );
+}
+
+function PhasesSection({ phases }: { phases?: FormulaRecord['phases'] }) {
+  const phaseCards = [
+    { title: 'Fase acuosa', ingredients: phases?.aqueous },
+    { title: 'Fase oleosa', ingredients: phases?.oil },
+    { title: 'Activos', ingredients: phases?.actives },
+  ];
+
+  return (
+    <FormulaSectionCard title="Fases e ingredientes" icon="science" accent="text-secondary">
+      {phaseCards.some(({ ingredients }) => ingredients && ingredients.length > 0) ? (
+        <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-3">
+          {phaseCards.map((phase) => (
+            <PhaseCard key={phase.title} {...phase} />
+          ))}
+        </div>
+      ) : (
+        <EmptySectionMessage>No hay fases registradas.</EmptySectionMessage>
+      )}
+    </FormulaSectionCard>
+  );
+}
+
+function ProcedureSection({ steps }: { steps: FormulaRecord['procedureSteps'] }) {
+  return (
+    <FormulaSectionCard title="Procedimiento" icon="account_tree" accent="text-tertiary">
+      {steps.length === 0 ? (
+        <EmptySectionMessage>No hay pasos de procedimiento registrados.</EmptySectionMessage>
+      ) : (
+        <ol className="space-y-3">
+          {steps.map((step) => (
+            <li
+              key={step.stepNumber}
+              className="flex min-w-0 gap-3 rounded-lg border border-outline-variant/60 bg-surface-container-lowest p-3"
+            >
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-primary/10 font-label text-xs font-bold text-primary">
+                {step.stepNumber}
+              </span>
+              <p className="min-w-0 break-words pt-1 font-body text-sm text-on-surface-variant">
+                {step.instruction}
+              </p>
+            </li>
+          ))}
+        </ol>
+      )}
+    </FormulaSectionCard>
   );
 }
 
@@ -291,47 +430,58 @@ export default async function LaboratoryFormulaDetailPage({ params }: PageProps)
   const lots = await lotRepo.findByFormulaId(params.id);
 
   return (
-    <main className="min-h-screen bg-surface py-20 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
-          <Link
-            href="/laboratorio/formulas"
-            className="inline-flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors font-body text-sm"
-          >
-            <ArrowLeftIcon className="w-4 h-4" />
-            Volver a fórmulas
-          </Link>
-
-          <div className="flex items-center gap-4">
+    <main className="min-h-screen overflow-x-hidden bg-surface py-20 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl space-y-8">
+        <header className="space-y-5" role="banner">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <Link
-              href={`/laboratorio/formulas/${formula.id}/edit`}
-              className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors font-body text-sm font-medium"
+              href="/laboratorio/formulas"
+              className="inline-flex items-center gap-2 font-label text-xs font-bold uppercase tracking-wider text-on-surface-variant transition-colors hover:text-primary"
             >
-              Editar fórmula
+              <MaterialIcon name="arrow_back" className="text-[18px]" />
+              Volver a fórmulas
             </Link>
 
-            {formula.status === 'validated' && (
+            <div className="flex flex-wrap items-center gap-3">
               <Link
-                href={`/laboratorio/lotes/nuevo?formulaId=${formula.id}`}
-                className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors font-body text-sm font-medium"
+                href={`/laboratorio/formulas/${formula.id}/edit`}
+                className="inline-flex items-center gap-2 rounded-lg border border-primary/40 px-4 py-2 font-label text-xs font-bold uppercase tracking-wider text-primary transition-colors hover:bg-surface-container"
               >
-                <PlusIcon className="w-4 h-4" />
-                Crear lote
+                <MaterialIcon name="edit" className="text-[17px]" />
+                Editar fórmula
               </Link>
-            )}
+
+              {formula.status === 'validated' && (
+                <Link
+                  href={`/laboratorio/lotes/nuevo?formulaId=${formula.id}`}
+                  className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 font-label text-xs font-bold uppercase tracking-wider text-on-primary transition-colors hover:bg-primary/90"
+                >
+                  <MaterialIcon name="add" className="text-[18px]" />
+                  Crear lote
+                </Link>
+              )}
+            </div>
+          </div>
+
+          <IdentitySection formula={formula} />
+        </header>
+
+        <div className="grid min-w-0 grid-cols-1 items-start gap-6 md:grid-cols-12">
+          <div className="min-w-0 space-y-6 md:col-span-8">
+            <PhasesSection phases={formula.phases} />
+            <ProcedureSection steps={formula.procedureSteps} />
+            <ProductEvaluationSection evaluation={formula.productEvaluation} />
+            <UseTestSection useTest={formula.useTest} />
+            <InciSection inci={formula.inci} />
+          </div>
+
+          <div className="min-w-0 space-y-6 md:col-span-4">
+            <LotsSection lots={lots} />
+            <ObjectivesSection objectives={formula.productObjectives} />
+            <TechnicalDataSection data={formula.technicalData} />
+            <FinalObservationsSection observations={formula.finalObservations} />
           </div>
         </div>
-
-        <IdentitySection formula={formula} />
-        <LotsSection formulaId={formula.id} lots={lots} />
-        <ObjectivesSection objectives={formula.productObjectives} />
-        <PhasesSection phases={formula.phases} />
-        <ProcedureSection steps={formula.procedureSteps} />
-        <TechnicalDataSection data={formula.technicalData} />
-        <ProductEvaluationSection evaluation={formula.productEvaluation} />
-        <UseTestSection useTest={formula.useTest} />
-        <InciSection inci={formula.inci} />
-        <FinalObservationsSection observations={formula.finalObservations} />
       </div>
     </main>
   );

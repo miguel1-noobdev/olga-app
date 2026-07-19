@@ -4,6 +4,8 @@
 
 Promote `/laboratorio/lotes/*` to a first-class route tree (list, create, detail, edit, follow-up) reusing `LotRepository` queries. Creation moves to "select validated formula → set grams → create" with server-side re-validation; formula-context and legacy-create redirects carry a validated formula into canonical preselection. Convert `/laboratorio/formulas/[id]/lotes/*` into redirect-only pages: detail and edit check `lot.formulaId === params.id`, while create validates the formula context because it has no lot. The canonical lot parameter is `lotId`, and `/editar` is the intentional canonical Spanish edit segment. Centralize lifecycle guards in `LotRepository.update` as MANDATORY invariants: `planned` and `cancelled` may edit target grams and rescale only their own snapshot; `in_progress` permits non-snapshot production edits but blocks target-gram changes and snapshot regeneration; `completed` freezes all production data and snapshot; all statuses permit append-only dated follow-up. Formula context keeps lot history and a creation shortcut but stops owning canonical navigation. No Mongo migration. Naming: `Lotes` (section), `Lote` (record).
 
+**Canonical lifecycle correction:** The active contract supersedes the historical vocabulary in this document: only `in_production`, `finalized`, and `discarded` are writable. `in_production` is the only production-editable status; `finalized` and `discarded` are terminal. Follow-up remains append-only for all three, and finalized records stay in the same collection as history. Legacy values are normalized only when reading persisted documents.
+
 ## Architecture Decisions
 
 | Option | Tradeoff | Decision |

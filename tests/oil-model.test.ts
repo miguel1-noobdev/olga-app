@@ -27,6 +27,11 @@ describe('OilModel', () => {
       recommendedPercentage: 10,
       observations: 'Emoliente suave, ideal para pieles sensibles.',
       notes: 'Comprar versión orgánica cuando sea posible.',
+      solubility: 'Liposoluble',
+      skinTypes: ['Seca', 'Sensible'],
+      absorption: 'Media',
+      properties: ['Emoliente', 'Protector'],
+      images: [{ url: 'https://example.test/almendras.jpg', alt: 'Aceite de almendras' }],
     };
   }
 
@@ -40,6 +45,12 @@ describe('OilModel', () => {
     expect(oil.recommendedPercentage).toBe(10);
     expect(oil.observations).toBe('Emoliente suave, ideal para pieles sensibles.');
     expect(oil.notes).toBe('Comprar versión orgánica cuando sea posible.');
+    expect(oil.slug).toBe('aceite-de-almendras-dulces');
+    expect(oil.solubility).toBe('Liposoluble');
+    expect(oil.skinTypes).toEqual(['Seca', 'Sensible']);
+    expect(oil.absorption).toBe('Media');
+    expect(oil.properties).toEqual(['Emoliente', 'Protector']);
+    expect(JSON.parse(JSON.stringify(oil.images))).toEqual([{ url: 'https://example.test/almendras.jpg', alt: 'Aceite de almendras' }]);
   });
 
   it('persists an oil with only required fields', async () => {
@@ -52,6 +63,10 @@ describe('OilModel', () => {
     expect(oil.recommendedPercentage).toBeNull();
     expect(oil.observations).toBeUndefined();
     expect(oil.notes).toBeUndefined();
+    expect(oil.slug).toBe('aceite-de-jojoba');
+    expect(oil.skinTypes).toEqual([]);
+    expect(oil.properties).toEqual([]);
+    expect(oil.images).toEqual([]);
   });
 
   it('accepts null recommendedPercentage', async () => {
@@ -82,6 +97,14 @@ describe('OilModel', () => {
     const oil = await OilModel.create({ name: '  Aceite de caléndula  ' });
 
     expect(oil.name).toBe('Aceite de caléndula');
+  });
+
+  it('assigns a stable slug to legacy records missing one before validation', async () => {
+    const legacy = new OilModel({ name: 'Aceite de caléndula' });
+    legacy.set('slug', undefined);
+    await legacy.save();
+
+    expect(legacy.slug).toBe('aceite-de-calendula');
   });
 
   it('defines only one name index', () => {

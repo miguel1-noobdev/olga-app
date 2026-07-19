@@ -11,12 +11,16 @@ import {
 const submitLotEditMock =
   vi.fn<(values: LotEditFormValues) => Promise<SubmitLotEditResult>>();
 
+const { routerPushMock } = vi.hoisted(() => ({
+  routerPushMock: vi.fn(),
+}));
+
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ back: vi.fn() }),
+  useRouter: () => ({ back: vi.fn(), push: routerPushMock }),
 }));
 
 const defaultValues: LotEditFormValues = {
-  status: 'planned',
+  status: 'in_production',
   plannedAt: '',
   startedAt: '',
   completedAt: '',
@@ -40,10 +44,8 @@ describe('LotEditForm', () => {
       screen.getByRole('form', { name: /editar lote/i })
     ).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: /estado/i })).toHaveValue(
-      'planned'
+      'in_production'
     );
-    expect(screen.getByLabelText(/planificado el/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/iniciado el/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/completado el/i)).toBeInTheDocument();
     expect(
       screen.getByRole('textbox', { name: /observaciones operativas/i })
@@ -70,9 +72,9 @@ describe('LotEditForm', () => {
     render(
       <LotEditForm
         initialValues={{
-          status: 'in_progress',
-          plannedAt: '2026-04-15',
-          startedAt: '2026-04-16',
+          ...defaultValues,
+          status: 'finalized',
+          targetBatchGrams: '750',
           completedAt: '2026-04-17',
           operationalObservations: 'Use fresh water',
         }}
@@ -81,10 +83,9 @@ describe('LotEditForm', () => {
     );
 
     expect(screen.getByRole('combobox', { name: /estado/i })).toHaveValue(
-      'in_progress'
+      'finalized'
     );
-    expect(screen.getByLabelText(/planificado el/i)).toHaveValue('2026-04-15');
-    expect(screen.getByLabelText(/iniciado el/i)).toHaveValue('2026-04-16');
+    expect(screen.getByLabelText(/lote objetivo/i)).toHaveValue(750);
     expect(screen.getByLabelText(/completado el/i)).toHaveValue('2026-04-17');
     expect(
       screen.getByRole('textbox', { name: /observaciones operativas/i })
@@ -94,7 +95,7 @@ describe('LotEditForm', () => {
   it('displays validation errors when initial values are invalid', async () => {
     render(
       <LotEditForm
-        initialValues={{ ...defaultValues, status: 'invalid-status' as unknown as 'planned' }}
+        initialValues={{ ...defaultValues, status: 'invalid-status' as unknown as 'in_production' }}
         submitLotEdit={submitLotEditMock}
       />
     );
@@ -115,30 +116,30 @@ describe('LotEditForm', () => {
 
     await userEvent.selectOptions(
       screen.getByRole('combobox', { name: /estado/i }),
-      'in_progress'
+      'finalized'
     );
-    await userEvent.type(screen.getByLabelText(/planificado el/i), '2026-04-20');
-    await userEvent.type(screen.getByLabelText(/iniciado el/i), '2026-04-21');
     await userEvent.type(screen.getByLabelText(/completado el/i), '2026-04-22');
     await userEvent.type(
       screen.getByRole('textbox', { name: /observaciones operativas/i }),
       'Use fresh water'
     );
 
-    submitLotEditMock.mockResolvedValue({ success: true });
+    submitLotEditMock.mockResolvedValue({
+      success: true,
+      redirectTo: '/laboratorio/lotes/lot-1',
+    });
 
     fireEvent.submit(screen.getByRole('form'));
 
     await waitFor(() => expect(submitLotEditMock).toHaveBeenCalledTimes(1));
     expect(submitLotEditMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        status: 'in_progress',
-        plannedAt: '2026-04-20',
-        startedAt: '2026-04-21',
+        status: 'finalized',
         completedAt: '2026-04-22',
         operationalObservations: 'Use fresh water',
       })
     );
+    expect(routerPushMock).toHaveBeenCalledWith('/laboratorio/lotes/lot-1');
   });
 
   it('displays field errors returned by the submit handler', async () => {
@@ -190,7 +191,13 @@ describe('LotEditForm', () => {
     );
 
     submitLotEditMock.mockImplementation(
-      () => new Promise((resolve) => setTimeout(() => resolve({ success: true }), 50))
+      () =>
+        new Promise((resolve) =>
+          setTimeout(
+            () => resolve({ success: true, redirectTo: '/laboratorio/lotes/lot-1' }),
+            50
+          )
+        )
     );
 
     const submitButton = screen.getByRole('button', { name: /actualizar lote/i });

@@ -59,4 +59,48 @@ describe('/laboratorio/formulas/nueva page', () => {
     expect(screen.getByRole('button', { name: /guardar fórmula/i })).toBeInTheDocument();
     expect(redirectMock).not.toHaveBeenCalled();
   });
+
+  it('renders the approved compact formula layout and required labels', async () => {
+    getServerSessionMock.mockResolvedValue({
+      user: { id: 'user-1', email: 'olga@test.com', role: 'productora' },
+    });
+
+    const jsx = await LaboratoryNewFormulaPage();
+    render(jsx);
+
+    expect(screen.getByText('Definición de parámetros, ingredientes y procedimientos de elaboración.'))
+      .toBeInTheDocument();
+    expect(screen.getByRole('group', { name: /información básica de la fórmula/i })).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: /fases e ingredientes/i })).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: /evaluación del producto/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /inci \/ propiedades/i })).toBeInTheDocument();
+
+    expect(screen.getByLabelText(/nombre del producto/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^código de fórmula$/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^versión$/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/fecha de elaboración/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/lote objetivo \(g\)/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^estado$/i)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /^objetivo del producto$/i })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /observaciones finales/i })).toBeInTheDocument();
+
+    const form = screen.getByRole('form');
+    expect(form).toHaveClass('w-full', 'min-w-0');
+    expect(screen.getByRole('group', { name: /procedimiento/i }).parentElement).toHaveClass(
+      'grid',
+      'grid-cols-1',
+      'lg:grid-cols-2'
+    );
+    expect(screen.getByRole('group', { name: /prueba de uso/i }).parentElement).toHaveClass(
+      'grid',
+      'grid-cols-1',
+      'lg:grid-cols-2'
+    );
+
+    const actionButtons = screen.getAllByRole('button', { name: /cancelar|guardar fórmula/i });
+    expect(actionButtons[0]).toHaveAccessibleName('Cancelar');
+    expect(actionButtons[0]).toHaveAttribute('type', 'button');
+    expect(actionButtons[1]).toHaveAccessibleName('Guardar fórmula');
+    expect(actionButtons[1]).toHaveAttribute('type', 'submit');
+  });
 });

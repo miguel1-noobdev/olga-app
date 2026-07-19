@@ -46,7 +46,7 @@ const lot = {
   formulaVersion: '1.0',
   lotNumber: 1,
   lotCode: 'CF-001-L001',
-  status: 'planned' as const,
+  status: 'in_production' as const,
   targetBatchGrams: 500,
   formulaSnapshot: { productName: 'Lavender cream', productType: 'cream', targetBatchGrams: 500, procedureSteps: [] },
   followUp: { entries: [] },
@@ -60,7 +60,7 @@ const lot = {
 describe('/laboratorio/lotes/[lotId]/editar page', () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it('renders editable production controls and target batch rescaling for planned lots', async () => {
+  it('renders editable production controls for in-production lots', async () => {
     findByIdMock.mockResolvedValue(lot);
 
     render(await LaboratoryLotEditPage({ params: { lotId: 'lot-1' } }));
@@ -75,18 +75,18 @@ describe('/laboratorio/lotes/[lotId]/editar page', () => {
     );
   });
 
-  it('keeps target batch read-only while leaving in-progress production fields editable', async () => {
-    findByIdMock.mockResolvedValue({ ...lot, status: 'in_progress' });
+  it('keeps discarded terminal lots read-only', async () => {
+    findByIdMock.mockResolvedValue({ ...lot, status: 'discarded' });
 
     render(await LaboratoryLotEditPage({ params: { lotId: 'lot-1' } }));
 
     expect(screen.getByRole('spinbutton', { name: /lote objetivo/i })).toBeDisabled();
-    expect(screen.getByRole('combobox', { name: /estado/i })).toBeEnabled();
-    expect(screen.getByRole('textbox', { name: /observaciones operativas/i })).toBeEnabled();
+    expect(screen.getByRole('combobox', { name: /estado/i })).toBeDisabled();
+    expect(screen.getByRole('textbox', { name: /observaciones operativas/i })).toBeDisabled();
   });
 
-  it('keeps all production controls read-only for completed lots', async () => {
-    findByIdMock.mockResolvedValue({ ...lot, status: 'completed' });
+  it('keeps all production controls read-only for finalized historical lots', async () => {
+    findByIdMock.mockResolvedValue({ ...lot, status: 'finalized' });
 
     render(await LaboratoryLotEditPage({ params: { lotId: 'lot-1' } }));
 

@@ -52,13 +52,13 @@ The server action MUST re-validate that the selected formula is still validated 
 
 ### Requirement: Initial Lifecycle State
 
-The system MUST create a new lot in `planned` status. The lifecycle statuses are `planned`, `in_progress`, `completed`, and `cancelled`; `in_progress` blocks target-gram changes and snapshot regeneration, while `completed` freezes all production data.
+The system MUST create a new lot in `in_production` status. The only writable lifecycle statuses are `in_production`, `finalized`, and `discarded`.
 
-#### Scenario: New lot starts planned
+#### Scenario: New lot starts in production
 
 - GIVEN a validated formula and valid target grams
 - WHEN the user creates a lot
-- THEN the new lot has `planned` status
+- THEN the new lot has `in_production` status
 - AND its follow-up accepts append-only dated entries
 
 ### Requirement: Create Redirect

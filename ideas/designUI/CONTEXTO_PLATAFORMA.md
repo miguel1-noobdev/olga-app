@@ -286,16 +286,16 @@ Fase 1 se considera **cerrada funcionalmente**. Las versiones actuales son acept
   - Puede haber campos variables según lo que Olga quiera anotar
 - **Siempre hay imagen/URL** del cuaderno original o del producto fabricado
 
-**Workflow completo del lote:**
-1. Crear lote (F.A. + F.O. con ingredientes y porcentajes)
-2. Seguimiento temporal (días/semanas con observaciones)
-3. **Antes de terminar el seguimiento**: Olga debe dejar **modo de uso y beneficios** como nota/observación
-4. **Pasa a stock** (cambio de estado: producto apto para uso, no finalizado)
-5. **Seguimiento post-stock** (en el mismo documento): beneficios a largo plazo, problemas derivados del uso, cambios por el paso del tiempo
+**Ciclo canónico del lote:**
+1. Crear lote en `in_production` (En producción).
+2. Registrar seguimiento y observaciones append-only durante la producción.
+3. Cerrar normalmente en `finalized` (Finalizado), o salir de forma terminal en `discarded` (Descartado).
+4. Un lote finalizado permanece en la misma colección como histórico; su seguimiento y observaciones append-only siguen disponibles indefinidamente.
 
 **Estados del lote:**
-- `en_seguimiento` — en producción y pruebas
-- `en_stock` — apto para uso, sigue registrándose (estado vivo, no final)
+- `in_production` — en producción y pruebas; único estado operativo editable.
+- `finalized` — histórico terminal; conserva seguimiento append-only.
+- `discarded` — salida terminal; conserva seguimiento append-only.
 
 **Estructura del documento `laboratorio`:**
 ```json

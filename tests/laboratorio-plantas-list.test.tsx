@@ -68,23 +68,7 @@ describe('/laboratorio/plantas page', () => {
     expect(redirectMock).not.toHaveBeenCalled();
   });
 
-  it('renders a back link to the laboratory hub', async () => {
-    getServerSessionMock.mockResolvedValue({
-      user: { id: 'user-1', email: 'olga@test.com', role: 'productora' },
-    });
-
-    findAllMock.mockResolvedValue([]);
-
-    const jsx = await LaboratoryPlantsPage();
-    render(jsx);
-
-    expect(screen.getByRole('link', { name: /volver al laboratorio/i })).toHaveAttribute(
-      'href',
-      '/laboratorio'
-    );
-  });
-
-  it('reads plants from PlantRepository and renders them in a table', async () => {
+  it('reproduces the Stitch list hierarchy and reads plants from PlantRepository', async () => {
     getServerSessionMock.mockResolvedValue({
       user: { id: 'user-1', email: 'olga@test.com', role: 'productora' },
     });
@@ -101,6 +85,7 @@ describe('/laboratorio/plantas page', () => {
       buildPlant({
         id: 'plant-2',
         commonName: 'Manzanilla',
+        slug: 'matricaria-chamomilla-l',
         scientificName: 'Matricaria chamomilla L.',
         family: 'Asteraceae',
         usedParts: ['Flores'],
@@ -114,13 +99,26 @@ describe('/laboratorio/plantas page', () => {
     const jsx = await LaboratoryPlantsPage();
     render(jsx);
 
-    expect(screen.getByText('Laboratorio — Plantas')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Mi jardín' })).toHaveClass(
+      'font-display',
+      'text-4xl',
+      'lg:text-5xl',
+      'text-tertiary'
+    );
     expect(
-      screen.getByText(
-        'Inventario interno de materias primas botánicas disponibles para fórmulas y producción.'
-      )
+      screen.getByText('Catálogo botánico interno de referencia operativa.')
     ).toBeInTheDocument();
-    expect(screen.getByText('2 plantas registradas')).toBeInTheDocument();
+    expect(screen.getByText('2 PLANTAS REGISTRADAS')).toBeInTheDocument();
+    expect(screen.getByLabelText('Resumen del catálogo botánico')).toHaveClass(
+      'border-l-2',
+      'border-primary'
+    );
+    expect(screen.getByTestId('plant-table-accent')).toHaveClass(
+      'bg-gradient-to-r',
+      'from-primary',
+      'via-tertiary',
+      'to-secondary-fixed'
+    );
 
     const table = screen.getByRole('table');
     const rows = within(table).getAllByRole('row');
@@ -131,13 +129,19 @@ describe('/laboratorio/plantas page', () => {
     expect(headers.map((h) => h.textContent)).toEqual([
       'Nombre común',
       'Nombre científico',
-      'Familia',
+      'Family',
       'Partes usadas',
       'Extractos',
-      'Notas internas',
+      'Notas',
     ]);
 
     const firstDataRow = rows[1];
+    const firstPlantLink = within(firstDataRow).getAllByRole('link', { name: 'Ver ficha interna de Lavanda' })[0];
+
+    expect(firstPlantLink).toHaveAttribute(
+      'href',
+      '/laboratorio/plantas/lavandula-angustifolia-mill'
+    );
     expect(within(firstDataRow).getByText('Lavanda')).toBeInTheDocument();
     expect(
       within(firstDataRow).getByText('Lavandula angustifolia Mill.')
@@ -147,12 +151,17 @@ describe('/laboratorio/plantas page', () => {
     expect(within(firstDataRow).getByText('Aceite Esencial')).toBeInTheDocument();
 
     const secondDataRow = rows[2];
+    expect(
+      within(secondDataRow).getAllByRole('link', { name: 'Ver ficha interna de Manzanilla' })[0]
+    ).toHaveAttribute('href', '/laboratorio/plantas/matricaria-chamomilla-l');
     expect(within(secondDataRow).getByText('Manzanilla')).toBeInTheDocument();
     expect(
       within(secondDataRow).getByText('Matricaria chamomilla L.')
     ).toBeInTheDocument();
     expect(within(secondDataRow).getByText('Asteraceae')).toBeInTheDocument();
     expect(within(secondDataRow).getByText('Aceite Esencial, Infusión')).toBeInTheDocument();
+    expect(screen.getByText('Orden alfabético (A-Z)')).toBeInTheDocument();
+    expect(screen.getByText('Datos de sólo lectura')).toBeInTheDocument();
   });
 
   it('renders internal notes hint only when internal context exists', async () => {
@@ -182,7 +191,7 @@ describe('/laboratorio/plantas page', () => {
     const rows = within(table).getAllByRole('row');
 
     expect(rows).toHaveLength(3);
-    expect(within(rows[1]).getByText('Con notas')).toBeInTheDocument();
+    expect(within(rows[1]).getByText('Sí')).toBeInTheDocument();
     expect(within(rows[2]).getByText('—')).toBeInTheDocument();
   });
 
@@ -196,10 +205,12 @@ describe('/laboratorio/plantas page', () => {
     const jsx = await LaboratoryPlantsPage();
     render(jsx);
 
+    expect(screen.getByRole('heading', { name: 'Mi jardín' })).toBeInTheDocument();
+    expect(screen.getByText('0 PLANTAS REGISTRADAS')).toBeInTheDocument();
     expect(screen.getByText('No hay plantas registradas todavía')).toBeInTheDocument();
     expect(
       screen.getByText(
-        'Tu inventario de plantas del laboratorio está vacío. Las plantas deben ser agregadas por una administradora antes de poder usarse en fórmulas y lotes.'
+        'Cuando incorpores una planta al dominio botánico, aparecerá en este catálogo de consulta.'
       )
     ).toBeInTheDocument();
   });

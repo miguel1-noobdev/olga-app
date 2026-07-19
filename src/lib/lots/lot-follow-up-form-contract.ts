@@ -10,7 +10,7 @@ export type LotFollowUpFormValidationError = Partial<
 >;
 
 export type SubmitLotFollowUpResult =
-  | { success: true }
+  | { success: true; redirectTo: string }
   | { success: false; errors: LotFollowUpFormValidationError }
   | { success: false; error: string };
 

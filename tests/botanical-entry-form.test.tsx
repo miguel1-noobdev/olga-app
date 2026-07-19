@@ -1,49 +1,66 @@
-import React from 'react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-
-const pushMock = vi.fn();
-vi.mock('next/navigation', () => ({ useRouter: () => ({ push: pushMock }) }));
-
 import BotanicalEntryForm from '@/components/admin/botanical-entry-form';
 
-describe('BotanicalEntryForm', () => {
-  beforeEach(() => pushMock.mockReset());
+const push = vi.fn();
+const fetchMock = vi.fn();
 
-  it('submits a plant to the protected canonical catalog endpoint and returns to the catalog', async () => {
-    const user = userEvent.setup();
-    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ id: 'plant-1' }), { status: 201 }));
+vi.mock('next/navigation', () => ({ useRouter: () => ({ push }) }));
+
+describe('BotanicalEntryForm oil contract', () => {
+  beforeEach(() => {
+    push.mockReset();
+    fetchMock.mockReset();
     vi.stubGlobal('fetch', fetchMock);
-
-    render(<BotanicalEntryForm kind="plants" />);
-    await user.type(screen.getByLabelText('Nombre común'), 'Lavanda');
-    await user.type(screen.getByLabelText('Nombre científico'), 'Lavandula angustifolia');
-    await user.type(screen.getByLabelText('Familia'), 'Lamiaceae');
-    await user.click(screen.getByRole('button', { name: 'Guardar planta' }));
-
-    expect(fetchMock).toHaveBeenCalledWith('/api/admin/botanico/plants', expect.objectContaining({
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ commonName: 'Lavanda', scientificName: 'Lavandula angustifolia', family: 'Lamiaceae' }),
-    }));
-    expect(pushMock).toHaveBeenCalledWith('/admin/botanico');
+    fetchMock.mockResolvedValue({ ok: true, json: async () => ({ id: 'oil-1' }) });
   });
 
-  it('shows the server validation error and keeps an invalid oil/extract out of the catalog', async () => {
-    const user = userEvent.setup();
-    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({
-      errors: { recommendedPercentage: 'Recommended percentage must be between 0 and 100.' },
-    }), { status: 400 }));
-    vi.stubGlobal('fetch', fetchMock);
-
+  it('maps every supported oil detail field on creation and keeps an empty percentage null', async () => {
     render(<BotanicalEntryForm kind="oils" />);
-    await user.type(screen.getByLabelText('Nombre'), 'Aceite de jojoba');
-    await user.clear(screen.getByLabelText('Porcentaje recomendado'));
-    await user.type(screen.getByLabelText('Porcentaje recomendado'), '120');
-    await user.click(screen.getByRole('button', { name: 'Guardar aceite o extracto' }));
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('Recommended percentage must be between 0 and 100.');
-    expect(pushMock).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByLabelText('Nombre'), { target: { value: 'Aceite de oliva' } });
+    fireEvent.change(screen.getByLabelText('Nombre INCI'), { target: { value: 'Olea Europaea Fruit Oil' } });
+    fireEvent.change(screen.getByLabelText('Solubilidad'), { target: { value: 'Liposoluble' } });
+    fireEvent.change(screen.getByLabelText('Tipos de piel'), { target: { value: 'Madura\nSeca' } });
+    fireEvent.change(screen.getByLabelText('Absorción'), { target: { value: 'Lenta' } });
+    fireEvent.change(screen.getByLabelText('Propiedades'), { target: { value: 'Regenerador' } });
+    fireEvent.change(screen.getByLabelText('Imágenes'), {
+      target: { value: 'https://example.test/olive.jpg | Aceite de oliva' },
+    });
+    fireEvent.change(screen.getByLabelText('Notas'), { target: { value: 'Combina bien' } });
+    fireEvent.submit(screen.getByRole('form'));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+    expect(fetchMock).toHaveBeenCalledWith('/api/admin/botanico/oils', expect.objectContaining({
+      method: 'POST',
+      body: JSON.stringify({
+        name: 'Aceite de oliva',
+        inciName: 'Olea Europaea Fruit Oil',
+        recommendedPercentage: null,
+        solubility: 'Liposoluble',
+        skinTypes: ['Madura', 'Seca'],
+        absorption: 'Lenta',
+        properties: ['Regenerador'],
+        images: [{ url: 'https://example.test/olive.jpg', alt: 'Aceite de oliva' }],
+        notes: 'Combina bien',
+      }),
+    }));
+  });
+
+  it('prefills and updates every supported oil detail field', async () => {
+    render(<BotanicalEntryForm kind="oils" entryId="oil-1" initialValues={{
+      name: 'Aceite de oliva', solubility: 'Liposoluble', skinTypes: ['Madura', 'Seca'], absorption: 'Lenta',
+      properties: ['Regenerador'], images: [{ url: 'https://example.test/olive.jpg', alt: 'Aceite de oliva' }], notes: 'Combina bien',
+    }} />);
+
+    expect(screen.getByLabelText('Tipos de piel')).toHaveValue('Madura\nSeca');
+    fireEvent.change(screen.getByLabelText('Notas'), { target: { value: 'Actualizada' } });
+    fireEvent.submit(screen.getByRole('form'));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toMatchObject({
+      id: 'oil-1', solubility: 'Liposoluble', skinTypes: ['Madura', 'Seca'], absorption: 'Lenta',
+      properties: ['Regenerador'], images: [{ url: 'https://example.test/olive.jpg', alt: 'Aceite de oliva' }], notes: 'Actualizada',
+    });
   });
 });

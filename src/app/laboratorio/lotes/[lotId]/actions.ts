@@ -1,8 +1,9 @@
 'use server';
 
-import { redirect } from 'next/navigation';
 import { connectToDatabase } from '@/lib/db/connect';
 import { createLotRepository } from '@/lib/db/repository/lot';
+import { getCurrentUser } from '@/lib/auth/current-user';
+import { isStaff } from '@/lib/auth/roles';
 import {
   LotFollowUpFormValues,
   SubmitLotFollowUpResult,
@@ -14,6 +15,11 @@ export async function submitLotFollowUp(
   lotId: string,
   values: LotFollowUpFormValues
 ): Promise<SubmitLotFollowUpResult> {
+  const user = await getCurrentUser();
+  if (!user || !isStaff(user.role)) {
+    return { success: false, error: 'No autorizado' };
+  }
+
   const validation = validateMinimumLotFollowUpForm(values);
   if (!validation.valid) {
     return { success: false, errors: validation.errors };
@@ -26,12 +32,11 @@ export async function submitLotFollowUp(
     const record = await repository.update(lotId, {
       followUp: { entries: [toLotFollowUpEntry(values)] },
     });
-    redirect(`/laboratorio/lotes/${record.id}`);
+    return {
+      success: true,
+      redirectTo: `/laboratorio/lotes/${record.id}`,
+    };
   } catch (error) {
-    if (error instanceof Error && error.message.startsWith('NEXT_REDIRECT')) {
-      throw error;
-    }
-
     return {
       success: false,
       error:

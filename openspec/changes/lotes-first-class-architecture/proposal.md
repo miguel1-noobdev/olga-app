@@ -4,6 +4,8 @@
 
 Lotes are the operational center of the laboratory, but the UI still treats them as formula sub-pages. This change promotes `/laboratorio/lotes` to a first-class route tree, centralizes lot creation through validated-formula selection, and hardens lifecycle rules so production snapshots remain trustworthy.
 
+> **Canonical lifecycle correction (Fase 3 closure):** New and writable lot statuses are only `in_production`, `finalized`, and `discarded`, displayed as En producción, Finalizado, and Descartado. The normal transition is `in_production` to `finalized`; `discarded` is the terminal alternative. Finalized lots remain in the same collection as historical records and retain append-only follow-up indefinitely. Legacy `planned`, `in_progress`, `completed`, and `cancelled` values are read-compatible only.
+
 ## Scope
 
 ### In Scope

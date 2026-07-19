@@ -30,6 +30,11 @@ describe('OilRepository', () => {
       recommendedPercentage: 10,
       observations: 'Emoliente suave.',
       notes: 'Comprar orgánico.',
+      solubility: 'Liposoluble',
+      skinTypes: ['Seca'],
+      absorption: 'Media',
+      properties: ['Emoliente'],
+      images: [{ url: 'https://example.test/almendras.jpg', alt: 'Aceite de almendras' }],
     };
   }
 
@@ -39,6 +44,7 @@ describe('OilRepository', () => {
 
       expect(oil.id).toBeDefined();
       expect(oil.name).toBe('Aceite de almendras dulces');
+      expect(oil.slug).toBe('aceite-de-almendras-dulces');
       expect(oil.inciName).toBe('Prunus Amygdalus Dulcis Oil');
       expect(oil.hlb).toBe(6.5);
       expect(oil.phase).toBe('oil');
@@ -98,6 +104,22 @@ describe('OilRepository', () => {
       const found = await repo.findByName('Aceite inexistente');
 
       expect(found).toBeNull();
+    });
+  });
+
+  describe('findBySlug', () => {
+    it('resolves a canonical slug and safely falls back to legacy records without persisted slugs', async () => {
+      const created = await repo.create(sweetAlmondInput());
+      await OilModel.collection.updateOne({ _id: new mongoose.Types.ObjectId(created.id) }, { $unset: { slug: '' } });
+
+      const found = await repo.findBySlug('aceite-de-almendras-dulces');
+
+      expect(found?.id).toBe(created.id);
+      expect(found?.slug).toBe('aceite-de-almendras-dulces');
+    });
+
+    it('returns null for an unknown slug', async () => {
+      await expect(repo.findBySlug('unknown')).resolves.toBeNull();
     });
   });
 
@@ -161,6 +183,19 @@ describe('OilRepository', () => {
       expect(updated.hlb).toBe(7);
       expect(updated.recommendedPercentage).toBe(15);
       expect(updated.inciName).toBe('Prunus Amygdalus Dulcis Oil');
+    });
+
+    it('preserves all sibling fields when only notes change', async () => {
+      const created = await repo.create(sweetAlmondInput());
+      const updated = await repo.update(created.id, { notes: 'Nueva nota interna.' });
+
+      expect(updated.notes).toBe('Nueva nota interna.');
+      expect(updated.slug).toBe('aceite-de-almendras-dulces');
+      expect(updated.solubility).toBe('Liposoluble');
+      expect(updated.skinTypes).toEqual(['Seca']);
+      expect(updated.absorption).toBe('Media');
+      expect(updated.properties).toEqual(['Emoliente']);
+      expect(updated.images).toEqual([{ url: 'https://example.test/almendras.jpg', alt: 'Aceite de almendras' }]);
     });
 
     it('sets recommendedPercentage to null', async () => {

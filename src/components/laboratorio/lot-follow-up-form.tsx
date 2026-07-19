@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   LotFollowUpFormValues,
   LotFollowUpFormValidationError,
@@ -20,6 +21,7 @@ export default function LotFollowUpForm({
   initialValues,
   submitFollowUpEntry,
 }: LotFollowUpFormProps) {
+  const router = useRouter();
   const [values, setValues] = useState<LotFollowUpFormValues>(
     initialValues ?? createEmptyLotFollowUpFormValues()
   );
@@ -48,6 +50,11 @@ export default function LotFollowUpForm({
     setIsSubmitting(true);
     const result = await submitFollowUpEntry(values);
     setIsSubmitting(false);
+
+    if (result.success) {
+      router.push(result.redirectTo);
+      return;
+    }
 
     if (!result.success) {
       if ('errors' in result) {

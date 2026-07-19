@@ -14,7 +14,7 @@ export type LotEditFormValidationError = Partial<
 >;
 
 export type SubmitLotEditResult =
-  | { success: true }
+  | { success: true; redirectTo: string }
   | { success: false; errors: LotEditFormValidationError }
   | { success: false; error: string };
 
@@ -26,15 +26,15 @@ export interface LotLifecyclePermissions {
 
 export function getLotLifecyclePermissions(status: LotStatus): LotLifecyclePermissions {
   return {
-    canEditProduction: status !== 'completed',
-    canRescaleSnapshot: status === 'planned' || status === 'cancelled',
+    canEditProduction: status === 'in_production',
+    canRescaleSnapshot: status === 'in_production',
     canAppendFollowUp: true,
   };
 }
 
 export function createEmptyLotEditFormValues(): LotEditFormValues {
   return {
-    status: 'planned',
+    status: 'in_production',
     plannedAt: '',
     startedAt: '',
     completedAt: '',
@@ -48,6 +48,15 @@ function toDateInputValue(isoDate: string | null | undefined): string {
   }
 
   return isoDate.split('T')[0];
+}
+
+function isValidDateInput(value: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return false;
+  }
+
+  const date = new Date(`${value}T00:00:00.000Z`);
+  return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
 }
 
 export function toLotEditFormValues(record: {
@@ -70,8 +79,6 @@ export function toLotEditFormValues(record: {
 }
 
 export function toUpdateLotInput(values: LotEditFormValues): UpdateLotInput {
-  const plannedAt = values.plannedAt.trim();
-  const startedAt = values.startedAt.trim();
   const completedAt = values.completedAt.trim();
 
   const targetBatchGrams = values.targetBatchGrams?.trim();
@@ -79,8 +86,6 @@ export function toUpdateLotInput(values: LotEditFormValues): UpdateLotInput {
   return {
     status: values.status,
     ...(targetBatchGrams ? { targetBatchGrams: Number(targetBatchGrams) } : {}),
-    plannedAt: plannedAt ? new Date(plannedAt) : undefined,
-    startedAt: startedAt ? new Date(startedAt) : undefined,
     completedAt: completedAt ? new Date(completedAt) : undefined,
     operationalObservations:
       values.operationalObservations.trim() || undefined,
@@ -105,18 +110,8 @@ export function validateMinimumLotEditForm(values: LotEditFormValues): {
     errors.targetBatchGrams = 'El lote objetivo debe ser mayor a 0';
   }
 
-  const plannedAt = values.plannedAt.trim();
-  if (plannedAt && Number.isNaN(new Date(plannedAt).getTime())) {
-    errors.plannedAt = 'La fecha de planificación no es válida';
-  }
-
-  const startedAt = values.startedAt.trim();
-  if (startedAt && Number.isNaN(new Date(startedAt).getTime())) {
-    errors.startedAt = 'La fecha de inicio no es válida';
-  }
-
   const completedAt = values.completedAt.trim();
-  if (completedAt && Number.isNaN(new Date(completedAt).getTime())) {
+  if (completedAt && !isValidDateInput(completedAt)) {
     errors.completedAt = 'La fecha de finalización no es válida';
   }
 

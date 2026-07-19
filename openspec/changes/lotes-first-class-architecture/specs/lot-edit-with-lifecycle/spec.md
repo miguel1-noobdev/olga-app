@@ -8,58 +8,39 @@ Lot edit page at `/laboratorio/lotes/[lotId]/editar` with lifecycle-aware guards
 
 ### Requirement: Lifecycle Edit Rules
 
-The system MUST allow production edits, including target grams and rescaling only that lot's snapshot, for lots in `planned` or `cancelled` status.
+The system MUST allow production edits, including target grams and rescaling only that lot's snapshot, only in `in_production` status.
 
-The system MUST allow non-snapshot production edits when status is `in_progress`, but MUST reject target-gram changes and snapshot regeneration.
+The system MUST freeze all production fields and the snapshot when status is `finalized` or `discarded`.
 
-The system MUST freeze all production fields and the snapshot when status is `completed`.
+The system MUST allow append-only dated follow-up entries for `in_production`, `finalized`, and `discarded` lots. A finalized lot is historical in the same collection and keeps this follow-up available indefinitely.
 
-The system MUST allow append-only dated follow-up entries for `planned`, `in_progress`, `completed`, and `cancelled` lots.
+#### Scenario: Edit in-production lot
 
-The system MUST keep production data frozen in `completed` status without blocking append-only follow-up.
-
-#### Scenario: Edit planned lot
-
-- GIVEN a lot with status `planned`
+- GIVEN a lot with status `in_production`
 - WHEN the user changes target grams
 - THEN the snapshot is regenerated proportionally
 
-#### Scenario: Edit completed lot production fields rejected
+#### Scenario: Edit finalized lot production fields rejected
 
-- GIVEN a lot with status `completed`
+- GIVEN a lot with status `finalized`
 - WHEN the user attempts to modify production fields or snapshot
 - THEN the system rejects the mutation
 
-#### Scenario: Edit in-progress lot snapshot fields rejected
+#### Scenario: Append follow-up on finalized lot
 
-- GIVEN a lot with status `in_progress`
-- WHEN the user attempts to change target grams or regenerate the snapshot
-- THEN the system rejects the mutation
-
-#### Scenario: Append follow-up on completed lot
-
-- GIVEN a lot with status `completed`
+- GIVEN a lot with status `finalized`
 - WHEN the user appends a follow-up entry
 - THEN the entry is added to `followUp.entries`
 
-#### Scenario: Edit cancelled lot
+#### Scenario: Edit discarded lot
 
-- GIVEN a lot with status `cancelled`
+- GIVEN a lot with status `discarded`
 - WHEN the user changes target grams or another production field
-- THEN the changes are accepted
-- AND the lot's own snapshot is rescaled when target grams change
+- THEN the system rejects the production mutation
 
-#### Scenario: Edit page reflects lifecycle permissions
+#### Scenario: Edit page reflects finalized lifecycle
 
-- GIVEN a lot with status `in_progress`
-- WHEN the user navigates to `/laboratorio/lotes/[lotId]/editar`
-- THEN target-gram and snapshot controls are read-only
-- AND other production fields remain editable
-- AND the follow-up section remains available for appending
-
-#### Scenario: Edit page reflects completed lifecycle
-
-- GIVEN a lot with status `completed`
+- GIVEN a lot with status `finalized`
 - WHEN the user navigates to `/laboratorio/lotes/[lotId]/editar`
 - THEN production fields are displayed as read-only
 - AND the follow-up section remains available for appending

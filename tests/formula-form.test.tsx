@@ -7,9 +7,12 @@ import { SubmitFormulaResult } from '@/lib/formulas/formula-form-contract';
 import { createEmptyFormulaForm } from '@/lib/formulas/formula-form-contract';
 
 const submitFormulaMock = vi.fn<(_values: unknown) => Promise<SubmitFormulaResult>>();
+const { routerPushMock } = vi.hoisted(() => ({
+  routerPushMock: vi.fn(),
+}));
 
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ back: vi.fn() }),
+  useRouter: () => ({ back: vi.fn(), push: routerPushMock }),
 }));
 
 describe('FormulaForm', () => {
@@ -32,6 +35,24 @@ describe('FormulaForm', () => {
     expect(screen.getByRole('group', { name: /prueba de uso/i })).toBeInTheDocument();
     expect(screen.getByRole('group', { name: /inci/i })).toBeInTheDocument();
     expect(screen.getByRole('group', { name: /observaciones finales/i })).toBeInTheDocument();
+  });
+
+  it('groups phases into compact mobile-safe subcards', () => {
+    render(<FormulaForm submitFormula={submitFormulaMock} />);
+
+    expect(screen.getByRole('form')).toHaveClass('w-full', 'min-w-0');
+    expect(screen.getByRole('region', { name: /fase acuosa/i })).toHaveClass(
+      'bg-surface-container-lowest',
+      'min-w-0'
+    );
+    expect(screen.getByRole('region', { name: /fase oleosa/i })).toHaveClass(
+      'bg-surface-container-lowest',
+      'min-w-0'
+    );
+    expect(screen.getByRole('region', { name: /fase activos/i })).toHaveClass(
+      'bg-surface-container-lowest',
+      'min-w-0'
+    );
   });
 
   it('initializes with one empty procedure step', () => {
@@ -60,6 +81,53 @@ describe('FormulaForm', () => {
     await userEvent.click(removeButton);
 
     expect(screen.queryByRole('textbox', { name: /nombre del ingrediente 1 de la fase acuosa/i })).not.toBeInTheDocument();
+  });
+
+  it('removes only the selected ingredient while preserving other ingredients and phases', async () => {
+    const initialValues = createEmptyFormulaForm();
+    initialValues.phases.aqueous = [
+      { ingredient: 'Water', grams: 50 },
+      { ingredient: 'Aloe', grams: 20 },
+    ];
+    initialValues.phases.oil = [{ ingredient: 'Jojoba oil', grams: 25 }];
+    initialValues.phases.actives = [{ ingredient: 'Vitamin E', grams: 5 }];
+
+    render(<FormulaForm initialValues={initialValues} submitFormula={submitFormulaMock} />);
+
+    await userEvent.click(
+      screen.getByRole('button', { name: /eliminar ingrediente 2 de la fase acuosa/i })
+    );
+
+    expect(screen.getByRole('textbox', { name: /nombre del ingrediente 1 de la fase acuosa/i })).toHaveValue('Water');
+    expect(screen.queryByRole('textbox', { name: /nombre del ingrediente 2 de la fase acuosa/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /nombre del ingrediente 1 de la fase oleosa/i })).toHaveValue('Jojoba oil');
+    expect(screen.getByRole('textbox', { name: /nombre del ingrediente 1 de la fase activos/i })).toHaveValue('Vitamin E');
+  });
+
+  it('uses constrained responsive grids for dynamic rows', () => {
+    const initialValues = createEmptyFormulaForm();
+    initialValues.phases.aqueous = [{ ingredient: 'Water', grams: 100 }];
+    initialValues.productObjectives = [{ value: 'Hydration' }];
+    initialValues.useTest.entries = [{ date: '2026-01-01', note: 'Stable' }];
+
+    render(<FormulaForm initialValues={initialValues} submitFormula={submitFormulaMock} />);
+
+    expect(
+      screen.getByRole('textbox', { name: /nombre del ingrediente 1 de la fase acuosa/i }).closest('li')
+    ).toHaveClass('grid', 'grid-cols-1', 'sm:grid-cols-[minmax(0,1fr)_7rem_auto]');
+    expect(
+      screen.getByRole('textbox', { name: /paso de procedimiento 1/i }).closest('li')
+    ).toHaveClass('grid', 'grid-cols-1', 'sm:grid-cols-[1.5rem_minmax(0,1fr)_auto]');
+    expect(screen.getByRole('textbox', { name: /objetivo del producto 1/i }).closest('li')).toHaveClass(
+      'grid',
+      'grid-cols-1',
+      'sm:grid-cols-[minmax(0,1fr)_auto]'
+    );
+    expect(screen.getByRole('textbox', { name: /nota de la entrada 1 de prueba de uso/i }).closest('li')).toHaveClass(
+      'grid',
+      'grid-cols-1',
+      'sm:grid-cols-[11rem_minmax(0,1fr)_auto]'
+    );
   });
 
   it('allows adding and removing procedure steps', async () => {
@@ -253,7 +321,10 @@ describe('FormulaForm', () => {
       'Mix aqueous phase'
     );
 
-    submitFormulaMock.mockResolvedValue({ success: true });
+    submitFormulaMock.mockResolvedValue({
+      success: true,
+      redirectTo: '/laboratorio/formulas/formula-123',
+    });
 
     fireEvent.submit(screen.getByRole('form'));
 
@@ -266,6 +337,7 @@ describe('FormulaForm', () => {
         targetBatchGrams: 500,
       })
     );
+    expect(routerPushMock).toHaveBeenCalledWith('/laboratorio/formulas/formula-123');
   });
 
   it('submits rich formula blocks with the form values', async () => {
@@ -306,7 +378,10 @@ describe('FormulaForm', () => {
       'First batch'
     );
 
-    submitFormulaMock.mockResolvedValue({ success: true });
+    submitFormulaMock.mockResolvedValue({
+      success: true,
+      redirectTo: '/laboratorio/formulas/formula-rich',
+    });
 
     fireEvent.submit(screen.getByRole('form'));
 
@@ -396,19 +471,23 @@ describe('FormulaForm', () => {
 
       render(<FormulaForm mode="edit" initialValues={initialValues} submitFormula={submitFormulaMock} />);
 
-      submitFormulaMock.mockResolvedValue({ success: true });
+       submitFormulaMock.mockResolvedValue({
+         success: true,
+         redirectTo: '/laboratorio/formulas/formula-1',
+       });
 
       fireEvent.submit(screen.getByRole('form'));
 
       await waitFor(() => expect(submitFormulaMock).toHaveBeenCalledTimes(1));
-      expect(submitFormulaMock).toHaveBeenCalledWith(
+       expect(submitFormulaMock).toHaveBeenCalledWith(
         expect.objectContaining({
           productName: 'Existing formula',
           formulaCode: 'CF-999',
           productType: 'Serum',
-          targetBatchGrams: 250,
-        })
+         targetBatchGrams: 250,
+       })
       );
+      expect(routerPushMock).toHaveBeenCalledWith('/laboratorio/formulas/formula-1');
     });
 
     it('displays validation errors when submitting an empty prefilled form in edit mode', async () => {

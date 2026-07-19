@@ -53,7 +53,7 @@ describe('/laboratorio/formulas page', () => {
     vi.clearAllMocks();
   });
 
-  it('renders a back link to the laboratory hub and a new formula link', async () => {
+  it('renders the page heading and a new formula link', async () => {
     getServerSessionMock.mockResolvedValue({
       user: { id: 'user-1', email: 'olga@test.com', role: 'productora' },
     });
@@ -63,10 +63,8 @@ describe('/laboratorio/formulas page', () => {
     const jsx = await LaboratoryFormulasPage();
     render(jsx);
 
-    expect(screen.getByRole('link', { name: /volver al laboratorio/i })).toHaveAttribute(
-      'href',
-      '/laboratorio'
-    );
+    expect(screen.getByRole('heading', { name: 'Fórmulas' })).toBeInTheDocument();
+    expect(screen.getByText('Gestión y control de fórmulas en producción')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /nueva fórmula/i })).toHaveAttribute(
       'href',
       '/laboratorio/formulas/nueva'
@@ -112,7 +110,10 @@ describe('/laboratorio/formulas page', () => {
     const jsx = await LaboratoryFormulasPage();
     render(jsx);
 
-    expect(screen.getByText('Laboratorio — Fórmulas')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Fórmulas' })).toBeInTheDocument();
+
+    const formulaGrid = screen.getByRole('list', { name: /lista de fórmulas/i });
+    expect(formulaGrid).toHaveClass('grid', 'grid-cols-1', 'md:grid-cols-2', 'lg:grid-cols-3');
 
     const lavenderCard = screen.getByRole('link', { name: /ver detalles de crema de lavanda/i });
     const calendulaCard = screen.getByRole('link', { name: /ver detalles de aceite de calendula/i });
@@ -122,6 +123,7 @@ describe('/laboratorio/formulas page', () => {
     expect(within(lavenderCard).getByText('1.0')).toBeInTheDocument();
     expect(within(lavenderCard).getByText('15 ene 2026')).toBeInTheDocument();
     expect(within(lavenderCard).getByText('Borrador')).toBeInTheDocument();
+    expect(within(lavenderCard).getByText('edit_note')).toHaveClass('text-tertiary');
     expect(lavenderCard).toHaveAttribute('href', '/laboratorio/formulas/formula-1');
 
     expect(within(calendulaCard).getByText('Aceite de calendula')).toBeInTheDocument();
@@ -129,7 +131,11 @@ describe('/laboratorio/formulas page', () => {
     expect(within(calendulaCard).getByText('2.0')).toBeInTheDocument();
     expect(within(calendulaCard).getByText('1 feb 2026')).toBeInTheDocument();
     expect(within(calendulaCard).getByText('Validada')).toBeInTheDocument();
+    expect(within(calendulaCard).getByText('science')).toHaveClass('text-primary');
     expect(calendulaCard).toHaveAttribute('href', '/laboratorio/formulas/formula-2');
+
+    expect(within(lavenderCard).getByText('Ver detalle')).toBeInTheDocument();
+    expect(within(calendulaCard).getByText('Ver detalle')).toBeInTheDocument();
   });
 
   it('renders empty state when no formulas exist', async () => {
@@ -142,10 +148,16 @@ describe('/laboratorio/formulas page', () => {
     const jsx = await LaboratoryFormulasPage();
     render(jsx);
 
-    expect(screen.getByText('No hay fórmulas registradas todavía')).toBeInTheDocument();
+    expect(screen.getByText('Todavía no hay fórmulas registradas')).toBeInTheDocument();
     expect(
-      screen.getByText('Tus fórmulas del laboratorio aparecerán aquí una vez creadas.')
+      screen.getByText(
+        'Tus fórmulas aparecerán aquí cuando las crees. Comienza diseñando un nuevo producto para tu laboratorio.'
+      )
     ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /crear primera fórmula/i })).toHaveAttribute(
+      'href',
+      '/laboratorio/formulas/nueva'
+    );
   });
 
   it('renders all status labels without crashing', async () => {
@@ -183,6 +195,21 @@ describe('/laboratorio/formulas page', () => {
 
     for (const item of statuses) {
       expect(screen.getByText(item.label)).toBeInTheDocument();
+    }
+
+    const statusVisuals = [
+      { label: 'Borrador', icon: 'edit_note', iconClass: 'text-tertiary' },
+      { label: 'En pruebas', icon: 'biotech', iconClass: 'text-secondary' },
+      { label: 'Validada', icon: 'science', iconClass: 'text-primary' },
+      { label: 'Archivada', icon: 'archive', iconClass: 'text-on-surface-variant' },
+      { label: 'Descartada', icon: 'cancel', iconClass: 'text-error' },
+    ];
+
+    for (const item of statusVisuals) {
+      const card = screen.getByRole('link', {
+        name: new RegExp(`ver detalles de formula ${item.label}`, 'i'),
+      });
+      expect(within(card).getByText(item.icon)).toHaveClass(item.iconClass);
     }
   });
 

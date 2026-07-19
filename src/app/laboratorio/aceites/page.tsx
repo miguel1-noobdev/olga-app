@@ -1,12 +1,11 @@
 import Link from 'next/link';
 import { connectToDatabase } from '@/lib/db/connect';
 import { createOilRepository } from '@/lib/db/repository/oil';
-import { FlaskIcon, ArrowLeftIcon } from '@/components/ui/icons';
+import { FlaskIcon } from '@/components/ui/icons';
 import {
   OilPhaseBadge,
   formatRecommendedPercentage,
   ObservationsPreview,
-  OilCountSummary,
 } from '@/components/laboratorio/shared-presentation';
 
 export default async function LaboratoryOilsPage() {
@@ -15,29 +14,15 @@ export default async function LaboratoryOilsPage() {
   const oils = await repo.findAll();
 
   return (
-    <main className="min-h-screen bg-surface py-20 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto">
-        <div className="mb-10 space-y-4">
-          <Link
-            href="/laboratorio"
-            className="inline-flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors font-body text-sm"
-          >
-            <ArrowLeftIcon className="w-4 h-4" />
-            Volver al laboratorio
-          </Link>
-
-          <div>
-            <h1 className="font-headline text-4xl text-on-surface mb-2">
-              Laboratorio — Aceites
-            </h1>
-            <p className="font-body text-lg text-on-surface-variant">
-              Aceites disponibles para fórmulas
-            </p>
-          </div>
-        </div>
+    <main className="flex-1 bg-surface px-6 py-8 lg:px-10 lg:py-10">
+      <div className="mx-auto w-full max-w-[1400px]">
+        <header className="mb-10 border-l-4 border-primary-fixed pl-4">
+          <h1 className="mb-2 font-headline text-3xl font-bold tracking-tight text-on-background md:text-4xl">Mis aceites</h1>
+          <p className="font-label text-sm text-on-surface-variant">Inventario técnico de aceites vegetales y grasas del laboratorio.</p>
+        </header>
 
         {oils.length === 0 ? (
-          <div className="bg-surface-container border border-surface-border rounded-2xl p-12 text-center">
+          <div className="rounded-lg border border-outline-variant bg-surface-container p-12 text-center">
             <FlaskIcon className="w-12 h-12 mx-auto mb-4 text-on-surface-variant" />
             <p className="font-body text-lg text-on-surface font-medium mb-1">
               No hay aceites registrados todavía
@@ -47,53 +32,26 @@ export default async function LaboratoryOilsPage() {
             </p>
           </div>
         ) : (
-          <div className="bg-surface-container border border-surface-border rounded-2xl overflow-hidden">
-            <div className="px-6 py-4 border-b border-surface-border bg-surface-container-high/50">
-              <OilCountSummary count={oils.length} />
-            </div>
+          <div className="overflow-hidden rounded-lg border border-outline-variant bg-surface-container shadow-sm">
             <div className="overflow-x-auto">
-              <table className="w-full text-left min-w-[44rem]">
-                <thead className="bg-surface-container-high border-b border-surface-border">
+              <table className="w-full min-w-[70rem] whitespace-nowrap text-left text-sm">
+                <thead className="border-b border-outline-variant bg-surface-container-high font-label text-xs uppercase tracking-wider text-on-surface-variant">
                   <tr>
-                    <th className="px-6 py-4 font-body text-sm font-semibold text-on-surface">
-                      Nombre
-                    </th>
-                    <th className="px-6 py-4 font-body text-sm font-semibold text-on-surface">
-                      INCI
-                    </th>
-                    <th className="px-6 py-4 font-body text-sm font-semibold text-on-surface text-right">
-                      HLB
-                    </th>
-                    <th className="px-6 py-4 font-body text-sm font-semibold text-on-surface">
-                      Fase
-                    </th>
-                    <th className="px-6 py-4 font-body text-sm font-semibold text-on-surface text-right">
-                      % recomendado
-                    </th>
-                    <th className="px-6 py-4 font-body text-sm font-semibold text-on-surface">
-                      Observaciones
-                    </th>
+                    {['Nombre', 'HLB', 'Solubilidad', 'Tipo de piel', 'Absorción', 'Propiedades', 'Porcentaje recomendado', 'Fase', 'Observaciones'].map((heading) => <th key={heading} scope="col" className="px-4 py-3 font-medium">{heading}</th>)}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-surface-border">
+                <tbody className="divide-y divide-outline-variant bg-surface text-on-background">
                   {oils.map((oil) => (
-                    <tr key={oil.id} className="hover:bg-surface-container/60 transition-colors">
-                      <td className="px-6 py-4 font-body text-sm font-medium text-on-surface">
-                        {oil.name}
-                      </td>
-                      <td className="px-6 py-4 font-body text-sm text-on-surface-variant">
-                        {oil.inciName ?? '—'}
-                      </td>
-                      <td className="px-6 py-4 font-body text-sm text-on-surface-variant text-right">
-                        {oil.hlb ?? '—'}
-                      </td>
-                      <td className="px-6 py-4 font-body text-sm text-on-surface-variant">
-                        <OilPhaseBadge phase={oil.phase} />
-                      </td>
-                      <td className="px-6 py-4 font-body text-sm text-on-surface-variant text-right">
-                        {formatRecommendedPercentage(oil.recommendedPercentage)}
-                      </td>
-                      <td className="px-6 py-4 font-body text-sm text-on-surface-variant max-w-xs">
+                    <tr key={oil.id} className="transition-colors hover:bg-surface-bright">
+                      <td className="px-4 py-4 font-medium text-primary-dim hover:text-primary"><Link href={`/laboratorio/aceites/${oil.slug}`}>{oil.name}</Link></td>
+                      <td className="px-4 py-4 font-mono text-tertiary">{oil.hlb ?? '—'}</td>
+                      <td className="px-4 py-4">{oil.solubility ?? '—'}</td>
+                      <td className="px-4 py-4 text-secondary-fixed">{oil.skinTypes.length > 0 ? oil.skinTypes.join(', ') : '—'}</td>
+                      <td className="px-4 py-4 text-on-surface-variant">{oil.absorption ?? '—'}</td>
+                      <td className="px-4 py-4">{oil.properties.length > 0 ? oil.properties.join(', ') : '—'}</td>
+                      <td className="px-4 py-4 text-center text-on-surface-variant">{formatRecommendedPercentage(oil.recommendedPercentage)}</td>
+                      <td className="px-4 py-4"><OilPhaseBadge phase={oil.phase} /></td>
+                      <td className="max-w-[200px] px-4 py-4 text-xs text-on-surface-variant">
                         <ObservationsPreview observations={oil.observations} />
                       </td>
                     </tr>

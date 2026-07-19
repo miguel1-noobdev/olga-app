@@ -21,6 +21,7 @@ export default async function LaboratoryEditFormulaPage({ params }: PageProps) {
   }
 
   const initialValues = toFormulaFormValues(formula);
+  const submitFormulaForPage = submitFormulaUpdate.bind(null, params.id);
 
   return (
     <main className="min-h-screen bg-surface py-20 px-4 sm:px-6 lg:px-8">
@@ -43,7 +44,7 @@ export default async function LaboratoryEditFormulaPage({ params }: PageProps) {
             mode="edit"
             formulaId={params.id}
             initialValues={initialValues}
-            submitFormula={(values) => submitFormulaUpdate(params.id, values)}
+            submitFormula={submitFormulaForPage}
           />
         </section>
       </div>

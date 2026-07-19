@@ -71,6 +71,12 @@ describe('botanical catalog saves', () => {
       name: 'Aceite de jojoba',
       inciName: 'Simmondsia Chinensis Seed Oil',
       recommendedPercentage: 8,
+      solubility: 'Liposoluble',
+      skinTypes: ['Seca'],
+      absorption: 'Media',
+      properties: ['Emoliente'],
+      images: [{ url: 'https://example.test/jojoba.jpg', alt: 'Aceite de jojoba' }],
+      notes: 'Proveedor verificado.',
     });
 
     expect(result).toEqual({ success: true, id: 'oil-1' });
@@ -78,6 +84,12 @@ describe('botanical catalog saves', () => {
       name: 'Aceite de jojoba',
       inciName: 'Simmondsia Chinensis Seed Oil',
       recommendedPercentage: 8,
+      solubility: 'Liposoluble',
+      skinTypes: ['Seca'],
+      absorption: 'Media',
+      properties: ['Emoliente'],
+      images: [{ url: 'https://example.test/jojoba.jpg', alt: 'Aceite de jojoba' }],
+      notes: 'Proveedor verificado.',
     });
     expect(repos.oils.create).not.toHaveBeenCalled();
   });

@@ -41,7 +41,7 @@ describe('LotModel', () => {
       formulaVersion: '1.0',
       lotNumber: 1,
       lotCode: 'CF-001-L001',
-      status: 'planned' as const,
+      status: 'in_production' as const,
       targetBatchGrams: 500,
       formulaSnapshot: {
         productName: 'Crema de lavanda',
@@ -70,7 +70,7 @@ describe('LotModel', () => {
     expect(lot.formulaVersion).toBe('1.0');
     expect(lot.lotNumber).toBe(1);
     expect(lot.lotCode).toBe('CF-001-L001');
-    expect(lot.status).toBe('planned');
+    expect(lot.status).toBe('in_production');
     expect(lot.targetBatchGrams).toBe(500);
     expect(lot.formulaSnapshot.productName).toBe('Crema de lavanda');
     expect(lot.formulaSnapshot.phases?.oil).toHaveLength(1);
@@ -106,9 +106,26 @@ describe('LotModel', () => {
     await expect(
       LotModel.create({
         ...validLotInput(),
-        status: 'invalid-status' as unknown as 'planned',
+        status: 'invalid-status' as unknown as 'in_production',
       })
     ).rejects.toThrow();
+  });
+
+  it.each([
+    'in_production',
+    'finalized',
+    'discarded',
+    'planned',
+    'in_progress',
+    'completed',
+    'cancelled',
+  ] as const)('keeps legacy statuses readable only at the persistence boundary: %s', async (status) => {
+    const lot = await LotModel.create({
+      ...validLotInput(),
+      status,
+    });
+
+    expect(lot.status).toBe(status);
   });
 
   it('rejects targetBatchGrams less than or equal to zero', async () => {

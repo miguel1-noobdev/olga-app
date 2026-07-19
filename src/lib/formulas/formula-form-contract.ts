@@ -99,7 +99,7 @@ export type FormulaFormValidationError = Partial<
 >;
 
 export type SubmitFormulaResult =
-  | { success: true }
+  | { success: true; redirectTo: string }
   | { success: false; errors: FormulaFormValidationError }
   | { success: false; error: string };
 

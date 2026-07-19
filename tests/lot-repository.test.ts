@@ -68,12 +68,19 @@ describe('LotRepository', () => {
       expect(lot.formulaId).toBe(formulaId);
       expect(lot.formulaCode).toBe('CF-001');
       expect(lot.formulaVersion).toBe('1.0');
-      expect(lot.status).toBe('planned');
+      expect(lot.status).toBe('in_production');
       expect(lot.formulaSnapshot.productName).toBe('Crema de lavanda');
       expect(lot.formulaSnapshot.productType).toBe('crema');
       expect(lot.formulaSnapshot.targetBatchGrams).toBe(500);
       expect(lot.formulaSnapshot.phases?.aqueous).toHaveLength(1);
       expect(lot.formulaSnapshot.procedureSteps).toHaveLength(2);
+    });
+
+    it('initializes the start date when creating a lot', async () => {
+      const lot = await repo.create({ formulaId, targetBatchGrams: 500 });
+
+      expect(lot.startedAt).not.toBeNull();
+      expect(new Date(lot.startedAt as string).getTime()).toBeGreaterThan(0);
     });
 
     it('increments lot number per formula', async () => {
@@ -145,14 +152,24 @@ describe('LotRepository', () => {
       }
     });
 
-    it('accepts an explicit initial status', async () => {
+    it('accepts an explicit canonical initial status', async () => {
       const lot = await repo.create({
         formulaId,
         targetBatchGrams: 500,
-        status: 'in_progress',
+        status: 'discarded',
       });
 
-      expect(lot.status).toBe('in_progress');
+      expect(lot.status).toBe('discarded');
+    });
+
+    it('rejects legacy statuses from repository creation inputs', async () => {
+      await expect(
+        repo.create({
+          formulaId,
+          targetBatchGrams: 500,
+          status: 'planned' as unknown as 'in_production',
+        })
+      ).rejects.toThrow(/estado de lote no válido/i);
     });
 
     it('accepts operational observations and follow-up entries', async () => {
@@ -340,21 +357,43 @@ describe('LotRepository', () => {
 
   describe('findByStatus', () => {
     it('returns lots matching the status', async () => {
-      await repo.create({ formulaId, targetBatchGrams: 500, status: 'completed' });
-      await repo.create({ formulaId, targetBatchGrams: 500, status: 'in_progress' });
+      await repo.create({ formulaId, targetBatchGrams: 500, status: 'finalized' });
+      await repo.create({ formulaId, targetBatchGrams: 500, status: 'in_production' });
 
-      const result = await repo.findByStatus('completed');
+      const result = await repo.findByStatus('finalized');
 
       expect(result).toHaveLength(1);
-      expect(result[0].status).toBe('completed');
+      expect(result[0].status).toBe('finalized');
     });
 
     it('returns empty array when status has no lots', async () => {
       await repo.create({ formulaId, targetBatchGrams: 500 });
 
-      const result = await repo.findByStatus('cancelled');
+      const result = await repo.findByStatus('discarded');
 
       expect(result).toEqual([]);
+    });
+
+    it('finds legacy stored records through their canonical status and normalizes the result', async () => {
+      await LotModel.create({
+        formulaId,
+        formulaCode: 'CF-001',
+        formulaVersion: '1.0',
+        lotNumber: 1,
+        lotCode: 'CF-001-L001',
+        status: 'completed',
+        targetBatchGrams: 500,
+        formulaSnapshot: {
+          productName: 'Crema de lavanda',
+          productType: 'crema',
+          targetBatchGrams: 500,
+          procedureSteps: [],
+        },
+      });
+
+      await expect(repo.findByStatus('finalized')).resolves.toEqual([
+        expect.objectContaining({ status: 'finalized' }),
+      ]);
     });
   });
 
@@ -362,13 +401,21 @@ describe('LotRepository', () => {
     it('updates status and operational observations', async () => {
       const created = await repo.create({ formulaId, targetBatchGrams: 500 });
       const updated = await repo.update(created.id, {
-        status: 'in_progress',
+        status: 'finalized',
         operationalObservations: 'En mezcla',
       });
 
-      expect(updated.status).toBe('in_progress');
+      expect(updated.status).toBe('finalized');
       expect(updated.operationalObservations).toBe('En mezcla');
       expect(updated.lotCode).toBe('CF-001-L001');
+    });
+
+    it('rejects legacy statuses from repository update inputs', async () => {
+      const created = await repo.create({ formulaId, targetBatchGrams: 500 });
+
+      await expect(
+        repo.update(created.id, { status: 'completed' as unknown as 'finalized' })
+      ).rejects.toThrow(/estado de lote no válido/i);
     });
 
     it('appends follow-up entries without losing existing ones', async () => {
@@ -418,11 +465,11 @@ describe('LotRepository', () => {
       expect(updated.formulaSnapshot.targetBatchGrams).toBe(1000);
     });
 
-    it('regenerates only a planned lot snapshot from its own provenance', async () => {
+    it('regenerates only an in-production lot snapshot from its own provenance', async () => {
       const created = await repo.create({
         formulaId,
         targetBatchGrams: 500,
-        status: 'planned',
+        status: 'in_production',
       });
 
       await FormulaModel.findByIdAndUpdate(formulaId, {
@@ -439,25 +486,23 @@ describe('LotRepository', () => {
       expect(updated.formulaSnapshot.phases?.aqueous?.[0].grams).toBe(600);
     });
 
-    it('rejects snapshot regeneration for an in-progress lot', async () => {
+    it('rescales an in-production lot snapshot', async () => {
       const created = await repo.create({
         formulaId,
         targetBatchGrams: 500,
-        status: 'in_progress',
+        status: 'in_production',
       });
 
-      await expect(repo.update(created.id, { targetBatchGrams: 1000 })).rejects.toEqual(
-        expect.objectContaining<Partial<LotLifecycleError>>({
-          reason: 'snapshot_regeneration_not_allowed',
-        })
+      await expect(repo.update(created.id, { targetBatchGrams: 1000 })).resolves.toEqual(
+        expect.objectContaining({ targetBatchGrams: 1000 })
       );
     });
 
-    it('rejects completed production mutations while preserving its snapshot', async () => {
+    it('rejects finalized production mutations while preserving its snapshot', async () => {
       const created = await repo.create({
         formulaId,
         targetBatchGrams: 500,
-        status: 'completed',
+        status: 'finalized',
         operationalObservations: 'Final production note',
       });
 
@@ -478,11 +523,11 @@ describe('LotRepository', () => {
       expect(stored?.operationalObservations).toBe('Final production note');
     });
 
-    it('allows dated append-only follow-up for a completed lot', async () => {
+    it('allows dated append-only follow-up for a finalized historical lot', async () => {
       const created = await repo.create({
         formulaId,
         targetBatchGrams: 500,
-        status: 'completed',
+        status: 'finalized',
         followUp: {
           entries: [{ date: new Date('2026-03-01'), note: 'Initial follow-up' }],
         },
@@ -501,45 +546,43 @@ describe('LotRepository', () => {
       expect(updated.formulaSnapshot.targetBatchGrams).toBe(500);
     });
 
-    it('allows cancelled lots to update their editable production fields', async () => {
+    it('rejects discarded production mutations while preserving its snapshot', async () => {
       const created = await repo.create({
         formulaId,
         targetBatchGrams: 500,
-        status: 'cancelled',
+        status: 'discarded',
       });
 
-      const updated = await repo.update(created.id, {
-        status: 'planned',
+      await expect(repo.update(created.id, {
+        status: 'in_production',
         operationalObservations: 'Reopened for review',
         plannedAt: new Date('2026-04-01'),
-      });
+      })).rejects.toEqual(
+        expect.objectContaining<Partial<LotLifecycleError>>({ reason: 'completed_freeze' })
+      );
 
-      expect(updated.status).toBe('planned');
-      expect(updated.targetBatchGrams).toBe(500);
-      expect(updated.formulaSnapshot.targetBatchGrams).toBe(500);
-      expect(updated.operationalObservations).toBe('Reopened for review');
-      expect(updated.plannedAt).toBe('2026-04-01T00:00:00.000Z');
+      const stored = await repo.findById(created.id);
+      expect(stored).toEqual(expect.objectContaining({ status: 'discarded', targetBatchGrams: 500 }));
+      expect(stored?.operationalObservations).toBeUndefined();
     });
 
-    it('regenerates a cancelled lot snapshot from its own provenance', async () => {
+    it('rejects snapshot regeneration for a discarded lot', async () => {
       const created = await repo.create({
         formulaId,
         targetBatchGrams: 500,
-        status: 'cancelled',
+        status: 'discarded',
       });
 
-      const updated = await repo.update(created.id, { targetBatchGrams: 1000 });
-
-      expect(updated.targetBatchGrams).toBe(1000);
-      expect(updated.formulaSnapshot.targetBatchGrams).toBe(1000);
-      expect(updated.formulaSnapshot.phases?.aqueous?.[0].grams).toBe(600);
+      await expect(repo.update(created.id, { targetBatchGrams: 1000 })).rejects.toEqual(
+        expect.objectContaining<Partial<LotLifecycleError>>({ reason: 'completed_freeze' })
+      );
     });
 
     it('keeps lifecycle guards when a recovered repository instance is created', async () => {
       const created = await repo.create({
         formulaId,
         targetBatchGrams: 500,
-        status: 'completed',
+        status: 'finalized',
         operationalObservations: 'Immutable production record',
       });
       const recoveredRepository = createLotRepository();
@@ -556,7 +599,7 @@ describe('LotRepository', () => {
       const stored = await recoveredRepository.findById(created.id);
       expect(stored).toEqual(
         expect.objectContaining({
-          status: 'completed',
+          status: 'finalized',
           targetBatchGrams: 500,
           operationalObservations: 'Immutable production record',
         })
@@ -568,7 +611,7 @@ describe('LotRepository', () => {
       const created = await repo.create({
         formulaId,
         targetBatchGrams: 500,
-        status: 'planned',
+        status: 'in_production',
       });
       const originalFindOneAndUpdate = LotModel.findOneAndUpdate.bind(LotModel);
 
@@ -580,7 +623,7 @@ describe('LotRepository', () => {
       };
 
       findOneAndUpdateSpy.mockImplementationOnce(async (...args) => {
-        await originalFindOneAndUpdate({ _id: created.id }, { $set: { status: 'completed' } });
+        await originalFindOneAndUpdate({ _id: created.id }, { $set: { status: 'finalized' } });
         return originalFindOneAndUpdate(...args);
       });
 
@@ -589,7 +632,7 @@ describe('LotRepository', () => {
       );
 
       const stored = await repo.findById(created.id);
-      expect(stored?.status).toBe('completed');
+      expect(stored?.status).toBe('finalized');
       expect(stored?.targetBatchGrams).toBe(500);
       expect(stored?.formulaSnapshot.targetBatchGrams).toBe(500);
     });
@@ -611,7 +654,7 @@ describe('LotRepository', () => {
 
     it('throws when lot is not found', async () => {
       await expect(
-        repo.update('000000000000000000000000', { status: 'completed' })
+        repo.update('000000000000000000000000', { status: 'finalized' })
       ).rejects.toThrow(/not found/);
     });
 
@@ -620,7 +663,7 @@ describe('LotRepository', () => {
 
       await expect(
         repo.update(created.id, {
-          status: 'invalid-status' as unknown as 'planned',
+          status: 'invalid-status' as unknown as 'in_production',
         })
       ).rejects.toThrow();
     });

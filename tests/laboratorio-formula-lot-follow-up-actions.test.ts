@@ -5,20 +5,13 @@ import {
   toLotFollowUpEntry,
 } from '@/lib/lots/lot-follow-up-form-contract';
 
-const { redirectMock } = vi.hoisted(() => ({
-  redirectMock: vi.fn((path: string) => {
-    throw new Error(`NEXT_REDIRECT ${path}`);
-  }),
-}));
-
-const { connectToDatabaseMock, updateMock } = vi.hoisted(() => ({
+const { getCurrentUserMock, connectToDatabaseMock, updateMock } = vi.hoisted(() => ({
+  getCurrentUserMock: vi.fn(),
   connectToDatabaseMock: vi.fn(),
   updateMock: vi.fn(),
 }));
 
-vi.mock('next/navigation', () => ({
-  redirect: redirectMock,
-}));
+vi.mock('@/lib/auth/current-user', () => ({ getCurrentUser: getCurrentUserMock }));
 
 vi.mock('@/lib/db/connect', () => ({
   connectToDatabase: connectToDatabaseMock,
@@ -33,6 +26,7 @@ vi.mock('@/lib/db/repository/lot', () => ({
 describe('submitLotFollowUp server action', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    getCurrentUserMock.mockResolvedValue({ id: 'staff-1', role: 'productora' });
   });
 
   function buildValidForm() {
@@ -54,7 +48,7 @@ describe('submitLotFollowUp server action', () => {
     expect(updateMock).not.toHaveBeenCalled();
   });
 
-  it('connects to database, appends follow-up entry, and redirects to the lot detail', async () => {
+  it('connects to database, appends follow-up entry, and returns the lot detail redirect', async () => {
     const lotId = 'lot-1';
     const form = buildValidForm();
     updateMock.mockResolvedValue({
@@ -63,9 +57,12 @@ describe('submitLotFollowUp server action', () => {
       lotCode: 'CF-001-L001',
     });
 
-    await expect(submitLotFollowUp(lotId, form)).rejects.toThrow(
-      `NEXT_REDIRECT /laboratorio/lotes/${lotId}`
-    );
+    const result = await submitLotFollowUp(lotId, form);
+
+    expect(result).toEqual({
+      success: true,
+      redirectTo: `/laboratorio/lotes/${lotId}`,
+    });
 
     expect(connectToDatabaseMock).toHaveBeenCalledTimes(1);
     expect(updateMock).toHaveBeenCalledTimes(1);

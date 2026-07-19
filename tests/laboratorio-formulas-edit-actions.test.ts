@@ -5,20 +5,13 @@ import {
   toUpdateFormulaInput,
 } from '@/lib/formulas/formula-form-contract';
 
-const { redirectMock } = vi.hoisted(() => ({
-  redirectMock: vi.fn((path: string) => {
-    throw new Error(`NEXT_REDIRECT ${path}`);
-  }),
-}));
-
-const { connectToDatabaseMock, updateMock } = vi.hoisted(() => ({
+const { getCurrentUserMock, connectToDatabaseMock, updateMock } = vi.hoisted(() => ({
+  getCurrentUserMock: vi.fn(),
   connectToDatabaseMock: vi.fn(),
   updateMock: vi.fn(),
 }));
 
-vi.mock('next/navigation', () => ({
-  redirect: redirectMock,
-}));
+vi.mock('@/lib/auth/current-user', () => ({ getCurrentUser: getCurrentUserMock }));
 
 vi.mock('@/lib/db/connect', () => ({
   connectToDatabase: connectToDatabaseMock,
@@ -33,6 +26,15 @@ vi.mock('@/lib/db/repository/formula', () => ({
 describe('submitFormulaUpdate server action', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    getCurrentUserMock.mockResolvedValue({ id: 'staff-1', role: 'admin' });
+  });
+
+  it('rejects non-staff calls before database access', async () => {
+    getCurrentUserMock.mockResolvedValue({ id: 'user-1', role: 'suscriptora' });
+
+    await expect(submitFormulaUpdate('formula-1', buildValidForm())).resolves.toEqual({ success: false, error: 'No autorizado' });
+    expect(connectToDatabaseMock).not.toHaveBeenCalled();
+    expect(updateMock).not.toHaveBeenCalled();
   });
 
   function buildValidForm() {
@@ -63,16 +65,17 @@ describe('submitFormulaUpdate server action', () => {
     expect(connectToDatabaseMock).not.toHaveBeenCalled();
   });
 
-  it('connects to database, updates formula, and redirects to detail', async () => {
+  it('connects to database, updates formula, and returns the detail destination', async () => {
     const form = buildValidForm();
     updateMock.mockResolvedValue({
       id: 'formula-1',
       productName: form.productName,
     });
 
-    await expect(submitFormulaUpdate('formula-1', form)).rejects.toThrow(
-      'NEXT_REDIRECT /laboratorio/formulas/formula-1'
-    );
+    await expect(submitFormulaUpdate('formula-1', form)).resolves.toEqual({
+      success: true,
+      redirectTo: '/laboratorio/formulas/formula-1',
+    });
 
     expect(connectToDatabaseMock).toHaveBeenCalledTimes(1);
     expect(updateMock).toHaveBeenCalledTimes(1);
@@ -138,9 +141,10 @@ describe('submitFormulaUpdate server action', () => {
       productName: form.productName,
     });
 
-    await expect(submitFormulaUpdate('formula-1', form)).rejects.toThrow(
-      'NEXT_REDIRECT /laboratorio/formulas/formula-1'
-    );
+    await expect(submitFormulaUpdate('formula-1', form)).resolves.toEqual({
+      success: true,
+      redirectTo: '/laboratorio/formulas/formula-1',
+    });
 
     expect(updateMock).toHaveBeenCalledWith(
       'formula-1',

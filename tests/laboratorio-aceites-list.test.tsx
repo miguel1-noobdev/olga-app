@@ -48,7 +48,7 @@ describe('/laboratorio/aceites page', () => {
     expect(redirectMock).not.toHaveBeenCalled();
   });
 
-  it('renders a back link to the laboratory hub', async () => {
+  it('uses the approved inventory header instead of an unrelated back-link pattern', async () => {
     getServerSessionMock.mockResolvedValue({
       user: { id: 'user-1', email: 'olga@test.com', role: 'productora' },
     });
@@ -58,10 +58,8 @@ describe('/laboratorio/aceites page', () => {
     const jsx = await LaboratoryOilsPage();
     render(jsx);
 
-    expect(screen.getByRole('link', { name: /volver al laboratorio/i })).toHaveAttribute(
-      'href',
-      '/laboratorio'
-    );
+    expect(screen.getByRole('heading', { name: 'Mis aceites' })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /volver al laboratorio/i })).not.toBeInTheDocument();
   });
 
   it('reads oils from OilRepository and renders them in a table', async () => {
@@ -72,6 +70,7 @@ describe('/laboratorio/aceites page', () => {
     findAllMock.mockResolvedValue([
       {
         id: 'oil-1',
+        slug: 'aceite-de-almendras-dulces',
         name: 'Aceite de almendras dulces',
         inciName: 'Prunus Amygdalus Dulcis Oil',
         hlb: 6.5,
@@ -79,11 +78,17 @@ describe('/laboratorio/aceites page', () => {
         recommendedPercentage: 10,
         observations: 'Emoliente suave.',
         notes: 'Comprar orgánico.',
+        solubility: 'Liposoluble',
+        skinTypes: ['Seca'],
+        absorption: 'Media',
+        properties: ['Emoliente'],
+        images: [],
         createdAt: '2026-01-15T00:00:00.000Z',
         updatedAt: '2026-01-15T00:00:00.000Z',
       },
       {
         id: 'oil-2',
+        slug: 'aceite-de-jojoba',
         name: 'Aceite de jojoba',
         inciName: 'Simmondsia Chinensis Seed Oil',
         hlb: 6.5,
@@ -91,6 +96,11 @@ describe('/laboratorio/aceites page', () => {
         recommendedPercentage: null,
         observations: '',
         notes: '',
+        solubility: undefined,
+        skinTypes: [],
+        absorption: undefined,
+        properties: [],
+        images: [],
         createdAt: '2026-02-01T00:00:00.000Z',
         updatedAt: '2026-02-01T00:00:00.000Z',
       },
@@ -99,9 +109,8 @@ describe('/laboratorio/aceites page', () => {
     const jsx = await LaboratoryOilsPage();
     render(jsx);
 
-    expect(screen.getByText('Laboratorio — Aceites')).toBeInTheDocument();
-    expect(screen.getByText('Aceites disponibles para fórmulas')).toBeInTheDocument();
-    expect(screen.getByText('2 aceites registrados')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Mis aceites' })).toBeInTheDocument();
+    expect(screen.getByText('Inventario técnico de aceites vegetales y grasas del laboratorio.')).toBeInTheDocument();
 
     const table = screen.getByRole('table');
     const rows = within(table).getAllByRole('row');
@@ -111,16 +120,22 @@ describe('/laboratorio/aceites page', () => {
     const headers = within(rows[0]).getAllByRole('columnheader');
     expect(headers.map((h) => h.textContent)).toEqual([
       'Nombre',
-      'INCI',
       'HLB',
+      'Solubilidad',
+      'Tipo de piel',
+      'Absorción',
+      'Propiedades',
+      'Porcentaje recomendado',
       'Fase',
-      '% recomendado',
       'Observaciones',
     ]);
 
     const firstDataRow = rows[1];
     expect(within(firstDataRow).getByText('Aceite de almendras dulces')).toBeInTheDocument();
-    expect(within(firstDataRow).getByText('Prunus Amygdalus Dulcis Oil')).toBeInTheDocument();
+    expect(within(firstDataRow).getByRole('link', { name: 'Aceite de almendras dulces' })).toHaveAttribute(
+      'href',
+      '/laboratorio/aceites/aceite-de-almendras-dulces'
+    );
     expect(within(firstDataRow).getByText('6.5')).toBeInTheDocument();
     expect(within(firstDataRow).getByText('Oleosa')).toBeInTheDocument();
     expect(within(firstDataRow).getByText('10%')).toBeInTheDocument();
@@ -128,8 +143,7 @@ describe('/laboratorio/aceites page', () => {
 
     const secondDataRow = rows[2];
     expect(within(secondDataRow).getByText('Aceite de jojoba')).toBeInTheDocument();
-    expect(within(secondDataRow).getByText('Simmondsia Chinensis Seed Oil')).toBeInTheDocument();
-    expect(within(secondDataRow).getAllByText('—')).toHaveLength(2);
+    expect(within(secondDataRow).getAllByText('—')).toHaveLength(6);
   });
 
   it('truncates long observations and keeps the full text in the title attribute', async () => {
@@ -143,6 +157,7 @@ describe('/laboratorio/aceites page', () => {
     findAllMock.mockResolvedValue([
       {
         id: 'oil-1',
+        slug: 'aceite-de-almendras-dulces',
         name: 'Aceite de almendras dulces',
         inciName: 'Prunus Amygdalus Dulcis Oil',
         hlb: 6.5,
@@ -150,6 +165,9 @@ describe('/laboratorio/aceites page', () => {
         recommendedPercentage: 10,
         observations: longObservation,
         notes: '',
+        skinTypes: [],
+        properties: [],
+        images: [],
         createdAt: '2026-01-15T00:00:00.000Z',
         updatedAt: '2026-01-15T00:00:00.000Z',
       },
@@ -172,6 +190,7 @@ describe('/laboratorio/aceites page', () => {
     findAllMock.mockResolvedValue([
       {
         id: 'oil-1',
+        slug: 'aceite-de-almendras-dulces',
         name: 'Aceite de almendras dulces',
         inciName: 'Prunus Amygdalus Dulcis Oil',
         hlb: 6.5,
@@ -179,11 +198,15 @@ describe('/laboratorio/aceites page', () => {
         recommendedPercentage: 5,
         observations: '',
         notes: '',
+        skinTypes: [],
+        properties: [],
+        images: [],
         createdAt: '2026-01-15T00:00:00.000Z',
         updatedAt: '2026-01-15T00:00:00.000Z',
       },
       {
         id: 'oil-2',
+        slug: 'aceite-de-jojoba',
         name: 'Aceite de jojoba',
         inciName: 'Simmondsia Chinensis Seed Oil',
         hlb: 6.5,
@@ -191,6 +214,9 @@ describe('/laboratorio/aceites page', () => {
         recommendedPercentage: null,
         observations: '',
         notes: '',
+        skinTypes: [],
+        properties: [],
+        images: [],
         createdAt: '2026-02-01T00:00:00.000Z',
         updatedAt: '2026-02-01T00:00:00.000Z',
       },

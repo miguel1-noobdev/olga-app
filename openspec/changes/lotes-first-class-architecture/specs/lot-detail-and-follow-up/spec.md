@@ -29,35 +29,28 @@ The system MUST allow authorized users to append dated follow-up entries to `fol
 
 Each entry MUST be atomic and timestamped.
 
-When a lot is in `completed` status, production fields and the scaled snapshot MUST remain unchanged; only follow-up entries MAY be appended.
+When a lot is in `finalized` status, it remains in the same collection as historical data; production fields and the scaled snapshot MUST remain unchanged while follow-up entries MAY be appended indefinitely.
 
-#### Scenario: Add follow-up to planned lot
+#### Scenario: Add follow-up to an in-production lot
 
-- GIVEN a lot in `planned` status
+- GIVEN a lot in `in_production` status
 - WHEN an authorized user appends a follow-up entry
 - THEN the entry is added to `followUp.entries` with the current date
 
-#### Scenario: Follow-up on in-progress lot
+#### Scenario: Follow-up on finalized lot
 
-- GIVEN a lot in `in_progress` status
+- GIVEN a lot in `finalized` status
 - WHEN an authorized user appends a follow-up entry
 - THEN the entry is added to `followUp.entries` with the current date
 
-#### Scenario: Follow-up on completed lot
+#### Scenario: Follow-up on discarded lot
 
-- GIVEN a lot in completed status
-- WHEN an authorized user appends a follow-up entry
-- THEN the entry is added to `followUp.entries` with the current date
-- AND production fields and scaled snapshot remain unchanged
-
-#### Scenario: Follow-up on cancelled lot
-
-- GIVEN a lot in `cancelled` status
+- GIVEN a lot in `discarded` status
 - WHEN an authorized user appends a follow-up entry
 - THEN the entry is added to `followUp.entries` with the current date
 
 #### Scenario: Follow-up history preserved
 
 - GIVEN a lot with existing follow-up entries
-- WHEN the lot reaches completed status
+- WHEN the lot reaches finalized status
 - THEN all existing follow-up entries remain visible and readable

@@ -2,6 +2,7 @@ import { OilModel, IOil } from '../models/oil';
 
 export interface OilRecord {
   id: string;
+  slug: string;
   name: string;
   inciName?: string;
   hlb?: number;
@@ -9,11 +10,17 @@ export interface OilRecord {
   recommendedPercentage: number | null;
   observations?: string;
   notes?: string;
+  solubility?: string;
+  skinTypes: string[];
+  absorption?: string;
+  properties: string[];
+  images: Array<{ url: string; alt: string }>;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface CreateOilInput {
+  slug?: string;
   name: string;
   inciName?: string;
   hlb?: number;
@@ -21,9 +28,15 @@ export interface CreateOilInput {
   recommendedPercentage?: number | null;
   observations?: string;
   notes?: string;
+  solubility?: string;
+  skinTypes?: string[];
+  absorption?: string;
+  properties?: string[];
+  images?: Array<{ url: string; alt: string }>;
 }
 
 export interface UpdateOilInput {
+  slug?: string;
   name?: string;
   inciName?: string;
   hlb?: number;
@@ -31,11 +44,17 @@ export interface UpdateOilInput {
   recommendedPercentage?: number | null;
   observations?: string;
   notes?: string;
+  solubility?: string;
+  skinTypes?: string[];
+  absorption?: string;
+  properties?: string[];
+  images?: Array<{ url: string; alt: string }>;
 }
 
 export interface OilRepository {
   create(input: CreateOilInput): Promise<OilRecord>;
   findById(id: string): Promise<OilRecord | null>;
+  findBySlug(slug: string): Promise<OilRecord | null>;
   findByName(name: string): Promise<OilRecord | null>;
   findAll(): Promise<OilRecord[]>;
   searchByName(query: string): Promise<OilRecord[]>;
@@ -51,11 +70,21 @@ function normalizeName(name: string): string {
   return name.trim();
 }
 
+function toOilSlug(name: string): string {
+  return name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 function toOilRecord(doc: IOil): OilRecord {
   const plain = JSON.parse(JSON.stringify(doc.toObject ? doc.toObject() : doc));
 
   return {
     id: doc._id.toString(),
+    slug: plain.slug ?? toOilSlug(plain.name),
     name: plain.name,
     inciName: plain.inciName,
     hlb: plain.hlb,
@@ -63,6 +92,11 @@ function toOilRecord(doc: IOil): OilRecord {
     recommendedPercentage: plain.recommendedPercentage ?? null,
     observations: plain.observations,
     notes: plain.notes,
+    solubility: plain.solubility,
+    skinTypes: plain.skinTypes ?? [],
+    absorption: plain.absorption,
+    properties: plain.properties ?? [],
+    images: (plain.images ?? []).map(({ url, alt }: { url: string; alt: string }) => ({ url, alt })),
     createdAt: doc.createdAt.toISOString(),
     updatedAt: doc.updatedAt.toISOString(),
   };
@@ -82,6 +116,18 @@ export function createOilRepository(): OilRepository {
     async findById(id: string): Promise<OilRecord | null> {
       const oil = await OilModel.findById(id);
       return oil ? toOilRecord(oil) : null;
+    },
+
+    async findBySlug(slug: string): Promise<OilRecord | null> {
+      const oil = await OilModel.findOne({ slug });
+      if (oil) {
+        return toOilRecord(oil);
+      }
+
+      // Existing records predate slugs; deriving from their names keeps links valid without a manual migration.
+      const legacyOils = await OilModel.find({ slug: { $exists: false } });
+      const legacyOil = legacyOils.find((candidate) => toOilSlug(candidate.name) === slug);
+      return legacyOil ? toOilRecord(legacyOil) : null;
     },
 
     async findByName(name: string): Promise<OilRecord | null> {
