@@ -24,7 +24,7 @@
 
 **Toda la información detallada del proyecto está en:**
 - **`ideas/designUI/CONTEXTO_PLATAFORMA.md`** — fuente de verdad (léelo antes de proponer cambios)
-- **`img/`** — galería de imágenes oficial (NO buscar ni generar imágenes adicionales)
+- **`img/`** — galería oficial de assets locales. Para galerías de plantas, también se autorizan URLs remotas curadas y persistidas en `images[]`; no se buscan ni generan imágenes arbitrariamente.
 - **`ideas/designUI/ejemplo3/`** — referencias visuales de Stitch (no assets finales)
 
 Si tenés una duda sobre QUÉ construir, leé primero el CONTEXTO_PLATAFORMA.md.
@@ -155,7 +155,7 @@ El proyecto se construye en **4 fases** (ver CONTEXTO_PLATAFORMA.md para detalle
 
 ## 8. Assets visuales
 
-**Regla de oro**: NO buscar ni generar imágenes adicionales. Todo está en `/img`:
+**Regla de oro**: NO buscar ni generar imágenes arbitrariamente. Los assets locales del proyecto están en `/img`:
 
 - `hero/` — 2 opciones para el hero
 - `logo/` — 4 versiones del logo
@@ -165,7 +165,9 @@ El proyecto se construye en **4 fases** (ver CONTEXTO_PLATAFORMA.md para detalle
 - `etk/` — etiquetas
 - `aimg/` — auxiliares
 
-Si necesitás una imagen que no existe, **preguntale al usuario** antes de hacer nada.
+**Galerías de plantas**: las URLs reales, curadas y persistidas en `images[]`, preferentemente de Wikimedia Commons cuando estén disponibles, están autorizadas para las galerías públicas e internas. Se procura incluir hasta tres imágenes adecuadas por planta; se aceptan menos cuando no existe una imagen adicional válida. Nunca se inventan URLs ni se usan dominios de ejemplo o placeholder. `/img` no es la única fuente permitida para imágenes de plantas.
+
+Si necesitás una imagen fuera de los assets locales o de las URLs curadas de plantas, **preguntale al usuario** antes de hacer nada.
 
 ---
 

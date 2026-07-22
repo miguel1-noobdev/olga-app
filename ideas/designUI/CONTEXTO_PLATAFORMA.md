@@ -28,16 +28,18 @@ Plataforma single-tenant con dos roles diferenciados.
 
 ---
 
-## Estado actual: cierre funcional de Fase 1
+## Estado actual: cierre funcional de Fases 1 y 2
 
-Fase 1 se considera **cerrada funcionalmente**. Las versiones actuales son aceptables como primera entrega; los retoques estéticos y de UX quedan aplazados.
+Fases 1 y 2 se consideran **cerradas funcionalmente**. Las versiones actuales son aceptables como primera entrega; retoques y mejoras quedan aplazados o se gestionan como issues independientes.
 
 | Pieza | Estado | Notas |
 |-------|--------|-------|
 | **Landing** | Primera versión aceptada | Quedan retoques estéticos pendientes |
 | **Blog** | Primera versión aceptada | Funcional para lectura y publicación básica |
-| **Jardín Digital** | Primera versión aceptada | Vista pública de plantas implementada |
+| **Jardín Digital** | Primera versión aceptada | Opera sobre proyección pública del dominio de plantas |
 | **Auth** | Email/contraseña operativo | Google OAuth y mejoras de UX de registro quedan aplazadas |
+| **Dominio de plantas** | Cerrado funcionalmente | Fuente de verdad con separación pública/interna, 16 plantas en seed |
+| **Proyección pública** | Cerrado funcionalmente | `jardin-digital/projection.ts` + `plantas/full-domain.ts` formalizados, con tests |
 
 ### Decisiones aplazadas (deferred)
 - **Google OAuth**: cableado en la config de NextAuth pero no expuesto en UI; se activará en una fase posterior.
@@ -101,7 +103,7 @@ Fase 1 se considera **cerrada funcionalmente**. Las versiones actuales son acept
 | Process manager | PM2 | Ya instalado en el VPS |
 | Reverse proxy | Nginx 1.24 | Ya instalado en el VPS |
 | SSL | acme.sh | Ya instalado en el VPS |
-| Imágenes | Estáticas en /img | Ya disponibles, no se busca ni genera nada |
+| Imágenes | Assets locales en `/img` + URLs remotas curadas en `plantas.images[]` | Las URLs curadas se autorizan para galerías públicas e internas de plantas; no se buscan ni generan imágenes arbitrariamente |
 | Emails | Por definir (SMTP) | Pendiente |
 
 ### Specs del VPS
@@ -137,8 +139,8 @@ Fase 1 se considera **cerrada funcionalmente**. Las versiones actuales son acept
 ---
 
 ## Imágenes y assets
-- **Todas las imágenes del proyecto están en `/img`** (galería oficial)
-- **NO se buscan ni generan imágenes adicionales** — solo se usa lo que hay
+- **Los assets locales del proyecto están en `/img`** (galería oficial)
+- **NO se buscan ni generan imágenes arbitrariamente**
 - Organización:
   - `hero/`: 2 opciones para el hero
   - `logo/`: 4 versiones del logo (con fondo, transparente, con borde)
@@ -151,6 +153,13 @@ Fase 1 se considera **cerrada funcionalmente**. Las versiones actuales son acept
 - 13 landing pages HTML exportadas de Stitch están disponibles como referencia visual
 - 4 sistemas de diseño (DESIGN.md) con paletas comparadas
 - Mapa completo en `ideas/designUI/ejemplo3/INDEX.md`
+
+### Galerías de plantas
+- Las URLs remotas **curadas** y persistidas en `plantas.images[]` están autorizadas para las galerías públicas e internas de plantas.
+- Cuando estén disponibles, se procura incluir hasta tres URLs reales y curadas de Wikimedia Commons por planta.
+- Se aceptan menos de tres URLs cuando no existe una imagen adicional adecuada; nunca se inventan URLs ni se usan dominios de ejemplo, placeholder o archivos ficticios.
+- `/img` no es la única fuente permitida para imágenes de plantas.
+- No se realizan búsquedas web arbitrarias ni se generan imágenes para completar estas galerías.
 
 ## Carpeta `ideas/` (planificación, NO se deploya)
 
@@ -398,6 +407,11 @@ Fase 1 se considera **cerrada funcionalmente**. Las versiones actuales son acept
     { "tipo": "Aceite Esencial", "metodo": "Destilación por arrastre de vapor", "descripcion": "100% puro" },
     { "tipo": "Hidrolato", "descripcion": "Agua floral rica en polifenoles" },
     { "tipo": "Extracto CO2", "descripcion": "Alta estabilidad y pureza de activos" }
+  ],
+  "images": [
+    "https://upload.wikimedia.org/wikipedia/commons/e/ef/%27Lavandula_angustifolia%27_Hidcote_cultivar_Henham_Essex_England.jpg",
+    "https://upload.wikimedia.org/wikipedia/commons/9/93/Lavandula-angustifolia-flowering.JPG",
+    "https://upload.wikimedia.org/wikipedia/commons/9/9e/LAVANDULA_ANGUSTIFOLIA_-_B%C3%92FIA_-_IB-409_%28Esp%C3%ADgol%29.JPG"
   ]
 }
 ```
@@ -479,11 +493,12 @@ Fase 1 se considera **cerrada funcionalmente**. Las versiones actuales son acept
 - Auth email/contraseña, landing, blog y Jardín Digital como primeras versiones aceptables.
 - Google OAuth, mejoras de registro y retoques estéticos quedan aplazados.
 
-**Fase 2 — Dominio de plantas y proyección pública**
-- Consolidar el dominio de plantas (`plantas`) como fuente de verdad.
-- Definir la estructura de datos pública vs. interna.
-- Continuar la carga de plantas (lavanda como primera, más fichas siguientes).
-- Refinar `/jardin-digital` como proyección pública de una parte del dominio.
+**Fase 2 — Dominio de plantas y proyección pública** *(cerrada funcionalmente)*
+- Dominio `plantas` consolidado como fuente de verdad con modelo completo (compounds, propiedades, contraindicaciones, extractos, campos `internal`).
+- Separación formalizada en código: proyección pública (`jardin-digital/projection.ts`) vs. acceso completo (`plantas/full-domain.ts`), con tests.
+- 16 plantas cargadas en seed data.
+- `/jardin-digital` opera sobre la proyección pública.
+- Retoques y nuevas cargas de plantas se gestionan como issues/tareas independientes.
 
 **Fase 3 — Dashboard de Olga (laboratorio) y flujos reales**
 - Construir el dashboard de Olga sobre el dominio completo de plantas.
@@ -496,7 +511,6 @@ Fase 1 se considera **cerrada funcionalmente**. Las versiones actuales son acept
 - Administra usuarios, datos, automatizaciones y publicación.
 
 ### Tareas previas a la producción
-- Consolidar contexto y lanzar SDD formal de Fase 2
 - Definir emails (SMTP) cuando llegue el momento
 
 ---
