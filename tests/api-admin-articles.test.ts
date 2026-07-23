@@ -17,6 +17,7 @@ import { POST } from '@/app/api/admin/articles/route';
 function requestWithOrigin(url: string, init: RequestInit, origin = 'http://localhost'): Request {
   const request = new Request(url, init);
   const headers = new Headers(init.headers);
+  headers.set('Content-Type', 'application/json');
   headers.set('Origin', origin);
   Object.defineProperty(request, 'headers', { value: headers });
   return request;
@@ -60,6 +61,34 @@ describe('POST /api/admin/articles', () => {
     expect(await response.json()).toEqual({ error: 'Invalid request origin' });
     expect(getCurrentUserMock).not.toHaveBeenCalled();
     expect(connectMock).not.toHaveBeenCalled();
+    expect(createMock).not.toHaveBeenCalled();
+  });
+
+  it('rejects unknown fields before connecting to the database', async () => {
+    getCurrentUserMock.mockResolvedValue({ role: 'admin' });
+
+    const response = await POST(requestWithOrigin('http://localhost/api/admin/articles', {
+      method: 'POST',
+      body: JSON.stringify({
+        title: 'Lavanda', category: 'Plantas', excerpt: 'Aromática', content: 'Contenido',
+        image: '/img/lavanda.jpg', imageAlt: 'Lavanda', published: true,
+      }),
+    }));
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({ error: 'Invalid request' });
+    expect(connectMock).not.toHaveBeenCalled();
+    expect(createMock).not.toHaveBeenCalled();
+  });
+
+  it('rejects malformed JSON before repository access', async () => {
+    getCurrentUserMock.mockResolvedValue({ role: 'admin' });
+
+    const response = await POST(requestWithOrigin('http://localhost/api/admin/articles', {
+      method: 'POST', body: '{not-json',
+    }));
+
+    expect(response.status).toBe(400);
     expect(createMock).not.toHaveBeenCalled();
   });
 });

@@ -15,7 +15,8 @@ vi.mock('@/lib/db/repository/lot', () => ({
   createLotRepository: vi.fn(() => ({ findById: findByIdMock, update: updateMock })),
 }));
 
-const currentLot = { id: 'lot-1', status: 'in_production', targetBatchGrams: 500 };
+const lotId = '507f1f77bcf86cd799439011';
+const currentLot = { id: lotId, status: 'in_production', targetBatchGrams: 500 };
 
 describe('canonical submitLotEditUpdate server action', () => {
   beforeEach(() => {
@@ -37,14 +38,14 @@ describe('canonical submitLotEditUpdate server action', () => {
   it('returns the canonical detail destination after a valid update', async () => {
     const values = buildValidForm();
     findByIdMock.mockResolvedValue(currentLot);
-    updateMock.mockResolvedValue({ id: 'lot-1' });
+    updateMock.mockResolvedValue({ id: lotId });
 
-    await expect(submitLotEditUpdate('lot-1', values)).resolves.toEqual({
+    await expect(submitLotEditUpdate(lotId, values)).resolves.toEqual({
       success: true,
-      redirectTo: '/laboratorio/lotes/lot-1',
+      redirectTo: `/laboratorio/lotes/${lotId}`,
     });
 
-    expect(updateMock).toHaveBeenCalledWith('lot-1', expect.objectContaining({
+    expect(updateMock).toHaveBeenCalledWith(lotId, expect.objectContaining({
       status: 'in_production',
       operationalObservations: 'Use fresh distilled water',
     }));
@@ -52,15 +53,15 @@ describe('canonical submitLotEditUpdate server action', () => {
 
   it('allows an in-production lot to rescale its snapshot', async () => {
     findByIdMock.mockResolvedValue(currentLot);
-    updateMock.mockResolvedValue({ id: 'lot-1' });
+    updateMock.mockResolvedValue({ id: lotId });
 
     await expect(
-      submitLotEditUpdate('lot-1', { ...buildValidForm(), targetBatchGrams: '750' })
+      submitLotEditUpdate(lotId, { ...buildValidForm(), targetBatchGrams: '750' })
     ).resolves.toEqual({
       success: true,
-      redirectTo: '/laboratorio/lotes/lot-1',
+      redirectTo: `/laboratorio/lotes/${lotId}`,
     });
-    expect(updateMock).toHaveBeenCalledWith('lot-1', expect.objectContaining({
+    expect(updateMock).toHaveBeenCalledWith(lotId, expect.objectContaining({
       targetBatchGrams: 750,
     }));
   });
@@ -68,7 +69,7 @@ describe('canonical submitLotEditUpdate server action', () => {
   it('does not touch the database for invalid target batch input', async () => {
     const values = { ...buildValidForm(), targetBatchGrams: '0' };
 
-    await expect(submitLotEditUpdate('lot-1', values)).resolves.toEqual({
+    await expect(submitLotEditUpdate(lotId, values)).resolves.toEqual({
       success: false,
       errors: { targetBatchGrams: 'El lote objetivo debe ser mayor a 0' },
     });
@@ -78,7 +79,7 @@ describe('canonical submitLotEditUpdate server action', () => {
   it('returns an error when the lot does not exist', async () => {
     findByIdMock.mockResolvedValue(null);
 
-    await expect(submitLotEditUpdate('missing-lot', buildValidForm())).resolves.toEqual({
+    await expect(submitLotEditUpdate(lotId, buildValidForm())).resolves.toEqual({
       success: false,
       error: 'Lote no encontrado',
     });
@@ -89,7 +90,7 @@ describe('canonical submitLotEditUpdate server action', () => {
     findByIdMock.mockResolvedValue(currentLot);
     updateMock.mockRejectedValue(new Error('Database unavailable'));
 
-    await expect(submitLotEditUpdate('lot-1', buildValidForm())).resolves.toEqual({
+    await expect(submitLotEditUpdate(lotId, buildValidForm())).resolves.toEqual({
       success: false,
       error: 'Database unavailable',
     });
@@ -98,24 +99,35 @@ describe('canonical submitLotEditUpdate server action', () => {
   it('returns an error when the database connection fails unexpectedly', async () => {
     connectToDatabaseMock.mockRejectedValue(new Error('Database unavailable'));
 
-    await expect(submitLotEditUpdate('lot-1', buildValidForm())).resolves.toEqual({
+    await expect(submitLotEditUpdate(lotId, buildValidForm())).resolves.toEqual({
       success: false,
       error: 'Database unavailable',
     });
     expect(findByIdMock).not.toHaveBeenCalled();
   });
 
+  it('rejects malformed lot ids and invalid optional dates before database access', async () => {
+    const values = { ...buildValidForm(), startedAt: '2026-02-30' };
+
+    await expect(submitLotEditUpdate(lotId, values)).resolves.toEqual({
+      success: false,
+      errors: { startedAt: 'La fecha de inicio no es válida' },
+    });
+    expect(connectToDatabaseMock).not.toHaveBeenCalled();
+    expect(findByIdMock).not.toHaveBeenCalled();
+  });
+
   it('returns the canonical detail destination after finalizing a lot', async () => {
     const values = { ...buildValidForm(), status: 'finalized' as const, targetBatchGrams: '500' };
     findByIdMock.mockResolvedValue({ ...currentLot, status: 'in_production' });
-    updateMock.mockResolvedValue({ id: 'lot-1' });
+    updateMock.mockResolvedValue({ id: lotId });
 
-    await expect(submitLotEditUpdate('lot-1', values)).resolves.toEqual({
+    await expect(submitLotEditUpdate(lotId, values)).resolves.toEqual({
       success: true,
-      redirectTo: '/laboratorio/lotes/lot-1',
+      redirectTo: `/laboratorio/lotes/${lotId}`,
     });
     expect(updateMock).toHaveBeenCalledWith(
-      'lot-1',
+      lotId,
       expect.objectContaining({ status: 'finalized' })
     );
   });
@@ -123,7 +135,7 @@ describe('canonical submitLotEditUpdate server action', () => {
   it.each(['finalized', 'discarded'] as const)('rejects production edits for a %s lot', async (status) => {
     findByIdMock.mockResolvedValue({ ...currentLot, status });
 
-    await expect(submitLotEditUpdate('lot-1', { ...buildValidForm(), operationalObservations: 'Bypass' })).resolves.toEqual({
+    await expect(submitLotEditUpdate(lotId, { ...buildValidForm(), operationalObservations: 'Bypass' })).resolves.toEqual({
       success: false,
       error: 'El lote no puede modificarse después de finalizarse o descartarse',
     });

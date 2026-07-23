@@ -1,4 +1,5 @@
 import { LotFollowUpEntry } from '@/lib/lots/lot-types';
+import { strictDate } from '@/lib/validation/runtime-input';
 
 export interface LotFollowUpFormValues {
   date: string;
@@ -39,13 +40,19 @@ export function validateMinimumLotFollowUpForm(values: LotFollowUpFormValues): {
   const date = values.date.trim();
   if (!date) {
     errors.date = 'La fecha es obligatoria';
-  } else if (Number.isNaN(new Date(date).getTime())) {
-    errors.date = 'La fecha no es válida';
+  } else {
+    try {
+      strictDate(date, 'date');
+    } catch {
+      errors.date = 'La fecha no es válida';
+    }
   }
 
   const note = values.note.trim();
   if (!note) {
     errors.note = 'La nota es obligatoria';
+  } else if (note.length > 2_000) {
+    errors.note = 'La nota no puede superar los 2000 caracteres';
   }
 
   return {

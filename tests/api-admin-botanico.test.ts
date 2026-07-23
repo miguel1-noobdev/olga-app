@@ -23,6 +23,7 @@ import { POST } from '@/app/api/admin/botanico/[catalog]/route';
 function requestWithOrigin(url: string, init: RequestInit, origin = 'http://localhost'): Request {
   const request = new Request(url, init);
   const headers = new Headers(init.headers);
+  headers.set('Content-Type', 'application/json');
   headers.set('Origin', origin);
   Object.defineProperty(request, 'headers', { value: headers });
   return request;
@@ -79,15 +80,13 @@ describe('POST /api/admin/botanico/[catalog]', () => {
     const response = await POST(
       requestWithOrigin('http://localhost/api/admin/botanico/oils', {
         method: 'POST',
-        body: JSON.stringify({ id: 'oil-1', name: 'Aceite de jojoba', recommendedPercentage: -1 }),
+        body: JSON.stringify({ id: '507f1f77bcf86cd799439011', name: 'Aceite de jojoba', recommendedPercentage: -1 }),
       }),
       { params: { catalog: 'oils' } }
     );
 
     expect(response.status).toBe(400);
-    await expect(response.json()).resolves.toEqual({
-      errors: { recommendedPercentage: 'Recommended percentage must be between 0 and 100.' },
-    });
+    await expect(response.json()).resolves.toEqual({ error: 'Invalid recommendedPercentage' });
     expect(oilUpdateMock).not.toHaveBeenCalled();
   });
 
@@ -103,6 +102,41 @@ describe('POST /api/admin/botanico/[catalog]', () => {
     expect(response.status).toBe(403);
     expect(await response.json()).toEqual({ error: 'Invalid request origin' });
     expect(getCurrentUserMock).not.toHaveBeenCalled();
+    expect(connectMock).not.toHaveBeenCalled();
+    expect(plantCreateMock).not.toHaveBeenCalled();
+  });
+
+  it('rejects arbitrary nested fields before repository access', async () => {
+    getCurrentUserMock.mockResolvedValue({ role: 'admin' });
+
+    const response = await POST(
+      requestWithOrigin('http://localhost/api/admin/botanico/plants', {
+        method: 'POST',
+        body: JSON.stringify({
+          commonName: 'Lavanda', scientificName: 'Lavandula angustifolia', family: 'Lamiaceae',
+          internal: { notes: 'ok', arbitrary: 'blocked' },
+        }),
+      }),
+      { params: { catalog: 'plants' } }
+    );
+
+    expect(response.status).toBe(400);
+    expect(plantCreateMock).not.toHaveBeenCalled();
+    expect(connectMock).not.toHaveBeenCalled();
+  });
+
+  it('rejects a malformed plant ObjectId before connecting', async () => {
+    getCurrentUserMock.mockResolvedValue({ role: 'admin' });
+
+    const response = await POST(
+      requestWithOrigin('http://localhost/api/admin/botanico/plants', {
+        method: 'POST',
+        body: JSON.stringify({ id: 'plant-1', commonName: 'Lavanda', scientificName: 'Lavandula angustifolia', family: 'Lamiaceae' }),
+      }),
+      { params: { catalog: 'plants' } }
+    );
+
+    expect(response.status).toBe(400);
     expect(connectMock).not.toHaveBeenCalled();
     expect(plantCreateMock).not.toHaveBeenCalled();
   });

@@ -1,4 +1,5 @@
 import { UpdateLotInput, LOT_STATUSES, LotStatus } from '@/lib/lots/lot-types';
+import { strictDate } from '@/lib/validation/runtime-input';
 
 export interface LotEditFormValues {
   status: LotStatus;
@@ -50,15 +51,6 @@ function toDateInputValue(isoDate: string | null | undefined): string {
   return isoDate.split('T')[0];
 }
 
-function isValidDateInput(value: string): boolean {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-    return false;
-  }
-
-  const date = new Date(`${value}T00:00:00.000Z`);
-  return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
-}
-
 export function toLotEditFormValues(record: {
   status: LotStatus;
   targetBatchGrams?: number;
@@ -105,14 +97,27 @@ export function validateMinimumLotEditForm(values: LotEditFormValues): {
   const targetBatchGrams = values.targetBatchGrams?.trim();
   if (
     targetBatchGrams &&
-    (!Number.isFinite(Number(targetBatchGrams)) || Number(targetBatchGrams) <= 0)
+    (!Number.isFinite(Number(targetBatchGrams)) || Number(targetBatchGrams) <= 0 || Number(targetBatchGrams) > 1_000_000)
   ) {
     errors.targetBatchGrams = 'El lote objetivo debe ser mayor a 0';
   }
 
-  const completedAt = values.completedAt.trim();
-  if (completedAt && !isValidDateInput(completedAt)) {
-    errors.completedAt = 'La fecha de finalización no es válida';
+  for (const [field, label] of [
+    ['plannedAt', 'planificación'],
+    ['startedAt', 'inicio'],
+    ['completedAt', 'finalización'],
+  ] as const) {
+    const date = values[field].trim();
+    if (!date) continue;
+    try {
+      strictDate(date, field);
+    } catch {
+      errors[field] = `La fecha de ${label} no es válida`;
+    }
+  }
+
+  if (values.operationalObservations.trim().length > 2_000) {
+    errors.operationalObservations = 'Las observaciones no pueden superar los 2000 caracteres';
   }
 
   return {

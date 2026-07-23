@@ -33,6 +33,8 @@ vi.mock('@/lib/db/repository/lot', () => ({
 }));
 
 const validFollowUp = { date: '2026-07-19', note: 'Stable texture.' };
+const formulaId = '507f1f77bcf86cd799439011';
+const lotId = '507f1f77bcf86cd799439012';
 const validEdit = {
   status: 'in_production' as const,
   targetBatchGrams: '500',
@@ -54,7 +56,7 @@ describe('lot mutation server-action authorization', () => {
   ])('rejects %s lot creation before repository access', async (_label, user) => {
     getCurrentUserMock.mockResolvedValue(user);
 
-    await expect(submitNewLot({ formulaId: 'formula-1', targetBatchGrams: 500 })).resolves.toEqual({
+    await expect(submitNewLot({ formulaId, targetBatchGrams: 500 })).resolves.toEqual({
       success: false,
       error: 'No autorizado',
     });
@@ -66,12 +68,12 @@ describe('lot mutation server-action authorization', () => {
 
   it('allows an authorized staff member to create a lot', async () => {
     getCurrentUserMock.mockResolvedValue({ id: 'staff-1', role: 'productora' });
-    formulaFindByIdMock.mockResolvedValue({ id: 'formula-1', status: 'validated' });
-    lotCreateMock.mockResolvedValue({ id: 'lot-1' });
+    formulaFindByIdMock.mockResolvedValue({ id: formulaId, status: 'validated' });
+    lotCreateMock.mockResolvedValue({ id: lotId });
 
-    await expect(submitNewLot({ formulaId: 'formula-1', targetBatchGrams: 500 })).resolves.toEqual({
+    await expect(submitNewLot({ formulaId, targetBatchGrams: 500 })).resolves.toEqual({
       success: true,
-      redirectTo: '/laboratorio/lotes/lot-1',
+      redirectTo: `/laboratorio/lotes/${lotId}`,
     });
   });
 
@@ -81,7 +83,7 @@ describe('lot mutation server-action authorization', () => {
   ])('rejects %s follow-up before repository access', async (_label, user) => {
     getCurrentUserMock.mockResolvedValue(user);
 
-    await expect(submitLotFollowUp('lot-1', validFollowUp)).resolves.toEqual({
+    await expect(submitLotFollowUp(lotId, validFollowUp)).resolves.toEqual({
       success: false,
       error: 'No autorizado',
     });
@@ -92,11 +94,11 @@ describe('lot mutation server-action authorization', () => {
 
   it('allows an authorized admin to append a follow-up', async () => {
     getCurrentUserMock.mockResolvedValue({ id: 'admin-1', role: 'admin' });
-    lotUpdateMock.mockResolvedValue({ id: 'lot-1' });
+    lotUpdateMock.mockResolvedValue({ id: lotId });
 
-    await expect(submitLotFollowUp('lot-1', validFollowUp)).resolves.toEqual({
+    await expect(submitLotFollowUp(lotId, validFollowUp)).resolves.toEqual({
       success: true,
-      redirectTo: '/laboratorio/lotes/lot-1',
+      redirectTo: `/laboratorio/lotes/${lotId}`,
     });
   });
 
@@ -106,7 +108,7 @@ describe('lot mutation server-action authorization', () => {
   ])('rejects %s lot edit before repository access', async (_label, user) => {
     getCurrentUserMock.mockResolvedValue(user);
 
-    await expect(submitLotEditUpdate('lot-1', validEdit)).resolves.toEqual({
+    await expect(submitLotEditUpdate(lotId, validEdit)).resolves.toEqual({
       success: false,
       error: 'No autorizado',
     });
@@ -118,12 +120,12 @@ describe('lot mutation server-action authorization', () => {
 
   it('allows an authorized productora to edit a lot', async () => {
     getCurrentUserMock.mockResolvedValue({ id: 'staff-1', role: 'productora' });
-    lotFindByIdMock.mockResolvedValue({ id: 'lot-1', status: 'in_production', targetBatchGrams: 500 });
-    lotUpdateMock.mockResolvedValue({ id: 'lot-1' });
+    lotFindByIdMock.mockResolvedValue({ id: lotId, status: 'in_production', targetBatchGrams: 500 });
+    lotUpdateMock.mockResolvedValue({ id: lotId });
 
-    await expect(submitLotEditUpdate('lot-1', validEdit)).resolves.toEqual({
+    await expect(submitLotEditUpdate(lotId, validEdit)).resolves.toEqual({
       success: true,
-      redirectTo: '/laboratorio/lotes/lot-1',
+      redirectTo: `/laboratorio/lotes/${lotId}`,
     });
   });
 });

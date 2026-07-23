@@ -11,6 +11,14 @@ import {
   toUpdateLotInput,
   validateMinimumLotEditForm,
 } from '@/lib/lots/lot-edit-form-contract';
+import {
+  assertAllowedKeys,
+  assertRecord,
+  boundedString,
+  isPersistenceInputError,
+  objectId,
+  optionalString,
+} from '@/lib/validation/runtime-input';
 
 export async function submitLotEditUpdate(
   lotId: string,
@@ -21,7 +29,26 @@ export async function submitLotEditUpdate(
     return { success: false, error: 'No autorizado' };
   }
 
-  const validation = validateMinimumLotEditForm(values);
+  let safeValues: LotEditFormValues;
+  try {
+    objectId(lotId, 'lot id');
+    const body = assertRecord(values);
+    assertAllowedKeys(body, [
+      'status', 'targetBatchGrams', 'plannedAt', 'startedAt', 'completedAt', 'operationalObservations',
+    ]);
+    safeValues = {
+      status: body.status as LotEditFormValues['status'],
+      targetBatchGrams: optionalString(body.targetBatchGrams, 'targetBatchGrams', { maxLength: 20 }),
+      plannedAt: boundedString(body.plannedAt, 'plannedAt', { maxLength: 10, required: false }),
+      startedAt: boundedString(body.startedAt, 'startedAt', { maxLength: 10, required: false }),
+      completedAt: boundedString(body.completedAt, 'completedAt', { maxLength: 10, required: false }),
+      operationalObservations: boundedString(body.operationalObservations, 'operationalObservations', { maxLength: 2_000, required: false }),
+    };
+  } catch {
+    return { success: false, error: 'Entrada inválida' };
+  }
+
+  const validation = validateMinimumLotEditForm(safeValues);
   if (!validation.valid) {
     return { success: false, errors: validation.errors };
   }
@@ -38,7 +65,7 @@ export async function submitLotEditUpdate(
       return { success: false, error: 'El lote no puede modificarse después de finalizarse o descartarse' };
     }
 
-    const update = toUpdateLotInput(values);
+    const update = toUpdateLotInput(safeValues);
     const permissions = getLotLifecyclePermissions(currentLot.status);
     if (update.targetBatchGrams === currentLot.targetBatchGrams) {
       delete update.targetBatchGrams;
@@ -53,7 +80,9 @@ export async function submitLotEditUpdate(
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'No se pudo actualizar el lote. Intentelo de nuevo.',
+      error: isPersistenceInputError(error)
+        ? 'Entrada inválida'
+        : error instanceof Error ? error.message : 'No se pudo actualizar el lote. Intentelo de nuevo.',
     };
   }
 }

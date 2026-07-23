@@ -8,7 +8,17 @@ import {
   FormulaProductEvaluation,
   FormulaInci,
   FormulaProcedureStep,
+  FORMULA_STATUSES,
 } from '@/lib/formulas/formula-types';
+import {
+  assertAllowedKeys,
+  assertRecord,
+  boundedArray,
+  boundedString,
+  enumValue,
+  finiteNumber,
+  strictDate,
+} from '@/lib/validation/runtime-input';
 
 export type FormulaPhaseKey = 'aqueous' | 'oil' | 'actives';
 
@@ -562,10 +572,135 @@ function hasPartialUseTestEntry(useTest: FormulaUseTestFormValue): boolean {
   });
 }
 
+function optionalFormulaNumber(value: unknown, field: string, options: { min?: number; max?: number }): void {
+  if (value !== '') {
+    finiteNumber(value, field, options);
+  }
+}
+
+function validateFormulaStringFields(
+  value: Record<string, unknown>,
+  fields: readonly string[],
+  maxLength: number,
+): void {
+  for (const field of fields) {
+    boundedString(value[field], field, { maxLength, required: false });
+  }
+}
+
+export function validateRuntimeFormulaForm(value: unknown): {
+  valid: boolean;
+  errors: FormulaFormValidationError;
+} {
+  const errors: FormulaFormValidationError = {};
+  const check = (field: keyof FormulaFormValidationError, callback: () => void) => {
+    try {
+      callback();
+    } catch {
+      errors[field] = `Invalid ${String(field)}`;
+    }
+  };
+
+  let form: Record<string, unknown>;
+  try {
+    form = assertRecord(value);
+    assertAllowedKeys(form, [
+      'productName', 'formulaCode', 'formulaCreatedAt', 'formulaVersion', 'productObjectives',
+      'productType', 'status', 'targetBatchGrams', 'phases', 'procedureSteps', 'technicalData',
+      'productEvaluation', 'useTest', 'inci', 'finalObservations',
+    ]);
+  } catch {
+    return { valid: false, errors: { productName: 'Invalid request' } };
+  }
+
+  check('productName', () => boundedString(form.productName, 'productName', { maxLength: 200, required: false }));
+  check('formulaCode', () => boundedString(form.formulaCode, 'formulaCode', { maxLength: 100, required: false }));
+  check('formulaCreatedAt', () => {
+    if (form.formulaCreatedAt !== '') strictDate(form.formulaCreatedAt, 'formulaCreatedAt');
+  });
+  check('formulaVersion', () => boundedString(form.formulaVersion, 'formulaVersion', { maxLength: 50, required: false }));
+  check('productType', () => boundedString(form.productType, 'productType', { maxLength: 100, required: false }));
+  check('status', () => enumValue(form.status, 'status', FORMULA_STATUSES));
+  check('targetBatchGrams', () => optionalFormulaNumber(form.targetBatchGrams, 'targetBatchGrams', { max: 1_000_000 }));
+  check('finalObservations', () => boundedString(form.finalObservations, 'finalObservations', { maxLength: 2_000, required: false }));
+
+  check('productObjectives', () => {
+    for (const [index, item] of boundedArray(form.productObjectives, 'productObjectives', { maxLength: 50 }).entries()) {
+      const objective = assertRecord(item);
+      assertAllowedKeys(objective, ['id', 'value']);
+      if (objective.id !== undefined) boundedString(objective.id, `productObjectives[${index}].id`, { maxLength: 100 });
+      boundedString(objective.value, `productObjectives[${index}].value`, { maxLength: 200, required: false });
+    }
+  });
+
+  check('phases', () => {
+    const phases = assertRecord(form.phases);
+    assertAllowedKeys(phases, ['aqueous', 'oil', 'actives']);
+    for (const key of ['aqueous', 'oil', 'actives'] as const) {
+      for (const [index, item] of boundedArray(phases[key], `phases.${key}`, { maxLength: 100 }).entries()) {
+        const ingredient = assertRecord(item);
+        assertAllowedKeys(ingredient, ['id', 'ingredient', 'grams']);
+        if (ingredient.id !== undefined) boundedString(ingredient.id, `phases.${key}[${index}].id`, { maxLength: 100 });
+        boundedString(ingredient.ingredient, `phases.${key}[${index}].ingredient`, { maxLength: 200, required: false });
+        if (ingredient.grams !== '') finiteNumber(ingredient.grams, `phases.${key}[${index}].grams`, { max: 1_000_000 });
+      }
+    }
+  });
+
+  check('procedureSteps', () => {
+    for (const [index, item] of boundedArray(form.procedureSteps, 'procedureSteps', { maxLength: 100 }).entries()) {
+      const step = assertRecord(item);
+      assertAllowedKeys(step, ['id', 'stepNumber', 'instruction']);
+      if (step.id !== undefined) boundedString(step.id, `procedureSteps[${index}].id`, { maxLength: 100 });
+      finiteNumber(step.stepNumber, `procedureSteps[${index}].stepNumber`, { min: 1, max: 1_000, integer: true });
+      boundedString(step.instruction, `procedureSteps[${index}].instruction`, { maxLength: 5_000, required: false });
+    }
+  });
+
+  check('technicalData', () => {
+    const data = assertRecord(form.technicalData);
+    assertAllowedKeys(data, ['finalPh', 'productionTemperatureCelsius', 'mixingTimeMinutes', 'preservative', 'fragrance', 'color']);
+    optionalFormulaNumber(data.finalPh, 'finalPh', {});
+    optionalFormulaNumber(data.productionTemperatureCelsius, 'productionTemperatureCelsius', {});
+    optionalFormulaNumber(data.mixingTimeMinutes, 'mixingTimeMinutes', {});
+    validateFormulaStringFields(data, ['preservative', 'fragrance', 'color'], 500);
+  });
+
+  check('productEvaluation', () => {
+    const evaluation = assertRecord(form.productEvaluation);
+    assertAllowedKeys(evaluation, ['texture', 'color', 'smell', 'viscosity', 'absorption', 'foam', 'stability']);
+    validateFormulaStringFields(evaluation, ['texture', 'color', 'smell', 'viscosity', 'absorption', 'foam', 'stability'], 500);
+  });
+
+  check('useTest', () => {
+    const useTest = assertRecord(form.useTest);
+    assertAllowedKeys(useTest, ['approxExpirationDate', 'entries']);
+    if (useTest.approxExpirationDate !== '') strictDate(useTest.approxExpirationDate, 'approxExpirationDate');
+    for (const [index, item] of boundedArray(useTest.entries, 'useTest.entries', { maxLength: 50 }).entries()) {
+      const entry = assertRecord(item);
+      assertAllowedKeys(entry, ['id', 'date', 'note']);
+      if (entry.id !== undefined) boundedString(entry.id, `useTest.entries[${index}].id`, { maxLength: 100 });
+      if (entry.date !== '') strictDate(entry.date, `useTest.entries[${index}].date`);
+      boundedString(entry.note, `useTest.entries[${index}].note`, { maxLength: 2_000, required: false });
+    }
+  });
+
+  check('inci', () => {
+    const inci = assertRecord(form.inci);
+    assertAllowedKeys(inci, ['function', 'emulsionType', 'dosage', 'temperature', 'compatibility', 'inconveniences', 'ph']);
+    validateFormulaStringFields(inci, ['function', 'emulsionType', 'dosage', 'temperature', 'compatibility', 'inconveniences', 'ph'], 500);
+  });
+
+  return { valid: Object.keys(errors).length === 0, errors };
+}
+
 export function validateMinimumFormulaForm(values: FormulaFormValues): {
   valid: boolean;
   errors: FormulaFormValidationError;
 } {
+  const runtimeValidation = validateRuntimeFormulaForm(values);
+  if (!runtimeValidation.valid) return runtimeValidation;
+
   const errors: FormulaFormValidationError = {};
 
   if (values.productName.trim() === '') {

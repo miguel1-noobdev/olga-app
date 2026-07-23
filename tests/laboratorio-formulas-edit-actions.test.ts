@@ -24,6 +24,8 @@ vi.mock('@/lib/db/repository/formula', () => ({
 }));
 
 describe('submitFormulaUpdate server action', () => {
+  const formulaId = '507f1f77bcf86cd799439011';
+
   beforeEach(() => {
     vi.clearAllMocks();
     getCurrentUserMock.mockResolvedValue({ id: 'staff-1', role: 'admin' });
@@ -32,7 +34,7 @@ describe('submitFormulaUpdate server action', () => {
   it('rejects non-staff calls before database access', async () => {
     getCurrentUserMock.mockResolvedValue({ id: 'user-1', role: 'suscriptora' });
 
-    await expect(submitFormulaUpdate('formula-1', buildValidForm())).resolves.toEqual({ success: false, error: 'No autorizado' });
+    await expect(submitFormulaUpdate(formulaId, buildValidForm())).resolves.toEqual({ success: false, error: 'No autorizado' });
     expect(connectToDatabaseMock).not.toHaveBeenCalled();
     expect(updateMock).not.toHaveBeenCalled();
   });
@@ -53,7 +55,7 @@ describe('submitFormulaUpdate server action', () => {
   it('returns validation errors without touching the database for an empty form', async () => {
     const form = createEmptyFormulaForm();
 
-    const result = await submitFormulaUpdate('formula-1', form);
+    const result = await submitFormulaUpdate(formulaId, form);
 
     expect(result.success).toBe(false);
     expect('errors' in result && result.errors.productName).toBeDefined();
@@ -68,25 +70,25 @@ describe('submitFormulaUpdate server action', () => {
   it('connects to database, updates formula, and returns the detail destination', async () => {
     const form = buildValidForm();
     updateMock.mockResolvedValue({
-      id: 'formula-1',
+      id: formulaId,
       productName: form.productName,
     });
 
-    await expect(submitFormulaUpdate('formula-1', form)).resolves.toEqual({
+    await expect(submitFormulaUpdate(formulaId, form)).resolves.toEqual({
       success: true,
-      redirectTo: '/laboratorio/formulas/formula-1',
+      redirectTo: `/laboratorio/formulas/${formulaId}`,
     });
 
     expect(connectToDatabaseMock).toHaveBeenCalledTimes(1);
     expect(updateMock).toHaveBeenCalledTimes(1);
-    expect(updateMock).toHaveBeenCalledWith('formula-1', toUpdateFormulaInput(form));
+    expect(updateMock).toHaveBeenCalledWith(formulaId, toUpdateFormulaInput(form));
   });
 
   it('returns a generic error when repository update fails', async () => {
     const form = buildValidForm();
     updateMock.mockRejectedValue(new Error('Database write failed'));
 
-    const result = await submitFormulaUpdate('formula-1', form);
+    const result = await submitFormulaUpdate(formulaId, form);
 
     expect(result.success).toBe(false);
     expect('error' in result && result.error).toBe('Database write failed');
@@ -96,10 +98,22 @@ describe('submitFormulaUpdate server action', () => {
     const form = buildValidForm();
     updateMock.mockRejectedValue(new Error('Formula not found'));
 
-    const result = await submitFormulaUpdate('unknown-id', form);
+    const result = await submitFormulaUpdate('507f1f77bcf86cd799439012', form);
 
     expect(result.success).toBe(false);
     expect('error' in result && result.error).toBe('Formula not found');
+  });
+
+  it('rejects a malformed formula id and invalid nested numbers before database access', async () => {
+    const form = buildValidForm();
+    form.targetBatchGrams = Number.POSITIVE_INFINITY;
+
+    const result = await submitFormulaUpdate(formulaId, form);
+
+    expect(result.success).toBe(false);
+    expect('errors' in result && result.errors.targetBatchGrams).toBeDefined();
+    expect(connectToDatabaseMock).not.toHaveBeenCalled();
+    expect(updateMock).not.toHaveBeenCalled();
   });
 
   it('passes rich formula blocks to the repository on update', async () => {
@@ -137,17 +151,17 @@ describe('submitFormulaUpdate server action', () => {
     };
     form.finalObservations = 'Updated observations';
     updateMock.mockResolvedValue({
-      id: 'formula-1',
+      id: formulaId,
       productName: form.productName,
     });
 
-    await expect(submitFormulaUpdate('formula-1', form)).resolves.toEqual({
+    await expect(submitFormulaUpdate(formulaId, form)).resolves.toEqual({
       success: true,
-      redirectTo: '/laboratorio/formulas/formula-1',
+      redirectTo: `/laboratorio/formulas/${formulaId}`,
     });
 
     expect(updateMock).toHaveBeenCalledWith(
-      'formula-1',
+      formulaId,
       expect.objectContaining({
         productObjectives: ['hydrating', 'soothing'],
         technicalData: {

@@ -6,6 +6,13 @@ import { createLotRepository } from '@/lib/db/repository/lot';
 import { getCurrentUser } from '@/lib/auth/current-user';
 import { isStaff } from '@/lib/auth/roles';
 import type { LotCreationValues, SubmitLotCreationResult } from '@/components/laboratorio/lot-creation-form';
+import {
+  assertAllowedKeys,
+  assertRecord,
+  finiteNumber,
+  isPersistenceInputError,
+  objectId,
+} from '@/lib/validation/runtime-input';
 
 export async function submitNewLot(
   values: LotCreationValues
@@ -15,14 +22,21 @@ export async function submitNewLot(
     return { success: false, error: 'No autorizado' };
   }
 
-  const targetBatchGrams = Number(values.targetBatchGrams);
-  if (!Number.isFinite(targetBatchGrams) || targetBatchGrams <= 0) {
-    return { success: false, error: 'El lote objetivo debe ser mayor a 0' };
+  let safeValues: LotCreationValues;
+  let targetBatchGrams: number;
+  try {
+    const body = assertRecord(values);
+    assertAllowedKeys(body, ['formulaId', 'targetBatchGrams']);
+    const formulaId = objectId(body.formulaId, 'formula id');
+    targetBatchGrams = finiteNumber(body.targetBatchGrams, 'target batch grams', { min: 0.0001, max: 1_000_000 });
+    safeValues = { formulaId, targetBatchGrams };
+  } catch {
+    return { success: false, error: 'Entrada inválida' };
   }
 
   await connectToDatabase();
   const formulaRepository = createFormulaRepository();
-  const formula = await formulaRepository.findById(values.formulaId);
+  const formula = await formulaRepository.findById(safeValues.formulaId);
 
   if (!formula || formula.status !== 'validated') {
     return { success: false, error: 'La fórmula ya no está validada para la creación de lotes.' };
@@ -42,7 +56,9 @@ export async function submitNewLot(
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'No se pudo crear el lote. Intentelo de nuevo.',
+      error: isPersistenceInputError(error)
+        ? 'Entrada inválida'
+        : error instanceof Error ? error.message : 'No se pudo crear el lote. Intentelo de nuevo.',
     };
   }
 }

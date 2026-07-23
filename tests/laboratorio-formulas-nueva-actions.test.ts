@@ -92,6 +92,21 @@ describe('submitFormula server action', () => {
     expect('error' in result && result.error).toBe('Database write failed');
   });
 
+  it('rejects invalid status, date, and oversized nested input before database access', async () => {
+    const form = buildValidForm();
+    form.status = 'not-a-status' as never;
+    form.formulaCreatedAt = '2026-02-30';
+    form.productObjectives = Array.from({ length: 51 }, (_, index) => ({ value: `objective-${index}` }));
+
+    const result = await submitFormula(form);
+
+    expect(result.success).toBe(false);
+    expect('errors' in result && result.errors.status).toBeDefined();
+    expect('errors' in result && result.errors.formulaCreatedAt).toBeDefined();
+    expect(connectToDatabaseMock).not.toHaveBeenCalled();
+    expect(createMock).not.toHaveBeenCalled();
+  });
+
   it('passes rich formula blocks to the repository on create', async () => {
     const form = buildValidForm();
     form.productObjectives = [{ value: 'hydrating' }, { value: 'soothing' }];

@@ -10,6 +10,13 @@ import {
   type SubmitPlantNotesResult,
   validatePlantNotesForm,
 } from '@/lib/plantas/plant-notes-form-contract';
+import {
+  assertAllowedKeys,
+  assertRecord,
+  boundedString,
+  isPersistenceInputError,
+  objectId,
+} from '@/lib/validation/runtime-input';
 
 export async function updatePlantNotes(
   plantId: string,
@@ -21,7 +28,22 @@ export async function updatePlantNotes(
     return { success: false, error: 'No autorizado' };
   }
 
-  const validation = validatePlantNotesForm(values);
+  let safeValues: PlantNotesFormValues;
+  try {
+    objectId(plantId, 'plant id');
+    const body = assertRecord(values);
+    assertAllowedKeys(body, ['notes']);
+    if (typeof body.notes === 'string' && body.notes.length > 2_000) {
+      return { success: false, errors: { notes: 'Las notas no pueden superar los 2000 caracteres' } };
+    }
+    const safeSlug = boundedString(slug, 'slug', { minLength: 1, maxLength: 160 });
+    if (!/^[a-z0-9]+(?:[-_][a-z0-9]+)*$/i.test(safeSlug)) throw new Error('Invalid slug');
+    safeValues = { notes: boundedString(body.notes, 'notes', { maxLength: 2_000, required: false }) };
+  } catch {
+    return { success: false, error: 'Entrada inválida' };
+  }
+
+  const validation = validatePlantNotesForm(safeValues);
   if (!validation.valid) {
     return { success: false, errors: validation.errors };
   }
@@ -29,14 +51,16 @@ export async function updatePlantNotes(
   try {
     await connectToDatabase();
     await createFullPlantRepository().update(plantId, {
-      internal: { notes: values.notes.trim() },
+      internal: { notes: safeValues.notes.trim() },
     });
-    revalidatePath(`/laboratorio/plantas/${slug}`);
+    revalidatePath(`/laboratorio/plantas/${slug.trim()}`);
     return { success: true };
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'No se pudieron guardar las notas. Inténtelo de nuevo.',
+      error: isPersistenceInputError(error)
+        ? 'Entrada inválida'
+        : error instanceof Error ? error.message : 'No se pudieron guardar las notas. Inténtelo de nuevo.',
     };
   }
 }

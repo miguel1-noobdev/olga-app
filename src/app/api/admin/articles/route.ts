@@ -3,28 +3,48 @@ import { getCurrentUser } from '@/lib/auth/current-user';
 import { createArticleRepository } from '@/lib/db/repository/article';
 import { connectToDatabase } from '@/lib/db/connect';
 import { isAllowedMutationOriginRequest } from '@/lib/auth/request-security';
+import {
+  assertAllowedKeys,
+  boundedString,
+  getSafeInputError,
+  imageUrl,
+  readJsonObject,
+} from '@/lib/validation/runtime-input';
 
 export async function POST(request: Request) {
   if (!isAllowedMutationOriginRequest(request)) {
     return NextResponse.json({ error: 'Invalid request origin' }, { status: 403 });
   }
 
+  const user = await getCurrentUser();
+
+  if (!user || user.role !== 'admin') {
+    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+  }
+
+  let body: Record<string, unknown>;
   try {
-    const user = await getCurrentUser();
+    body = await readJsonObject(request);
+    assertAllowedKeys(body, ['title', 'category', 'excerpt', 'content', 'image', 'imageAlt']);
+    body = {
+      title: boundedString(body.title, 'title', { maxLength: 200 }),
+      category: boundedString(body.category, 'category', { maxLength: 80 }),
+      excerpt: boundedString(body.excerpt, 'excerpt', { maxLength: 500 }),
+      content: boundedString(body.content, 'content', { maxLength: 100_000 }),
+      image: imageUrl(body.image),
+      imageAlt: boundedString(body.imageAlt, 'imageAlt', { maxLength: 200 }),
+    };
+  } catch (error) {
+    const failure = getSafeInputError(error, 'Invalid request');
+    return NextResponse.json({ error: failure.message }, { status: failure.status });
+  }
 
-    if (!user || user.role !== 'admin') {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
-    }
-
+  try {
     await connectToDatabase();
     const repo = createArticleRepository();
-
-    const body = await request.json();
-    const { title, category, excerpt, content, image, imageAlt } = body;
-
-    if (!title || !category || !excerpt || !content || !image || !imageAlt) {
-      return NextResponse.json({ error: 'Todos los campos son requeridos' }, { status: 400 });
-    }
+    const { title, category, excerpt, content, image, imageAlt } = body as {
+      title: string; category: string; excerpt: string; content: string; image: string; imageAlt: string;
+    };
 
     // Calcular tiempo de lectura estimado (aproximadamente 200 palabras por minuto)
     const wordCount = content.split(/\s+/).length;
@@ -44,10 +64,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ article }, { status: 201 });
   } catch (error) {
-    console.error('Error creating article:', error);
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Error al crear artículo' },
-      { status: 500 }
-    );
+    const failure = getSafeInputError(error, 'Error al crear artículo');
+    return NextResponse.json({ error: failure.message }, { status: failure.status });
   }
 }

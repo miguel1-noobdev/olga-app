@@ -8,8 +8,10 @@ import {
   FormulaFormValues,
   SubmitFormulaResult,
   toUpdateFormulaInput,
+  validateRuntimeFormulaForm,
   validateMinimumFormulaForm,
 } from '@/lib/formulas/formula-form-contract';
+import { isPersistenceInputError, objectId } from '@/lib/validation/runtime-input';
 
 export async function submitFormulaUpdate(
   formulaId: string,
@@ -18,6 +20,17 @@ export async function submitFormulaUpdate(
   const user = await getCurrentUser();
   if (!user || !isStaff(user.role)) {
     return { success: false, error: 'No autorizado' };
+  }
+
+  try {
+    objectId(formulaId, 'formula id');
+  } catch {
+    return { success: false, error: 'Entrada inválida' };
+  }
+
+  const runtimeValidation = validateRuntimeFormulaForm(values);
+  if (!runtimeValidation.valid) {
+    return { success: false, errors: runtimeValidation.errors };
   }
 
   const validation = validateMinimumFormulaForm(values);
@@ -37,7 +50,9 @@ export async function submitFormulaUpdate(
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'No se pudo actualizar la fórmula. Inténtelo de nuevo.',
+      error: isPersistenceInputError(error)
+        ? 'Entrada inválida'
+        : error instanceof Error ? error.message : 'No se pudo actualizar la fórmula. Inténtelo de nuevo.',
     };
   }
 }

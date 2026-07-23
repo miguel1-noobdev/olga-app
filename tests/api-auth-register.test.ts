@@ -13,14 +13,15 @@ vi.mock('@/lib/db/connect', () => ({
 
 async function callRegisterRoute(
   body: unknown,
-  headers: Record<string, string> = {}
+  headers: Record<string, string> = {},
+  rawBody?: string,
 ): Promise<Response> {
   const { POST } = await import('@/app/api/auth/register/route');
   const requestHeaders = { 'Content-Type': 'application/json', Origin: 'http://localhost', ...headers };
   const request = new Request('http://localhost/api/auth/register', {
     method: 'POST',
     headers: requestHeaders,
-    body: JSON.stringify(body),
+    body: rawBody ?? JSON.stringify(body),
   });
 
   Object.defineProperty(request, 'headers', { value: new Headers(requestHeaders) });
@@ -147,6 +148,24 @@ describe('/api/auth/register POST', () => {
     expect(res.status).toBe(400);
     const json = await res.json();
     expect(json.error).toMatch(/required|obligatorio/i);
+  });
+
+  it('rejects unknown registration fields before database work', async () => {
+    const res = await callRegisterRoute({
+      email: 'olga@botanicaob.com', password: 'secret123', role: 'admin',
+    });
+
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ error: 'Invalid request' });
+    expect(connectToDatabaseMock).not.toHaveBeenCalled();
+  });
+
+  it('rejects malformed JSON before database work', async () => {
+    const { POST } = await import('@/app/api/auth/register/route');
+    const response = await callRegisterRoute({}, {}, '{not-json');
+
+    expect(response.status).toBe(400);
+    expect(connectToDatabaseMock).not.toHaveBeenCalled();
   });
 
   it('rejects an explicit cross-origin registration request before touching the database', async () => {

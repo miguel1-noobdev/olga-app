@@ -32,20 +32,23 @@ vi.mock('@/lib/db/repository/lot', () => ({
 }));
 
 describe('lot operational summary contract', () => {
+  const formulaId = '507f1f77bcf86cd799439011';
+  const lotId = '507f1f77bcf86cd799439012';
+
   beforeEach(() => {
     vi.clearAllMocks();
     getCurrentUserMock.mockResolvedValue({ id: 'staff-1', role: 'productora' });
   });
 
   it('creates every new lot in production with an automatic start date', async () => {
-    findByIdMock.mockResolvedValue({ id: 'formula-1', status: 'validated' });
-    createMock.mockResolvedValue({ id: 'lot-1' });
+    findByIdMock.mockResolvedValue({ id: formulaId, status: 'validated' });
+    createMock.mockResolvedValue({ id: lotId });
 
-    await submitNewLot({ formulaId: 'formula-1', targetBatchGrams: 500 });
+    await submitNewLot({ formulaId, targetBatchGrams: 500 });
 
     expect(createMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        formulaId: 'formula-1',
+        formulaId,
         targetBatchGrams: 500,
         status: 'in_production',
       })
@@ -90,21 +93,21 @@ describe('lot operational summary contract', () => {
 
   it('persists the selected status and completion date through the safe server action', async () => {
     findLotByIdMock.mockResolvedValue({
-      id: 'lot-1',
+       id: lotId,
       status: 'in_production',
       targetBatchGrams: 500,
     });
-    updateMock.mockResolvedValue({ id: 'lot-1' });
+    updateMock.mockResolvedValue({ id: lotId });
 
     await expect(
-      submitLotEditUpdate('lot-1', {
+       submitLotEditUpdate(lotId, {
         ...createEmptyLotEditFormValues(),
         status: 'finalized',
         completedAt: '2026-07-18',
       })
-    ).resolves.toEqual({ success: true, redirectTo: '/laboratorio/lotes/lot-1' });
+     ).resolves.toEqual({ success: true, redirectTo: `/laboratorio/lotes/${lotId}` });
 
-    expect(updateMock).toHaveBeenCalledWith('lot-1', expect.objectContaining({
+    expect(updateMock).toHaveBeenCalledWith(lotId, expect.objectContaining({
       status: 'finalized',
       completedAt: new Date('2026-07-18'),
     }));

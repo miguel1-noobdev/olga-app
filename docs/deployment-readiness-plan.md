@@ -239,7 +239,16 @@ An unrelated website cannot use a valid browser session to perform application m
 Malformed, oversized, or invalid requests receive controlled `4xx` responses and
 do not reach database writes.
 
+**Status:** Implemented in the current worktree. The shared runtime boundary covers
+JSON content type, a one-megabyte actual byte limit, object roots, bounded values,
+strict dates, enums, image URLs, and Mongo ObjectIds. The five custom mutation APIs
+and seven browser-reachable laboratory actions reject invalid input before database
+access, preserve existing authorization/status allowlists, and normalize persistence
+cast/validation failures to stable client errors. Block 8 remains pending.
+
 ## Block 8 — Server-action and form resilience
+
+**Status:** Pending. Block 8 is intentionally not included in Block 7.
 
 **Objective:** prevent user forms from becoming permanently stuck.
 

@@ -3,13 +3,16 @@ import { getCurrentUser } from '@/lib/auth/current-user';
 import { connectToDatabase } from '@/lib/db/connect';
 import { createArticleRepository } from '@/lib/db/repository/article';
 import { isAllowedMutationOriginRequest } from '@/lib/auth/request-security';
+import {
+  assertAllowedKeys,
+  enumValue,
+  getSafeInputError,
+  objectId,
+  readJsonObject,
+} from '@/lib/validation/runtime-input';
 
 const actions = ['review', 'publish', 'unpublish'] as const;
 type ContentAction = (typeof actions)[number];
-
-function isContentAction(value: unknown): value is ContentAction {
-  return typeof value === 'string' && actions.includes(value as ContentAction);
-}
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
   if (!isAllowedMutationOriginRequest(request)) {
@@ -26,21 +29,18 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  const { action } = await request.json();
-
-  if (!isContentAction(action)) {
-    return NextResponse.json({ error: 'Invalid content action' }, { status: 400 });
-  }
-
   try {
+    objectId(params.id, 'article id');
+    const body = await readJsonObject(request);
+    assertAllowedKeys(body, ['action']);
+    enumValue(body.action, 'content action', actions);
+
     await connectToDatabase();
     const repository = createArticleRepository();
-    await repository[action](params.id);
-    return NextResponse.json({ status: action });
+    await repository[body.action as ContentAction](params.id);
+    return NextResponse.json({ status: body.action });
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Content action failed' },
-      { status: 400 }
-    );
+    const failure = getSafeInputError(error, 'Content action failed');
+    return NextResponse.json({ error: failure.message }, { status: failure.status });
   }
 }

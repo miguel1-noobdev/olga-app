@@ -13,6 +13,18 @@ import {
 } from '@/lib/db/mongo-lease-lock';
 import { createUserRepository } from '@/lib/db/repository/user';
 import { isAllowedMutationOriginRequest } from '@/lib/auth/request-security';
+import {
+  assertAllowedKeys,
+  enumValue,
+  getSafeInputError,
+  isPersistenceInputError,
+  objectId,
+  readJsonObject,
+  RuntimeInputError,
+} from '@/lib/validation/runtime-input';
+
+const USER_ROLES = ['suscriptora', 'productora', 'admin'] as const;
+const ACCOUNT_STATUSES = ['active', 'suspended'] as const;
 
 async function getAdminSession() {
   const user = await getCurrentUser();
@@ -40,22 +52,31 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  const body: unknown = await request.json();
-  if (!body || typeof body !== 'object') {
-    return NextResponse.json({ error: 'Invalid mutation' }, { status: 400 });
-  }
-
-  const { userId, role, accountStatus, confirmed } = body as Record<string, unknown>;
-  if (typeof userId !== 'string' || typeof confirmed !== 'boolean') {
-    return NextResponse.json({ error: 'Invalid mutation' }, { status: 400 });
-  }
-
-  await connectToDatabase();
-  const users = createUserRepository();
-  const audit = createAdministrativeAuditRepository();
-
-  const input: AdminUserMutationInput = { userId, role, accountStatus, confirmed };
+  let input: AdminUserMutationInput;
   try {
+    const body = await readJsonObject(request);
+    assertAllowedKeys(body, ['userId', 'role', 'accountStatus', 'confirmed']);
+    const userId = objectId(body.userId, 'user id');
+    if (typeof body.confirmed !== 'boolean') {
+      throw new RuntimeInputError('Invalid request');
+    }
+    const role = body.role === undefined ? undefined : enumValue(body.role, 'role', USER_ROLES);
+    const accountStatus = body.accountStatus === undefined
+      ? undefined
+      : enumValue(body.accountStatus, 'account status', ACCOUNT_STATUSES);
+    if (role === undefined && accountStatus === undefined) {
+      throw new RuntimeInputError('Invalid request');
+    }
+    input = { userId, role, accountStatus, confirmed: body.confirmed };
+  } catch (error) {
+    const failure = getSafeInputError(error, 'Invalid request');
+    return NextResponse.json({ error: failure.message }, { status: failure.status });
+  }
+
+  try {
+    await connectToDatabase();
+    const users = createUserRepository();
+    const audit = createAdministrativeAuditRepository();
     const outcome = await withMongoLeaseLock((guard) => applyGuardedAdminUserMutation(
       input,
       session.id,
@@ -65,6 +86,9 @@ export async function PATCH(request: Request) {
   } catch (error) {
     if (error instanceof MongoLeaseLockUnavailableError) {
       return NextResponse.json({ error: 'Administrative mutation temporarily unavailable' }, { status: 503 });
+    }
+    if (isPersistenceInputError(error)) {
+      return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
     }
     throw error;
   }

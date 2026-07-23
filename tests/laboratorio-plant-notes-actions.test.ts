@@ -17,6 +17,8 @@ vi.mock('@/lib/plantas/full-domain', () => ({
 vi.mock('next/cache', () => ({ revalidatePath: revalidatePathMock }));
 
 describe('updatePlantNotes server action', () => {
+  const plantId = '507f1f77bcf86cd799439011';
+
   beforeEach(() => {
     vi.clearAllMocks();
     getCurrentUserMock.mockResolvedValue({ id: 'staff-1', role: 'productora' });
@@ -25,23 +27,23 @@ describe('updatePlantNotes server action', () => {
   it('rejects unauthenticated calls before database access', async () => {
     getCurrentUserMock.mockResolvedValue(null);
 
-    await expect(updatePlantNotes('plant-1', 'lavanda', { notes: 'Nueva nota' })).resolves.toEqual({ success: false, error: 'No autorizado' });
+    await expect(updatePlantNotes(plantId, 'lavanda', { notes: 'Nueva nota' })).resolves.toEqual({ success: false, error: 'No autorizado' });
     expect(connectToDatabaseMock).not.toHaveBeenCalled();
     expect(updateMock).not.toHaveBeenCalled();
   });
 
   it('persists only internal.notes through the repository merge boundary and revalidates the canonical detail', async () => {
-    updateMock.mockResolvedValue({ id: 'plant-1', slug: 'lavanda' });
+    updateMock.mockResolvedValue({ id: plantId, slug: 'lavanda' });
 
-    await expect(updatePlantNotes('plant-1', 'lavanda', { notes: 'Nueva nota' })).resolves.toEqual({ success: true });
+    await expect(updatePlantNotes(plantId, 'lavanda', { notes: 'Nueva nota' })).resolves.toEqual({ success: true });
 
     expect(connectToDatabaseMock).toHaveBeenCalledOnce();
-    expect(updateMock).toHaveBeenCalledWith('plant-1', { internal: { notes: 'Nueva nota' } });
+    expect(updateMock).toHaveBeenCalledWith(plantId, { internal: { notes: 'Nueva nota' } });
     expect(revalidatePathMock).toHaveBeenCalledWith('/laboratorio/plantas/lavanda');
   });
 
   it('returns serializable validation errors without accessing the database', async () => {
-    const result = await updatePlantNotes('plant-1', 'lavanda', { notes: 'x'.repeat(2001) });
+    const result = await updatePlantNotes(plantId, 'lavanda', { notes: 'x'.repeat(2001) });
 
     expect(result).toEqual({
       success: false,
@@ -53,7 +55,7 @@ describe('updatePlantNotes server action', () => {
   it('returns a serializable repository error', async () => {
     updateMock.mockRejectedValue(new Error('Plant not found'));
 
-    await expect(updatePlantNotes('plant-1', 'lavanda', { notes: 'Nueva nota' })).resolves.toEqual({
+    await expect(updatePlantNotes(plantId, 'lavanda', { notes: 'Nueva nota' })).resolves.toEqual({
       success: false,
       error: 'Plant not found',
     });

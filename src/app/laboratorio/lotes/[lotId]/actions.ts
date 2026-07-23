@@ -10,6 +10,13 @@ import {
   toLotFollowUpEntry,
   validateMinimumLotFollowUpForm,
 } from '@/lib/lots/lot-follow-up-form-contract';
+import {
+  assertAllowedKeys,
+  assertRecord,
+  boundedString,
+  isPersistenceInputError,
+  objectId,
+} from '@/lib/validation/runtime-input';
 
 export async function submitLotFollowUp(
   lotId: string,
@@ -20,7 +27,20 @@ export async function submitLotFollowUp(
     return { success: false, error: 'No autorizado' };
   }
 
-  const validation = validateMinimumLotFollowUpForm(values);
+  let safeValues: LotFollowUpFormValues;
+  try {
+    objectId(lotId, 'lot id');
+    const body = assertRecord(values);
+    assertAllowedKeys(body, ['date', 'note']);
+    safeValues = {
+      date: boundedString(body.date, 'date', { maxLength: 10, required: false }),
+      note: boundedString(body.note, 'note', { maxLength: 2_000, required: false }),
+    };
+  } catch {
+    return { success: false, error: 'Entrada inválida' };
+  }
+
+  const validation = validateMinimumLotFollowUpForm(safeValues);
   if (!validation.valid) {
     return { success: false, errors: validation.errors };
   }
@@ -30,7 +50,7 @@ export async function submitLotFollowUp(
 
   try {
     const record = await repository.update(lotId, {
-      followUp: { entries: [toLotFollowUpEntry(values)] },
+      followUp: { entries: [toLotFollowUpEntry(safeValues)] },
     });
     return {
       success: true,
@@ -39,8 +59,9 @@ export async function submitLotFollowUp(
   } catch (error) {
     return {
       success: false,
-      error:
-        error instanceof Error
+      error: isPersistenceInputError(error)
+        ? 'Entrada inválida'
+        : error instanceof Error
           ? error.message
           : 'No se pudo agregar la entrada de seguimiento. Intentelo de nuevo.',
     };

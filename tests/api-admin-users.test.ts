@@ -39,9 +39,13 @@ vi.mock('@/lib/admin/users/activity', async (importOriginal) => ({
 import { GET, PATCH } from '@/app/api/admin/usuarios/route';
 import { MongoLeaseLockUnavailableError } from '@/lib/db/mongo-lease-lock';
 
+const ADMIN_ID = '507f1f77bcf86cd799439011';
+const USER_ID = '507f1f77bcf86cd799439012';
+
 function requestWithOrigin(url: string, init: RequestInit, origin = 'http://localhost'): Request {
   const request = new Request(url, init);
   const headers = new Headers(init.headers);
+  headers.set('Content-Type', 'application/json');
   headers.set('Origin', origin);
   Object.defineProperty(request, 'headers', { value: headers });
   return request;
@@ -65,68 +69,68 @@ describe('/api/admin/usuarios', () => {
 
     repositoryMock.findAll.mockResolvedValue([
       {
-        id: 'user-1', email: 'reader@example.com', role: 'suscriptora', accountStatus: 'active',
+       id: USER_ID, email: 'reader@example.com', role: 'suscriptora', accountStatus: 'active',
         createdAt: '2026-07-16T00:00:00.000Z', passwordHash: 'secret',
       },
     ]);
-    getCurrentUserMock.mockResolvedValueOnce({ id: 'admin-1', role: 'admin' });
+     getCurrentUserMock.mockResolvedValueOnce({ id: ADMIN_ID, role: 'admin' });
 
     const response = await GET();
     expect(await response.json()).toEqual({
-      users: [{ id: 'user-1', email: 'reader@example.com', role: 'suscriptora', accountStatus: 'active', createdAt: '2026-07-16T00:00:00.000Z' }],
+       users: [{ id: USER_ID, email: 'reader@example.com', role: 'suscriptora', accountStatus: 'active', createdAt: '2026-07-16T00:00:00.000Z' }],
     });
   });
 
   it('applies only a confirmed approved mutation and records its redacted audit event', async () => {
-    getCurrentUserMock.mockResolvedValue({ id: 'admin-1', role: 'admin' });
+     getCurrentUserMock.mockResolvedValue({ id: ADMIN_ID, role: 'admin' });
     repositoryMock.findById.mockResolvedValue({
-      id: 'user-1', email: 'user-1@example.com', role: 'suscriptora', accountStatus: 'active',
+       id: USER_ID, email: 'user-1@example.com', role: 'suscriptora', accountStatus: 'active',
       createdAt: '2026-07-16T00:00:00.000Z', passwordHash: 'secret',
     });
     const cancelled = await PATCH(requestWithOrigin('http://test/api/admin/usuarios', {
-      method: 'PATCH', body: JSON.stringify({ userId: 'user-1', role: 'productora', confirmed: false }),
+       method: 'PATCH', body: JSON.stringify({ userId: USER_ID, role: 'productora', confirmed: false }),
       headers: { Origin: 'http://localhost' },
     }));
     expect(cancelled.status).toBe(400);
     expect(repositoryMock.updateRole).not.toHaveBeenCalled();
 
     const invalidRole = await PATCH(requestWithOrigin('http://test/api/admin/usuarios', {
-      method: 'PATCH', body: JSON.stringify({ userId: 'user-1', role: 'owner', confirmed: true }),
+       method: 'PATCH', body: JSON.stringify({ userId: USER_ID, role: 'owner', confirmed: true }),
       headers: { Origin: 'http://localhost' },
     }));
     expect(invalidRole.status).toBe(400);
     expect(repositoryMock.updateRole).not.toHaveBeenCalled();
 
     const confirmed = await PATCH(requestWithOrigin('http://test/api/admin/usuarios', {
-      method: 'PATCH', body: JSON.stringify({ userId: 'user-1', accountStatus: 'suspended', confirmed: true }),
+       method: 'PATCH', body: JSON.stringify({ userId: USER_ID, accountStatus: 'suspended', confirmed: true }),
       headers: { Origin: 'http://localhost' },
     }));
     expect(confirmed.status).toBe(200);
-    expect(repositoryMock.updateAccountStatus).toHaveBeenCalledWith('user-1', 'suspended');
+     expect(repositoryMock.updateAccountStatus).toHaveBeenCalledWith(USER_ID, 'suspended');
     expect(recordMock).toHaveBeenCalledWith(expect.objectContaining({
-      type: 'account_status_changed', subjectUserId: 'user-1', actorUserId: 'admin-1',
+       type: 'account_status_changed', subjectUserId: USER_ID, actorUserId: ADMIN_ID,
     }));
   });
 
   it('rejects an Admin attempt to suspend or demote their own account', async () => {
-    getCurrentUserMock.mockResolvedValue({ id: 'admin-1', role: 'admin' });
+     getCurrentUserMock.mockResolvedValue({ id: ADMIN_ID, role: 'admin' });
     repositoryMock.findById.mockResolvedValue({
-      id: 'admin-1', email: 'admin-1@example.com', role: 'admin', accountStatus: 'active',
+       id: ADMIN_ID, email: 'admin-1@example.com', role: 'admin', accountStatus: 'active',
       createdAt: '2026-07-16T00:00:00.000Z', passwordHash: 'secret',
     });
     repositoryMock.findAll.mockResolvedValue([
       {
-        id: 'admin-1', email: 'admin-1@example.com', role: 'admin', accountStatus: 'active',
+         id: ADMIN_ID, email: 'admin-1@example.com', role: 'admin', accountStatus: 'active',
         createdAt: '2026-07-16T00:00:00.000Z', passwordHash: 'secret',
       },
     ]);
 
     const suspended = await PATCH(requestWithOrigin('http://test/api/admin/usuarios', {
-      method: 'PATCH', body: JSON.stringify({ userId: 'admin-1', accountStatus: 'suspended', confirmed: true }),
+       method: 'PATCH', body: JSON.stringify({ userId: ADMIN_ID, accountStatus: 'suspended', confirmed: true }),
       headers: { Origin: 'http://localhost' },
     }));
     const demoted = await PATCH(requestWithOrigin('http://test/api/admin/usuarios', {
-      method: 'PATCH', body: JSON.stringify({ userId: 'admin-1', role: 'suscriptora', confirmed: true }),
+       method: 'PATCH', body: JSON.stringify({ userId: ADMIN_ID, role: 'suscriptora', confirmed: true }),
       headers: { Origin: 'http://localhost' },
     }));
 
@@ -139,22 +143,22 @@ describe('/api/admin/usuarios', () => {
   it('rejects a mutation that would remove the last active admin', async () => {
     getCurrentUserMock.mockResolvedValue({ id: 'admin-2', role: 'admin' });
     repositoryMock.findById.mockResolvedValue({
-      id: 'admin-1', email: 'admin-1@example.com', role: 'admin', accountStatus: 'active',
+       id: ADMIN_ID, email: 'admin-1@example.com', role: 'admin', accountStatus: 'active',
       createdAt: '2026-07-16T00:00:00.000Z', passwordHash: 'secret',
     });
     repositoryMock.findAll.mockResolvedValue([
       {
-        id: 'admin-1', email: 'admin-1@example.com', role: 'admin', accountStatus: 'active',
+         id: ADMIN_ID, email: 'admin-1@example.com', role: 'admin', accountStatus: 'active',
         createdAt: '2026-07-16T00:00:00.000Z', passwordHash: 'secret',
       },
     ]);
 
     const demoted = await PATCH(requestWithOrigin('http://test/api/admin/usuarios', {
-      method: 'PATCH', body: JSON.stringify({ userId: 'admin-1', role: 'productora', confirmed: true }),
+       method: 'PATCH', body: JSON.stringify({ userId: ADMIN_ID, role: 'productora', confirmed: true }),
       headers: { Origin: 'http://localhost' },
     }));
     const suspended = await PATCH(requestWithOrigin('http://test/api/admin/usuarios', {
-      method: 'PATCH', body: JSON.stringify({ userId: 'admin-1', accountStatus: 'suspended', confirmed: true }),
+       method: 'PATCH', body: JSON.stringify({ userId: ADMIN_ID, accountStatus: 'suspended', confirmed: true }),
       headers: { Origin: 'http://localhost' },
     }));
 
@@ -167,12 +171,12 @@ describe('/api/admin/usuarios', () => {
   it('allows demoting one admin when another active admin remains', async () => {
     getCurrentUserMock.mockResolvedValue({ id: 'admin-2', role: 'admin' });
     repositoryMock.findById.mockResolvedValue({
-      id: 'admin-1', email: 'admin-1@example.com', role: 'admin', accountStatus: 'active',
+       id: ADMIN_ID, email: 'admin-1@example.com', role: 'admin', accountStatus: 'active',
       createdAt: '2026-07-16T00:00:00.000Z', passwordHash: 'secret',
     });
     repositoryMock.findAll.mockResolvedValue([
       {
-        id: 'admin-1', email: 'admin-1@example.com', role: 'admin', accountStatus: 'active',
+         id: ADMIN_ID, email: 'admin-1@example.com', role: 'admin', accountStatus: 'active',
         createdAt: '2026-07-16T00:00:00.000Z', passwordHash: 'secret',
       },
       {
@@ -182,39 +186,39 @@ describe('/api/admin/usuarios', () => {
     ]);
 
     const demoted = await PATCH(requestWithOrigin('http://test/api/admin/usuarios', {
-      method: 'PATCH', body: JSON.stringify({ userId: 'admin-1', role: 'productora', confirmed: true }),
+       method: 'PATCH', body: JSON.stringify({ userId: ADMIN_ID, role: 'productora', confirmed: true }),
       headers: { Origin: 'http://localhost' },
     }));
 
     expect(demoted.status).toBe(200);
-    expect(repositoryMock.updateRole).toHaveBeenCalledWith('admin-1', 'productora');
+     expect(repositoryMock.updateRole).toHaveBeenCalledWith(ADMIN_ID, 'productora');
   });
 
   it('rolls back a role change when audit recording fails', async () => {
-    getCurrentUserMock.mockResolvedValue({ id: 'admin-1', role: 'admin' });
+     getCurrentUserMock.mockResolvedValue({ id: ADMIN_ID, role: 'admin' });
     repositoryMock.findAll.mockResolvedValue([
       {
-        id: 'user-1', email: 'user-1@example.com', role: 'suscriptora', accountStatus: 'active',
+       id: USER_ID, email: 'user-1@example.com', role: 'suscriptora', accountStatus: 'active',
         createdAt: '2026-07-16T00:00:00.000Z', passwordHash: 'secret',
       },
     ]);
     repositoryMock.findById.mockResolvedValue({
-      id: 'user-1', email: 'user-1@example.com', role: 'suscriptora', accountStatus: 'active',
+       id: USER_ID, email: 'user-1@example.com', role: 'suscriptora', accountStatus: 'active',
       createdAt: '2026-07-16T00:00:00.000Z', passwordHash: 'secret',
     });
     recordMock.mockRejectedValue(new Error('Audit write failed'));
 
     const response = await PATCH(requestWithOrigin('http://test/api/admin/usuarios', {
-      method: 'PATCH', body: JSON.stringify({ userId: 'user-1', role: 'productora', confirmed: true }),
+       method: 'PATCH', body: JSON.stringify({ userId: USER_ID, role: 'productora', confirmed: true }),
       headers: { Origin: 'http://localhost' },
     }));
 
     const body = await response.json();
     expect(response.status).toBe(500);
-    expect(repositoryMock.updateRole).toHaveBeenCalledWith('user-1', 'productora');
-    expect(repositoryMock.updateRole).toHaveBeenCalledWith('user-1', 'suscriptora');
+     expect(repositoryMock.updateRole).toHaveBeenCalledWith(USER_ID, 'productora');
+     expect(repositoryMock.updateRole).toHaveBeenCalledWith(USER_ID, 'suscriptora');
     expect(recordMock).toHaveBeenCalledWith(expect.objectContaining({
-      type: 'role_changed', subjectUserId: 'user-1', actorUserId: 'admin-1',
+       type: 'role_changed', subjectUserId: USER_ID, actorUserId: ADMIN_ID,
     }));
     expect(body.error).toContain('Cambio revertido');
     expect(body.error).toContain('suscriptora');
@@ -222,30 +226,30 @@ describe('/api/admin/usuarios', () => {
   });
 
   it('rolls back an account status change when audit recording fails', async () => {
-    getCurrentUserMock.mockResolvedValue({ id: 'admin-1', role: 'admin' });
+     getCurrentUserMock.mockResolvedValue({ id: ADMIN_ID, role: 'admin' });
     repositoryMock.findAll.mockResolvedValue([
       {
-        id: 'user-1', email: 'user-1@example.com', role: 'suscriptora', accountStatus: 'active',
+       id: USER_ID, email: 'user-1@example.com', role: 'suscriptora', accountStatus: 'active',
         createdAt: '2026-07-16T00:00:00.000Z', passwordHash: 'secret',
       },
     ]);
     repositoryMock.findById.mockResolvedValue({
-      id: 'user-1', email: 'user-1@example.com', role: 'suscriptora', accountStatus: 'active',
+       id: USER_ID, email: 'user-1@example.com', role: 'suscriptora', accountStatus: 'active',
       createdAt: '2026-07-16T00:00:00.000Z', passwordHash: 'secret',
     });
     recordMock.mockRejectedValue(new Error('Audit write failed'));
 
     const response = await PATCH(requestWithOrigin('http://test/api/admin/usuarios', {
-      method: 'PATCH', body: JSON.stringify({ userId: 'user-1', accountStatus: 'suspended', confirmed: true }),
+       method: 'PATCH', body: JSON.stringify({ userId: USER_ID, accountStatus: 'suspended', confirmed: true }),
       headers: { Origin: 'http://localhost' },
     }));
 
     const body = await response.json();
     expect(response.status).toBe(500);
-    expect(repositoryMock.updateAccountStatus).toHaveBeenCalledWith('user-1', 'suspended');
-    expect(repositoryMock.updateAccountStatus).toHaveBeenCalledWith('user-1', 'active');
+     expect(repositoryMock.updateAccountStatus).toHaveBeenCalledWith(USER_ID, 'suspended');
+     expect(repositoryMock.updateAccountStatus).toHaveBeenCalledWith(USER_ID, 'active');
     expect(recordMock).toHaveBeenCalledWith(expect.objectContaining({
-      type: 'account_status_changed', subjectUserId: 'user-1', actorUserId: 'admin-1',
+       type: 'account_status_changed', subjectUserId: USER_ID, actorUserId: ADMIN_ID,
     }));
     expect(body.error).toContain('Cambio revertido');
     expect(body.error).toContain('active');
@@ -253,15 +257,15 @@ describe('/api/admin/usuarios', () => {
   });
 
   it('reports both audit and rollback failures for a role change without reverting', async () => {
-    getCurrentUserMock.mockResolvedValue({ id: 'admin-1', role: 'admin' });
+     getCurrentUserMock.mockResolvedValue({ id: ADMIN_ID, role: 'admin' });
     repositoryMock.findAll.mockResolvedValue([
       {
-        id: 'user-1', email: 'user-1@example.com', role: 'suscriptora', accountStatus: 'active',
+       id: USER_ID, email: 'user-1@example.com', role: 'suscriptora', accountStatus: 'active',
         createdAt: '2026-07-16T00:00:00.000Z', passwordHash: 'secret',
       },
     ]);
     repositoryMock.findById.mockResolvedValue({
-      id: 'user-1', email: 'user-1@example.com', role: 'suscriptora', accountStatus: 'active',
+       id: USER_ID, email: 'user-1@example.com', role: 'suscriptora', accountStatus: 'active',
       createdAt: '2026-07-16T00:00:00.000Z', passwordHash: 'secret',
     });
     recordMock.mockRejectedValue(new Error('Audit write failed'));
@@ -270,7 +274,7 @@ describe('/api/admin/usuarios', () => {
       .mockRejectedValueOnce(new Error('Rollback role failed'));
 
     const response = await PATCH(requestWithOrigin('http://test/api/admin/usuarios', {
-      method: 'PATCH', body: JSON.stringify({ userId: 'user-1', role: 'productora', confirmed: true }),
+       method: 'PATCH', body: JSON.stringify({ userId: USER_ID, role: 'productora', confirmed: true }),
       headers: { Origin: 'http://localhost' },
     }));
 
@@ -283,20 +287,20 @@ describe('/api/admin/usuarios', () => {
     expect(body.error).not.toContain('Audit write failed');
     expect(body.error).not.toContain('Rollback role failed');
     expect(repositoryMock.updateRole).toHaveBeenCalledTimes(2);
-    expect(repositoryMock.updateRole).toHaveBeenNthCalledWith(1, 'user-1', 'productora');
-    expect(repositoryMock.updateRole).toHaveBeenNthCalledWith(2, 'user-1', 'suscriptora');
+     expect(repositoryMock.updateRole).toHaveBeenNthCalledWith(1, USER_ID, 'productora');
+     expect(repositoryMock.updateRole).toHaveBeenNthCalledWith(2, USER_ID, 'suscriptora');
   });
 
   it('reports both audit and rollback failures for an account status change without reverting', async () => {
-    getCurrentUserMock.mockResolvedValue({ id: 'admin-1', role: 'admin' });
+     getCurrentUserMock.mockResolvedValue({ id: ADMIN_ID, role: 'admin' });
     repositoryMock.findAll.mockResolvedValue([
       {
-        id: 'user-1', email: 'user-1@example.com', role: 'suscriptora', accountStatus: 'active',
+       id: USER_ID, email: 'user-1@example.com', role: 'suscriptora', accountStatus: 'active',
         createdAt: '2026-07-16T00:00:00.000Z', passwordHash: 'secret',
       },
     ]);
     repositoryMock.findById.mockResolvedValue({
-      id: 'user-1', email: 'user-1@example.com', role: 'suscriptora', accountStatus: 'active',
+       id: USER_ID, email: 'user-1@example.com', role: 'suscriptora', accountStatus: 'active',
       createdAt: '2026-07-16T00:00:00.000Z', passwordHash: 'secret',
     });
     recordMock.mockRejectedValue(new Error('Audit write failed'));
@@ -305,7 +309,7 @@ describe('/api/admin/usuarios', () => {
       .mockRejectedValueOnce(new Error('Rollback status failed'));
 
     const response = await PATCH(requestWithOrigin('http://test/api/admin/usuarios', {
-      method: 'PATCH', body: JSON.stringify({ userId: 'user-1', accountStatus: 'suspended', confirmed: true }),
+       method: 'PATCH', body: JSON.stringify({ userId: USER_ID, accountStatus: 'suspended', confirmed: true }),
     }));
 
     const body = await response.json();
@@ -317,17 +321,17 @@ describe('/api/admin/usuarios', () => {
     expect(body.error).not.toContain('Audit write failed');
     expect(body.error).not.toContain('Rollback status failed');
     expect(repositoryMock.updateAccountStatus).toHaveBeenCalledTimes(2);
-    expect(repositoryMock.updateAccountStatus).toHaveBeenNthCalledWith(1, 'user-1', 'suspended');
-    expect(repositoryMock.updateAccountStatus).toHaveBeenNthCalledWith(2, 'user-1', 'active');
+     expect(repositoryMock.updateAccountStatus).toHaveBeenNthCalledWith(1, USER_ID, 'suspended');
+     expect(repositoryMock.updateAccountStatus).toHaveBeenNthCalledWith(2, USER_ID, 'active');
   });
 
   it('returns a safe temporary-unavailable response when the mutation lock cannot be acquired', async () => {
-    getCurrentUserMock.mockResolvedValue({ id: 'admin-1', role: 'admin' });
+     getCurrentUserMock.mockResolvedValue({ id: ADMIN_ID, role: 'admin' });
     withMongoLeaseLockMock.mockRejectedValueOnce(new MongoLeaseLockUnavailableError());
 
     const response = await PATCH(requestWithOrigin('http://test/api/admin/usuarios', {
       method: 'PATCH',
-      body: JSON.stringify({ userId: 'user-1', role: 'productora', confirmed: true }),
+       body: JSON.stringify({ userId: USER_ID, role: 'productora', confirmed: true }),
       headers: { Origin: 'http://localhost' },
     }));
 
@@ -339,7 +343,7 @@ describe('/api/admin/usuarios', () => {
   it('rejects a cross-origin mutation before authentication or database work', async () => {
     const response = await PATCH(requestWithOrigin('http://localhost/api/admin/usuarios', {
       method: 'PATCH',
-      body: JSON.stringify({ userId: 'user-1', role: 'productora', confirmed: true }),
+       body: JSON.stringify({ userId: USER_ID, role: 'productora', confirmed: true }),
     }, 'https://attacker.example'));
 
     expect(response.status).toBe(403);

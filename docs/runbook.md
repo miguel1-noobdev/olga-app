@@ -137,6 +137,35 @@ The policy requires a non-empty bare `Origin` header and validates it against `N
 
 Safe `GET` handlers and NextAuth's built-in authentication endpoints are excluded. Next.js 14 Server Actions remain protected by the framework's host/origin checks; they are not custom route handlers in this block, and no `Origin` value is passed through Server Action arguments. `next.config.mjs` does not define dynamic `serverActions.allowedOrigins`; no wildcard origin is permitted.
 
+### Block 7: runtime input contracts
+
+Custom JSON mutations use `src/lib/validation/runtime-input.ts` before database
+connection or repository calls. The boundary requires `Content-Type: application/json`
+with an optional charset, reads the actual request bytes, rejects bodies larger than
+1 MiB with `413`, and returns stable `400` responses for malformed JSON, non-object
+roots, unknown fields, invalid strings, arrays, numbers, dates, enums, image URLs,
+and Mongo ObjectIds. Image URLs may be `https`, `http`, or approved local `/img/`
+paths; executable and data protocols are rejected.
+
+The contract is applied to:
+
+- `POST /api/auth/register`
+- `POST /api/admin/articles`
+- `PATCH /api/admin/articles/[id]`
+- `POST /api/admin/botanico/[catalog]`
+- `PATCH /api/admin/usuarios`
+- Laboratory notes, formulas, and lot server actions under `src/app/laboratorio/**/actions.ts`
+
+Domain payloads are allowlisted and bounded, including article content, botanical
+nested entries and image lists, formula phases/procedure/evaluation/use-test/INCI
+blocks, lot grams/dates/observations, and notes. Existing role, account-status,
+formula-status, and lot-status allowlists remain authoritative. Mongoose cast and
+validation failures are converted to stable client errors rather than exposing raw
+persistence messages.
+
+This section documents input contracts only. Server-action pending-state resilience,
+accessible error announcements, deployment, and VPS provisioning remain pending.
+
 ## VPS deploy (manual, high-level)
 
 There is **no deploy automation** in the repo today. The current manual flow is:

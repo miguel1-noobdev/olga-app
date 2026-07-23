@@ -24,6 +24,8 @@ vi.mock('@/lib/db/repository/lot', () => ({
 }));
 
 describe('submitLotFollowUp server action', () => {
+  const lotId = '507f1f77bcf86cd799439011';
+
   beforeEach(() => {
     vi.clearAllMocks();
     getCurrentUserMock.mockResolvedValue({ id: 'staff-1', role: 'productora' });
@@ -39,7 +41,7 @@ describe('submitLotFollowUp server action', () => {
   it('returns validation errors without touching the database for empty fields', async () => {
     const form = createEmptyLotFollowUpFormValues();
 
-    const result = await submitLotFollowUp('lot-1', form);
+    const result = await submitLotFollowUp(lotId, form);
 
     expect(result.success).toBe(false);
     expect('errors' in result && result.errors.date).toBeDefined();
@@ -49,10 +51,9 @@ describe('submitLotFollowUp server action', () => {
   });
 
   it('connects to database, appends follow-up entry, and returns the lot detail redirect', async () => {
-    const lotId = 'lot-1';
     const form = buildValidForm();
     updateMock.mockResolvedValue({
-      id: 'lot-1',
+      id: lotId,
       formulaId: 'formula-1',
       lotCode: 'CF-001-L001',
     });
@@ -75,7 +76,7 @@ describe('submitLotFollowUp server action', () => {
     const form = buildValidForm();
     updateMock.mockRejectedValue(new Error('Database write failed'));
 
-    const result = await submitLotFollowUp('lot-1', form);
+    const result = await submitLotFollowUp(lotId, form);
 
     expect(result.success).toBe(false);
     expect('error' in result && result.error).toBe('Database write failed');
@@ -85,11 +86,19 @@ describe('submitLotFollowUp server action', () => {
     const form = buildValidForm();
     updateMock.mockRejectedValue('Unexpected failure');
 
-    const result = await submitLotFollowUp('lot-1', form);
+    const result = await submitLotFollowUp(lotId, form);
 
     expect(result.success).toBe(false);
     expect('error' in result && result.error).toBe(
       'No se pudo agregar la entrada de seguimiento. Intentelo de nuevo.'
     );
+  });
+
+  it('rejects malformed lot ids and non-calendar dates before database access', async () => {
+    const result = await submitLotFollowUp(lotId, { date: '2026-02-30', note: 'Stable' });
+
+    expect(result).toEqual({ success: false, errors: { date: 'La fecha no es válida' } });
+    expect(connectToDatabaseMock).not.toHaveBeenCalled();
+    expect(updateMock).not.toHaveBeenCalled();
   });
 });

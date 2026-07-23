@@ -47,7 +47,7 @@ import LaboratoryCreateLotPage from '@/app/laboratorio/lotes/nuevo/page';
 import { submitNewLot } from '@/app/laboratorio/lotes/nuevo/actions';
 
 const validatedFormula = {
-  id: 'formula-validated',
+  id: '507f1f77bcf86cd799439011',
   productName: 'Lavender cream',
   formulaCode: 'CF-001',
   formulaVersion: '1.0',
@@ -70,7 +70,7 @@ describe('/laboratorio/lotes/nuevo', () => {
   it('shows validated formula cards with Crear lote links when no formula is selected', async () => {
     findByStatusMock.mockResolvedValue([
       validatedFormula,
-      { ...validatedFormula, id: 'formula-draft', productName: 'Draft cream', status: 'draft' },
+       { ...validatedFormula, id: '507f1f77bcf86cd799439012', productName: 'Draft cream', status: 'draft' },
     ]);
 
     const jsx = await LaboratoryCreateLotPage({
