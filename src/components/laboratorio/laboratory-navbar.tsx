@@ -28,7 +28,7 @@ export default function LaboratoryNavbar() {
         </Link>
 
         <div className="hidden items-center gap-8 md:flex">
-          {NAV_LINKS.map(({ href, label, icon }) => {
+          {NAV_LINKS.map(({ href, label }) => {
             const isActive = isActiveRoute(href);
 
             return (

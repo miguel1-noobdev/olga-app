@@ -8,7 +8,6 @@ import type {
   LotStatus,
   LotStorageStatus,
   FormulaSnapshot,
-  LotFollowUp,
 } from '@/lib/lots/lot-types';
 import type {
   FormulaIngredient,
@@ -61,10 +60,6 @@ export interface LotRepository {
 
 function escapeRegex(text: string): string {
   return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-function normalizeCode(code: string): string {
-  return code.trim().toUpperCase();
 }
 
 function toIsoDate(value: unknown): string | null {

@@ -9,7 +9,6 @@ import type {
   FormulaSnapshot,
   FormulaTechnicalDataSnapshot,
   LotFollowUp,
-  LotFollowUpEntry,
 } from '@/lib/lots/lot-types';
 import { LOT_STORAGE_STATUSES } from '@/lib/lots/lot-types';
 

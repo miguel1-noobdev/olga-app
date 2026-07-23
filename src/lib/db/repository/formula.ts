@@ -53,7 +53,8 @@ function cleanSubdocument<T extends Record<string, unknown>>(
     return undefined;
   }
 
-  const { _id, ...rest } = value;
+  const rest = { ...value };
+  delete rest._id;
   return Object.keys(rest).length > 0 ? (rest as T) : undefined;
 }
 
@@ -64,7 +65,7 @@ function cleanUseTest(
     return undefined;
   }
 
-  const { _id, approxExpirationDate, entries } = value;
+  const { approxExpirationDate, entries } = value;
   const hasExpiration = Boolean(approxExpirationDate);
   const hasEntries = (entries ?? []).length > 0;
 

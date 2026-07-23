@@ -135,7 +135,7 @@ export function createArticleRepository(): ArticleRepository {
     },
 
     async update(id: string, input: UpdateArticleInput): Promise<ArticleRecord> {
-      const updateData: any = { ...input };
+      const updateData: UpdateArticleInput = { ...input };
 
       if (input.title && !input.slug) {
         updateData.slug = slugify(input.title);

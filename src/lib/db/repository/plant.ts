@@ -158,7 +158,7 @@ export function createPlantRepository(): PlantRepository {
         throw new Error('Plant not found');
       }
 
-      const updateData: any = { ...input };
+      const updateData: UpdatePlantInput = { ...input };
 
       if (input.scientificName && !input.slug) {
         updateData.slug = slugify(input.scientificName);

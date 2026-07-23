@@ -6,7 +6,6 @@ import {
   FormulaStatus,
   FormulaTechnicalData,
   FormulaProductEvaluation,
-  FormulaUseTest,
   FormulaInci,
   FormulaProcedureStep,
 } from '@/lib/formulas/formula-types';
@@ -190,10 +189,6 @@ function toOptionalNumber(value: number | ''): number | undefined {
 
   const parsed = toNumberOrNaN(value);
   return Number.isFinite(parsed) ? parsed : undefined;
-}
-
-function isEmptyString(value: unknown): boolean {
-  return typeof value === 'string' && value.trim() === '';
 }
 
 function normalizePhases(phases: FormulaPhaseFormValues): FormulaPhase | undefined {

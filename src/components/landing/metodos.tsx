@@ -69,7 +69,7 @@ export default function Metodos() {
             />
             <div className="absolute bottom-10 -left-10 glass-card p-6 rounded-2xl max-w-[240px]">
               <p className="font-serif text-primary text-2xl italic">
-                "Desde la semilla hasta tu piel"
+                &quot;Desde la semilla hasta tu piel&quot;
               </p>
             </div>
           </div>

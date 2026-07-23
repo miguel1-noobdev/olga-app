@@ -16,7 +16,6 @@ import {
   SubmitFormulaResult,
   createEmptyFormulaForm,
   createEmptyUseTestEntry,
-  DEFAULT_FORMULA_STATUS,
   validateMinimumFormulaForm,
 } from '@/lib/formulas/formula-form-contract';
 import { FORMULA_STATUSES, FormulaStatus } from '@/lib/formulas/formula-types';

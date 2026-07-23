@@ -17,8 +17,8 @@ export default function Olga() {
             este pequeño taller donde la ciencia y la naturaleza se encuentran.
           </p>
           <p className="font-sans text-xl text-on-surface-variant italic border-l-4 border-secondary p-4 bg-secondary/10">
-            "Creo firmemente que lo que pongo en mi piel debe ser tan
-            nutritivo como lo que como."
+            &quot;Creo firmemente que lo que pongo en mi piel debe ser tan
+            nutritivo como lo que como.&quot;
           </p>
         </div>
 

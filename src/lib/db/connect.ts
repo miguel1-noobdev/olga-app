@@ -55,9 +55,7 @@ export async function connectToDatabase() {
     const connectionPromise = mongoose
       .connect(resolveMongoUri(), MONGOOSE_CONNECTION_OPTIONS)
       .then((m) => m);
-    let trackedPromise: Promise<typeof mongoose>;
-
-    trackedPromise = connectionPromise.catch((error) => {
+    const trackedPromise = connectionPromise.catch((error) => {
       if (cached.promise === trackedPromise) {
         cached.promise = null;
       }
