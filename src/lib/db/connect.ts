@@ -38,6 +38,12 @@ interface MongooseCache {
   promise: Promise<typeof mongoose> | null;
 }
 
+const MONGOOSE_CONNECTION_OPTIONS = {
+  serverSelectionTimeoutMS: 5000,
+  connectTimeoutMS: 5000,
+  socketTimeoutMS: 10000,
+};
+
 const cached: MongooseCache = { conn: null, promise: null };
 
 export async function connectToDatabase() {
@@ -46,7 +52,19 @@ export async function connectToDatabase() {
   }
 
   if (!cached.promise) {
-    cached.promise = mongoose.connect(resolveMongoUri()).then((m) => m);
+    const connectionPromise = mongoose
+      .connect(resolveMongoUri(), MONGOOSE_CONNECTION_OPTIONS)
+      .then((m) => m);
+    let trackedPromise: Promise<typeof mongoose>;
+
+    trackedPromise = connectionPromise.catch((error) => {
+      if (cached.promise === trackedPromise) {
+        cached.promise = null;
+      }
+
+      throw error;
+    });
+    cached.promise = trackedPromise;
   }
 
   cached.conn = await cached.promise;
