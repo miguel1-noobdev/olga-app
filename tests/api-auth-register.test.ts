@@ -16,15 +16,14 @@ async function callRegisterRoute(
   headers: Record<string, string> = {}
 ): Promise<Response> {
   const { POST } = await import('@/app/api/auth/register/route');
+  const requestHeaders = { 'Content-Type': 'application/json', Origin: 'http://localhost', ...headers };
   const request = new Request('http://localhost/api/auth/register', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...headers },
+    headers: requestHeaders,
     body: JSON.stringify(body),
   });
 
-  if (headers.Origin) {
-    Object.defineProperty(request, 'headers', { value: new Headers(headers) });
-  }
+  Object.defineProperty(request, 'headers', { value: new Headers(requestHeaders) });
 
   return POST(request);
 }
@@ -33,6 +32,7 @@ describe('/api/auth/register POST', () => {
   let mongoServer: MongoMemoryServer;
 
   beforeEach(async () => {
+    process.env.NEXTAUTH_URL = 'http://localhost';
     process.env.TRUSTED_PROXY_HEADERS = 'true';
     registrationRateLimiter.clear();
     mongoServer = await MongoMemoryServer.create();
@@ -41,6 +41,7 @@ describe('/api/auth/register POST', () => {
   });
 
   afterEach(async () => {
+    delete process.env.NEXTAUTH_URL;
     delete process.env.TRUSTED_PROXY_HEADERS;
     vi.unstubAllEnvs();
     vi.restoreAllMocks();

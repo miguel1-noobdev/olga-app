@@ -29,8 +29,8 @@ How to run the project locally, execute checks, and deploy to the VPS. This docu
 |----------|----------|------------------|-------|
 | `MONGODB_URI` | Yes in production | Local MongoDB connection URI | Production requires a valid MongoDB URI and never falls back to localhost. Non-production without this variable uses the local-safe fallback. |
 | `NEXTAUTH_SECRET` | At runtime | Generate with `openssl rand -base64 32` | NextAuth JWT signing secret. Login will fail without it. |
-| `NEXTAUTH_URL` | Recommended | `http://localhost:3000` | Used by NextAuth for callback URLs. |
-| `TRUSTED_PROXY_HEADERS` | Required in production | `false` | Set to `true` only behind a proxy that overwrites `x-forwarded-for` and `x-real-ip`; production auth fails closed when it is absent. |
+| `NEXTAUTH_URL` | Required for browser mutations | `http://localhost:3000` | Used by NextAuth for callback URLs and as the validated canonical origin for custom mutation APIs. |
+| `TRUSTED_PROXY_HEADERS` | Required in production | `false` | Set to `true` only behind a proxy that overwrites trusted forwarded headers, including host/protocol; production auth and custom mutations fail closed when it is absent. |
 | `INTERNAL_ACCOUNT_CHECK_ORIGIN` | At runtime | `http://127.0.0.1:3000` | Trusted origin for middleware's persisted-account check. Use the loopback Next.js listener on the VPS, or a bare HTTPS origin. HTTP is accepted only for `localhost`, `127.0.0.1`, or `[::1]`. |
 | `GOOGLE_CLIENT_ID` | Only if enabling Google OAuth | Google Cloud Console | Google auth is wired but **not exposed in the UI**. |
 | `GOOGLE_CLIENT_SECRET` | Only if enabling Google OAuth | Google Cloud Console | Never commit this value. |
@@ -118,10 +118,24 @@ The workflow uses Node.js 20 and the `npm` cache.
 
 - Registration is limited to 5 requests per client IP per 15-minute sliding window and returns `429` with a safe `Retry-After` header when the limit is exceeded.
 - Credentials login is limited to 10 attempts per client IP per 15-minute sliding window. NextAuth continues to return its normal credentials failure result when the limit is exceeded, preserving the existing login UX and built-in CSRF flow.
-- The custom registration mutation rejects an explicit `Origin` that is neither the request origin nor the configured `NEXTAUTH_URL` origin. Requests without an `Origin` remain compatible with non-browser clients.
+- The custom registration mutation requires an explicit, well-formed `Origin` matching the validated `NEXTAUTH_URL` origin or the effective request origin. Missing, malformed, and mismatched origins are rejected before database work.
 - Client IP extraction uses `x-forwarded-for` first and `x-real-ip` as a fallback only when `TRUSTED_PROXY_HEADERS=true`; otherwise both headers are ignored and the limiter uses a stable shared fallback key.
 - Production requires `TRUSTED_PROXY_HEADERS=true`; registration returns `503` and credentials login rejects normally until trusted proxy headers are configured.
 - These limiters are process-local in memory. They are bounded to 10,000 client keys per limiter and clean expired entries on requests, which fits the current single-VPS process assumption but does not coordinate limits across multiple Node.js processes or replicas. A shared store is required before horizontal scaling.
+
+### Block 6: custom mutation origin policy
+
+The shared strict origin policy in `src/lib/auth/request-security.ts` applies to these custom browser mutation handlers:
+
+- `POST /api/auth/register`
+- `POST /api/admin/articles`
+- `PATCH /api/admin/articles/[id]`
+- `PATCH /api/admin/usuarios`
+- `POST /api/admin/botanico/[catalog]`
+
+The policy requires a non-empty bare `Origin` header and validates it against `NEXTAUTH_URL` plus the effective request origin. `x-forwarded-host` and `x-forwarded-proto` affect that effective origin only when `TRUSTED_PROXY_HEADERS=true`; arbitrary forwarded origin data is ignored when trust is disabled. Invalid canonical configuration and malformed trusted forwarded origin data fail closed. Missing or mismatched `Origin` headers return the stable `Invalid request origin` response; missing production proxy trust returns `503` for registration before origin validation and `403` for the other custom mutation handlers. There are no custom `DELETE` handlers in this scope.
+
+Safe `GET` handlers and NextAuth's built-in authentication endpoints are excluded. Next.js 14 Server Actions remain protected by the framework's host/origin checks; they are not custom route handlers in this block, and no `Origin` value is passed through Server Action arguments. `next.config.mjs` does not define dynamic `serverActions.allowedOrigins`; no wildcard origin is permitted.
 
 ## VPS deploy (manual, high-level)
 
@@ -132,7 +146,7 @@ There is **no deploy automation** in the repo today. The current manual flow is:
    npm ci
    npm run build
    ```
-2. **Environment**: create `.env.local` on the VPS with a valid `MONGODB_URI`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, and `INTERNAL_ACCOUNT_CHECK_ORIGIN=http://127.0.0.1:3000`. Do not commit it. The app rejects an absent or invalid `MONGODB_URI` in production; the account check also fails closed if its value is absent or invalid.
+2. **Environment**: create `.env.local` on the VPS with a valid `MONGODB_URI`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `TRUSTED_PROXY_HEADERS=true`, and `INTERNAL_ACCOUNT_CHECK_ORIGIN=http://127.0.0.1:3000`. Do not commit it. The app rejects an absent or invalid `MONGODB_URI` in production; the account check also fails closed if its value is absent or invalid. Without trusted proxy headers, registration returns `503` and custom mutation handlers return `403`.
 3. **Database**: make sure MongoDB is reachable from the app process (local Docker container, managed Atlas cluster, etc.).
 4. **Process manager**: start the app with PM2, for example:
    ```bash

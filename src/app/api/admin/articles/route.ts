@@ -2,8 +2,13 @@ import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth/current-user';
 import { createArticleRepository } from '@/lib/db/repository/article';
 import { connectToDatabase } from '@/lib/db/connect';
+import { isAllowedMutationOriginRequest } from '@/lib/auth/request-security';
 
 export async function POST(request: Request) {
+  if (!isAllowedMutationOriginRequest(request)) {
+    return NextResponse.json({ error: 'Invalid request origin' }, { status: 403 });
+  }
+
   try {
     const user = await getCurrentUser();
 

@@ -5,7 +5,7 @@ import {
   REGISTRATION_RATE_LIMIT,
   areTrustedProxyHeadersEnabled,
   getClientIp,
-  isAllowedSameOriginRequest,
+  isAllowedMutationOriginRequest,
   isAuthRateLimitingAvailable,
   registrationRateLimiter,
 } from '@/lib/auth/request-security';
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!isAllowedSameOriginRequest(request)) {
+  if (!isAllowedMutationOriginRequest(request)) {
     return NextResponse.json(
       { error: 'Invalid request origin' },
       { status: 403 }

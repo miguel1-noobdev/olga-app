@@ -1,8 +1,9 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   CREDENTIALS_LOGIN_RATE_LIMIT,
   MemoryRateLimiter,
   getClientIp,
+  isAllowedMutationOriginRequest,
   isAllowedSameOriginRequest,
 } from '@/lib/auth/request-security';
 
@@ -85,6 +86,90 @@ describe('same-origin validation', () => {
     const request = createRequest('https://app.example/api/auth/register');
 
     expect(isAllowedSameOriginRequest(request)).toBe(true);
+  });
+});
+
+describe('strict mutation origin validation', () => {
+  beforeEach(() => {
+    vi.stubEnv('NODE_ENV', 'test');
+    vi.stubEnv('TRUSTED_PROXY_HEADERS', 'false');
+  });
+
+  afterEach(() => vi.unstubAllEnvs());
+
+  function createMutationRequest(url: string, headers: Record<string, string>): Request {
+    const request = new Request(url, { method: 'POST' });
+    Object.defineProperty(request, 'headers', { value: new Headers(headers) });
+    return request;
+  }
+
+  it('allows an explicit same-origin mutation', () => {
+    const request = createMutationRequest('https://app.example/api/mutation', {
+      Origin: 'https://app.example',
+    });
+
+    expect(isAllowedMutationOriginRequest(request, 'https://app.example')).toBe(true);
+  });
+
+  it('allows the canonical origin when the application is reached through a trusted proxy', () => {
+    vi.stubEnv('TRUSTED_PROXY_HEADERS', 'true');
+    const request = createMutationRequest('http://127.0.0.1:3000/api/mutation', {
+      Origin: 'https://app.example',
+      'x-forwarded-host': 'app.example',
+      'x-forwarded-proto': 'https',
+    });
+
+    expect(isAllowedMutationOriginRequest(request, 'https://app.example')).toBe(true);
+  });
+
+  it('uses trusted forwarded host and protocol only when the proxy contract is enabled', () => {
+    vi.stubEnv('TRUSTED_PROXY_HEADERS', 'true');
+    const trusted = createMutationRequest('http://127.0.0.1:3000/api/mutation', {
+      Origin: 'https://proxy.example',
+      'x-forwarded-host': 'proxy.example',
+      'x-forwarded-proto': 'https',
+    });
+    const untrusted = createMutationRequest('http://127.0.0.1:3000/api/mutation', {
+      Origin: 'https://proxy.example',
+      'x-forwarded-host': 'proxy.example',
+      'x-forwarded-proto': 'https',
+    });
+
+    expect(isAllowedMutationOriginRequest(trusted, 'https://app.example')).toBe(true);
+
+    vi.stubEnv('TRUSTED_PROXY_HEADERS', 'false');
+    expect(isAllowedMutationOriginRequest(untrusted, 'https://app.example')).toBe(false);
+  });
+
+  it('rejects untrusted forwarded headers instead of treating them as the request origin', () => {
+    const request = createMutationRequest('https://app.example/api/mutation', {
+      Origin: 'https://attacker.example',
+      'x-forwarded-host': 'attacker.example',
+      'x-forwarded-proto': 'https',
+    });
+
+    expect(isAllowedMutationOriginRequest(request, 'https://app.example')).toBe(false);
+  });
+
+  it.each([
+    ['missing', {}],
+    ['malformed', { Origin: 'not-an-origin' }],
+    ['mismatched', { Origin: 'https://attacker.example' }],
+  ])('rejects a %s Origin header', (_description, headers) => {
+    const request = createMutationRequest('https://app.example/api/mutation', headers);
+
+    expect(isAllowedMutationOriginRequest(request, 'https://app.example')).toBe(false);
+  });
+
+  it('fails closed when the canonical origin or production proxy contract is invalid', () => {
+    const request = createMutationRequest('https://app.example/api/mutation', {
+      Origin: 'https://app.example',
+    });
+
+    expect(isAllowedMutationOriginRequest(request, 'not-an-origin')).toBe(false);
+
+    vi.stubEnv('NODE_ENV', 'production');
+    expect(isAllowedMutationOriginRequest(request, 'https://app.example')).toBe(false);
   });
 });
 

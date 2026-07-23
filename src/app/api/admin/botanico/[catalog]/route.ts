@@ -4,12 +4,17 @@ import { saveOilCatalogEntry, savePlantCatalogEntry } from '@/lib/admin/botanico
 import { connectToDatabase } from '@/lib/db/connect';
 import { createOilRepository } from '@/lib/db/repository/oil';
 import { createPlantRepository } from '@/lib/db/repository/plant';
+import { isAllowedMutationOriginRequest } from '@/lib/auth/request-security';
 
 interface RouteContext {
   params: { catalog: string };
 }
 
 export async function POST(request: Request, { params }: RouteContext) {
+  if (!isAllowedMutationOriginRequest(request)) {
+    return NextResponse.json({ error: 'Invalid request origin' }, { status: 403 });
+  }
+
   const user = await getCurrentUser();
 
   if (!user || user.role !== 'admin') {

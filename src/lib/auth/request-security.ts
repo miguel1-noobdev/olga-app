@@ -176,6 +176,7 @@ function parseBareOrigin(value: string | undefined): string | null {
   try {
     const url = new URL(value);
     const isBareOrigin =
+      (url.protocol === 'http:' || url.protocol === 'https:') &&
       url.pathname === '/' &&
       !url.search &&
       !url.hash &&
@@ -187,6 +188,62 @@ function parseBareOrigin(value: string | undefined): string | null {
   } catch {
     return null;
   }
+}
+
+function getEffectiveRequestOrigin(request: Request): string | null {
+  let requestUrl: URL;
+
+  try {
+    requestUrl = new URL(request.url);
+  } catch {
+    return null;
+  }
+
+  const directOrigin = parseBareOrigin(requestUrl.origin);
+  if (!directOrigin) {
+    return null;
+  }
+
+  if (!areTrustedProxyHeadersEnabled()) {
+    return directOrigin;
+  }
+
+  const forwardedHost = getHeaderValue(request.headers, 'x-forwarded-host');
+  const forwardedProto = getHeaderValue(request.headers, 'x-forwarded-proto');
+
+  if (forwardedHost === null && forwardedProto === null) {
+    return directOrigin;
+  }
+
+  if (forwardedHost === null || forwardedProto === null) {
+    return null;
+  }
+
+  return parseBareOrigin(`${forwardedProto}://${forwardedHost}`);
+}
+
+/**
+ * Strict browser-mutation policy. Unlike the legacy helper below, a missing
+ * Origin is never treated as compatible because custom mutations are browser
+ * boundaries, not generic server-to-server APIs.
+ */
+export function isAllowedMutationOriginRequest(
+  request: Request,
+  trustedPublicOrigin = process.env[TRUSTED_PUBLIC_ORIGIN_ENV]
+): boolean {
+  if (process.env.NODE_ENV === 'production' && !areTrustedProxyHeadersEnabled()) {
+    return false;
+  }
+
+  const origin = parseBareOrigin(getHeaderValue(request.headers, 'origin') ?? undefined);
+  const configuredOrigin = parseBareOrigin(trustedPublicOrigin);
+  const effectiveRequestOrigin = getEffectiveRequestOrigin(request);
+
+  if (!origin || !configuredOrigin || !effectiveRequestOrigin) {
+    return false;
+  }
+
+  return origin === configuredOrigin || origin === effectiveRequestOrigin;
 }
 
 export function isAllowedSameOriginRequest(

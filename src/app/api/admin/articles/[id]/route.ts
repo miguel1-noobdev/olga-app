@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth/current-user';
 import { connectToDatabase } from '@/lib/db/connect';
 import { createArticleRepository } from '@/lib/db/repository/article';
+import { isAllowedMutationOriginRequest } from '@/lib/auth/request-security';
 
 const actions = ['review', 'publish', 'unpublish'] as const;
 type ContentAction = (typeof actions)[number];
@@ -11,6 +12,10 @@ function isContentAction(value: unknown): value is ContentAction {
 }
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+  if (!isAllowedMutationOriginRequest(request)) {
+    return NextResponse.json({ error: 'Invalid request origin' }, { status: 403 });
+  }
+
   const user = await getCurrentUser();
 
   if (!user) {

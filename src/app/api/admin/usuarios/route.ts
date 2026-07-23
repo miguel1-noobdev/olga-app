@@ -12,6 +12,7 @@ import {
   withMongoLeaseLock,
 } from '@/lib/db/mongo-lease-lock';
 import { createUserRepository } from '@/lib/db/repository/user';
+import { isAllowedMutationOriginRequest } from '@/lib/auth/request-security';
 
 async function getAdminSession() {
   const user = await getCurrentUser();
@@ -30,6 +31,10 @@ export async function GET() {
 }
 
 export async function PATCH(request: Request) {
+  if (!isAllowedMutationOriginRequest(request)) {
+    return NextResponse.json({ error: 'Invalid request origin' }, { status: 403 });
+  }
+
   const session = await getAdminSession();
   if (!session) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });

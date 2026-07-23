@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const {
   getServerSessionMock,
@@ -39,14 +39,25 @@ vi.mock('@/lib/admin/users/activity', async (importOriginal) => ({
 import { GET, PATCH } from '@/app/api/admin/usuarios/route';
 import { MongoLeaseLockUnavailableError } from '@/lib/db/mongo-lease-lock';
 
+function requestWithOrigin(url: string, init: RequestInit, origin = 'http://localhost'): Request {
+  const request = new Request(url, init);
+  const headers = new Headers(init.headers);
+  headers.set('Origin', origin);
+  Object.defineProperty(request, 'headers', { value: headers });
+  return request;
+}
+
 describe('/api/admin/usuarios', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.stubEnv('NEXTAUTH_URL', 'http://localhost');
     repositoryMock.findAll.mockResolvedValue([]);
     withMongoLeaseLockMock.mockImplementation(async (work: (guard: { assertOwnership: () => Promise<void> }) => Promise<unknown>) => (
       work({ assertOwnership: vi.fn() })
     ));
   });
+
+  afterEach(() => vi.unstubAllEnvs());
 
   it('denies anonymous access and returns only approved directory fields to Admin', async () => {
     getCurrentUserMock.mockResolvedValueOnce(null);
@@ -72,20 +83,23 @@ describe('/api/admin/usuarios', () => {
       id: 'user-1', email: 'user-1@example.com', role: 'suscriptora', accountStatus: 'active',
       createdAt: '2026-07-16T00:00:00.000Z', passwordHash: 'secret',
     });
-    const cancelled = await PATCH(new Request('http://test/api/admin/usuarios', {
+    const cancelled = await PATCH(requestWithOrigin('http://test/api/admin/usuarios', {
       method: 'PATCH', body: JSON.stringify({ userId: 'user-1', role: 'productora', confirmed: false }),
+      headers: { Origin: 'http://localhost' },
     }));
     expect(cancelled.status).toBe(400);
     expect(repositoryMock.updateRole).not.toHaveBeenCalled();
 
-    const invalidRole = await PATCH(new Request('http://test/api/admin/usuarios', {
+    const invalidRole = await PATCH(requestWithOrigin('http://test/api/admin/usuarios', {
       method: 'PATCH', body: JSON.stringify({ userId: 'user-1', role: 'owner', confirmed: true }),
+      headers: { Origin: 'http://localhost' },
     }));
     expect(invalidRole.status).toBe(400);
     expect(repositoryMock.updateRole).not.toHaveBeenCalled();
 
-    const confirmed = await PATCH(new Request('http://test/api/admin/usuarios', {
+    const confirmed = await PATCH(requestWithOrigin('http://test/api/admin/usuarios', {
       method: 'PATCH', body: JSON.stringify({ userId: 'user-1', accountStatus: 'suspended', confirmed: true }),
+      headers: { Origin: 'http://localhost' },
     }));
     expect(confirmed.status).toBe(200);
     expect(repositoryMock.updateAccountStatus).toHaveBeenCalledWith('user-1', 'suspended');
@@ -107,11 +121,13 @@ describe('/api/admin/usuarios', () => {
       },
     ]);
 
-    const suspended = await PATCH(new Request('http://test/api/admin/usuarios', {
+    const suspended = await PATCH(requestWithOrigin('http://test/api/admin/usuarios', {
       method: 'PATCH', body: JSON.stringify({ userId: 'admin-1', accountStatus: 'suspended', confirmed: true }),
+      headers: { Origin: 'http://localhost' },
     }));
-    const demoted = await PATCH(new Request('http://test/api/admin/usuarios', {
+    const demoted = await PATCH(requestWithOrigin('http://test/api/admin/usuarios', {
       method: 'PATCH', body: JSON.stringify({ userId: 'admin-1', role: 'suscriptora', confirmed: true }),
+      headers: { Origin: 'http://localhost' },
     }));
 
     expect(suspended.status).toBe(400);
@@ -133,11 +149,13 @@ describe('/api/admin/usuarios', () => {
       },
     ]);
 
-    const demoted = await PATCH(new Request('http://test/api/admin/usuarios', {
+    const demoted = await PATCH(requestWithOrigin('http://test/api/admin/usuarios', {
       method: 'PATCH', body: JSON.stringify({ userId: 'admin-1', role: 'productora', confirmed: true }),
+      headers: { Origin: 'http://localhost' },
     }));
-    const suspended = await PATCH(new Request('http://test/api/admin/usuarios', {
+    const suspended = await PATCH(requestWithOrigin('http://test/api/admin/usuarios', {
       method: 'PATCH', body: JSON.stringify({ userId: 'admin-1', accountStatus: 'suspended', confirmed: true }),
+      headers: { Origin: 'http://localhost' },
     }));
 
     expect(demoted.status).toBe(400);
@@ -163,8 +181,9 @@ describe('/api/admin/usuarios', () => {
       },
     ]);
 
-    const demoted = await PATCH(new Request('http://test/api/admin/usuarios', {
+    const demoted = await PATCH(requestWithOrigin('http://test/api/admin/usuarios', {
       method: 'PATCH', body: JSON.stringify({ userId: 'admin-1', role: 'productora', confirmed: true }),
+      headers: { Origin: 'http://localhost' },
     }));
 
     expect(demoted.status).toBe(200);
@@ -185,8 +204,9 @@ describe('/api/admin/usuarios', () => {
     });
     recordMock.mockRejectedValue(new Error('Audit write failed'));
 
-    const response = await PATCH(new Request('http://test/api/admin/usuarios', {
+    const response = await PATCH(requestWithOrigin('http://test/api/admin/usuarios', {
       method: 'PATCH', body: JSON.stringify({ userId: 'user-1', role: 'productora', confirmed: true }),
+      headers: { Origin: 'http://localhost' },
     }));
 
     const body = await response.json();
@@ -215,8 +235,9 @@ describe('/api/admin/usuarios', () => {
     });
     recordMock.mockRejectedValue(new Error('Audit write failed'));
 
-    const response = await PATCH(new Request('http://test/api/admin/usuarios', {
+    const response = await PATCH(requestWithOrigin('http://test/api/admin/usuarios', {
       method: 'PATCH', body: JSON.stringify({ userId: 'user-1', accountStatus: 'suspended', confirmed: true }),
+      headers: { Origin: 'http://localhost' },
     }));
 
     const body = await response.json();
@@ -248,8 +269,9 @@ describe('/api/admin/usuarios', () => {
       .mockResolvedValueOnce(undefined)
       .mockRejectedValueOnce(new Error('Rollback role failed'));
 
-    const response = await PATCH(new Request('http://test/api/admin/usuarios', {
+    const response = await PATCH(requestWithOrigin('http://test/api/admin/usuarios', {
       method: 'PATCH', body: JSON.stringify({ userId: 'user-1', role: 'productora', confirmed: true }),
+      headers: { Origin: 'http://localhost' },
     }));
 
     const body = await response.json();
@@ -282,7 +304,7 @@ describe('/api/admin/usuarios', () => {
       .mockResolvedValueOnce(undefined)
       .mockRejectedValueOnce(new Error('Rollback status failed'));
 
-    const response = await PATCH(new Request('http://test/api/admin/usuarios', {
+    const response = await PATCH(requestWithOrigin('http://test/api/admin/usuarios', {
       method: 'PATCH', body: JSON.stringify({ userId: 'user-1', accountStatus: 'suspended', confirmed: true }),
     }));
 
@@ -303,13 +325,27 @@ describe('/api/admin/usuarios', () => {
     getCurrentUserMock.mockResolvedValue({ id: 'admin-1', role: 'admin' });
     withMongoLeaseLockMock.mockRejectedValueOnce(new MongoLeaseLockUnavailableError());
 
-    const response = await PATCH(new Request('http://test/api/admin/usuarios', {
+    const response = await PATCH(requestWithOrigin('http://test/api/admin/usuarios', {
       method: 'PATCH',
       body: JSON.stringify({ userId: 'user-1', role: 'productora', confirmed: true }),
+      headers: { Origin: 'http://localhost' },
     }));
 
     expect(response.status).toBe(503);
     expect(await response.json()).toEqual({ error: 'Administrative mutation temporarily unavailable' });
+    expect(repositoryMock.updateRole).not.toHaveBeenCalled();
+  });
+
+  it('rejects a cross-origin mutation before authentication or database work', async () => {
+    const response = await PATCH(requestWithOrigin('http://localhost/api/admin/usuarios', {
+      method: 'PATCH',
+      body: JSON.stringify({ userId: 'user-1', role: 'productora', confirmed: true }),
+    }, 'https://attacker.example'));
+
+    expect(response.status).toBe(403);
+    expect(await response.json()).toEqual({ error: 'Invalid request origin' });
+    expect(getCurrentUserMock).not.toHaveBeenCalled();
+    expect(connectMock).not.toHaveBeenCalled();
     expect(repositoryMock.updateRole).not.toHaveBeenCalled();
   });
 });
