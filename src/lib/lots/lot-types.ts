@@ -45,6 +45,7 @@ export interface FormulaSnapshot {
 export interface LotFollowUpEntry {
   date: Date;
   note: string;
+  requestId?: string;
 }
 
 export interface LotFollowUp {
@@ -62,8 +63,9 @@ export interface LotRecord {
   targetBatchGrams: number;
   formulaSnapshot: FormulaSnapshot;
   followUp: {
-    entries: Array<{ date: string; note: string }>;
+    entries: Array<{ date: string; note: string; requestId?: string }>;
   };
+  creationRequestId?: string;
   operationalObservations?: string;
   plannedAt: string | null;
   startedAt: string | null;
@@ -75,6 +77,7 @@ export interface LotRecord {
 export interface CreateLotInput {
   formulaId: string;
   targetBatchGrams: number;
+  creationRequestId?: string;
   status?: LotStatus;
   operationalObservations?: string;
   followUp?: LotFollowUp;

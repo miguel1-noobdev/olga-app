@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   type PlantNotesFormValidationError,
@@ -20,9 +20,9 @@ export default function PlantNotesForm({ initialNotes, submitPlantNotes }: Plant
   const [errors, setErrors] = useState<PlantNotesFormValidationError>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
-  const [isPending, startTransition] = useTransition();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setErrors({});
     setSubmitError(null);
@@ -35,7 +35,8 @@ export default function PlantNotesForm({ initialNotes, submitPlantNotes }: Plant
       return;
     }
 
-    startTransition(async () => {
+    setIsSubmitting(true);
+    try {
       const result = await submitPlantNotes(values);
       if (result.success) {
         setSaved(true);
@@ -48,7 +49,11 @@ export default function PlantNotesForm({ initialNotes, submitPlantNotes }: Plant
       } else {
         setSubmitError(result.error);
       }
-    });
+    } catch {
+      setSubmitError('No se pudieron guardar las notas. Intentá de nuevo.');
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -59,6 +64,8 @@ export default function PlantNotesForm({ initialNotes, submitPlantNotes }: Plant
         </label>
         <textarea
           id="plant-notes"
+          aria-describedby={errors.notes ? 'plant-notes-error' : undefined}
+          aria-invalid={errors.notes ? 'true' : undefined}
           value={notes}
           onChange={(event) => setNotes(event.target.value)}
           rows={5}
@@ -66,19 +73,19 @@ export default function PlantNotesForm({ initialNotes, submitPlantNotes }: Plant
           className="w-full rounded-lg border border-primary/30 bg-surface-container px-4 py-3 font-body text-sm leading-relaxed text-on-surface outline-none transition-colors placeholder:text-on-surface-variant focus:border-primary focus:ring-2 focus:ring-primary/30"
           placeholder="Registrar una nota interna para esta planta"
         />
-        {errors.notes && <p className="mt-2 font-body text-sm text-error">{errors.notes}</p>}
+        {errors.notes && <p id="plant-notes-error" role="alert" aria-live="polite" className="mt-2 font-body text-sm text-error">{errors.notes}</p>}
       </div>
 
-      {submitError && <p role="alert" className="rounded-lg border border-error/30 bg-error-container p-3 font-body text-sm text-on-error-container">{submitError}</p>}
+      {submitError && <p role="alert" aria-live="assertive" className="rounded-lg border border-error/30 bg-error-container p-3 font-body text-sm text-on-error-container">{submitError}</p>}
       {saved && <p className="font-body text-sm text-primary">Notas guardadas.</p>}
 
       <button
         type="submit"
-        disabled={isPending}
+        disabled={isSubmitting}
         className="inline-flex items-center gap-2 rounded-lg border border-primary/50 bg-primary/10 px-4 py-2 font-label text-xs font-bold uppercase tracking-wider text-primary transition-colors hover:bg-primary hover:text-on-primary disabled:cursor-not-allowed disabled:opacity-50"
       >
         <span aria-hidden="true" className="material-symbols-outlined text-base">save</span>
-        {isPending ? 'Guardando...' : 'Guardar notas'}
+        {isSubmitting ? 'Guardando...' : 'Guardar notas'}
       </button>
     </form>
   );

@@ -13,42 +13,44 @@ import {
 import {
   assertAllowedKeys,
   assertRecord,
+  boundedRequestId,
   boundedString,
-  isPersistenceInputError,
   objectId,
 } from '@/lib/validation/runtime-input';
+import { getSafeServerActionError } from '@/lib/server-action-error';
 
 export async function submitLotFollowUp(
   lotId: string,
   values: LotFollowUpFormValues
 ): Promise<SubmitLotFollowUpResult> {
-  const user = await getCurrentUser();
-  if (!user || !isStaff(user.role)) {
-    return { success: false, error: 'No autorizado' };
-  }
-
-  let safeValues: LotFollowUpFormValues;
   try {
-    objectId(lotId, 'lot id');
-    const body = assertRecord(values);
-    assertAllowedKeys(body, ['date', 'note']);
-    safeValues = {
-      date: boundedString(body.date, 'date', { maxLength: 10, required: false }),
-      note: boundedString(body.note, 'note', { maxLength: 2_000, required: false }),
-    };
-  } catch {
-    return { success: false, error: 'Entrada inválida' };
-  }
+    const user = await getCurrentUser();
+    if (!user || !isStaff(user.role)) {
+      return { success: false, error: 'No autorizado' };
+    }
 
-  const validation = validateMinimumLotFollowUpForm(safeValues);
-  if (!validation.valid) {
-    return { success: false, errors: validation.errors };
-  }
+    let safeValues: LotFollowUpFormValues;
+    try {
+      objectId(lotId, 'lot id');
+      const body = assertRecord(values);
+      assertAllowedKeys(body, ['date', 'note', 'requestId']);
+      safeValues = {
+        date: boundedString(body.date, 'date', { maxLength: 10, required: false }),
+        note: boundedString(body.note, 'note', { maxLength: 2_000, required: false }),
+        requestId: boundedRequestId(body.requestId, 'follow-up request id'),
+      };
+    } catch {
+      return { success: false, error: 'Entrada inválida' };
+    }
 
-  await connectToDatabase();
-  const repository = createLotRepository();
+    const validation = validateMinimumLotFollowUpForm(safeValues);
+    if (!validation.valid) {
+      return { success: false, errors: validation.errors };
+    }
 
-  try {
+    await connectToDatabase();
+    const repository = createLotRepository();
+
     const record = await repository.update(lotId, {
       followUp: { entries: [toLotFollowUpEntry(safeValues)] },
     });
@@ -59,11 +61,7 @@ export async function submitLotFollowUp(
   } catch (error) {
     return {
       success: false,
-      error: isPersistenceInputError(error)
-        ? 'Entrada inválida'
-        : error instanceof Error
-          ? error.message
-          : 'No se pudo agregar la entrada de seguimiento. Intentelo de nuevo.',
+      error: getSafeServerActionError(error, 'No se pudo agregar la entrada de seguimiento. Intentelo de nuevo.'),
     };
   }
 }

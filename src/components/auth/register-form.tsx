@@ -119,7 +119,7 @@ export default function RegisterForm() {
 
         {/* Error Message */}
         {error && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+          <div className="p-3 bg-red-50 border border-red-200 rounded-lg" role="alert" aria-live="assertive">
             <p className="text-sm text-red-700">{error}</p>
           </div>
         )}

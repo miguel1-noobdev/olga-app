@@ -21,10 +21,12 @@ describe('lot-follow-up-form-contract', () => {
       const result = toLotFollowUpEntry({
         date: '2026-05-10',
         note: '  Texture stable.  ',
+        requestId: 'follow-up-request-001',
       });
 
       expect(result.date).toEqual(new Date('2026-05-10'));
       expect(result.note).toBe('Texture stable.');
+      expect(result.requestId).toBe('follow-up-request-001');
     });
   });
 

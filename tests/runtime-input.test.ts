@@ -4,6 +4,7 @@ import {
   RuntimeInputError,
   assertAllowedKeys,
   boundedArray,
+  boundedRequestId,
   boundedString,
   enumValue,
   finiteNumber,
@@ -57,6 +58,8 @@ describe('runtime input contracts', () => {
     expect(() => boundedString('x'.repeat(11), 'name', { maxLength: 10 })).toThrow(RuntimeInputError);
     expect(boundedArray(['a'], 'items', { maxLength: 2 })).toEqual(['a']);
     expect(() => boundedArray(['a', 'b', 'c'], 'items', { maxLength: 2 })).toThrow(RuntimeInputError);
+    expect(boundedRequestId('request-001', 'request id')).toBe('request-001');
+    expect(() => boundedRequestId('request id', 'request id')).toThrow(RuntimeInputError);
     expect(finiteNumber(5, 'amount', { min: 1, max: 10 })).toBe(5);
     expect(() => finiteNumber(Number.NaN, 'amount', { min: 1 })).toThrow(RuntimeInputError);
     expect(enumValue('draft', 'status', ['draft', 'validated'] as const)).toBe('draft');

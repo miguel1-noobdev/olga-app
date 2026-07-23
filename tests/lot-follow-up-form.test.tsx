@@ -157,4 +157,44 @@ describe('LotFollowUpForm', () => {
     await waitFor(() => expect(submitButton).toBeDisabled());
     expect(submitButton).toHaveTextContent(/agregando/i);
   });
+
+  it('announces rejected submissions and re-enables the form', async () => {
+    render(
+      <LotFollowUpForm
+        initialValues={{ date: '2026-05-10', note: 'Texture is stable.' }}
+        submitFollowUpEntry={submitFollowUpEntryMock}
+      />
+    );
+    submitFollowUpEntryMock.mockRejectedValueOnce(new Error('CastError mongodb://secret-host/app'));
+
+    const submitButton = screen.getByRole('button', { name: /agregar entrada/i });
+    fireEvent.submit(screen.getByRole('form'));
+
+    await waitFor(() => expect(submitButton).toBeEnabled());
+    expect(screen.getByRole('alert')).toHaveTextContent('No se pudo agregar la entrada de seguimiento. Intentá de nuevo.');
+    expect(screen.getByRole('alert')).not.toHaveTextContent('mongodb://secret-host');
+  });
+
+  it('preserves the same request ID across a retry', async () => {
+    submitFollowUpEntryMock
+      .mockRejectedValueOnce(new Error('temporary failure'))
+      .mockResolvedValueOnce({ success: true, redirectTo: '/laboratorio/lotes/lot-1' });
+    render(
+      <LotFollowUpForm
+        initialValues={{ date: '2026-05-10', note: 'Texture is stable.' }}
+        submitFollowUpEntry={submitFollowUpEntryMock}
+      />
+    );
+
+    const form = screen.getByRole('form', { name: /agregar entrada de seguimiento/i });
+    fireEvent.submit(form);
+    await waitFor(() => expect(screen.getByRole('alert')).toBeInTheDocument());
+    fireEvent.submit(form);
+    await waitFor(() => expect(submitFollowUpEntryMock).toHaveBeenCalledTimes(2));
+
+    const firstRequestId = submitFollowUpEntryMock.mock.calls[0][0].requestId;
+    const secondRequestId = submitFollowUpEntryMock.mock.calls[1][0].requestId;
+    expect(firstRequestId).toBeDefined();
+    expect(firstRequestId).toBe(secondRequestId);
+  });
 });

@@ -4,6 +4,7 @@ import { strictDate } from '@/lib/validation/runtime-input';
 export interface LotFollowUpFormValues {
   date: string;
   note: string;
+  requestId?: string;
 }
 
 export type LotFollowUpFormValidationError = Partial<
@@ -28,6 +29,7 @@ export function toLotFollowUpEntry(
   return {
     date: new Date(values.date),
     note: values.note.trim(),
+    ...(values.requestId ? { requestId: values.requestId } : {}),
   };
 }
 

@@ -206,4 +206,21 @@ describe('LotEditForm', () => {
     await waitFor(() => expect(submitButton).toBeDisabled());
     expect(submitButton).toHaveTextContent(/actualizando/i);
   });
+
+  it('announces rejected submissions and re-enables the form', async () => {
+    render(
+      <LotEditForm
+        initialValues={defaultValues}
+        submitLotEdit={submitLotEditMock}
+      />
+    );
+    submitLotEditMock.mockRejectedValueOnce(new Error('MongoServerSelectionError mongodb://secret-host/app'));
+
+    const submitButton = screen.getByRole('button', { name: /actualizar lote/i });
+    fireEvent.submit(screen.getByRole('form'));
+
+    await waitFor(() => expect(submitButton).toBeEnabled());
+    expect(screen.getByRole('alert')).toHaveTextContent('No se pudo actualizar el lote. Intentá de nuevo.');
+    expect(screen.getByRole('alert')).not.toHaveTextContent('mongodb://secret-host');
+  });
 });

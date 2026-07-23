@@ -523,5 +523,25 @@ describe('FormulaForm', () => {
 
       expect(await screen.findByText(/el servidor rechazó la actualización/i)).toBeInTheDocument();
     });
+
+    it('announces rejected submissions and re-enables the form without exposing backend details', async () => {
+      const initialValues = createEmptyFormulaForm();
+      initialValues.productName = 'Existing formula';
+      initialValues.formulaCode = 'CF-999';
+      initialValues.productType = 'Serum';
+      initialValues.targetBatchGrams = 250;
+      initialValues.phases.aqueous = [{ ingredient: 'Water', grams: 250 }];
+      initialValues.procedureSteps = [{ stepNumber: 1, instruction: 'Mix' }];
+
+      render(<FormulaForm initialValues={initialValues} submitFormula={submitFormulaMock} />);
+      submitFormulaMock.mockRejectedValueOnce(new Error('MongoServerSelectionError mongodb://secret-host/app'));
+
+      const submitButton = screen.getByRole('button', { name: /guardar fórmula/i });
+      fireEvent.submit(screen.getByRole('form'));
+
+      await waitFor(() => expect(submitButton).toBeEnabled());
+      expect(screen.getByRole('alert')).toHaveTextContent('No se pudo guardar la fórmula. Intentá de nuevo.');
+      expect(screen.getByRole('alert')).not.toHaveTextContent('mongodb://secret-host');
+    });
   });
 });

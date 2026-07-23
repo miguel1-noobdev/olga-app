@@ -32,9 +32,10 @@ vi.mock('@/lib/db/repository/lot', () => ({
   })),
 }));
 
-const validFollowUp = { date: '2026-07-19', note: 'Stable texture.' };
+const validFollowUp = { date: '2026-07-19', note: 'Stable texture.', requestId: 'follow-up-request-001' };
 const formulaId = '507f1f77bcf86cd799439011';
 const lotId = '507f1f77bcf86cd799439012';
+const creationRequestId = 'lot-create-request-001';
 const validEdit = {
   status: 'in_production' as const,
   targetBatchGrams: '500',
@@ -56,7 +57,7 @@ describe('lot mutation server-action authorization', () => {
   ])('rejects %s lot creation before repository access', async (_label, user) => {
     getCurrentUserMock.mockResolvedValue(user);
 
-    await expect(submitNewLot({ formulaId, targetBatchGrams: 500 })).resolves.toEqual({
+    await expect(submitNewLot({ formulaId, targetBatchGrams: 500, creationRequestId })).resolves.toEqual({
       success: false,
       error: 'No autorizado',
     });
@@ -71,7 +72,7 @@ describe('lot mutation server-action authorization', () => {
     formulaFindByIdMock.mockResolvedValue({ id: formulaId, status: 'validated' });
     lotCreateMock.mockResolvedValue({ id: lotId });
 
-    await expect(submitNewLot({ formulaId, targetBatchGrams: 500 })).resolves.toEqual({
+    await expect(submitNewLot({ formulaId, targetBatchGrams: 500, creationRequestId: 'lot-create-request-002' })).resolves.toEqual({
       success: true,
       redirectTo: `/laboratorio/lotes/${lotId}`,
     });
@@ -127,5 +128,36 @@ describe('lot mutation server-action authorization', () => {
       success: true,
       redirectTo: `/laboratorio/lotes/${lotId}`,
     });
+  });
+
+  it('contains follow-up connection failures in the result contract', async () => {
+    getCurrentUserMock.mockResolvedValue({ id: 'staff-1', role: 'productora' });
+    connectToDatabaseMock.mockRejectedValueOnce(new Error('MongoServerSelectionError mongodb://secret-host/app'));
+
+    const result = await submitLotFollowUp(lotId, validFollowUp);
+
+    expect(result).toEqual({ success: false, error: 'No se pudo agregar la entrada de seguimiento. Intentelo de nuevo.' });
+    expect(JSON.stringify(result)).not.toContain('mongodb://secret-host');
+  });
+
+  it('contains lot edit connection failures in the result contract', async () => {
+    getCurrentUserMock.mockResolvedValue({ id: 'staff-1', role: 'productora' });
+    connectToDatabaseMock.mockRejectedValueOnce(new Error('MongoServerSelectionError mongodb://secret-host/app'));
+
+    const result = await submitLotEditUpdate(lotId, validEdit);
+
+    expect(result).toEqual({ success: false, error: 'No se pudo actualizar el lote. Intentelo de nuevo.' });
+    expect(JSON.stringify(result)).not.toContain('mongodb://secret-host');
+  });
+
+  it('contains lot action authentication failures in the result contract', async () => {
+    getCurrentUserMock.mockRejectedValue(new Error('CastError: database connection string'));
+
+    const followUpResult = await submitLotFollowUp(lotId, validFollowUp);
+    const editResult = await submitLotEditUpdate(lotId, validEdit);
+
+    expect(followUpResult).toEqual({ success: false, error: 'No se pudo agregar la entrada de seguimiento. Intentelo de nuevo.' });
+    expect(editResult).toEqual({ success: false, error: 'No se pudo actualizar el lote. Intentelo de nuevo.' });
+    expect(JSON.stringify({ followUpResult, editResult })).not.toContain('connection string');
   });
 });

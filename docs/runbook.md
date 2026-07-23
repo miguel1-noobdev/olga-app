@@ -163,8 +163,23 @@ formula-status, and lot-status allowlists remain authoritative. Mongoose cast an
 validation failures are converted to stable client errors rather than exposing raw
 persistence messages.
 
-This section documents input contracts only. Server-action pending-state resilience,
-accessible error announcements, deployment, and VPS provisioning remain pending.
+This section documents input contracts only. Deployment and VPS provisioning remain pending.
+
+### Block 8: server-action and form resilience
+
+The seven laboratory server actions use a single safe failure boundary covering authentication,
+MongoDB connection, repository lookup, and repository mutation work. They preserve their existing
+authorization, validation, field-error, redirect, and success contracts. Recognized persistence
+input failures return `Entrada inválida`; unexpected failures return stable retryable messages and
+never return raw database or repository error details to the browser.
+
+The formula and lot forms always settle their disabled state through `try/catch/finally`. Plant and
+oil notes forms catch rejected server-action promises and announce a safe generic error while
+`useTransition` settles. Login, registration, and article creation expose errors through accessible
+alerts. User-management mutations disable concurrent controls and announce a safe generic failure.
+The existing content-action behavior is unchanged.
+
+Block 9 loading and error boundaries remains pending and is not part of this contract.
 
 ## VPS deploy (manual, high-level)
 

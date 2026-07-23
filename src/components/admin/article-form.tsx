@@ -39,12 +39,13 @@ export default function ArticleForm({ successHref = '/admin/contenido' }: { succ
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || 'Error al crear artículo');
+        setError(data.error || 'Error al crear artículo');
+        return;
       }
 
       router.push(successHref);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error desconocido');
+    } catch {
+      setError('No se pudo crear el artículo. Intentá de nuevo.');
     } finally {
       setLoading(false);
     }
@@ -59,7 +60,7 @@ export default function ArticleForm({ successHref = '/admin/contenido' }: { succ
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg" role="alert" aria-live="assertive">
               {error}
             </div>
           )}

@@ -70,6 +70,15 @@ export function boundedString(
   return normalized;
 }
 
+export function boundedRequestId(value: unknown, field: string): string {
+  const normalized = boundedString(value, field, { minLength: 1, maxLength: 128 });
+  if (!/^[A-Za-z0-9_-]+$/.test(normalized)) {
+    invalid(`Invalid ${field}`);
+  }
+
+  return normalized;
+}
+
 export function optionalString(
   value: unknown,
   field: string,

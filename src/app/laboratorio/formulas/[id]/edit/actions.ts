@@ -11,37 +11,37 @@ import {
   validateRuntimeFormulaForm,
   validateMinimumFormulaForm,
 } from '@/lib/formulas/formula-form-contract';
-import { isPersistenceInputError, objectId } from '@/lib/validation/runtime-input';
+import { objectId } from '@/lib/validation/runtime-input';
+import { getSafeServerActionError } from '@/lib/server-action-error';
 
 export async function submitFormulaUpdate(
   formulaId: string,
   values: FormulaFormValues
 ): Promise<SubmitFormulaResult> {
-  const user = await getCurrentUser();
-  if (!user || !isStaff(user.role)) {
-    return { success: false, error: 'No autorizado' };
-  }
-
   try {
-    objectId(formulaId, 'formula id');
-  } catch {
-    return { success: false, error: 'Entrada inválida' };
-  }
+    const user = await getCurrentUser();
+    if (!user || !isStaff(user.role)) {
+      return { success: false, error: 'No autorizado' };
+    }
 
-  const runtimeValidation = validateRuntimeFormulaForm(values);
-  if (!runtimeValidation.valid) {
-    return { success: false, errors: runtimeValidation.errors };
-  }
+    try {
+      objectId(formulaId, 'formula id');
+    } catch {
+      return { success: false, error: 'Entrada inválida' };
+    }
 
-  const validation = validateMinimumFormulaForm(values);
-  if (!validation.valid) {
-    return { success: false, errors: validation.errors };
-  }
+    const runtimeValidation = validateRuntimeFormulaForm(values);
+    if (!runtimeValidation.valid) {
+      return { success: false, errors: runtimeValidation.errors };
+    }
 
-  await connectToDatabase();
-  const repository = createFormulaRepository();
+    const validation = validateMinimumFormulaForm(values);
+    if (!validation.valid) {
+      return { success: false, errors: validation.errors };
+    }
 
-  try {
+    await connectToDatabase();
+    const repository = createFormulaRepository();
     const record = await repository.update(formulaId, toUpdateFormulaInput(values));
     return {
       success: true,
@@ -50,9 +50,7 @@ export async function submitFormulaUpdate(
   } catch (error) {
     return {
       success: false,
-      error: isPersistenceInputError(error)
-        ? 'Entrada inválida'
-        : error instanceof Error ? error.message : 'No se pudo actualizar la fórmula. Inténtelo de nuevo.',
+      error: getSafeServerActionError(error, 'No se pudo actualizar la fórmula. Inténtelo de nuevo.'),
     };
   }
 }

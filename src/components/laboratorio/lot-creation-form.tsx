@@ -7,6 +7,7 @@ import type { FormulaRecord } from '@/lib/formulas/formula-types';
 export interface LotCreationValues {
   formulaId: string;
   targetBatchGrams: number | '';
+  creationRequestId: string;
 }
 
 export type SubmitLotCreationResult =
@@ -18,6 +19,14 @@ interface LotCreationFormProps {
   submitLot: (values: LotCreationValues) => Promise<SubmitLotCreationResult>;
 }
 
+function createClientRequestId(): string {
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+    return crypto.randomUUID();
+  }
+
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+}
+
 export default function LotCreationForm({
   formula,
   submitLot,
@@ -26,6 +35,7 @@ export default function LotCreationForm({
   const [values, setValues] = useState<LotCreationValues>({
     formulaId: formula.id,
     targetBatchGrams: formula.targetBatchGrams,
+    creationRequestId: createClientRequestId(),
   });
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -41,20 +51,25 @@ export default function LotCreationForm({
     }
 
     setIsSubmitting(true);
-    const result = await submitLot({ ...values, targetBatchGrams });
-    setIsSubmitting(false);
+    try {
+      const result = await submitLot({ ...values, targetBatchGrams });
 
-    if (result.success) {
-      router.push(result.redirectTo);
-    } else {
-      setError(result.error);
+      if (result.success) {
+        router.push(result.redirectTo);
+      } else {
+        setError(result.error);
+      }
+    } catch {
+      setError('No se pudo crear el lote. Intentá de nuevo.');
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
   return (
     <form onSubmit={handleSubmit} aria-label="Crear lote" className="space-y-6">
       {error && (
-        <div role="alert" className="rounded-lg bg-error-container border border-error/30 p-4 text-sm text-on-error-container">
+        <div role="alert" aria-live="assertive" className="rounded-lg bg-error-container border border-error/30 p-4 text-sm text-on-error-container">
           {error}
         </div>
       )}

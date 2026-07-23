@@ -52,18 +52,23 @@ export default function LotEditForm({
     }
 
     setIsSubmitting(true);
-    const result = await submitLotEdit(values);
-    setIsSubmitting(false);
+    try {
+      const result = await submitLotEdit(values);
 
-    if (result.success) {
-      router.push(result.redirectTo);
-      return;
-    }
+      if (result.success) {
+        router.push(result.redirectTo);
+        return;
+      }
 
-    if ('errors' in result) {
-      setErrors(result.errors);
-    } else {
-      setSubmitError(result.error);
+      if ('errors' in result) {
+        setErrors(result.errors);
+      } else {
+        setSubmitError(result.error);
+      }
+    } catch {
+      setSubmitError('No se pudo actualizar el lote. Intentá de nuevo.');
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -93,6 +98,7 @@ export default function LotEditForm({
         <div
           className="rounded-lg bg-error-container border border-error/30 p-4 text-sm text-on-error-container"
           role="alert"
+          aria-live="assertive"
         >
           {submitError}
         </div>

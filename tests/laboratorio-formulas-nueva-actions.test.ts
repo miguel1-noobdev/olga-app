@@ -84,12 +84,32 @@ describe('submitFormula server action', () => {
 
   it('returns a generic error when repository create fails', async () => {
     const form = buildValidForm();
-    createMock.mockRejectedValue(new Error('Database write failed'));
+    createMock.mockRejectedValueOnce(new Error('Database write failed'));
 
     const result = await submitFormula(form);
 
     expect(result.success).toBe(false);
-    expect('error' in result && result.error).toBe('Database write failed');
+    expect('error' in result && result.error).toBe('No se pudo guardar la fórmula. Inténtelo de nuevo.');
+    expect('error' in result && result.error).not.toContain('Database write failed');
+  });
+
+  it('returns a stable error when database connection fails', async () => {
+    connectToDatabaseMock.mockRejectedValueOnce(new Error('MongoServerSelectionError mongodb://secret-host/app'));
+
+    const result = await submitFormula(buildValidForm());
+
+    expect(result).toEqual({ success: false, error: 'No se pudo guardar la fórmula. Inténtelo de nuevo.' });
+    expect(JSON.stringify(result)).not.toContain('mongodb://secret-host');
+    expect(createMock).not.toHaveBeenCalled();
+  });
+
+  it('returns a stable error when authentication lookup fails', async () => {
+    getCurrentUserMock.mockRejectedValueOnce(new Error('database connection string'));
+
+    const result = await submitFormula(buildValidForm());
+
+    expect(result).toEqual({ success: false, error: 'No se pudo guardar la fórmula. Inténtelo de nuevo.' });
+    expect(JSON.stringify(result)).not.toContain('connection string');
   });
 
   it('rejects invalid status, date, and oversized nested input before database access', async () => {

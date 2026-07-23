@@ -15,45 +15,45 @@ import {
   assertAllowedKeys,
   assertRecord,
   boundedString,
-  isPersistenceInputError,
   objectId,
   optionalString,
 } from '@/lib/validation/runtime-input';
+import { getSafeServerActionError } from '@/lib/server-action-error';
 
 export async function submitLotEditUpdate(
   lotId: string,
   values: LotEditFormValues
 ): Promise<SubmitLotEditResult> {
-  const user = await getCurrentUser();
-  if (!user || !isStaff(user.role)) {
-    return { success: false, error: 'No autorizado' };
-  }
-
-  let safeValues: LotEditFormValues;
   try {
-    objectId(lotId, 'lot id');
-    const body = assertRecord(values);
-    assertAllowedKeys(body, [
-      'status', 'targetBatchGrams', 'plannedAt', 'startedAt', 'completedAt', 'operationalObservations',
-    ]);
-    safeValues = {
-      status: body.status as LotEditFormValues['status'],
-      targetBatchGrams: optionalString(body.targetBatchGrams, 'targetBatchGrams', { maxLength: 20 }),
-      plannedAt: boundedString(body.plannedAt, 'plannedAt', { maxLength: 10, required: false }),
-      startedAt: boundedString(body.startedAt, 'startedAt', { maxLength: 10, required: false }),
-      completedAt: boundedString(body.completedAt, 'completedAt', { maxLength: 10, required: false }),
-      operationalObservations: boundedString(body.operationalObservations, 'operationalObservations', { maxLength: 2_000, required: false }),
-    };
-  } catch {
-    return { success: false, error: 'Entrada inválida' };
-  }
+    const user = await getCurrentUser();
+    if (!user || !isStaff(user.role)) {
+      return { success: false, error: 'No autorizado' };
+    }
 
-  const validation = validateMinimumLotEditForm(safeValues);
-  if (!validation.valid) {
-    return { success: false, errors: validation.errors };
-  }
+    let safeValues: LotEditFormValues;
+    try {
+      objectId(lotId, 'lot id');
+      const body = assertRecord(values);
+      assertAllowedKeys(body, [
+        'status', 'targetBatchGrams', 'plannedAt', 'startedAt', 'completedAt', 'operationalObservations',
+      ]);
+      safeValues = {
+        status: body.status as LotEditFormValues['status'],
+        targetBatchGrams: optionalString(body.targetBatchGrams, 'targetBatchGrams', { maxLength: 20 }),
+        plannedAt: boundedString(body.plannedAt, 'plannedAt', { maxLength: 10, required: false }),
+        startedAt: boundedString(body.startedAt, 'startedAt', { maxLength: 10, required: false }),
+        completedAt: boundedString(body.completedAt, 'completedAt', { maxLength: 10, required: false }),
+        operationalObservations: boundedString(body.operationalObservations, 'operationalObservations', { maxLength: 2_000, required: false }),
+      };
+    } catch {
+      return { success: false, error: 'Entrada inválida' };
+    }
 
-  try {
+    const validation = validateMinimumLotEditForm(safeValues);
+    if (!validation.valid) {
+      return { success: false, errors: validation.errors };
+    }
+
     await connectToDatabase();
     const repository = createLotRepository();
     const currentLot = await repository.findById(lotId);
@@ -80,9 +80,7 @@ export async function submitLotEditUpdate(
   } catch (error) {
     return {
       success: false,
-      error: isPersistenceInputError(error)
-        ? 'Entrada inválida'
-        : error instanceof Error ? error.message : 'No se pudo actualizar el lote. Intentelo de nuevo.',
+      error: getSafeServerActionError(error, 'No se pudo actualizar el lote. Intentelo de nuevo.'),
     };
   }
 }

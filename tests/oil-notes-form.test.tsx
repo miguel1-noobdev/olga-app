@@ -32,4 +32,43 @@ describe('OilNotesForm', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('No se pudo guardar la nota');
     expect(routerRefreshMock).not.toHaveBeenCalled();
   });
+
+  it('catches rejected actions, announces a safe error, and settles pending state', async () => {
+    submitOilNotesMock.mockRejectedValueOnce(new Error('CastError mongodb://secret-host/app'));
+    render(<OilNotesForm initialNotes="Actual" submitOilNotes={submitOilNotesMock} />);
+
+    const submitButton = screen.getByRole('button', { name: /guardar notas/i });
+    fireEvent.submit(screen.getByRole('form', { name: 'Editar notas internas' }));
+
+    await waitFor(() => expect(submitButton).toBeEnabled());
+    expect(screen.getByRole('alert')).toHaveTextContent('No se pudieron guardar las notas. Intentá de nuevo.');
+    expect(screen.getByRole('alert')).not.toHaveTextContent('mongodb://secret-host');
+  });
+
+  it('associates a returned field error with the notes field', async () => {
+    submitOilNotesMock.mockResolvedValue({ success: false, errors: { notes: 'Nota inválida' } });
+    render(<OilNotesForm initialNotes="Actual" submitOilNotes={submitOilNotesMock} />);
+
+    fireEvent.submit(screen.getByRole('form', { name: 'Editar notas internas' }));
+
+    const error = await screen.findByText('Nota inválida');
+    expect(error).toHaveAttribute('id', 'oil-notes-error');
+    expect(screen.getByRole('textbox', { name: 'Notas' })).toHaveAttribute('aria-describedby', 'oil-notes-error');
+  });
+
+  it('keeps the button disabled until a held action settles', async () => {
+    let resolveAction!: (result: SubmitOilNotesResult) => void;
+    submitOilNotesMock.mockImplementation(() => new Promise((resolve) => {
+      resolveAction = resolve;
+    }));
+    render(<OilNotesForm initialNotes="Actual" submitOilNotes={submitOilNotesMock} />);
+
+    const submitButton = screen.getByRole('button', { name: /guardar notas/i });
+    fireEvent.submit(screen.getByRole('form', { name: 'Editar notas internas' }));
+    await waitFor(() => expect(submitButton).toBeDisabled());
+    expect(submitButton).toHaveTextContent('Guardando...');
+
+    resolveAction({ success: true });
+    await waitFor(() => expect(submitButton).toBeEnabled());
+  });
 });

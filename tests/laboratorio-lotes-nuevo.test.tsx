@@ -3,8 +3,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-const { getCurrentUserMock, findByStatusMock, findByIdMock, createMock } = vi.hoisted(() => ({
+const { getCurrentUserMock, connectToDatabaseMock, findByStatusMock, findByIdMock, createMock } = vi.hoisted(() => ({
   getCurrentUserMock: vi.fn(),
+  connectToDatabaseMock: vi.fn(),
   findByStatusMock: vi.fn(),
   findByIdMock: vi.fn(),
   createMock: vi.fn(),
@@ -21,7 +22,7 @@ vi.mock('next/navigation', () => ({
 }));
 
 vi.mock('@/lib/db/connect', () => ({
-  connectToDatabase: vi.fn(),
+  connectToDatabase: connectToDatabaseMock,
 }));
 
 vi.mock('@/lib/db/repository/formula', () => ({
@@ -161,6 +162,7 @@ describe('/laboratorio/lotes/nuevo', () => {
         formulaId: validatedFormula.id,
         targetBatchGrams: 200,
         status: 'in_production',
+        creationRequestId: expect.stringMatching(/^[A-Za-z0-9_-]+$/),
       });
       expect(pushMock).toHaveBeenCalledWith('/laboratorio/lotes/lot-123');
     });
@@ -172,6 +174,7 @@ describe('/laboratorio/lotes/nuevo', () => {
     const result = await submitNewLot({
       formulaId: validatedFormula.id,
       targetBatchGrams: 200,
+      creationRequestId: 'lot-create-request-stale',
     });
 
     expect(result).toEqual({
@@ -185,7 +188,7 @@ describe('/laboratorio/lotes/nuevo', () => {
     findByIdMock.mockResolvedValue(validatedFormula);
     createMock.mockResolvedValue({ id: 'lot-123' });
 
-    await expect(submitNewLot({ formulaId: validatedFormula.id, targetBatchGrams: 200 })).resolves.toEqual({
+    await expect(submitNewLot({ formulaId: validatedFormula.id, targetBatchGrams: 200, creationRequestId: 'lot-create-request-success' })).resolves.toEqual({
       success: true,
       redirectTo: '/laboratorio/lotes/lot-123',
     });
@@ -194,6 +197,58 @@ describe('/laboratorio/lotes/nuevo', () => {
       formulaId: validatedFormula.id,
       targetBatchGrams: 200,
       status: 'in_production',
+      creationRequestId: 'lot-create-request-success',
     });
+  });
+
+  it('returns a stable error when database connection fails', async () => {
+    connectToDatabaseMock.mockRejectedValueOnce(new Error('MongoServerSelectionError mongodb://secret-host/app'));
+
+    const result = await submitNewLot({ formulaId: validatedFormula.id, targetBatchGrams: 200, creationRequestId: 'lot-create-request-connection' });
+
+    expect(result).toEqual({ success: false, error: 'No se pudo crear el lote. Intentelo de nuevo.' });
+    expect(JSON.stringify(result)).not.toContain('mongodb://secret-host');
+    expect(findByIdMock).not.toHaveBeenCalled();
+    expect(createMock).not.toHaveBeenCalled();
+  });
+
+  it('returns a stable error when authentication lookup fails', async () => {
+    getCurrentUserMock.mockRejectedValueOnce(new Error('CastError: database connection string'));
+
+    const result = await submitNewLot({ formulaId: validatedFormula.id, targetBatchGrams: 200, creationRequestId: 'lot-create-request-auth' });
+
+    expect(result).toEqual({ success: false, error: 'No se pudo crear el lote. Intentelo de nuevo.' });
+    expect(JSON.stringify(result)).not.toContain('connection string');
+  });
+
+  it('rejects missing and malformed creation request IDs before database access', async () => {
+    const missing = await submitNewLot({ formulaId: validatedFormula.id, targetBatchGrams: 200 } as never);
+    const malformed = await submitNewLot({
+      formulaId: validatedFormula.id,
+      targetBatchGrams: 200,
+      creationRequestId: 'request id with spaces',
+    });
+
+    expect(missing).toEqual({ success: false, error: 'Entrada inválida' });
+    expect(malformed).toEqual({ success: false, error: 'Entrada inválida' });
+    expect(connectToDatabaseMock).not.toHaveBeenCalled();
+    expect(createMock).not.toHaveBeenCalled();
+  });
+
+  it('announces rejected submissions and re-enables the form', async () => {
+    findByIdMock.mockResolvedValue(validatedFormula);
+    createMock.mockRejectedValueOnce(new Error('MongoServerSelectionError mongodb://secret-host/app'));
+
+    const jsx = await LaboratoryCreateLotPage({
+      searchParams: { formulaId: validatedFormula.id },
+    });
+    render(jsx);
+
+    const submitButton = screen.getByRole('button', { name: /crear lote/i });
+    fireEvent.submit(screen.getByRole('form', { name: /crear lote/i }));
+
+    await waitFor(() => expect(submitButton).toBeEnabled());
+    expect(screen.getByRole('alert')).toHaveTextContent('No se pudo crear el lote. Intentelo de nuevo.');
+    expect(screen.getByRole('alert')).not.toHaveTextContent('mongodb://secret-host');
   });
 });

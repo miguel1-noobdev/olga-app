@@ -10,7 +10,8 @@ delivered from the hardening branch rather than directly from `main`.
 - Active branch: `hardening/block-2-mongo-resilience`
 - Main application baseline: Block 1 delivered in `1641b2e`
 - Current hardening branch is clean and synchronized with origin.
-- Completed through Block 6, including privileged-account assurance and mutation-origin policy.
+- Completed through Block 8, including privileged-account assurance, mutation-origin policy,
+  runtime input contracts, and server-action/form resilience.
 - Remaining known high dependency risk: Next.js 14 requires a separate major-line migration decision.
 - Coolify and VPS deployment have not started.
 
@@ -244,11 +245,12 @@ JSON content type, a one-megabyte actual byte limit, object roots, bounded value
 strict dates, enums, image URLs, and Mongo ObjectIds. The five custom mutation APIs
 and seven browser-reachable laboratory actions reject invalid input before database
 access, preserve existing authorization/status allowlists, and normalize persistence
-cast/validation failures to stable client errors. Block 8 remains pending.
+cast/validation failures to stable client errors. Block 8 is documented below.
 
 ## Block 8 — Server-action and form resilience
 
-**Status:** Pending. Block 8 is intentionally not included in Block 7.
+**Status:** Implemented in the current worktree. Block 8 is intentionally separate from
+Block 7 and remains limited to server-action/form resilience.
 
 **Objective:** prevent user forms from becoming permanently stuck.
 
@@ -262,11 +264,33 @@ cast/validation failures to stable client errors. Block 8 remains pending.
 6. Add accessible error announcements.
 7. Test database failures and rejected server actions for every laboratory form.
 
+### Contract
+
+- All seven laboratory server actions use one handled failure boundary around authentication,
+  database connection, repository lookup, and repository mutation work.
+- Existing discriminated result shapes, authorization responses, validation errors, redirects,
+  and success results are preserved.
+- Persistence-input failures return `Entrada inválida`; unexpected authentication, connection,
+  and repository failures return stable retryable messages and never expose backend error details.
+- Formula, lot, and notes controls catch rejected submissions and always settle their pending or
+  disabled state. Notes forms also announce rejected server-action promises safely.
+- Login, registration, and article creation announce errors accessibly. User-management mutations
+  prevent concurrent submissions and announce safe failures. `content-actions.tsx` behavior remains
+  unchanged.
+
 ### Exit gate
 
 Every failed submission leaves the form retryable without a page reload.
 
+### Status
+
+**Implemented in the current worktree.** Focused action and form tests cover connection/authentication
+rejections, raw backend-message redaction, pending-state recovery, accessible announcements, and
+field-error associations. Block 9 remains explicitly pending.
+
 ## Block 9 — Loading and error boundaries
+
+**Status:** Pending. Block 9 is not included in Block 8.
 
 **Objective:** make database and runtime failures recoverable in the browser.
 

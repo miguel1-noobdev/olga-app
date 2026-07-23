@@ -44,7 +44,7 @@ describe('lot operational summary contract', () => {
     findByIdMock.mockResolvedValue({ id: formulaId, status: 'validated' });
     createMock.mockResolvedValue({ id: lotId });
 
-    await submitNewLot({ formulaId, targetBatchGrams: 500 });
+    await submitNewLot({ formulaId, targetBatchGrams: 500, creationRequestId: 'summary-request-001' });
 
     expect(createMock).toHaveBeenCalledWith(
       expect.objectContaining({

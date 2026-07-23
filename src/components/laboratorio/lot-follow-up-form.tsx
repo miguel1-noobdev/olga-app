@@ -10,6 +10,14 @@ import {
   validateMinimumLotFollowUpForm,
 } from '@/lib/lots/lot-follow-up-form-contract';
 
+function createClientRequestId(): string {
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+    return crypto.randomUUID();
+  }
+
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+}
+
 export interface LotFollowUpFormProps {
   initialValues?: LotFollowUpFormValues;
   submitFollowUpEntry: (
@@ -25,6 +33,7 @@ export default function LotFollowUpForm({
   const [values, setValues] = useState<LotFollowUpFormValues>(
     initialValues ?? createEmptyLotFollowUpFormValues()
   );
+  const [requestId] = useState(createClientRequestId);
   const [errors, setErrors] = useState<LotFollowUpFormValidationError>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,20 +57,23 @@ export default function LotFollowUpForm({
     }
 
     setIsSubmitting(true);
-    const result = await submitFollowUpEntry(values);
-    setIsSubmitting(false);
+    try {
+      const result = await submitFollowUpEntry({ ...values, requestId });
 
-    if (result.success) {
-      router.push(result.redirectTo);
-      return;
-    }
+      if (result.success) {
+        router.push(result.redirectTo);
+        return;
+      }
 
-    if (!result.success) {
       if ('errors' in result) {
         setErrors(result.errors);
       } else {
         setSubmitError(result.error);
       }
+    } catch {
+      setSubmitError('No se pudo agregar la entrada de seguimiento. Intentá de nuevo.');
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -97,6 +109,7 @@ export default function LotFollowUpForm({
         <div
           className="rounded-lg bg-error-container border border-error/30 p-4 text-sm text-on-error-container"
           role="alert"
+          aria-live="assertive"
         >
           {submitError}
         </div>

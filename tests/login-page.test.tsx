@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import LoginForm from '@/components/auth/login-form';
 
@@ -68,6 +68,21 @@ describe('LoginForm component', () => {
 
     expect(screen.getByText('Completá todos los campos.')).toBeInTheDocument();
     expect(signInMock).not.toHaveBeenCalled();
+  });
+
+  it('announces rejected login and re-enables the form without exposing backend details', async () => {
+    signInMock.mockRejectedValue(new Error('MongoServerSelectionError mongodb://secret-host/app'));
+    const user = userEvent.setup();
+    render(<LoginForm />);
+
+    await user.type(screen.getByLabelText(/email/i), 'a@b.com');
+    await user.type(screen.getByLabelText(/contraseña/i), 'password123');
+    await user.click(screen.getByRole('button', { name: /iniciar sesión/i }));
+
+    await waitFor(() => expect(screen.getByRole('button', { name: /iniciar sesión/i })).toBeEnabled());
+    expect(screen.getByRole('alert')).toHaveTextContent('Ocurrió un error. Intentá de nuevo.');
+    expect(screen.getByRole('alert')).not.toHaveTextContent('mongodb://secret-host');
+    expect(screen.getByRole('alert')).toHaveAttribute('aria-live', 'assertive');
   });
 
   it('calls signIn with credentials when form is submitted', async () => {

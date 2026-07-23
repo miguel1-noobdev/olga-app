@@ -91,6 +91,33 @@ describe('LotRepository', () => {
       expect(lot2.lotCode).toBe('CF-001-L002');
     });
 
+    it('returns the existing lot for a repeated creation request ID', async () => {
+      const first = await repo.create({
+        formulaId,
+        targetBatchGrams: 500,
+        creationRequestId: 'create-request-001',
+      });
+      const retry = await repo.create({
+        formulaId,
+        targetBatchGrams: 750,
+        creationRequestId: 'create-request-001',
+      });
+
+      expect(retry.id).toBe(first.id);
+      expect(retry.lotNumber).toBe(1);
+      expect(await LotModel.countDocuments({ formulaId })).toBe(1);
+    });
+
+    it('returns the same lot when concurrent creates share a request ID', async () => {
+      const results = await Promise.all([
+        repo.create({ formulaId, targetBatchGrams: 500, creationRequestId: 'create-request-concurrent' }),
+        repo.create({ formulaId, targetBatchGrams: 500, creationRequestId: 'create-request-concurrent' }),
+      ]);
+
+      expect(results[0].id).toBe(results[1].id);
+      expect(await LotModel.countDocuments({ formulaId })).toBe(1);
+    });
+
     it('starts lot numbering at 1 independently for each formula', async () => {
       const otherFormula = await FormulaModel.create({
         productName: 'Aceite de calendula',
@@ -184,6 +211,21 @@ describe('LotRepository', () => {
 
       expect(lot.operationalObservations).toBe('Usar agua destilada fresca');
       expect(lot.followUp.entries).toHaveLength(1);
+    });
+
+    it('does not append a repeated follow-up request ID twice', async () => {
+      const lot = await repo.create({ formulaId, targetBatchGrams: 500 });
+      const entry = {
+        date: new Date('2026-05-10'),
+        note: 'Texture stable.',
+        requestId: 'follow-up-request-001',
+      };
+
+      await repo.update(lot.id, { followUp: { entries: [entry] } });
+      const retry = await repo.update(lot.id, { followUp: { entries: [entry] } });
+
+      expect(retry.followUp.entries).toHaveLength(1);
+      expect(retry.followUp.entries[0].requestId).toBe('follow-up-request-001');
     });
 
     it('scales snapshot ingredient grams to the lot targetBatchGrams', async () => {

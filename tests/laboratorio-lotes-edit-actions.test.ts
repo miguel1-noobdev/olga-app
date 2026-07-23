@@ -88,20 +88,20 @@ describe('canonical submitLotEditUpdate server action', () => {
 
   it('returns an error when the repository update fails unexpectedly', async () => {
     findByIdMock.mockResolvedValue(currentLot);
-    updateMock.mockRejectedValue(new Error('Database unavailable'));
+    updateMock.mockRejectedValueOnce(new Error('Database unavailable'));
 
     await expect(submitLotEditUpdate(lotId, buildValidForm())).resolves.toEqual({
       success: false,
-      error: 'Database unavailable',
+      error: 'No se pudo actualizar el lote. Intentelo de nuevo.',
     });
   });
 
   it('returns an error when the database connection fails unexpectedly', async () => {
-    connectToDatabaseMock.mockRejectedValue(new Error('Database unavailable'));
+    connectToDatabaseMock.mockRejectedValueOnce(new Error('Database unavailable'));
 
     await expect(submitLotEditUpdate(lotId, buildValidForm())).resolves.toEqual({
       success: false,
-      error: 'Database unavailable',
+      error: 'No se pudo actualizar el lote. Intentelo de nuevo.',
     });
     expect(findByIdMock).not.toHaveBeenCalled();
   });

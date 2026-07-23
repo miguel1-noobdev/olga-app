@@ -154,11 +154,13 @@ describe('/laboratorio/lotes/[lotId] page', () => {
     await followUpForm.props.submitFollowUpEntry({
       date: '2026-05-10',
       note: 'Color remains stable.',
+      requestId: 'follow-up-request-page',
     });
 
     expect(submitLotFollowUpMock).toHaveBeenCalledWith('lot-1', {
       date: '2026-05-10',
       note: 'Color remains stable.',
+      requestId: 'follow-up-request-page',
     });
   });
 
@@ -175,10 +177,11 @@ describe('/laboratorio/lotes/[lotId] page', () => {
       await userEvent.click(screen.getByRole('button', { name: /agregar entrada/i }));
 
       await waitFor(() => {
-        expect(submitLotFollowUpMock).toHaveBeenCalledWith('lot-1', {
+        expect(submitLotFollowUpMock).toHaveBeenCalledWith('lot-1', expect.objectContaining({
           date: '2026-05-10',
           note: 'Color remains stable.',
-        });
+          requestId: expect.stringMatching(/^[A-Za-z0-9_-]+$/),
+        }));
       });
     }
   );

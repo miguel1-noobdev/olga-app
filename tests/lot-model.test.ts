@@ -242,6 +242,17 @@ describe('LotModel', () => {
     expect(composite).toHaveLength(1);
   });
 
+  it('defines a sparse unique index for creation request IDs', async () => {
+    const indexes = await LotModel.collection.indexes();
+    const requestIndex = indexes.find((index) => index.name === 'creationRequestId_1');
+
+    expect(requestIndex).toMatchObject({
+      unique: true,
+      sparse: true,
+      key: { creationRequestId: 1 },
+    });
+  });
+
   it('adds createdAt and updatedAt timestamps', async () => {
     const lot = await LotModel.create(validLotInput());
 

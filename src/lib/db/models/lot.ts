@@ -21,6 +21,7 @@ export interface ILot extends Document {
   formulaVersion: string;
   lotNumber: number;
   lotCode: string;
+  creationRequestId?: string;
   status: LotStorageStatus;
   targetBatchGrams: number;
   formulaSnapshot: FormulaSnapshot;
@@ -174,6 +175,12 @@ const LotSchema = new Schema<ILot>(
       trim: true,
       uppercase: true,
     },
+    creationRequestId: {
+      type: String,
+      trim: true,
+      maxlength: 128,
+      match: /^[A-Za-z0-9_-]+$/,
+    },
     status: {
       type: String,
       enum: LOT_STORAGE_STATUSES,
@@ -198,6 +205,7 @@ const LotSchema = new Schema<ILot>(
           {
             date: { type: Date, required: true },
             note: { type: String, required: true, trim: true },
+            requestId: { type: String, trim: true, maxlength: 128, match: /^[A-Za-z0-9_-]+$/ },
           },
         ],
         default: [],
@@ -223,6 +231,7 @@ const LotSchema = new Schema<ILot>(
 );
 
 LotSchema.index({ formulaId: 1, lotNumber: 1 }, { unique: true });
+LotSchema.index({ creationRequestId: 1 }, { unique: true, sparse: true });
 
 const cachedLotModel = mongoose.models.Lot as Model<ILot> | undefined;
 const cachedStatusValues = (

@@ -86,22 +86,42 @@ describe('submitFormulaUpdate server action', () => {
 
   it('returns a generic error when repository update fails', async () => {
     const form = buildValidForm();
-    updateMock.mockRejectedValue(new Error('Database write failed'));
+    updateMock.mockRejectedValueOnce(new Error('Database write failed'));
 
     const result = await submitFormulaUpdate(formulaId, form);
 
     expect(result.success).toBe(false);
-    expect('error' in result && result.error).toBe('Database write failed');
+    expect('error' in result && result.error).toBe('No se pudo actualizar la fórmula. Inténtelo de nuevo.');
+    expect('error' in result && result.error).not.toContain('Database write failed');
   });
 
   it('returns an error when formula is not found', async () => {
     const form = buildValidForm();
-    updateMock.mockRejectedValue(new Error('Formula not found'));
+    updateMock.mockRejectedValueOnce(new Error('Formula not found'));
 
     const result = await submitFormulaUpdate('507f1f77bcf86cd799439012', form);
 
     expect(result.success).toBe(false);
-    expect('error' in result && result.error).toBe('Formula not found');
+    expect('error' in result && result.error).toBe('No se pudo actualizar la fórmula. Inténtelo de nuevo.');
+  });
+
+  it('returns a stable error when database connection fails', async () => {
+    connectToDatabaseMock.mockRejectedValueOnce(new Error('MongoServerSelectionError mongodb://secret-host/app'));
+
+    const result = await submitFormulaUpdate(formulaId, buildValidForm());
+
+    expect(result).toEqual({ success: false, error: 'No se pudo actualizar la fórmula. Inténtelo de nuevo.' });
+    expect(JSON.stringify(result)).not.toContain('mongodb://secret-host');
+    expect(updateMock).not.toHaveBeenCalled();
+  });
+
+  it('returns a stable error when authentication lookup fails', async () => {
+    getCurrentUserMock.mockRejectedValueOnce(new Error('CastError: database connection string'));
+
+    const result = await submitFormulaUpdate(formulaId, buildValidForm());
+
+    expect(result).toEqual({ success: false, error: 'No se pudo actualizar la fórmula. Inténtelo de nuevo.' });
+    expect(JSON.stringify(result)).not.toContain('connection string');
   });
 
   it('rejects a malformed formula id and invalid nested numbers before database access', async () => {

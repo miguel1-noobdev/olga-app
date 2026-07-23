@@ -14,41 +14,41 @@ import {
   assertAllowedKeys,
   assertRecord,
   boundedString,
-  isPersistenceInputError,
   objectId,
 } from '@/lib/validation/runtime-input';
+import { getSafeServerActionError } from '@/lib/server-action-error';
 
 export async function updatePlantNotes(
   plantId: string,
   slug: string,
   values: PlantNotesFormValues
 ): Promise<SubmitPlantNotesResult> {
-  const user = await getCurrentUser();
-  if (!user || !isStaff(user.role)) {
-    return { success: false, error: 'No autorizado' };
-  }
-
-  let safeValues: PlantNotesFormValues;
   try {
-    objectId(plantId, 'plant id');
-    const body = assertRecord(values);
-    assertAllowedKeys(body, ['notes']);
-    if (typeof body.notes === 'string' && body.notes.length > 2_000) {
-      return { success: false, errors: { notes: 'Las notas no pueden superar los 2000 caracteres' } };
+    const user = await getCurrentUser();
+    if (!user || !isStaff(user.role)) {
+      return { success: false, error: 'No autorizado' };
     }
-    const safeSlug = boundedString(slug, 'slug', { minLength: 1, maxLength: 160 });
-    if (!/^[a-z0-9]+(?:[-_][a-z0-9]+)*$/i.test(safeSlug)) throw new Error('Invalid slug');
-    safeValues = { notes: boundedString(body.notes, 'notes', { maxLength: 2_000, required: false }) };
-  } catch {
-    return { success: false, error: 'Entrada inválida' };
-  }
 
-  const validation = validatePlantNotesForm(safeValues);
-  if (!validation.valid) {
-    return { success: false, errors: validation.errors };
-  }
+    let safeValues: PlantNotesFormValues;
+    try {
+      objectId(plantId, 'plant id');
+      const body = assertRecord(values);
+      assertAllowedKeys(body, ['notes']);
+      if (typeof body.notes === 'string' && body.notes.length > 2_000) {
+        return { success: false, errors: { notes: 'Las notas no pueden superar los 2000 caracteres' } };
+      }
+      const safeSlug = boundedString(slug, 'slug', { minLength: 1, maxLength: 160 });
+      if (!/^[a-z0-9]+(?:[-_][a-z0-9]+)*$/i.test(safeSlug)) throw new Error('Invalid slug');
+      safeValues = { notes: boundedString(body.notes, 'notes', { maxLength: 2_000, required: false }) };
+    } catch {
+      return { success: false, error: 'Entrada inválida' };
+    }
 
-  try {
+    const validation = validatePlantNotesForm(safeValues);
+    if (!validation.valid) {
+      return { success: false, errors: validation.errors };
+    }
+
     await connectToDatabase();
     await createFullPlantRepository().update(plantId, {
       internal: { notes: safeValues.notes.trim() },
@@ -58,9 +58,7 @@ export async function updatePlantNotes(
   } catch (error) {
     return {
       success: false,
-      error: isPersistenceInputError(error)
-        ? 'Entrada inválida'
-        : error instanceof Error ? error.message : 'No se pudieron guardar las notas. Inténtelo de nuevo.',
+      error: getSafeServerActionError(error, 'No se pudieron guardar las notas. Inténtelo de nuevo.'),
     };
   }
 }

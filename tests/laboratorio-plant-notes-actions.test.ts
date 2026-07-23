@@ -53,11 +53,30 @@ describe('updatePlantNotes server action', () => {
   });
 
   it('returns a serializable repository error', async () => {
-    updateMock.mockRejectedValue(new Error('Plant not found'));
+    updateMock.mockRejectedValueOnce(new Error('Plant not found'));
 
     await expect(updatePlantNotes(plantId, 'lavanda', { notes: 'Nueva nota' })).resolves.toEqual({
       success: false,
-      error: 'Plant not found',
+      error: 'No se pudieron guardar las notas. Inténtelo de nuevo.',
     });
+  });
+
+  it('returns a stable error when database connection fails', async () => {
+    connectToDatabaseMock.mockRejectedValueOnce(new Error('MongoServerSelectionError mongodb://secret-host/app'));
+
+    const result = await updatePlantNotes(plantId, 'lavanda', { notes: 'Nueva nota' });
+
+    expect(result).toEqual({ success: false, error: 'No se pudieron guardar las notas. Inténtelo de nuevo.' });
+    expect(JSON.stringify(result)).not.toContain('mongodb://secret-host');
+    expect(updateMock).not.toHaveBeenCalled();
+  });
+
+  it('returns a stable error when authentication lookup fails', async () => {
+    getCurrentUserMock.mockRejectedValueOnce(new Error('CastError: database connection string'));
+
+    const result = await updatePlantNotes(plantId, 'lavanda', { notes: 'Nueva nota' });
+
+    expect(result).toEqual({ success: false, error: 'No se pudieron guardar las notas. Inténtelo de nuevo.' });
+    expect(JSON.stringify(result)).not.toContain('connection string');
   });
 });

@@ -262,18 +262,23 @@ export default function FormulaForm({
     }
 
     setIsSubmitting(true);
-    const result = await submitFormula(values);
-    setIsSubmitting(false);
+    try {
+      const result = await submitFormula(values);
 
-    if (result.success) {
-      router.push(result.redirectTo);
-      return;
-    }
+      if (result.success) {
+        router.push(result.redirectTo);
+        return;
+      }
 
-    if ('errors' in result) {
-      setErrors(result.errors);
-    } else {
-      setSubmitError(result.error);
+      if ('errors' in result) {
+        setErrors(result.errors);
+      } else {
+        setSubmitError(result.error);
+      }
+    } catch {
+      setSubmitError('No se pudo guardar la fórmula. Intentá de nuevo.');
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -308,6 +313,7 @@ export default function FormulaForm({
         <div
           className="rounded border border-error/30 bg-error-container p-4 text-sm text-on-error-container"
           role="alert"
+          aria-live="assertive"
         >
           {submitError}
         </div>

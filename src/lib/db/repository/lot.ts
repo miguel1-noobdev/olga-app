@@ -151,11 +151,13 @@ function toLotRecord(doc: ILot): LotRecord {
     targetBatchGrams: plain.targetBatchGrams,
     formulaSnapshot: toSnapshot(plain.formulaSnapshot),
     followUp: {
-      entries: (plain.followUp?.entries ?? []).map((entry: { date: unknown; note: string }) => ({
+      entries: (plain.followUp?.entries ?? []).map((entry: { date: unknown; note: string; requestId?: string }) => ({
         date: toIsoDate(entry.date) as string,
         note: entry.note,
+        ...(entry.requestId ? { requestId: entry.requestId } : {}),
       })),
     },
+    creationRequestId: plain.creationRequestId,
     operationalObservations: plain.operationalObservations,
     plannedAt: toIsoDate(plain.plannedAt),
     startedAt: toIsoDate(plain.startedAt),
@@ -288,6 +290,13 @@ export function createLotRepository(): LotRepository {
         throw new LotValidationError('lot_status_invalid');
       }
 
+      if (input.creationRequestId) {
+        const existing = await LotModel.findOne({ creationRequestId: input.creationRequestId });
+        if (existing) {
+          return toLotRecord(existing);
+        }
+      }
+
       const maxRetries = 5;
       let lastError: Error | undefined;
 
@@ -307,6 +316,7 @@ export function createLotRepository(): LotRepository {
             formulaVersion: formula.formulaVersion,
             lotNumber,
             lotCode,
+            creationRequestId: input.creationRequestId,
             status: input.status ?? 'in_production',
             targetBatchGrams: input.targetBatchGrams,
             formulaSnapshot: snapshot,
@@ -320,6 +330,12 @@ export function createLotRepository(): LotRepository {
           return toLotRecord(lot);
         } catch (error) {
           if (isDuplicateKeyError(error)) {
+            if (input.creationRequestId) {
+              const existing = await LotModel.findOne({ creationRequestId: input.creationRequestId });
+              if (existing) {
+                return toLotRecord(existing);
+              }
+            }
             lastError = error as Error;
             continue;
           }
@@ -428,12 +444,18 @@ export function createLotRepository(): LotRepository {
       }
 
       if (input.followUp?.entries && input.followUp.entries.length > 0) {
-        updateOps.$push = {
+        updateOps.$addToSet = {
           'followUp.entries': { $each: input.followUp.entries },
         };
       }
 
       const updateFilter: Record<string, unknown> = { _id: id };
+      const followUpRequestIds = (input.followUp?.entries ?? [])
+        .map((entry) => entry.requestId)
+        .filter((requestId): requestId is string => Boolean(requestId));
+      if (followUpRequestIds.length > 0) {
+        updateFilter['followUp.entries.requestId'] = { $nin: followUpRequestIds };
+      }
       if (hasProductionChanges) {
         updateFilter.status = { $nin: ['finalized', 'discarded', 'completed', 'cancelled'] };
       }
@@ -444,6 +466,18 @@ export function createLotRepository(): LotRepository {
       });
 
       if (!updated) {
+        if (followUpRequestIds.length > 0) {
+          const current = await LotModel.findById(id);
+          if (
+            current &&
+            followUpRequestIds.every((requestId) =>
+              current.followUp.entries.some((entry) => entry.requestId === requestId)
+            )
+          ) {
+            return toLotRecord(current);
+          }
+        }
+
         if (hasProductionChanges && (await LotModel.exists({ _id: id }))) {
           throw new LotLifecycleError('completed_freeze');
         }
