@@ -3,6 +3,8 @@ import BotanicalEntryForm from '@/components/admin/botanical-entry-form';
 import { connectToDatabase } from '@/lib/db/connect';
 import { createPlantRepository } from '@/lib/db/repository/plant';
 
+export const dynamic = 'force-dynamic';
+
 export default async function EditPlantPage({ params }: { params: { id: string } }) {
   await connectToDatabase();
   const plant = await createPlantRepository().findById(params.id);

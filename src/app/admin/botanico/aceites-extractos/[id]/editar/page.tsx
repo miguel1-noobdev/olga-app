@@ -3,6 +3,8 @@ import BotanicalEntryForm from '@/components/admin/botanical-entry-form';
 import { connectToDatabase } from '@/lib/db/connect';
 import { createOilRepository } from '@/lib/db/repository/oil';
 
+export const dynamic = 'force-dynamic';
+
 export default async function EditOilPage({ params }: { params: { id: string } }) {
   await connectToDatabase();
   const oil = await createOilRepository().findById(params.id);

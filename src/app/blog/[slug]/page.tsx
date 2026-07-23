@@ -6,6 +6,8 @@ import { connectToDatabase } from '@/lib/db/connect';
 import { createArticleRepository } from '@/lib/db/repository/article';
 import { notFound } from 'next/navigation';
 
+export const dynamic = 'force-dynamic';
+
 export default async function ArticlePage({ params }: { params: { slug: string } }) {
   await connectToDatabase();
   const repo = createArticleRepository();

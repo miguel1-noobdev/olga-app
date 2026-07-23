@@ -6,6 +6,8 @@ interface PageProps {
   params: { id: string };
 }
 
+export const dynamic = 'force-dynamic';
+
 export default async function LegacyLotCreatePage({ params }: PageProps) {
   await connectToDatabase();
   const formula = await createFormulaRepository().findById(params.id);

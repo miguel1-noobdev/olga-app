@@ -11,6 +11,8 @@ interface PageProps {
   params: { id: string };
 }
 
+export const dynamic = 'force-dynamic';
+
 export default async function LaboratoryEditFormulaPage({ params }: PageProps) {
   await connectToDatabase();
   const repository = createFormulaRepository();

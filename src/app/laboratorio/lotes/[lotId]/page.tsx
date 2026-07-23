@@ -143,6 +143,8 @@ function FollowUpSection({ entries }: { entries: LotRecord['followUp']['entries'
   );
 }
 
+export const dynamic = 'force-dynamic';
+
 export default async function LaboratoryLotDetailPage({ params }: PageProps) {
   await connectToDatabase();
   const lot = await createLotRepository().findById(params.lotId);

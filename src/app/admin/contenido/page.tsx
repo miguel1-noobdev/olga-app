@@ -6,6 +6,8 @@ import { createArticleRepository } from '@/lib/db/repository/article';
 
 const labels = { draft: 'Borrador', reviewed: 'Revisado', published: 'Publicado', unpublished: 'Despublicado' };
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminContentPage() {
   await connectToDatabase();
   const articles = await createArticleRepository().findAll();

@@ -417,6 +417,8 @@ function ProcedureSection({ steps }: { steps: FormulaRecord['procedureSteps'] })
   );
 }
 
+export const dynamic = 'force-dynamic';
+
 export default async function LaboratoryFormulaDetailPage({ params }: PageProps) {
   await connectToDatabase();
   const formulaRepo = createFormulaRepository();

@@ -3,6 +3,8 @@ import { connectToDatabase } from '@/lib/db/connect';
 import { createOilRepository } from '@/lib/db/repository/oil';
 import { createPlantRepository } from '@/lib/db/repository/plant';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminBotanicoPage() {
   await connectToDatabase();
   const [plants, oils] = await Promise.all([

@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation';
 import { connectToDatabase } from '@/lib/db/connect';
 import { createArticleRepository } from '@/lib/db/repository/article';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminContentPreviewPage({ params }: { params: { id: string } }) {
   await connectToDatabase();
   const article = await createArticleRepository().findById(params.id);

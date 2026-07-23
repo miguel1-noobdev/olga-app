@@ -8,6 +8,8 @@ import {
   ObservationsPreview,
 } from '@/components/laboratorio/shared-presentation';
 
+export const dynamic = 'force-dynamic';
+
 export default async function LaboratoryOilsPage() {
   await connectToDatabase();
   const repo = createOilRepository();

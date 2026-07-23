@@ -40,6 +40,8 @@ const FORMULA_STATUS_PRESENTATION: Record<
   },
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function LaboratoryFormulasPage() {
   await connectToDatabase();
   const repo = createFormulaRepository();

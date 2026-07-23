@@ -6,6 +6,8 @@ import { connectToDatabase } from '@/lib/db/connect';
 import { createPlantRepository } from '@/lib/db/repository/plant';
 import { buildJardinDigitalCatalog } from '@/lib/jardin-digital/catalog';
 
+export const dynamic = 'force-dynamic';
+
 export default async function JardinDigitalPage() {
   await connectToDatabase();
   const repo = createPlantRepository();

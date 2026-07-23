@@ -32,6 +32,8 @@ const LOT_STATUS_PRESENTATION: Record<
   },
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function LaboratoryLotesPage() {
   await connectToDatabase();
   const repository = createLotRepository();

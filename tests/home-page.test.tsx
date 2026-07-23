@@ -1,6 +1,6 @@
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ArticleRecord } from '@/lib/db/repository/article';
 
 const { connectToDatabaseMock, findLatestPublishedMock, diarioMock } = vi.hoisted(() => ({
@@ -112,7 +112,31 @@ const latestArticles: ArticleRecord[] = [
   },
 ];
 
+const landingSectionTestIds = [
+  'hero',
+  'products',
+  'metodos',
+  'diario',
+  'glosario',
+  'olga',
+  'unete',
+  'redes',
+  'footer',
+] as const;
+
+function expectLandingToRender(html: string) {
+  expect(html).toContain('data-testid="navbar"');
+
+  for (const testId of landingSectionTestIds) {
+    expect(html).toContain(`data-testid="${testId}"`);
+  }
+}
+
 describe('HomePage', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('loads the latest three published articles and forwards them to Diario', async () => {
     findLatestPublishedMock.mockResolvedValueOnce(latestArticles);
 
@@ -127,5 +151,35 @@ describe('HomePage', () => {
     expect(html).toContain('Primera nota');
     expect(html).toContain('Segunda nota');
     expect(html).toContain('Tercera nota');
+  });
+
+  it('keeps the complete landing when the database connection fails', async () => {
+    const databaseError = new Error('raw database connection details');
+    connectToDatabaseMock.mockRejectedValueOnce(databaseError);
+
+    const element = await HomePage();
+    const html = renderToStaticMarkup(element);
+
+    expect(connectToDatabaseMock).toHaveBeenCalledTimes(1);
+    expect(findLatestPublishedMock).not.toHaveBeenCalled();
+    expectLandingToRender(html);
+    expect(diarioMock).toHaveBeenCalledTimes(1);
+    expect(diarioMock.mock.calls[0][0].articles).toEqual([]);
+    expect(html).not.toContain(databaseError.message);
+  });
+
+  it('keeps the complete landing when the article preview fails', async () => {
+    const articleError = new Error('raw article repository details');
+    findLatestPublishedMock.mockRejectedValueOnce(articleError);
+
+    const element = await HomePage();
+    const html = renderToStaticMarkup(element);
+
+    expect(connectToDatabaseMock).toHaveBeenCalledTimes(1);
+    expect(findLatestPublishedMock).toHaveBeenCalledWith(3);
+    expectLandingToRender(html);
+    expect(diarioMock).toHaveBeenCalledTimes(1);
+    expect(diarioMock.mock.calls[0][0].articles).toEqual([]);
+    expect(html).not.toContain(articleError.message);
   });
 });

@@ -5,6 +5,8 @@ import { createOilRepository } from '@/lib/db/repository/oil';
 import OilInternalDetail from '@/components/laboratorio/oil-internal-detail';
 import { updateOilNotes } from './actions';
 
+export const dynamic = 'force-dynamic';
+
 export default async function LaboratoryOilDetailPage({ params }: { params: { slug: string } }) {
   await connectToDatabase();
   const oil = await createOilRepository().findBySlug(params.slug);

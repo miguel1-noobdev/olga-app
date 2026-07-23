@@ -11,11 +11,20 @@ import Redes from '@/components/landing/redes';
 import Footer from '@/components/landing/footer';
 import { connectToDatabase } from '@/lib/db/connect';
 import { createArticleRepository } from '@/lib/db/repository/article';
+import type { ArticleRecord } from '@/lib/db/repository/article';
+
+export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
-  await connectToDatabase();
-  const repo = createArticleRepository();
-  const articles = await repo.findLatestPublished(3);
+  let articles: ArticleRecord[] = [];
+
+  try {
+    await connectToDatabase();
+    const repo = createArticleRepository();
+    articles = await repo.findLatestPublished(3);
+  } catch {
+    articles = [];
+  }
 
   return (
     <>

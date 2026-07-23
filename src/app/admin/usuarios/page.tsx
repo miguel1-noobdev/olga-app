@@ -4,6 +4,8 @@ import { approvedDirectoryUser } from '@/lib/admin/users/role-change';
 import { connectToDatabase } from '@/lib/db/connect';
 import { createUserRepository } from '@/lib/db/repository/user';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminUsersPage() {
   await connectToDatabase();
   const [users, activity] = await Promise.all([

@@ -8,6 +8,8 @@ import {
   hasPlantInternalNotes,
 } from '@/components/laboratorio/shared-presentation';
 
+export const dynamic = 'force-dynamic';
+
 export default async function LaboratoryPlantsPage() {
   await connectToDatabase();
   const plants = await createPlantRepository().findAll();

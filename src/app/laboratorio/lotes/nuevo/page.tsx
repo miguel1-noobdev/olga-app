@@ -15,6 +15,8 @@ interface PageProps {
   searchParams: { formulaId?: string };
 }
 
+export const dynamic = 'force-dynamic';
+
 export default async function LaboratoryCreateLotPage({ searchParams }: PageProps) {
   await connectToDatabase();
   const formulas = (await createFormulaRepository().findByStatus('validated')).filter(
