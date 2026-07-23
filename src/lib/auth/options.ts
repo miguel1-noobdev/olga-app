@@ -5,6 +5,13 @@ import { createUserRepository } from '@/lib/db/repository/user';
 import { connectToDatabase } from '@/lib/db/connect';
 import { ROLES } from './roles';
 import { authorizeWithRepository } from './authorize-credentials';
+import {
+  CREDENTIALS_LOGIN_RATE_LIMIT,
+  areTrustedProxyHeadersEnabled,
+  credentialsLoginRateLimiter,
+  getClientIp,
+  isAuthRateLimitingAvailable,
+} from './request-security';
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
@@ -15,7 +22,20 @@ export const authOptions: NextAuthOptions = {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
       },
-      async authorize(credentials) {
+      async authorize(credentials, request) {
+        if (!isAuthRateLimitingAvailable()) {
+          return null;
+        }
+
+        const rateLimit = credentialsLoginRateLimiter.consume(
+          getClientIp(request.headers, areTrustedProxyHeadersEnabled()),
+          CREDENTIALS_LOGIN_RATE_LIMIT
+        );
+
+        if (!rateLimit.allowed) {
+          return null;
+        }
+
         await connectToDatabase();
         const repo = createUserRepository();
         return authorizeWithRepository(repo, credentials);

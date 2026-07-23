@@ -1,6 +1,14 @@
 import { NextResponse } from 'next/server';
 import { createUserRepository } from '@/lib/db/repository/user';
 import { connectToDatabase } from '@/lib/db/connect';
+import {
+  REGISTRATION_RATE_LIMIT,
+  areTrustedProxyHeadersEnabled,
+  getClientIp,
+  isAllowedSameOriginRequest,
+  isAuthRateLimitingAvailable,
+  registrationRateLimiter,
+} from '@/lib/auth/request-security';
 
 function isDuplicateEmailError(error: unknown): boolean {
   return (
@@ -11,6 +19,35 @@ function isDuplicateEmailError(error: unknown): boolean {
 }
 
 export async function POST(request: Request) {
+  if (!isAuthRateLimitingAvailable()) {
+    return NextResponse.json(
+      { error: 'Registration temporarily unavailable' },
+      { status: 503 }
+    );
+  }
+
+  if (!isAllowedSameOriginRequest(request)) {
+    return NextResponse.json(
+      { error: 'Invalid request origin' },
+      { status: 403 }
+    );
+  }
+
+  const rateLimit = registrationRateLimiter.consume(
+    getClientIp(request.headers, areTrustedProxyHeadersEnabled()),
+    REGISTRATION_RATE_LIMIT
+  );
+
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      { error: 'Too many requests' },
+      {
+        status: 429,
+        headers: { 'Retry-After': String(rateLimit.retryAfterSeconds) },
+      }
+    );
+  }
+
   try {
     await connectToDatabase();
 

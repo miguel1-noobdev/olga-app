@@ -30,6 +30,7 @@ How to run the project locally, execute checks, and deploy to the VPS. This docu
 | `MONGODB_URI` | Yes in production | Local MongoDB connection URI | Production requires a valid MongoDB URI and never falls back to localhost. Non-production without this variable uses the local-safe fallback. |
 | `NEXTAUTH_SECRET` | At runtime | Generate with `openssl rand -base64 32` | NextAuth JWT signing secret. Login will fail without it. |
 | `NEXTAUTH_URL` | Recommended | `http://localhost:3000` | Used by NextAuth for callback URLs. |
+| `TRUSTED_PROXY_HEADERS` | Required in production | `false` | Set to `true` only behind a proxy that overwrites `x-forwarded-for` and `x-real-ip`; production auth fails closed when it is absent. |
 | `INTERNAL_ACCOUNT_CHECK_ORIGIN` | At runtime | `http://127.0.0.1:3000` | Trusted origin for middleware's persisted-account check. Use the loopback Next.js listener on the VPS, or a bare HTTPS origin. HTTP is accepted only for `localhost`, `127.0.0.1`, or `[::1]`. |
 | `GOOGLE_CLIENT_ID` | Only if enabling Google OAuth | Google Cloud Console | Google auth is wired but **not exposed in the UI**. |
 | `GOOGLE_CLIENT_SECRET` | Only if enabling Google OAuth | Google Cloud Console | Never commit this value. |
@@ -73,9 +74,10 @@ The container is configured with `restart: unless-stopped`. It has **no authenti
 `.github/workflows/ci.yml` runs on every push and pull request to `main`/`master`:
 
 1. `npm ci`
-2. `npm run build`
-3. `npm run test:run`
-4. `npm run typecheck:scripts`
+2. `npm run lint`
+3. `npm run build`
+4. `npm run test:run`
+5. `npm run typecheck:scripts`
 
 The workflow uses Node.js 20 and the `npm` cache.
 
@@ -85,6 +87,15 @@ The workflow uses Node.js 20 and the `npm` cache.
 - **Google OAuth** is configured in `src/lib/auth/options.ts` but intentionally **not shown in the UI**. It stays disabled until the brand owner explicitly decides to turn it on.
 - Roles exist (`suscriptora`, `productora`, `admin`). Public registration creates only `suscriptora` accounts.
 - `productora` and `admin` are staff roles for the Laboratorio; `admin` retains staff support access to Olga's Laboratorio.
+
+### Public auth perimeter
+
+- Registration is limited to 5 requests per client IP per 15-minute sliding window and returns `429` with a safe `Retry-After` header when the limit is exceeded.
+- Credentials login is limited to 10 attempts per client IP per 15-minute sliding window. NextAuth continues to return its normal credentials failure result when the limit is exceeded, preserving the existing login UX and built-in CSRF flow.
+- The custom registration mutation rejects an explicit `Origin` that is neither the request origin nor the configured `NEXTAUTH_URL` origin. Requests without an `Origin` remain compatible with non-browser clients.
+- Client IP extraction uses `x-forwarded-for` first and `x-real-ip` as a fallback only when `TRUSTED_PROXY_HEADERS=true`; otherwise both headers are ignored and the limiter uses a stable shared fallback key.
+- Production requires `TRUSTED_PROXY_HEADERS=true`; registration returns `503` and credentials login rejects normally until trusted proxy headers are configured.
+- These limiters are process-local in memory. They are bounded to 10,000 client keys per limiter and clean expired entries on requests, which fits the current single-VPS process assumption but does not coordinate limits across multiple Node.js processes or replicas. A shared store is required before horizontal scaling.
 
 ## VPS deploy (manual, high-level)
 
