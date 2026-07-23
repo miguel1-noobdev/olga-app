@@ -11,6 +11,7 @@ describe('productora provisioning script hardening', () => {
     expect(script).toContain("readProductoraProvisioningEnvironment()");
     expect(script).toContain('serverSelectionTimeoutMS: 5000');
     expect(script).toContain('connectTimeoutMS: 5000');
+    expect(script).toContain('socketTimeoutMS: 10000');
     expect(script).not.toContain('mongodb://localhost:27017/botanica-ob');
     expect(script.indexOf('readProductoraProvisioningEnvironment()')).toBeLessThan(
       script.indexOf('mongoose.connect')
@@ -25,11 +26,10 @@ describe('productora provisioning script hardening', () => {
   });
 
   it('explicitly recovers or creates Olga as an active productora account', () => {
-    expect(script).toContain('applyProductoraAccountRecovery(existingUser, passwordHash)');
-    expect(script).toContain('createProductoraAccountRecoveryUpdate(passwordHash)');
+    expect(script).toContain('provisionProductoraAccount(config.OLGA_EMAIL, passwordHash)');
   });
 
-  it('documents the required Olga provisioning contract and keeps Block 5B separate', () => {
+  it('documents the required Olga provisioning contract and the Block 5B boundary', () => {
     expect(scriptsDocumentation).toContain('`MONGODB_URI`');
     expect(scriptsDocumentation).toContain('`OLGA_EMAIL`');
     expect(scriptsDocumentation).toContain('`OLGA_PASSWORD`');

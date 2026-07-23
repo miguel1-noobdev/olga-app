@@ -51,6 +51,8 @@ The script rejects missing values, malformed MongoDB URIs, invalid email address
 
 When Olga's account already exists, the script intentionally recovers it by setting both `role=productora` and `accountStatus=active`; this includes suspended accounts. New accounts receive the same explicit role and active status.
 
+The existing-account decision is protected by the shared standalone-Mongo lease lock. If Olga is the only active admin, provisioning rejects the demotion and leaves the account unchanged. The lock uses collection `mongo_lease_locks`, fixed document `_id=admin-account-mutations`, a random owner token, a 15-second expiry renewed every 5 seconds, owner-checked renewal/release, a best-effort 10-second retry budget with 50ms retries, and `maxTimeMS=2000` per lock command. This is not a hard wall-clock bound because an in-flight command may approach the 10-second Mongo socket timeout. Lost ownership fails safely; an expired lease is recoverable after a process crash. No replica set or Docker change is required. Every privileged role/status mutation must use this same boundary.
+
 For a local one-off run in zsh, load `MONGODB_URI` and `OLGA_EMAIL` from an ignored, owner-readable environment file and prompt for Olga's password separately:
 
 ```bash
@@ -64,7 +66,7 @@ npx tsx scripts/create-productora.ts
 unset OLGA_PASSWORD
 ```
 
-Keep `.env.olga.local` out of version control. The script's recovery behavior is separate from concurrent last-active-admin protection, which remains a Block 5B follow-up.
+Keep `.env.olga.local` out of version control. The script's recovery decision and update are protected by the implemented Block 5B lease boundary.
 
 ## Script reference
 

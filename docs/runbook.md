@@ -57,7 +57,21 @@ Provision or recover Olga's laboratory account only through `scripts/create-prod
 
 The script requires a valid MongoDB URI, normalizes and validates the email, and requires a password of at least 12 characters before opening MongoDB. It has no localhost fallback, uses bounded connection timeouts, and never prints passwords, hashes, or credential values. Follow the silent interactive password-prompt procedure in [`docs/scripts.md`](./scripts.md#privileged-productora-provisioning); never inline Olga's password or store it in a committed environment file.
 
-Provisioning always writes `role=productora` and `accountStatus=active`, so rerunning it intentionally recovers a suspended Olga account. Concurrent protection for mutations involving the last active admin is not part of this unit; it remains a separate Block 5B follow-up.
+Provisioning always writes `role=productora` and `accountStatus=active`, so rerunning it intentionally recovers a suspended Olga account. If Olga is the only active administrator, the script rejects that demotion and leaves her account unchanged.
+
+### Block 5B: standalone MongoDB lease lock for privileged mutations
+
+The admin user mutation route and all privileged scripts that write a role or account status use the same Mongo-backed lease lock. This contract works with the current standalone MongoDB deployment and does not require transactions or a replica set:
+
+- Collection: `mongo_lease_locks`.
+- Fixed document: `_id=admin-account-mutations`.
+- Ownership: each acquisition uses a random owner token and an atomic `findOneAndUpdate` with `upsert=true` and `returnDocument='after'`.
+- Lease: 15 seconds, renewed every 5 seconds while guarded work runs. Renewal is owner-checked; lost ownership raises safely and stale cleanup cannot delete a successor's lease.
+- Acquisition: a best-effort 10-second retry budget with 50ms intervals; this is not a hard wall-clock bound. Each Mongo lock command uses `maxTimeMS=2000` and may approach the 10-second Mongo socket timeout while in flight.
+- Release: the owner token is included in the delete filter and release runs in `finally`; a different owner cannot release the document.
+- Failure: the API returns a safe `503`; provisioning fails without applying its guarded mutation.
+
+Every privileged role/status mutation must use this boundary, including `/api/admin/usuarios`, `create-admin.ts`, `reset-password.ts`, and `create-productora.ts`. Protected callbacks must assert ownership before every write, audit, and rollback, then assert again before returning. The directory read, target read, last-active-admin invariant check, update, audit, and audit rollback must all remain inside the same lease.
 
 ## MongoDB startup
 

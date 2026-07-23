@@ -1,16 +1,16 @@
 import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth/current-user';
+import { approvedDirectoryUser } from '@/lib/admin/users/role-change';
+import { createAdministrativeAuditRepository } from '@/lib/admin/users/activity';
 import {
-  canApplyRoleChange,
-  canApplyStatusChange,
-  approvedDirectoryUser,
-  isLastActiveAdmin,
-} from '@/lib/admin/users/role-change';
-import {
-  createAdministrativeAuditEvent,
-  createAdministrativeAuditRepository,
-} from '@/lib/admin/users/activity';
+  applyGuardedAdminUserMutation,
+  type AdminUserMutationInput,
+} from '@/lib/admin/users/guarded-mutation';
 import { connectToDatabase } from '@/lib/db/connect';
+import {
+  MongoLeaseLockUnavailableError,
+  withMongoLeaseLock,
+} from '@/lib/db/mongo-lease-lock';
 import { createUserRepository } from '@/lib/db/repository/user';
 
 async function getAdminSession() {
@@ -48,83 +48,19 @@ export async function PATCH(request: Request) {
   await connectToDatabase();
   const users = createUserRepository();
   const audit = createAdministrativeAuditRepository();
-  const directory = await users.findAll();
-  const occurredAt = new Date().toISOString();
 
-  const previousUser = await users.findById(userId);
-  if (!previousUser) {
-    return NextResponse.json({ error: 'User not found' }, { status: 400 });
-  }
-
-  if (typeof role === 'string') {
-    const roleChange = { role, confirmed };
-    if (canApplyRoleChange(roleChange)) {
-      if (roleChange.role !== 'admin' && isLastActiveAdmin(directory, userId)) {
-        return NextResponse.json({ error: 'Rejected mutation' }, { status: 400 });
-      }
-      if (userId === session.id && roleChange.role !== 'admin') {
-        return NextResponse.json({ error: 'Rejected mutation' }, { status: 400 });
-      }
-      await users.updateRole(userId, roleChange.role);
-      try {
-        await audit.record(createAdministrativeAuditEvent({
-          type: 'role_changed', subjectUserId: userId, actorUserId: session.id, occurredAt,
-        }));
-      } catch (auditError) {
-        try {
-          await users.updateRole(userId, previousUser.role);
-        } catch (rollbackError) {
-          console.error('Audit failed and rollback failed:', auditError, rollbackError);
-          return NextResponse.json(
-            {
-              error: `Cambio aplicado pero auditoría falló. Estado actual: ${roleChange.role}. Error de auditoría. Error de rollback.`,
-            },
-            { status: 500 }
-          );
-        }
-        return NextResponse.json(
-          { error: `Cambio revertido. La auditoría falló pero el rol fue restaurado a ${previousUser.role}.` },
-          { status: 500 }
-        );
-      }
-      return NextResponse.json({ success: true });
+  const input: AdminUserMutationInput = { userId, role, accountStatus, confirmed };
+  try {
+    const outcome = await withMongoLeaseLock((guard) => applyGuardedAdminUserMutation(
+      input,
+      session.id,
+      { users, audit, assertOwnership: () => guard.assertOwnership() },
+    ));
+    return NextResponse.json(outcome.body, { status: outcome.status });
+  } catch (error) {
+    if (error instanceof MongoLeaseLockUnavailableError) {
+      return NextResponse.json({ error: 'Administrative mutation temporarily unavailable' }, { status: 503 });
     }
+    throw error;
   }
-
-  if (typeof accountStatus === 'string') {
-    const statusChange = { accountStatus, confirmed };
-    if (canApplyStatusChange(statusChange)) {
-      if (statusChange.accountStatus === 'suspended' && isLastActiveAdmin(directory, userId)) {
-        return NextResponse.json({ error: 'Rejected mutation' }, { status: 400 });
-      }
-      if (userId === session.id && statusChange.accountStatus === 'suspended') {
-        return NextResponse.json({ error: 'Rejected mutation' }, { status: 400 });
-      }
-      await users.updateAccountStatus(userId, statusChange.accountStatus);
-      try {
-        await audit.record(createAdministrativeAuditEvent({
-          type: 'account_status_changed', subjectUserId: userId, actorUserId: session.id, occurredAt,
-        }));
-      } catch (auditError) {
-        try {
-          await users.updateAccountStatus(userId, previousUser.accountStatus);
-        } catch (rollbackError) {
-          console.error('Audit failed and rollback failed:', auditError, rollbackError);
-          return NextResponse.json(
-            {
-              error: `Cambio aplicado pero auditoría falló. Estado actual: ${statusChange.accountStatus}. Error de auditoría. Error de rollback.`,
-            },
-            { status: 500 }
-          );
-        }
-        return NextResponse.json(
-          { error: `Cambio revertido. La auditoría falló pero el estado fue restaurado a ${previousUser.accountStatus}.` },
-          { status: 500 }
-        );
-      }
-      return NextResponse.json({ success: true });
-    }
-  }
-
-  return NextResponse.json({ error: 'Rejected mutation' }, { status: 400 });
 }

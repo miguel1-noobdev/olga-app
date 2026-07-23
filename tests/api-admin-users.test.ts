@@ -1,6 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { getServerSessionMock, getCurrentUserMock, connectMock, repositoryMock, recordMock } = vi.hoisted(() => ({
+const {
+  getServerSessionMock,
+  getCurrentUserMock,
+  connectMock,
+  repositoryMock,
+  recordMock,
+  withMongoLeaseLockMock,
+} = vi.hoisted(() => ({
   getServerSessionMock: vi.fn(),
   getCurrentUserMock: vi.fn(),
   connectMock: vi.fn(),
@@ -11,6 +18,7 @@ const { getServerSessionMock, getCurrentUserMock, connectMock, repositoryMock, r
     updateAccountStatus: vi.fn(),
   },
   recordMock: vi.fn(),
+  withMongoLeaseLockMock: vi.fn(),
 }));
 
 vi.mock('next-auth', () => ({ getServerSession: getServerSessionMock }));
@@ -19,17 +27,25 @@ vi.mock('@/lib/db/connect', () => ({ connectToDatabase: connectMock }));
 vi.mock('@/lib/db/repository/user', () => ({
   createUserRepository: vi.fn(() => repositoryMock),
 }));
+vi.mock('@/lib/db/mongo-lease-lock', () => ({
+  withMongoLeaseLock: withMongoLeaseLockMock,
+  MongoLeaseLockUnavailableError: class MongoLeaseLockUnavailableError extends Error {},
+}));
 vi.mock('@/lib/admin/users/activity', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/lib/admin/users/activity')>()),
   createAdministrativeAuditRepository: vi.fn(() => ({ record: recordMock })),
 }));
 
 import { GET, PATCH } from '@/app/api/admin/usuarios/route';
+import { MongoLeaseLockUnavailableError } from '@/lib/db/mongo-lease-lock';
 
 describe('/api/admin/usuarios', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     repositoryMock.findAll.mockResolvedValue([]);
+    withMongoLeaseLockMock.mockImplementation(async (work: (guard: { assertOwnership: () => Promise<void> }) => Promise<unknown>) => (
+      work({ assertOwnership: vi.fn() })
+    ));
   });
 
   it('denies anonymous access and returns only approved directory fields to Admin', async () => {
@@ -281,5 +297,19 @@ describe('/api/admin/usuarios', () => {
     expect(repositoryMock.updateAccountStatus).toHaveBeenCalledTimes(2);
     expect(repositoryMock.updateAccountStatus).toHaveBeenNthCalledWith(1, 'user-1', 'suspended');
     expect(repositoryMock.updateAccountStatus).toHaveBeenNthCalledWith(2, 'user-1', 'active');
+  });
+
+  it('returns a safe temporary-unavailable response when the mutation lock cannot be acquired', async () => {
+    getCurrentUserMock.mockResolvedValue({ id: 'admin-1', role: 'admin' });
+    withMongoLeaseLockMock.mockRejectedValueOnce(new MongoLeaseLockUnavailableError());
+
+    const response = await PATCH(new Request('http://test/api/admin/usuarios', {
+      method: 'PATCH',
+      body: JSON.stringify({ userId: 'user-1', role: 'productora', confirmed: true }),
+    }));
+
+    expect(response.status).toBe(503);
+    expect(await response.json()).toEqual({ error: 'Administrative mutation temporarily unavailable' });
+    expect(repositoryMock.updateRole).not.toHaveBeenCalled();
   });
 });

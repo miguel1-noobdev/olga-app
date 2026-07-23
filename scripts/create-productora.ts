@@ -1,11 +1,7 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
-import { UserModel } from '../src/lib/db/models/user';
 import { readProductoraProvisioningEnvironment } from './productora-provisioning-environment';
-import {
-  applyProductoraAccountRecovery,
-  createProductoraAccountRecoveryUpdate,
-} from './productora-account-recovery';
+import { provisionProductoraAccount } from './productora-provisioning';
 
 async function createProductoraUser() {
   let config;
@@ -23,26 +19,14 @@ async function createProductoraUser() {
     await mongoose.connect(config.MONGODB_URI, {
       serverSelectionTimeoutMS: 5000,
       connectTimeoutMS: 5000,
+      socketTimeoutMS: 10000,
     });
     console.log('Connected to MongoDB.');
 
     const passwordHash = await bcrypt.hash(config.OLGA_PASSWORD, 10);
 
-    const existingUser = await UserModel.findOne({ email: config.OLGA_EMAIL });
-
-    if (existingUser) {
-      console.log('Existing productora account found, applying recovery update...');
-      applyProductoraAccountRecovery(existingUser, passwordHash);
-      await existingUser.save();
-      console.log('Olga productora account updated.');
-    } else {
-      console.log('Creating Olga productora account...');
-      await UserModel.create({
-        email: config.OLGA_EMAIL,
-        ...createProductoraAccountRecoveryUpdate(passwordHash),
-      });
-      console.log('Olga productora account created.');
-    }
+    await provisionProductoraAccount(config.OLGA_EMAIL, passwordHash);
+    console.log('Olga productora account provisioned.');
   } catch {
     console.error('Productora provisioning failed. Check database connectivity and retry.');
     process.exitCode = 1;
