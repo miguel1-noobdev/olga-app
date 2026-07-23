@@ -47,6 +47,18 @@ The first public registration never becomes an administrator. Provision or recov
 
 Use a password manager or the deployment secret store. For local one-off work in zsh, follow the silent interactive password-prompt procedure in [`docs/scripts.md`](./scripts.md#privileged-admin-scripts) and run the selected script with `npx tsx`; never inline a password in a shell command or save it in a committed environment file. Both scripts fail before connecting when a required value is absent or invalid and never print credentials.
 
+### Productora provisioning
+
+Provision or recover Olga's laboratory account only through `scripts/create-productora.ts`. It requires these environment variable names:
+
+- `MONGODB_URI`
+- `OLGA_EMAIL`
+- `OLGA_PASSWORD`
+
+The script requires a valid MongoDB URI, normalizes and validates the email, and requires a password of at least 12 characters before opening MongoDB. It has no localhost fallback, uses bounded connection timeouts, and never prints passwords, hashes, or credential values. Follow the silent interactive password-prompt procedure in [`docs/scripts.md`](./scripts.md#privileged-productora-provisioning); never inline Olga's password or store it in a committed environment file.
+
+Provisioning always writes `role=productora` and `accountStatus=active`, so rerunning it intentionally recovers a suspended Olga account. Concurrent protection for mutations involving the last active admin is not part of this unit; it remains a separate Block 5B follow-up.
+
 ## MongoDB startup
 
 `docker-compose.yml` runs MongoDB 7.0 bound to `127.0.0.1:27017` with a persistent Docker volume named `mongo-data`.

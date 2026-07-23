@@ -1,64 +1,59 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import { UserModel } from '../src/lib/db/models/user';
-import { ROLES } from '../src/lib/auth/roles';
-
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/botanica-ob';
+import { readProductoraProvisioningEnvironment } from './productora-provisioning-environment';
+import {
+  applyProductoraAccountRecovery,
+  createProductoraAccountRecoveryUpdate,
+} from './productora-account-recovery';
 
 async function createProductoraUser() {
-  const email = process.env.OLGA_EMAIL;
-  const password = process.env.OLGA_PASSWORD;
+  let config;
 
-  if (!email) {
-    console.error('OLGA_EMAIL is required');
-    process.exit(1);
-  }
-
-  if (!password) {
-    console.error('OLGA_PASSWORD is required');
-    process.exit(1);
-  }
-
-  if (password.length < 8) {
-    console.error('OLGA_PASSWORD must be at least 8 characters');
-    process.exit(1);
+  try {
+    config = readProductoraProvisioningEnvironment();
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : 'Configuration error.');
+    process.exitCode = 1;
+    return;
   }
 
   try {
     console.log('Connecting to MongoDB...');
-    await mongoose.connect(MONGODB_URI);
-    console.log('Connected\n');
+    await mongoose.connect(config.MONGODB_URI, {
+      serverSelectionTimeoutMS: 5000,
+      connectTimeoutMS: 5000,
+    });
+    console.log('Connected to MongoDB.');
 
-    const passwordHash = await bcrypt.hash(password, 10);
+    const passwordHash = await bcrypt.hash(config.OLGA_PASSWORD, 10);
 
-    const existingUser = await UserModel.findOne({ email: email.toLowerCase().trim() });
+    const existingUser = await UserModel.findOne({ email: config.OLGA_EMAIL });
 
     if (existingUser) {
-      console.log('Existing user found, updating to productora role...');
-      existingUser.role = ROLES.PRODUCTORA;
-      existingUser.passwordHash = passwordHash;
+      console.log('Existing productora account found, applying recovery update...');
+      applyProductoraAccountRecovery(existingUser, passwordHash);
       await existingUser.save();
-      console.log('User updated successfully');
+      console.log('Olga productora account updated.');
     } else {
-      console.log('Creating new productora user...');
+      console.log('Creating Olga productora account...');
       await UserModel.create({
-        email: email.toLowerCase().trim(),
-        passwordHash,
-        role: ROLES.PRODUCTORA,
+        email: config.OLGA_EMAIL,
+        ...createProductoraAccountRecoveryUpdate(passwordHash),
       });
-      console.log('User created successfully');
+      console.log('Olga productora account created.');
     }
-
-    console.log('\n========================================');
-    console.log('Olga laboratory account');
-    console.log('Email:', email);
-    console.log('Role:', ROLES.PRODUCTORA);
-    console.log('========================================\n');
-
-    await mongoose.disconnect();
-  } catch (error) {
-    console.error('Error:', error instanceof Error ? error.message : String(error));
-    process.exit(1);
+  } catch {
+    console.error('Productora provisioning failed. Check database connectivity and retry.');
+    process.exitCode = 1;
+  } finally {
+    try {
+      await mongoose.disconnect();
+      console.log('Disconnected from MongoDB.');
+    } catch {
+      console.error('Productora provisioning cleanup failed.');
+      process.exitCode = 1;
+    }
   }
 }
 
