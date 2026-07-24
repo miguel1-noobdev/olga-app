@@ -14,9 +14,6 @@ function slugify(text: string): string {
 
 async function seedPlants() {
   try {
-    const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/botanica-ob';
-    console.log(`Connecting to ${uri.replace(/:\/\/([^:]+):[^@]+@/, '://$1:****@')} ...`);
-
     await connectToDatabase();
     console.log('Connected to MongoDB');
 
@@ -30,8 +27,8 @@ async function seedPlants() {
 
       console.log(`Plant "${plant.commonName}" synced with slug "${plant.slug}".`);
     }
-  } catch (error) {
-    console.error('Failed to seed plants:', error);
+  } catch {
+    console.error('Failed to seed plants: MongoDB operation failed.');
     process.exitCode = 1;
   } finally {
     await mongoose.disconnect();

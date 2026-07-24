@@ -7,10 +7,11 @@ services:
       - "127.0.0.1:27017:27017"
     environment:
       MONGO_INITDB_DATABASE: botanica-ob
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:?Set MONGO_INITDB_ROOT_USERNAME in the Compose environment}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:?Set MONGO_INITDB_ROOT_PASSWORD in the Compose environment}
     volumes:
       - mongo-data:/data/db
-    # Bind only to localhost so the port is never exposed to the internet.
-    # Only accessible from the host itself (Docker Desktop on Windows, WSL/Linux).
+    # The host port is bound only to loopback; MongoDB is not exposed to the network.
 
 volumes:
   mongo-data:

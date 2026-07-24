@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const { mongoClientMock, mongooseConnectMock } = vi.hoisted(() => ({
   mongoClientMock: vi.fn(),
@@ -15,6 +15,11 @@ vi.mock('mongoose', () => ({
 afterEach(() => {
   vi.resetModules();
   vi.clearAllMocks();
+  vi.unstubAllEnvs();
+});
+
+beforeEach(() => {
+  vi.stubEnv('MONGODB_URI', 'mongodb://health-user:health-password@mongo.test/botanica-ob?authSource=admin');
 });
 
 describe('checkMongoHealth', () => {

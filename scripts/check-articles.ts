@@ -1,12 +1,11 @@
 import mongoose from 'mongoose';
+import { connectToDatabase } from '../src/lib/db/connect';
 import { ArticleModel } from '../src/lib/db/models/article';
-
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/botanica-ob';
 
 async function checkArticles() {
   try {
     console.log('Conectando a MongoDB...');
-    await mongoose.connect(MONGODB_URI);
+    await connectToDatabase();
     console.log('✓ Conectado\n');
 
     const articles = await ArticleModel.find({});
@@ -27,8 +26,8 @@ async function checkArticles() {
     }
 
     await mongoose.disconnect();
-  } catch (error) {
-    console.error('Error:', error instanceof Error ? error.message : String(error));
+  } catch {
+    console.error('Error: MongoDB operation failed.');
     process.exit(1);
   }
 }

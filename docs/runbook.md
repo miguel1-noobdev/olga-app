@@ -4,15 +4,15 @@ How to run the project locally, execute checks, and deploy to the VPS. This docu
 
 ## Quick path: local run
 
-1. Start MongoDB:
-   ```bash
-   docker compose up -d mongo
-   ```
-2. Copy and extend the environment file:
+1. Copy and extend the environment file:
    ```bash
    cp .env.example .env.local
    ```
-   Add at least `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, and `INTERNAL_ACCOUNT_CHECK_ORIGIN` (see [Required environment variables](#required-environment-variables)).
+   Set the local `MONGO_INITDB_ROOT_USERNAME`, `MONGO_INITDB_ROOT_PASSWORD`, and `MONGODB_URI` values from the authenticated example, then add at least `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, and `INTERNAL_ACCOUNT_CHECK_ORIGIN` (see [Required environment variables](#required-environment-variables)).
+2. Start MongoDB:
+   ```bash
+   docker compose --env-file .env.local up -d mongo
+   ```
 3. Install dependencies:
    ```bash
    npm install
@@ -27,7 +27,7 @@ How to run the project locally, execute checks, and deploy to the VPS. This docu
 
 | Variable | Required | Source / example | Notes |
 |----------|----------|------------------|-------|
-| `MONGODB_URI` | Yes in production | Local MongoDB connection URI | Production requires a valid MongoDB URI and never falls back to localhost. Non-production without this variable uses the local-safe fallback. |
+| `MONGODB_URI` | Yes in every runtime | Authenticated local, private Coolify, or external managed MongoDB URI | The application and all scripts fail before connecting when this variable is missing or invalid. There is no localhost fallback. |
 | `NEXTAUTH_SECRET` | At runtime | Generate with `openssl rand -base64 32` | NextAuth JWT signing secret. Login will fail without it. |
 | `NEXTAUTH_URL` | Required for browser mutations | `http://localhost:3000` | Used by NextAuth for callback URLs and as the validated canonical origin for custom mutation APIs. |
 | `TRUSTED_PROXY_HEADERS` | Required in production | `false` | Set to `true` only behind a proxy that overwrites trusted forwarded headers, including host/protocol; production auth and custom mutations fail closed when it is absent. |
@@ -35,7 +35,7 @@ How to run the project locally, execute checks, and deploy to the VPS. This docu
 | `GOOGLE_CLIENT_ID` | Only if enabling Google OAuth | Google Cloud Console | Google auth is wired but **not exposed in the UI**. |
 | `GOOGLE_CLIENT_SECRET` | Only if enabling Google OAuth | Google Cloud Console | Never commit this value. |
 
-> **Current reality:** `.env.example` provides local-safe MongoDB and loopback account-check defaults. Add NextAuth values manually for local development or production.
+> **Current reality:** `.env.example` contains placeholders for an authenticated local MongoDB and loopback account-check settings. Replace local placeholders before starting Compose; never commit the resulting `.env.local`.
 
 ### Privileged admin provisioning
 
@@ -59,9 +59,9 @@ The script requires a valid MongoDB URI, normalizes and validates the email, and
 
 Provisioning always writes `role=productora` and `accountStatus=active`, so rerunning it intentionally recovers a suspended Olga account. If Olga is the only active administrator, the script rejects that demotion and leaves her account unchanged.
 
-### Block 5B: standalone MongoDB lease lock for privileged mutations
+### Block 5B: retained lease-lock and compensating-rollback topology
 
-The admin user mutation route and all privileged scripts that write a role or account status use the same Mongo-backed lease lock. This contract works with the current standalone MongoDB deployment and does not require transactions or a replica set:
+The admin user mutation route and all privileged scripts that write a role or account status use the same Mongo-backed lease lock. Block 11 retains this privileged-mutation model: Mongo lease locking plus compensating rollback. It does not migrate the current guarded-mutation semantics to MongoDB sessions or transactions.
 
 - Collection: `mongo_lease_locks`.
 - Fixed document: `_id=admin-account-mutations`.
@@ -73,15 +73,45 @@ The admin user mutation route and all privileged scripts that write a role or ac
 
 Every privileged role/status mutation must use this boundary, including `/api/admin/usuarios`, `create-admin.ts`, `reset-password.ts`, and `create-productora.ts`. Protected callbacks must assert ownership before every write, audit, and rollback, then assert again before returning. The directory read, target read, last-active-admin invariant check, update, audit, and audit rollback must all remain inside the same lease.
 
+True multi-document MongoDB transactions are a separate future change. A replica set alone is not sufficient for the current code: the application would also need an explicit session/transaction implementation and new failure semantics. Do not enable a replica set as an implied Block 11 migration.
+
+## MongoDB deployment contract
+
+The application requires an explicit, valid `MONGODB_URI` in local development, tests that exercise database access, Coolify/private production, and external managed MongoDB. The runtime resolver preserves the exact URI, including encoded credentials and query options such as `authSource`; it never supplies a hardcoded local default.
+
+### Local authenticated MongoDB
+
+- `docker-compose.yml` publishes MongoDB only as `127.0.0.1:27017:27017`; it is not a network-facing service.
+- Compose requires `MONGO_INITDB_ROOT_USERNAME` and `MONGO_INITDB_ROOT_PASSWORD` through environment substitution. `.env.example` contains placeholders only.
+- Use a URI such as `mongodb://USER:PASSWORD@127.0.0.1:27017/botanica-ob?authSource=admin` in `.env.local`.
+- URL-encode MongoDB usernames and passwords before placing them in a URI. Characters such as `@`, `:`, `/`, `?`, `#`, and `%` must not be copied raw into credentials.
+
+### Coolify/private production MongoDB
+
+- Keep MongoDB on a private internal network or private service; do not publish port `27017` publicly.
+- Set `MONGODB_URI` as a Coolify secret, using a dedicated production credential and the correct database plus `authSource` (usually `admin` for a root-created user, or the user database for a database-scoped user).
+- The app rejects a missing or invalid URI before connecting. A production process never falls back to localhost or local Compose credentials.
+
+### External managed MongoDB
+
+- Use the provider's `mongodb+srv://` URI, restricted network access, TLS defaults, and a least-privilege database user.
+- Store the complete URI only in the deployment secret store. URL-encode credentials and retain the provider's required `authSource` and other query parameters unchanged.
+
+### Existing local volume migration
+
+MongoDB initialization variables apply only when the data directory is initialized. Do not assume an existing unauthenticated `mongo-data` volume becomes authenticated when these variables are added.
+
+Before changing an existing local volume, take a verified `mongodump` backup outside Docker, record the database and collection list, stop dependent application processes, and preserve the dump. Create a fresh authenticated volume/container, verify login with the new URI, restore with `mongorestore`, and only then repoint the app. Keep the old volume untouched until the restored data is verified; never run a destructive volume removal as an automatic migration.
+
 ## MongoDB startup
 
 `docker-compose.yml` runs MongoDB 7.0 bound to `127.0.0.1:27017` with a persistent Docker volume named `mongo-data`.
 
 ```bash
-docker compose up -d mongo
+docker compose --env-file .env.local up -d mongo
 ```
 
-The container is configured with `restart: unless-stopped`. It has **no authentication** in the local setup; the port is bound to localhost only so it is not exposed to the network.
+The container is configured with `restart: unless-stopped` and local authentication. If an older unauthenticated volume is present, follow the backup and fresh-volume procedure above instead of assuming the Compose change upgrades it.
 
 ## Build, test, and CI checks
 
@@ -190,7 +220,7 @@ There is **no deploy automation** in the repo today. The current manual flow is:
    npm ci
    npm run build
    ```
-2. **Environment**: create `.env.local` on the VPS with a valid `MONGODB_URI`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `TRUSTED_PROXY_HEADERS=true`, and `INTERNAL_ACCOUNT_CHECK_ORIGIN=http://127.0.0.1:3000`. Do not commit it. The app rejects an absent or invalid `MONGODB_URI` in production; the account check also fails closed if its value is absent or invalid. Without trusted proxy headers, registration returns `503` and custom mutation handlers return `403`.
+2. **Environment**: create `.env.local` on the VPS with a valid `MONGODB_URI`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `TRUSTED_PROXY_HEADERS=true`, and `INTERNAL_ACCOUNT_CHECK_ORIGIN=http://127.0.0.1:3000`. Do not commit it. The app rejects an absent or invalid `MONGODB_URI` before connecting; the account check also fails closed if its value is absent or invalid. Without trusted proxy headers, registration returns `503` and custom mutation handlers return `403`.
 3. **Database**: make sure MongoDB is reachable from the app process (local Docker container, managed Atlas cluster, etc.).
 4. **Process manager**: start the app with PM2, for example:
    ```bash
@@ -212,7 +242,7 @@ There is **no deploy automation** in the repo today. The current manual flow is:
 
 ## Common issues checklist
 
-- [ ] MongoDB is not running → `docker compose up -d mongo`
+- [ ] Local MongoDB is not running → `docker compose --env-file .env.local up -d mongo`
 - [ ] `NEXTAUTH_SECRET` is missing → the app may build, but login will fail
 - [ ] `MONGODB_URI` points to the wrong database → scripts will affect the wrong data
 - [ ] `npx tsx` is not available → run `npm install`, then retry the verified local invocation

@@ -50,21 +50,21 @@ This is **not an e-commerce site**. It explains the brand, shares content with r
 - Node.js 20
 - Docker or Docker Desktop
 
-### Start MongoDB
-
-```bash
-docker compose up -d mongo
-```
-
-This binds MongoDB to `127.0.0.1:27017` with a persistent volume.
-
 Copy `.env.example` to `.env.local` if you have not already, then add the extra variables required for NextAuth:
 
 ```bash
 cp .env.example .env.local
 ```
 
-The default `MONGODB_URI` points to `mongodb://localhost:27017/botanica-ob`. See [`docs/runbook.md`](./docs/runbook.md#required-environment-variables) for the full environment checklist.
+`MONGODB_URI` is required explicitly in every runtime. See [`docs/runbook.md`](./docs/runbook.md#required-environment-variables) for the local, Coolify, and external managed MongoDB contracts.
+
+### Start MongoDB
+
+```bash
+docker compose --env-file .env.local up -d mongo
+```
+
+This binds authenticated MongoDB to `127.0.0.1:27017` with a persistent volume. Replace the local credential placeholders before starting Compose.
 
 ### Useful commands
 

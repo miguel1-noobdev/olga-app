@@ -1,12 +1,11 @@
 import mongoose from 'mongoose';
+import { connectToDatabase } from '../src/lib/db/connect';
 import { UserModel } from '../src/lib/db/models/user';
-
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/botanica-ob';
 
 async function checkUsers() {
   try {
     console.log('Conectando a MongoDB...');
-    await mongoose.connect(MONGODB_URI);
+    await connectToDatabase();
     console.log('✓ Conectado\n');
 
     const users = await UserModel.find({});
@@ -19,13 +18,12 @@ async function checkUsers() {
         console.log(`\n${i + 1}. Email: ${user.email}`);
         console.log(`   Role: ${user.role}`);
         console.log(`   ID: ${user._id}`);
-        console.log(`   Password Hash: ${user.passwordHash?.substring(0, 20)}...`);
       });
     }
 
     await mongoose.disconnect();
-  } catch (error) {
-    console.error('Error:', error);
+  } catch {
+    console.error('Error: MongoDB operation failed.');
     process.exit(1);
   }
 }

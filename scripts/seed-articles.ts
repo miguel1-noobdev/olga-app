@@ -174,7 +174,7 @@ En Botánica Esencial OB creo que **cuidarse es un acto de amor propio**, no una
   process.exit(0);
 }
 
-seedArticles().catch((err) => {
-  console.error(err);
+seedArticles().catch(() => {
+  console.error('Failed to seed articles: MongoDB operation failed.');
   process.exit(1);
 });

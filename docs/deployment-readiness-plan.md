@@ -350,6 +350,8 @@ exposing internal information.
 
 ## Block 11 — Local and production MongoDB contract
 
+**Status:** Completed in the current worktree; delivery evidence is recorded below.
+
 **Objective:** prevent local database settings from leaking into production.
 
 ### Steps
@@ -358,11 +360,20 @@ exposing internal information.
 2. Add local authentication without committing credentials.
 3. Remove production localhost fallbacks.
 4. Document local, Coolify, and external MongoDB configurations separately.
-5. Confirm transaction-capable topology for privileged mutations.
+5. Record the retained lease-lock and compensating-rollback topology contract; defer true multi-document transactions.
 
 ### Exit gate
 
 Local MongoDB is private and authenticated, while production cannot silently use local defaults.
+
+### Delivery evidence
+
+- The shared MongoDB resolver now requires a valid explicit `MONGODB_URI` in every runtime, preserves authenticated URI values, and rejects missing or invalid configuration before connecting.
+- `check-articles.ts`, `check-users.ts`, and `seed-plants.ts` reuse the shared connector, contain no localhost URI fallback, and do not print URIs, credentials, password hashes, or raw Mongo errors.
+- Local Compose MongoDB remains host-loopback-only and requires substituted root credentials. Existing unauthenticated `mongo-data` volumes are not auto-upgraded; the runbook documents verified backup, fresh authenticated volume, and restore precautions.
+- `.env.example`, `docs/runbook.md`, and `docs/scripts.md` separate local authenticated, Coolify/private, and external managed MongoDB contracts, including URL encoding and `authSource` guidance.
+- The existing privileged mutation topology remains Mongo lease locking plus compensating rollback. True multi-document transactions are a separate future change; a replica set alone is not sufficient for the current code.
+- Focused tests cover URI validation/preservation, script fallback and logging policy, loopback binding, authentication placeholders, and documentation consistency.
 
 ## Block 12 — Asset and navigation integrity
 

@@ -6,13 +6,23 @@ Each script documents its own configuration requirements. The secured privileged
 
 ## Quick path
 
-1. Make sure MongoDB is running (`docker compose up -d mongo`).
+1. Make sure the authenticated local MongoDB is running (`docker compose --env-file .env.local up -d mongo`).
 2. Ensure `MONGODB_URI` is exported or present in `.env.local`.
 3. Run from the repo root:
    ```bash
    npx tsx scripts/<script-name>.ts
    ```
 4. Read the script output carefully before acting on it.
+
+## MongoDB configuration contract
+
+Every utility script uses the shared validated MongoDB connection contract. `MONGODB_URI` is required and must be a valid `mongodb://` or `mongodb+srv://` URI; scripts never fall back to localhost and never print the URI or raw connection error. The shared connector preserves authenticated URIs and their query parameters, including `authSource`.
+
+For local development, use the authenticated Docker MongoDB from `.env.example` with placeholders replaced in `.env.local`. Compose keeps the host bind at `127.0.0.1:27017` and requires `MONGO_INITDB_ROOT_USERNAME` plus `MONGO_INITDB_ROOT_PASSWORD` through environment substitution. URL-encode MongoDB credentials before building the URI, especially `@`, `:`, `/`, `?`, `#`, and `%`.
+
+For Coolify/private production MongoDB, inject a dedicated secret `MONGODB_URI` over the private network and keep port `27017` unpublished. For external managed MongoDB, use the provider's `mongodb+srv://` URI, least-privilege user, network restrictions, TLS settings, and required `authSource`. Never copy production credentials into source, `.env.example`, or command history.
+
+Do not assume an existing unauthenticated `mongo-data` volume becomes authenticated after Compose environment variables are added. Before changing it, take and verify a `mongodump` outside Docker, preserve the backup, create a fresh authenticated volume, verify the new URI, restore with `mongorestore`, and validate the collections before retiring the old volume. This is a manual backup and restore procedure, not an automatic migration.
 
 ## Privileged admin scripts
 
@@ -51,7 +61,7 @@ The script rejects missing values, malformed MongoDB URIs, invalid email address
 
 When Olga's account already exists, the script intentionally recovers it by setting both `role=productora` and `accountStatus=active`; this includes suspended accounts. New accounts receive the same explicit role and active status.
 
-The existing-account decision is protected by the shared standalone-Mongo lease lock. If Olga is the only active admin, provisioning rejects the demotion and leaves the account unchanged. The lock uses collection `mongo_lease_locks`, fixed document `_id=admin-account-mutations`, a random owner token, a 15-second expiry renewed every 5 seconds, owner-checked renewal/release, a best-effort 10-second retry budget with 50ms retries, and `maxTimeMS=2000` per lock command. This is not a hard wall-clock bound because an in-flight command may approach the 10-second Mongo socket timeout. Lost ownership fails safely; an expired lease is recoverable after a process crash. No replica set or Docker change is required. Every privileged role/status mutation must use this same boundary.
+The existing-account decision is protected by the shared standalone-Mongo lease lock. If Olga is the only active admin, provisioning rejects the demotion and leaves the account unchanged. The lock uses collection `mongo_lease_locks`, fixed document `_id=admin-account-mutations`, a random owner token, a 15-second expiry renewed every 5 seconds, owner-checked renewal/release, a best-effort 10-second retry budget with 50ms retries, and `maxTimeMS=2000` per lock command. This is not a hard wall-clock bound because an in-flight command may approach the 10-second Mongo socket timeout. Lost ownership fails safely; an expired lease is recoverable after a process crash. Block 11 retains lease locking plus compensating rollback and does not migrate to MongoDB sessions or transactions. True multi-document transactions are a separate future change; a replica set alone is not sufficient for the current code. Every privileged role/status mutation must use this same boundary.
 
 For a local one-off run in zsh, load `MONGODB_URI` and `OLGA_EMAIL` from an ignored, owner-readable environment file and prompt for Olga's password separately:
 
@@ -73,7 +83,7 @@ Keep `.env.olga.local` out of version control. The script's recovery decision an
 | Script | Purpose | When to use | Command | Warnings |
 |--------|---------|-------------|---------|----------|
 | `check-articles.ts` | List every article in the database. | Verify published content or debug article counts. | `npx tsx scripts/check-articles.ts` | Read-only. |
-| `check-users.ts` | List every user, role, and password-hash prefix. | Audit accounts after registration or after running user scripts. | `npx tsx scripts/check-users.ts` | Exposes role and hash prefix; run locally only. |
+| `check-users.ts` | List every user, role, and ID without password material. | Audit accounts after registration or after running user scripts. | `npx tsx scripts/check-users.ts` | Exposes account identifiers and roles; run locally only. |
 | `create-admin.ts` | Create or update the designated admin account. | Explicitly provision the first admin or recover staff administration. | `npx tsx scripts/create-admin.ts` | Requires `MONGODB_URI`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD`. Safe to re-run for the designated account. |
 | `create-productora.ts` | Create or recover Olga's laboratory account with the active `productora` role. | Explicitly provision Olga or recover a suspended Olga account. | `npx tsx scripts/create-productora.ts` | Requires `MONGODB_URI`, `OLGA_EMAIL`, and `OLGA_PASSWORD`; 12-character minimum; no localhost fallback; prompt silently for the password. |
 | `reset-password.ts` | Reset the designated admin password. | Recover admin access. | `npx tsx scripts/reset-password.ts` | Requires `MONGODB_URI`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD`. |

@@ -48,8 +48,8 @@ async function seedOliveOil() {
 
 if (process.argv[1]?.endsWith('seed-oils.ts')) {
   seedOliveOil()
-    .catch((error) => {
-      console.error(error instanceof Error ? error.message : error);
+    .catch(() => {
+      console.error('Failed to seed olive oil: MongoDB operation failed.');
       process.exitCode = 1;
     })
     .finally(async () => {

@@ -1,11 +1,9 @@
 import mongoose from 'mongoose';
 
-const LOCAL_MONGODB_URI = 'mongodb://localhost:27017/botanica-ob';
-
 export function isValidMongoUri(uri: string): boolean {
   try {
     const parsed = new URL(uri);
-    return parsed.protocol === 'mongodb:' || parsed.protocol === 'mongodb+srv:';
+    return Boolean(parsed.hostname) && (parsed.protocol === 'mongodb:' || parsed.protocol === 'mongodb+srv:');
   } catch {
     return false;
   }
@@ -14,20 +12,10 @@ export function isValidMongoUri(uri: string): boolean {
 export function resolveMongoUri(environment: NodeJS.ProcessEnv = process.env): string {
   const mongodbUri = environment.MONGODB_URI?.trim();
 
-  if (environment.NODE_ENV === 'production') {
-    if (mongodbUri && isValidMongoUri(mongodbUri)) {
-      return mongodbUri;
-    }
-
+  if (!mongodbUri || !isValidMongoUri(mongodbUri)) {
     throw new Error(
-      'Database configuration error: MONGODB_URI must be set to a valid MongoDB connection URI in production.'
+      'Database configuration error: MONGODB_URI must be set to a valid MongoDB connection URI.'
     );
-  }
-
-  if (!mongodbUri) return LOCAL_MONGODB_URI;
-
-  if (!isValidMongoUri(mongodbUri)) {
-    throw new Error('Database configuration error: MONGODB_URI must be a valid MongoDB connection URI.');
   }
 
   return mongodbUri;
