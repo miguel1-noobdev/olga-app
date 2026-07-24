@@ -377,6 +377,8 @@ Local MongoDB is private and authenticated, while production cannot silently use
 
 ## Block 12 — Asset and navigation integrity
 
+**Status:** Completed. Commit `bc4560f` — `fix(ui): harden asset and navigation integrity`.
+
 **Objective:** eliminate broken browser-visible assets and links.
 
 ### Steps
@@ -392,6 +394,17 @@ Local MongoDB is private and authenticated, while production cannot silently use
 ### Exit gate
 
 The browser-visible application contains no known broken local asset or internal route.
+
+### Delivery evidence
+
+- Removed unapproved Stitch/AIDA image URLs and the missing plant placeholder path without adding
+  arbitrary replacement assets.
+- Added resilient image fallback behavior, preserved plant image curation policy, and restored
+  article image alt text in the landing diary.
+- Verified focused Block 12 tests (58 passed), full suite (1,018 tests passed), TypeScript,
+  script typecheck, lint, and production build.
+- Native review `review-5c1a2081a18404de` approved; pre-commit and pre-push gates allowed.
+- Remaining warnings are non-blocking image/lint and unavailable-Mongo build warnings.
 
 ## Block 13 — Documentation reconciliation
 
