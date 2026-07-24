@@ -39,7 +39,8 @@ export async function runBoundedHealthCheck<Details extends Record<string, boole
   probe: string,
   check: () => Promise<HealthCheck<Details>>,
   unavailableDetails: Details,
-  timeoutMs = HEALTH_TIMEOUT_MS
+  timeoutMs = HEALTH_TIMEOUT_MS,
+  onTimeout?: () => void
 ): Promise<HealthCheck<Details>> {
   const startedAt = Date.now();
   let timeout: ReturnType<typeof setTimeout> | undefined;
@@ -48,7 +49,10 @@ export async function runBoundedHealthCheck<Details extends Record<string, boole
     const result = await Promise.race([
       check(),
       new Promise<HealthCheck<Details>>((resolve) => {
-        timeout = setTimeout(() => resolve(unavailableCheck(unavailableDetails)), timeoutMs);
+        timeout = setTimeout(() => {
+          onTimeout?.();
+          resolve(unavailableCheck(unavailableDetails));
+        }, timeoutMs);
       }),
     ]);
 

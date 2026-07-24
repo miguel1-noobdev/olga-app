@@ -73,6 +73,8 @@ describe('checkMongoHealth', () => {
     expect(mongoClientMock).toHaveBeenCalledWith(expect.any(String), {
       serverSelectionTimeoutMS: 1,
     });
+    expect((mongoClientMock.mock.results[0].value as { close: ReturnType<typeof vi.fn> }).close)
+      .toHaveBeenCalledTimes(1);
     await expect(connectToDatabase()).resolves.toBe(applicationConnection);
     expect(mongooseConnectMock).toHaveBeenCalledTimes(1);
   });
