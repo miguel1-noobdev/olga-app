@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 
 import type { ArticleRecord } from '@/lib/db/repository/article';
+import ResilientImage from '@/components/ui/resilient-image';
 
 type DiarioProps = {
   articles: ArticleRecord[];
@@ -64,13 +65,14 @@ export default function Diario({ articles }: DiarioProps) {
                 >
                 {/* Image */}
                 <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden mb-6 border border-secondary bg-white">
-                  <div
+                  <ResilientImage
                     className={`absolute inset-0 transition-transform duration-500 group-hover:scale-105 ${
                       article.image.includes('logo')
                         ? 'bg-contain bg-center bg-no-repeat'
                         : 'bg-cover bg-center'
                     }`}
-                    style={{ backgroundImage: `url('${article.image}')` }}
+                    src={article.image}
+                    alt={article.imageAlt}
                   />
                 </div>
 

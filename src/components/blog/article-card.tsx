@@ -1,3 +1,5 @@
+import ResilientImage from '@/components/ui/resilient-image';
+
 type ArticleCardProps = {
   title: string;
   excerpt: string;
@@ -28,7 +30,7 @@ export default function ArticleCard({
         className="rounded-xl overflow-hidden p-3 flex gap-6 bg-white/50 backdrop-blur-[10px] border border-white/20 shadow-md group hover:bg-white/70 transition-all"
       >
         <div className="w-1/3 aspect-square rounded-lg overflow-hidden shrink-0">
-          <img
+          <ResilientImage
             className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
             src={image}
             alt={imageAlt}
@@ -71,7 +73,7 @@ export default function ArticleCard({
       className="rounded-xl overflow-hidden group bg-white/50 backdrop-blur-[10px] border border-white/20 shadow-md block"
     >
       <div className="relative h-[300px] overflow-hidden">
-        <img
+          <ResilientImage
           className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
           src={image}
           alt={imageAlt}

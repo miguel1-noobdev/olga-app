@@ -10,6 +10,7 @@ import { connectToDatabase } from '@/lib/db/connect';
 import { createOilRepository } from '@/lib/db/repository/oil';
 import { createPlantRepository } from '@/lib/db/repository/plant';
 import { isAllowedMutationOriginRequest } from '@/lib/auth/request-security';
+import { isApprovedPlantImageUrl } from '@/lib/validation/plant-image';
 import {
   assertAllowedKeys,
   assertRecord,
@@ -21,6 +22,7 @@ import {
   objectId,
   optionalString,
   readJsonObject,
+  RuntimeInputError,
 } from '@/lib/validation/runtime-input';
 
 interface RouteContext {
@@ -33,15 +35,28 @@ function stringArray(value: unknown, field: string): string[] {
   );
 }
 
-function imageEntries(value: unknown, field: string): Array<{ url: string; alt: string }> {
+function imageEntries(
+  value: unknown,
+  field: string,
+  validateUrl: typeof imageUrl = imageUrl,
+): Array<{ url: string; alt: string }> {
   return boundedArray(value, field, { maxLength: 10 }).map((item, index) => {
     const entry = assertRecord(item);
     assertAllowedKeys(entry, ['url', 'alt']);
     return {
-      url: imageUrl(entry.url, `${field}[${index}].url`),
+      url: validateUrl(entry.url, `${field}[${index}].url`),
       alt: boundedString(entry.alt, `${field}[${index}].alt`, { maxLength: 200 }),
     };
   });
+}
+
+function plantImageUrl(value: unknown, field = 'image'): string {
+  const url = imageUrl(value, field);
+  if (!isApprovedPlantImageUrl(url)) {
+    throw new RuntimeInputError(`Invalid ${field}`);
+  }
+
+  return url;
 }
 
 function parsePlantEntry(body: Record<string, unknown>): PlantCatalogEntry {
@@ -63,7 +78,7 @@ function parsePlantEntry(body: Record<string, unknown>): PlantCatalogEntry {
   if (body.usedParts !== undefined) entry.usedParts = stringArray(body.usedParts, 'usedParts');
   if (body.contraindications !== undefined) entry.contraindications = stringArray(body.contraindications, 'contraindications');
   if (body.description !== undefined) entry.description = optionalString(body.description, 'description', { maxLength: 5_000 });
-  if (body.images !== undefined) entry.images = imageEntries(body.images, 'images');
+  if (body.images !== undefined) entry.images = imageEntries(body.images, 'images', plantImageUrl);
 
   if (body.compounds !== undefined) {
     entry.compounds = boundedArray(body.compounds, 'compounds', { maxLength: 50 }).map((item, index) => {

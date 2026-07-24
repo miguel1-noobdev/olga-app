@@ -1,23 +1,23 @@
 import React from 'react';
 import Link from 'next/link';
 import type { PublicPlantCard } from '@/lib/jardin-digital/projection';
+import ResilientImage from '@/components/ui/resilient-image';
 
 interface PlantCardProps {
   plant: PublicPlantCard;
 }
 
 export default function PlantCard({ plant }: PlantCardProps) {
-  const imageUrl = plant.images?.[0]?.url || '/img/placeholder-plant.jpg';
-  const imageAlt = plant.images?.[0]?.alt || plant.commonName;
+  const image = plant.images?.[0];
 
   return (
     <article className="group">
       {/* Imagen */}
       <div className="aspect-square rounded-xl overflow-hidden mb-6 bg-surface-container shadow-sm border border-surface-border/10">
-        <img
+        <ResilientImage
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-          src={imageUrl}
-          alt={imageAlt}
+          src={image?.url}
+          alt={image?.alt || plant.commonName}
           loading="lazy"
         />
       </div>

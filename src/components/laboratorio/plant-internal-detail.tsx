@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import type { FullPlant } from '@/lib/plantas/full-domain';
 import PlantNotesForm from '@/components/laboratorio/plant-notes-form';
 import type { PlantNotesFormValues, SubmitPlantNotesResult } from '@/lib/plantas/plant-notes-form-contract';
+import ResilientImage from '@/components/ui/resilient-image';
 
 interface PlantInternalDetailProps {
   plant: FullPlant;
@@ -126,7 +127,7 @@ export default function PlantInternalDetail({ plant, submitPlantNotes }: PlantIn
           <section aria-label="Galería de referencia" className="lg:col-start-3 grid grid-cols-1 gap-4">
               {images.map((image) => (
                 <a key={image.url} href={image.url} className="block aspect-video overflow-hidden" target="_blank" rel="noreferrer">
-                  <img src={image.url} alt={image.alt} className="h-full w-full object-cover" />
+                  <ResilientImage src={image.url} alt={image.alt} className="h-full w-full object-cover" />
                 </a>
               ))}
           </section>

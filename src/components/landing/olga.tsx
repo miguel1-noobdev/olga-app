@@ -1,3 +1,5 @@
+import ResilientImage from '@/components/ui/resilient-image';
+
 export default function Olga() {
   return (
     <section id="olga" className="min-h-[750px] flex flex-col justify-center px-4 sm:px-6 lg:px-8">
@@ -25,9 +27,8 @@ export default function Olga() {
         {/* Image */}
         <div className="order-1 md:order-2">
           <div className="relative">
-            <img
+            <ResilientImage
               className="w-full aspect-square object-cover rounded-full border-8 border-white shadow-2xl"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuDa0E6x3SeZtdTSApD0kdxT9N-e0NY6V8p4xVrUgj-y8w9-nJg7LLT3--gF9Bd3gJaXtp072C5tv9IZgvA1gCl8fHbmgOM4pEYtlMDarSss9ZiklVM9dD5Mj2HOF7_ThrSU0SZwI2oOHlEmv_eccUuByDhtH5fLKjU2FB89W6WaNA_RkIrGWGElxn-RxuNhpGaQoffyWvHQsitxYvKnwQqIU7uGeC5oQ08hH-Q61Wr7GJ0nxOsJFegVCgcEg_5MZ6rUSgryM98-I0Y2"
               alt="Olga, fundadora de Botánica Esencial OB"
             />
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary rounded-full flex items-center justify-center -rotate-12 border-4 border-white shadow-xl">

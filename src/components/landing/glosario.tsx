@@ -1,27 +1,24 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
+import ResilientImage from '@/components/ui/resilient-image';
 
 const INGREDIENTS = [
   {
     name: 'Lavanda',
-    image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuBvonsaIF_H8eA7Nh9FlqGAnyrN28Tynwu_V5OGSFQcKkDNByBuS1QzfacyFK0S9H29a6mc6q_Yg8Bm1Nug9ajLghW9jTHK_xXtP8KWEOsRCfZCdYQTcuYqjAdLcrI0TEKFA-6mj_ZkTAZR8pCHRZ5IsUcQQaROGgZ7R5DlmJaopsSvPFPNPoqGqLCxyb48pl0isE5MZAEsPohourpmd_2Z94R27iIjQZC8-w46qnF5o0a915ClyyAyKfAn-O_1TmQed9QonTMgPumL',
+    image: null,
   },
   {
     name: 'Caléndula',
-    image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuC2W6mht2mHlJ5DXw9flObGXWpOis3oQTjeSK0qyePFlukUaOpZApuSeejGM6XGmDJsVkqt1wwbd69UC-URajh_tlatWctmLbXmVN4XlL7jwVutVd-B9xb1FDMIpw4oVbgneuCLC3XHLhXniPaK5SHdb5xXnwzlgpcfMcy83Bjm0PxAeqRnOt-9jR8ESaeAhwfp-fy5_IrDnUQKRR-1HmWslGIrpD6SMvszcF9Uyl5Wj0Zsdz6PD2m9UhWPTdKsCOY1rolnhAhNHiP4',
+    image: null,
   },
   {
     name: 'Aloe Vera',
-    image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuBX1rOzc23GoWbccOtxVVGkGPQ3w9VCGdh4iGac5m_9j8P-Bo_WO86DL8Rl-G85cJL3gKTBvD0oG_l2LQ1ZRih2s6wCGKN95dPhwp1Wn7v9Udm_9WI4lCcceZr_DOWypQHLio6kAM6-Sj1uT1OOZBXeMNqFZv4AZVMlwkMr81xW3Aii6CkiObsCRz0trv1jufYOKdyOBiWQ5NB1tu6V4YNIBIGzr4HAHM7bUlnr1jNI_8Mz788hQ2oUKKeOibtfVYd3e7wRHq5seLwS',
+    image: null,
   },
   {
     name: 'Café Puro',
-    image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuB78FNoPibgoOV6g4RW6u6vn7-mvepdHJPd9cULjHvt1ChuiyQLE2A2lw2aEZZIvLClH3sVuM9K5lEpLJADdbBG7btHnC5VC0qJX-U9Mm-036di6XA2DbSYfYwK_ZT2_nYzq1_beaqIzXYXjefvMDYRSVO_Bj4qTwPqmatSnZjdoncian85OHwk3BUucPKKhbloFvdJUCegA0591DOykfb30JPT8aNvVthPbzMWbRlw7SMzBtgtiG9QYciiDUy8dO60DM_pAfzvL0Qf',
+    image: null,
   },
 ];
 
@@ -97,7 +94,7 @@ export default function Glosario() {
                   zIndex: index,
                 }}
               >
-                <img
+                <ResilientImage
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   src={ingredient.image}
                   alt={ingredient.name}
@@ -147,7 +144,7 @@ export default function Glosario() {
                       zIndex: INGREDIENTS.length - index,
                     }}
                   >
-                    <img
+                    <ResilientImage
                       className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                       src={ingredient.image}
                       alt={ingredient.name}

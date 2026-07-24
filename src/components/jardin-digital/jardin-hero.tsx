@@ -1,4 +1,5 @@
 import React from 'react';
+import ResilientImage from '@/components/ui/resilient-image';
 
 export default function JardinHero() {
   return (
@@ -22,10 +23,10 @@ export default function JardinHero() {
       {/* Imagen */}
       <div className="lg:col-span-5 relative">
         <div className="aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl relative z-10 border-4 border-white/30">
-          <img
+          <ResilientImage
             className="w-full h-full object-cover"
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtItFS5QU5695OsGt3saoNC9VeljgKHd4_JVvnIasoRKgjVI1UBDYy05OPMw7mKUqcqt5OO8ghuU1P0vJcGQiYteIlwQq46FRsm1-RlYM5hyh9TPPy5nFPn5HtaXYlUnbwBj_VctnN02ieIfapk9usjRzt9S21ast8wpKLKJOUj7z0gugF0g8L4OkWM8wmkuBmHCt7IF8gMXfPuur-eIQleL9duhpsffxlhzMixBVYC9Bp2x5Jhkkz4pdgrBvRDgaWH9x_5KG7gZ0u"
-            alt="Jardín botánico con plantas medicinales en luz matutina"
+            src="/img/hero-img2.png"
+            alt="Imagen botánica del herbario digital"
           />
         </div>
         <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-secondary/30 rounded-full -z-0 opacity-50 blur-xl" />

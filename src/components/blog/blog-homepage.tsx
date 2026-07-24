@@ -1,5 +1,6 @@
 import ArticleCard from './article-card';
 import type { ArticleRecord } from '@/lib/db/repository/article';
+import ResilientImage from '@/components/ui/resilient-image';
 
 interface BlogHomepageProps {
   articles: ArticleRecord[];
@@ -9,10 +10,9 @@ const FEATURED = {
   title: 'Bienvenida al Diario Botánico',
   excerpt:
     'Un espacio dedicado a la sabiduría de las plantas, donde exploro la armonía entre la naturaleza y el cuidado personal consciente. Descubrí rituales, guías y el alma detrás de cada esencia.',
-  image:
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuChh0RYStdU-lFoPgtkuct3e_QfAiF1YM9gIAJbZhwIjyHxRuN6PFPUppdcNy8aKvIMtYjj62Y10f-lm249bjLLXpLkzbaXHOTooPQbNg3PkSsscmydomKEK2UqrfZUFcs9uvTWBxaCLhF_1cApI3jMI2OMqsZDsDnzAVuioTULXQbxL_g623RGNsic7Ko5Psr2WlpfxUDHxyajAyCFV_UgsDNbtmahT1rToHB4hoFSTKlZSWkDHtgG0251YwsZFEI7dCx-haGt9Vg',
+  image: '/img/hero-img2.png',
   imageAlt:
-    'Hojas tropicales de monstera y helechos cubiertos de rocío matutino, con luz filtrada del dosel en tonos verde bosque.',
+    'Imagen botánica del Diario Botánico.',
 };
 
 export default function BlogHomepage({ articles }: BlogHomepageProps) {
@@ -23,7 +23,7 @@ export default function BlogHomepage({ articles }: BlogHomepageProps) {
         <section className="relative group">
           <article className="rounded-xl overflow-hidden flex flex-col lg:flex-row h-auto lg:h-[520px] bg-white/50 backdrop-blur-[10px] border border-white/20 shadow-lg">
             <div className="w-full lg:w-3/5 h-64 lg:h-full overflow-hidden">
-              <img
+              <ResilientImage
                 className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                 src={FEATURED.image}
                 alt={FEATURED.imageAlt}

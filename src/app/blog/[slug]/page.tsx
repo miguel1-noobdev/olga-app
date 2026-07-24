@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { connectToDatabase } from '@/lib/db/connect';
 import { createArticleRepository } from '@/lib/db/repository/article';
 import { notFound } from 'next/navigation';
+import ResilientImage from '@/components/ui/resilient-image';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,7 +24,7 @@ export default async function ArticlePage({ params }: { params: { slug: string }
       <main className="min-h-screen bg-surface pt-20">
         {/* Imagen de cabecera */}
         <div className="w-full h-[400px] md:h-[500px] overflow-hidden bg-white">
-          <img
+          <ResilientImage
             src={article.image}
             alt={article.imageAlt}
             className={`w-full h-full ${

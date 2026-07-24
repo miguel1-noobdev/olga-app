@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import ResilientImage from '@/components/ui/resilient-image';
 
 interface PlantImage {
   url: string;
@@ -20,7 +21,7 @@ export default function ImageGallery({ images }: ImageGalleryProps) {
     <div className="mb-16">
       {/* Main Image */}
       <div className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden mb-4 bg-surface-container">
-        <img
+        <ResilientImage
           src={images[selectedImage].url}
           alt={images[selectedImage].alt}
           className="w-full h-full object-cover"
@@ -40,7 +41,7 @@ export default function ImageGallery({ images }: ImageGalleryProps) {
                   : 'border-transparent opacity-70 hover:opacity-100'
               }`}
             >
-              <img
+              <ResilientImage
                 src={img.url}
                 alt={img.alt}
                 className="w-full h-full object-cover"

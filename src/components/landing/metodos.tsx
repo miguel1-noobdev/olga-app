@@ -1,4 +1,5 @@
 import { FlaskIcon, RecycleIcon, WrenchIcon } from '@/components/ui/icons';
+import ResilientImage from '@/components/ui/resilient-image';
 
 export default function Metodos() {
   const principles = [
@@ -62,10 +63,10 @@ export default function Metodos() {
         <div className="flex-1 order-1 md:order-2">
           <div className="relative">
             <div className="absolute -top-10 -right-10 w-40 h-40 border border-secondary rounded-full -z-10 opacity-50" />
-            <img
+            <ResilientImage
               className="w-full h-auto rounded-[40px] shadow-xl rotate-2 hover:rotate-0 transition-all duration-500"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuAh_nP1yecGnKz7jaGsTgtIiNLPty1bvg1qNEd5PbXszbbX6Sw72CQyF3gmeDxvBUa83UE1tRu3abwiWtB552uRwjJkoY51ZUUvg6vV85qkLlI_S3Q_2cy6geeRE4jADgpVl0nE45G2rsV7eU7Pt-l7gF8T88vwS3spCNhZEDTRFr9bhzQ5DXbs_DDeyUTuib4l030XV4iLchxh6kk_X2atVFViJvuDiXZRJ73ffERq6o9Mq2wH7JARCa1mzJYLZeEQT5fP5cIg6UbU"
-              alt="Manos artesanas mezclando ingredientes botánicos en un mortero"
+              src="/img/lab/materias-primas-1.jpeg"
+              alt="Materias primas del taller botánico"
             />
             <div className="absolute bottom-10 -left-10 glass-card p-6 rounded-2xl max-w-[240px]">
               <p className="font-serif text-primary text-2xl italic">
