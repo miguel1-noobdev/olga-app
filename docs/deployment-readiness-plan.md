@@ -319,6 +319,8 @@ Dependency outages show a safe recovery screen rather than a blank page or raw f
 
 ## Block 10 — Public health contracts
 
+**Status:** Completed. Commit `fe63e10` — `feat(health): add public liveness and readiness probes`.
+
 **Objective:** provide safe liveness and readiness endpoints for future Coolify use.
 
 ### Steps
@@ -335,6 +337,16 @@ Dependency outages show a safe recovery screen rather than a blank page or raw f
 
 The platform can distinguish a running process from a ready application without
 exposing internal information.
+
+### Delivery evidence
+
+- Added unauthenticated `/api/health/live` and `/api/health/ready` endpoints with minimal
+  no-store responses, bounded readiness checks, and explicit dynamic rendering.
+- Kept detailed admin health reporting private and hardened timed-out Mongo probe cleanup.
+- Verified focused health tests (10 passed), full suite (996 tests passed), TypeScript, lint,
+  and production build.
+- Native review `review-54e514c72ff66cef` approved; pre-commit and pre-push gates allowed.
+- Existing non-blocking image optimization warnings remain in lint/build output.
 
 ## Block 11 — Local and production MongoDB contract
 
