@@ -10,7 +10,7 @@ delivered from the hardening branch rather than directly from `main`.
 - Active branch: `hardening/block-2-mongo-resilience`
 - Main application baseline: Block 1 delivered in `1641b2e`
 - Current hardening branch is clean and synchronized with origin.
-- Completed through Block 8, including privileged-account assurance, mutation-origin policy,
+- Completed through Block 9, including privileged-account assurance, mutation-origin policy,
   runtime input contracts, and server-action/form resilience.
 - Remaining known high dependency risk: Next.js 14 requires a separate major-line migration decision.
 - Coolify and VPS deployment have not started.
@@ -290,7 +290,7 @@ field-error associations. Block 9 remains explicitly pending.
 
 ## Block 9 — Loading and error boundaries
 
-**Status:** Pending. Block 9 is not included in Block 8.
+**Status:** Completed. Commit `9103965` — `fix(resilience): add loading and error boundaries`.
 
 **Objective:** make database and runtime failures recoverable in the browser.
 
@@ -306,6 +306,16 @@ field-error associations. Block 9 remains explicitly pending.
 ### Exit gate
 
 Dependency outages show a safe recovery screen rather than a blank page or raw framework error.
+
+### Delivery evidence
+
+- Added root and route-group loading, error, and not-found boundaries for blog, garden, laboratory,
+  and admin, plus a global error recovery boundary.
+- Added safe reusable recovery components with retry controls and accessible responsive presentation.
+- Verified focused boundary tests (18 passed), full tests (133 files, 989 tests passed), TypeScript,
+  lint, and production build.
+- Native review `review-82a8bc52a58a4ff9` approved; pre-commit and pre-push gates allowed.
+- Remaining warnings are the existing non-blocking image optimization warnings from lint/build.
 
 ## Block 10 — Public health contracts
 
