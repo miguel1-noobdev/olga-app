@@ -7,7 +7,8 @@ import { updateOilNotes } from './actions';
 
 export const dynamic = 'force-dynamic';
 
-export default async function LaboratoryOilDetailPage({ params }: { params: { slug: string } }) {
+export default async function LaboratoryOilDetailPage(props: { params: Promise<{ slug: string }> | { slug: string } }) {
+  const params = await props.params;
   await connectToDatabase();
   const oil = await createOilRepository().findBySlug(params.slug);
   if (!oil) notFound();

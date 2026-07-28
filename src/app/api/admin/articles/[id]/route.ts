@@ -10,7 +10,8 @@ function isContentAction(value: unknown): value is ContentAction {
   return typeof value === 'string' && actions.includes(value as ContentAction);
 }
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> | { id: string } }) {
+  const params = await props.params;
   const user = await getCurrentUser();
 
   if (!user) {

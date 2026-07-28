@@ -12,12 +12,13 @@ import type { FormulaRecord } from '@/lib/formulas/formula-types';
 import { submitNewLot } from './actions';
 
 interface PageProps {
-  searchParams: { formulaId?: string };
+  searchParams: Promise<{ formulaId?: string }> | { formulaId?: string };
 }
 
 export const dynamic = 'force-dynamic';
 
-export default async function LaboratoryCreateLotPage({ searchParams }: PageProps) {
+export default async function LaboratoryCreateLotPage(props: PageProps) {
+  const searchParams = await props.searchParams;
   await connectToDatabase();
   const formulas = (await createFormulaRepository().findByStatus('validated')).filter(
     (formula) => formula.status === 'validated'

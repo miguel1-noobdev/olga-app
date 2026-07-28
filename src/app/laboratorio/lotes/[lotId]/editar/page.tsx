@@ -11,12 +11,13 @@ import { ArrowLeftIcon } from '@/components/ui/icons';
 import { submitLotEditUpdate } from './actions';
 
 interface PageProps {
-  params: { lotId: string };
+  params: Promise<{ lotId: string }> | { lotId: string };
 }
 
 export const dynamic = 'force-dynamic';
 
-export default async function LaboratoryLotEditPage({ params }: PageProps) {
+export default async function LaboratoryLotEditPage(props: PageProps) {
+  const params = await props.params;
   await connectToDatabase();
   const lot = await createLotRepository().findById(params.lotId);
 

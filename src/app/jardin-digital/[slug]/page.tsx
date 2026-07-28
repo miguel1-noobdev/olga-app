@@ -7,12 +7,13 @@ import PlantDetail from '@/components/jardin-digital/plant-detail';
 import { ArrowLeftIcon } from '@/components/ui/icons';
 
 interface PageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }> | { slug: string };
 }
 
 export const dynamic = 'force-dynamic';
 
-export default async function PlantDetailPage({ params }: PageProps) {
+export default async function PlantDetailPage(props: PageProps) {
+  const params = await props.params;
   await connectToDatabase();
   const repo = createPlantRepository();
   const plant = await repo.findBySlug(params.slug);

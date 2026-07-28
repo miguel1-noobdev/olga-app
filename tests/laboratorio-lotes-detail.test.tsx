@@ -81,7 +81,8 @@ function findFollowUpForm(node: React.ReactNode): React.ReactElement | null {
   if (!React.isValidElement(node)) return null;
   if (node.type === LotFollowUpForm) return node;
 
-  const children = React.Children.toArray(node.props.children);
+  const element = node as React.ReactElement<{ children?: React.ReactNode }>;
+  const children = React.Children.toArray(element.props.children);
   for (const child of children) {
     const match = findFollowUpForm(child);
     if (match) return match;
