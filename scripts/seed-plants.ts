@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import { connectToDatabase } from '../src/lib/db/connect';
 import { PlantModel } from '../src/lib/db/models/plant';
 import { PLANT_SEEDS } from './seed-plants.data';
+import { readSafeScriptTarget } from './safe-target';
 
 function slugify(text: string): string {
   return text
@@ -14,8 +15,7 @@ function slugify(text: string): string {
 
 async function seedPlants() {
   try {
-    const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/botanica-ob';
-    console.log(`Connecting to ${uri.replace(/:\/\/([^:]+):[^@]+@/, '://$1:****@')} ...`);
+    readSafeScriptTarget();
 
     await connectToDatabase();
     console.log('Connected to MongoDB');
