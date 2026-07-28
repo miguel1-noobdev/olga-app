@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import { connectToDatabase } from '../src/lib/db/connect';
 import { OilModel } from '../src/lib/db/models/oil';
 import { OLIVE_OIL_SEED } from './seed-oils.data';
+import { readSafeScriptTarget } from './safe-target';
 
 export interface OilSeedModel {
   findOneAndUpdate(
@@ -20,6 +21,7 @@ export async function upsertOilSeed(model: OilSeedModel, seed = OLIVE_OIL_SEED):
 }
 
 async function seedOliveOil() {
+  readSafeScriptTarget();
   await connectToDatabase();
   await upsertOilSeed(OilModel);
 

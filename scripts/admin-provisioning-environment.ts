@@ -1,7 +1,7 @@
-import { isValidMongoUri } from '../src/lib/db/connect';
+import { readSafeScriptTarget } from './safe-target';
 
 type AdminProvisioningEnvironment = Partial<
-  Pick<NodeJS.ProcessEnv, 'MONGODB_URI' | 'ADMIN_EMAIL' | 'ADMIN_PASSWORD'>
+  Pick<NodeJS.ProcessEnv, 'SCRIPT_ENV' | 'MONGODB_URI' | 'ADMIN_EMAIL' | 'ADMIN_PASSWORD'>
 >;
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -16,16 +16,13 @@ export interface AdminProvisioningConfig {
 export function readAdminProvisioningEnvironment(
   environment: AdminProvisioningEnvironment = process.env as AdminProvisioningEnvironment
 ): AdminProvisioningConfig {
+  const target = readSafeScriptTarget(environment);
   const mongodbUri = environment.MONGODB_URI?.trim();
   const adminEmail = environment.ADMIN_EMAIL?.trim().toLowerCase();
   const adminPassword = environment.ADMIN_PASSWORD;
 
   if (!mongodbUri || !adminEmail || !adminPassword) {
     throw new Error('Configuration error: MONGODB_URI, ADMIN_EMAIL, and ADMIN_PASSWORD are required.');
-  }
-
-  if (!isValidMongoUri(mongodbUri)) {
-    throw new Error('Configuration error: MONGODB_URI must be a valid MongoDB connection URI.');
   }
 
   if (!EMAIL_REGEX.test(adminEmail)) {
@@ -37,7 +34,7 @@ export function readAdminProvisioningEnvironment(
   }
 
   return {
-    MONGODB_URI: mongodbUri,
+    MONGODB_URI: target.MONGODB_URI,
     ADMIN_EMAIL: adminEmail,
     ADMIN_PASSWORD: adminPassword,
   };

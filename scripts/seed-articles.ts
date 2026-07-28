@@ -1,7 +1,9 @@
 import { connectToDatabase } from '../src/lib/db/connect';
 import { createArticleRepository } from '../src/lib/db/repository/article';
+import { readSafeScriptTarget } from './safe-target';
 
 async function seedArticles() {
+  readSafeScriptTarget();
   await connectToDatabase();
   const repo = createArticleRepository();
 

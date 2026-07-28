@@ -2,14 +2,18 @@ import { describe, expect, it } from 'vitest';
 import { readAdminProvisioningEnvironment } from '../scripts/admin-provisioning-environment';
 
 const validEnvironment = {
-  MONGODB_URI: 'mongodb://127.0.0.1:27017/botanica-ob',
+  SCRIPT_ENV: 'test',
+  MONGODB_URI: 'mongodb://127.0.0.1:27017/botanica-ob-test',
   ADMIN_EMAIL: 'operator@example.test',
   ADMIN_PASSWORD: 'not-a-real-secret',
 };
 
 describe('admin provisioning environment', () => {
   it('requires every credential environment variable without exposing a value', () => {
-    expect(() => readAdminProvisioningEnvironment({ MONGODB_URI: validEnvironment.MONGODB_URI })).toThrow(
+    expect(() => readAdminProvisioningEnvironment({
+      SCRIPT_ENV: validEnvironment.SCRIPT_ENV,
+      MONGODB_URI: validEnvironment.MONGODB_URI,
+    })).toThrow(
       'Configuration error: MONGODB_URI, ADMIN_EMAIL, and ADMIN_PASSWORD are required.'
     );
   });
@@ -23,7 +27,7 @@ describe('admin provisioning environment', () => {
     };
 
     expect(() => readAdminProvisioningEnvironment(environment)).toThrow(
-      'Configuration error: MONGODB_URI must be a valid MongoDB connection URI.'
+      'Script configuration error: MONGODB_URI must be a valid MongoDB connection URI.'
     );
     expect(() => readAdminProvisioningEnvironment(environment)).not.toThrow(environment.MONGODB_URI);
   });
@@ -41,6 +45,10 @@ describe('admin provisioning environment', () => {
   });
 
   it('returns valid environment values for the secured scripts', () => {
-    expect(readAdminProvisioningEnvironment(validEnvironment)).toEqual(validEnvironment);
+    expect(readAdminProvisioningEnvironment(validEnvironment)).toEqual({
+      MONGODB_URI: validEnvironment.MONGODB_URI,
+      ADMIN_EMAIL: validEnvironment.ADMIN_EMAIL,
+      ADMIN_PASSWORD: validEnvironment.ADMIN_PASSWORD,
+    });
   });
 });

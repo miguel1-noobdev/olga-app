@@ -2,10 +2,19 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import { UserModel } from '../src/lib/db/models/user';
 import { ROLES } from '../src/lib/auth/roles';
-
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/botanica-ob';
+import { readSafeScriptTarget } from './safe-target';
 
 async function createProductoraUser() {
+  let target;
+
+  try {
+    target = readSafeScriptTarget();
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : 'Configuration error.');
+    process.exitCode = 1;
+    return;
+  }
+
   const email = process.env.OLGA_EMAIL;
   const password = process.env.OLGA_PASSWORD;
 
@@ -26,7 +35,7 @@ async function createProductoraUser() {
 
   try {
     console.log('Connecting to MongoDB...');
-    await mongoose.connect(MONGODB_URI);
+    await mongoose.connect(target.MONGODB_URI);
     console.log('Connected\n');
 
     const passwordHash = await bcrypt.hash(password, 10);
