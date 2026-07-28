@@ -26,7 +26,7 @@ describe('authOptions Google signIn callback', () => {
     await mongoServer.stop();
   });
 
-  it('creates a new Google user as suscriptora even when the database is empty', async () => {
+  it('does not provision a user through the disabled Google provider', async () => {
     const { authOptions } = await import('@/lib/auth/options');
     const signIn = authOptions.callbacks!.signIn!;
 
@@ -38,8 +38,7 @@ describe('authOptions Google signIn callback', () => {
     expect(result).toBe(true);
 
     const dbUser = await createUserRepository().findByEmail('first@example.com');
-    expect(dbUser).not.toBeNull();
-    expect(dbUser!.role).toBe('suscriptora');
+    expect(dbUser).toBeNull();
   });
 
   it('does not change the role of an existing user when they sign in with Google', async () => {
