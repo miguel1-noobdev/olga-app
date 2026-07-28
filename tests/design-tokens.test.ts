@@ -6,6 +6,7 @@ import postcss from 'postcss';
 import tailwindcss from 'tailwindcss';
 import resolveConfig from 'tailwindcss/resolveConfig';
 import type { Config } from 'tailwindcss';
+import tailwindConfig from '../tailwind.config';
 
 const ROOT = resolve(__dirname, '..');
 const TAILWIND_CONFIG_PATH = resolve(ROOT, 'tailwind.config.ts');
@@ -23,11 +24,7 @@ interface TailwindConfig {
 }
 
 function loadTailwindConfig(): TailwindConfig {
-  // tailwind config is TS but the runtime values are plain JS-compatible
-  // when imported through Vitest's TS transformer.
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const mod = require(TAILWIND_CONFIG_PATH);
-  return mod.default ?? mod;
+  return tailwindConfig as TailwindConfig;
 }
 
 describe('glassmorphism design tokens (T-003)', () => {

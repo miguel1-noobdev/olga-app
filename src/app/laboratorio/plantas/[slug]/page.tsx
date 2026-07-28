@@ -6,12 +6,13 @@ import PlantInternalDetail from '@/components/laboratorio/plant-internal-detail'
 import { updatePlantNotes } from './actions';
 
 interface PageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }> | { slug: string };
 }
 
 export const dynamic = 'force-dynamic';
 
-export default async function LaboratoryPlantDetailPage({ params }: PageProps) {
+export default async function LaboratoryPlantDetailPage(props: PageProps) {
+  const params = await props.params;
   await connectToDatabase();
   const plant = await createFullPlantRepository().findBySlug(params.slug);
 

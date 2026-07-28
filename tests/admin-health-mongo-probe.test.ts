@@ -22,11 +22,13 @@ describe('checkMongoHealth', () => {
     const ping = vi.fn().mockResolvedValue({ ok: 1 });
     const close = vi.fn().mockResolvedValue(undefined);
     const connect = vi.fn().mockResolvedValue(undefined);
-    mongoClientMock.mockImplementation(() => ({
-      connect,
-      close,
-      db: () => ({ admin: () => ({ ping }) }),
-    }));
+    mongoClientMock.mockImplementation(function () {
+      return {
+        connect,
+        close,
+        db: () => ({ admin: () => ({ ping }) }),
+      };
+    });
     const { checkMongoHealth } = await import('@/lib/admin/health/probes/mongo');
 
     await expect(checkMongoHealth()).resolves.toEqual({
@@ -40,10 +42,12 @@ describe('checkMongoHealth', () => {
 
   it('does not poison application connectivity after the isolated MongoDB client fails', async () => {
     const applicationConnection = { connection: {} };
-    mongoClientMock.mockImplementation(() => ({
-      connect: vi.fn().mockRejectedValue(new Error('connection failed')),
-      close: vi.fn().mockResolvedValue(undefined),
-    }));
+    mongoClientMock.mockImplementation(function () {
+      return {
+        connect: vi.fn().mockRejectedValue(new Error('connection failed')),
+        close: vi.fn().mockResolvedValue(undefined),
+      };
+    });
     mongooseConnectMock.mockResolvedValue(applicationConnection);
     const { checkMongoHealth } = await import('@/lib/admin/health/probes/mongo');
     const { connectToDatabase } = await import('@/lib/db/connect');
@@ -58,10 +62,12 @@ describe('checkMongoHealth', () => {
 
   it('does not poison application connectivity when the health probe times out', async () => {
     const applicationConnection = { connection: {} };
-    mongoClientMock.mockImplementation(() => ({
-      connect: () => new Promise(() => {}),
-      close: vi.fn().mockResolvedValue(undefined),
-    }));
+    mongoClientMock.mockImplementation(function () {
+      return {
+        connect: () => new Promise(() => {}),
+        close: vi.fn().mockResolvedValue(undefined),
+      };
+    });
     mongooseConnectMock.mockResolvedValue(applicationConnection);
     const { checkMongoHealth } = await import('@/lib/admin/health/probes/mongo');
     const { connectToDatabase } = await import('@/lib/db/connect');

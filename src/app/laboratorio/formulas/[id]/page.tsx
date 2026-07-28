@@ -16,7 +16,7 @@ import {
 } from '@/components/laboratorio/shared-presentation';
 
 interface PageProps {
-  params: { id: string };
+  params: Promise<{ id: string }> | { id: string };
 }
 
 const FORMULA_STATUS_ACCENTS: Record<FormulaRecord['status'], string> = {
@@ -419,7 +419,8 @@ function ProcedureSection({ steps }: { steps: FormulaRecord['procedureSteps'] })
 
 export const dynamic = 'force-dynamic';
 
-export default async function LaboratoryFormulaDetailPage({ params }: PageProps) {
+export default async function LaboratoryFormulaDetailPage(props: PageProps) {
+  const params = await props.params;
   await connectToDatabase();
   const formulaRepo = createFormulaRepository();
   const lotRepo = createLotRepository();

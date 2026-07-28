@@ -8,12 +8,13 @@ import { toFormulaFormValues } from '@/lib/formulas/formula-form-contract';
 import { submitFormulaUpdate } from './actions';
 
 interface PageProps {
-  params: { id: string };
+  params: Promise<{ id: string }> | { id: string };
 }
 
 export const dynamic = 'force-dynamic';
 
-export default async function LaboratoryEditFormulaPage({ params }: PageProps) {
+export default async function LaboratoryEditFormulaPage(props: PageProps) {
+  const params = await props.params;
   await connectToDatabase();
   const repository = createFormulaRepository();
   const formula = await repository.findById(params.id);

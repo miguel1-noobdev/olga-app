@@ -20,7 +20,7 @@ vi.mock('next-auth/jwt', () => ({
   getToken: getTokenMock,
 }));
 
-import { middleware, config } from '@/middleware';
+import { proxy as middleware, config } from '@/proxy';
 
 function createMockRequest(path: string, origin = 'http://localhost:3000'): NextRequest {
   const url = new URL(path, origin);

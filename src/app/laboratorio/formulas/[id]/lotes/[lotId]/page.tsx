@@ -3,12 +3,13 @@ import { connectToDatabase } from '@/lib/db/connect';
 import { createLotRepository } from '@/lib/db/repository/lot';
 
 interface PageProps {
-  params: { id: string; lotId: string };
+  params: Promise<{ id: string; lotId: string }> | { id: string; lotId: string };
 }
 
 export const dynamic = 'force-dynamic';
 
-export default async function LegacyLotDetailPage({ params }: PageProps) {
+export default async function LegacyLotDetailPage(props: PageProps) {
+  const params = await props.params;
   await connectToDatabase();
   const lot = await createLotRepository().findById(params.lotId);
 

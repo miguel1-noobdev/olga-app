@@ -17,7 +17,7 @@ import {
 import LotFollowUpForm from '@/components/laboratorio/lot-follow-up-form';
 
 interface PageProps {
-  params: { lotId: string };
+  params: Promise<{ lotId: string }> | { lotId: string };
 }
 
 function IdentitySection({ lot }: { lot: LotRecord }) {
@@ -145,7 +145,8 @@ function FollowUpSection({ entries }: { entries: LotRecord['followUp']['entries'
 
 export const dynamic = 'force-dynamic';
 
-export default async function LaboratoryLotDetailPage({ params }: PageProps) {
+export default async function LaboratoryLotDetailPage(props: PageProps) {
+  const params = await props.params;
   await connectToDatabase();
   const lot = await createLotRepository().findById(params.lotId);
 

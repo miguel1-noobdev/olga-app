@@ -6,10 +6,11 @@ import { createOilRepository } from '@/lib/db/repository/oil';
 import { createPlantRepository } from '@/lib/db/repository/plant';
 
 interface RouteContext {
-  params: { catalog: string };
+  params: Promise<{ catalog: string }> | { catalog: string };
 }
 
-export async function POST(request: Request, { params }: RouteContext) {
+export async function POST(request: Request, props: RouteContext) {
+  const params = await props.params;
   const user = await getCurrentUser();
 
   if (!user || user.role !== 'admin') {

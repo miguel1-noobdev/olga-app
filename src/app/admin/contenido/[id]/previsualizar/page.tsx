@@ -4,7 +4,8 @@ import { createArticleRepository } from '@/lib/db/repository/article';
 
 export const dynamic = 'force-dynamic';
 
-export default async function AdminContentPreviewPage({ params }: { params: { id: string } }) {
+export default async function AdminContentPreviewPage(props: { params: Promise<{ id: string }> | { id: string } }) {
+  const params = await props.params;
   await connectToDatabase();
   const article = await createArticleRepository().findById(params.id);
 

@@ -8,7 +8,8 @@ import { notFound } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
-export default async function ArticlePage({ params }: { params: { slug: string } }) {
+export default async function ArticlePage(props: { params: Promise<{ slug: string }> | { slug: string } }) {
+  const params = await props.params;
   await connectToDatabase();
   const repo = createArticleRepository();
   const article = await repo.findPublishedBySlug(params.slug);

@@ -3,12 +3,13 @@ import { connectToDatabase } from '@/lib/db/connect';
 import { createFormulaRepository } from '@/lib/db/repository/formula';
 
 interface PageProps {
-  params: { id: string };
+  params: Promise<{ id: string }> | { id: string };
 }
 
 export const dynamic = 'force-dynamic';
 
-export default async function LegacyLotCreatePage({ params }: PageProps) {
+export default async function LegacyLotCreatePage(props: PageProps) {
+  const params = await props.params;
   await connectToDatabase();
   const formula = await createFormulaRepository().findById(params.id);
 
