@@ -61,7 +61,7 @@ export default function Navbar() {
               }`}
             >
               <Image
-                src="/img/logo/logotrans3-256.png?v=4"
+                src="/img/logo/logotrans3-256.png"
                 alt="Botánica Esencial OB"
                 fill
                 className="object-contain transition-transform duration-700 group-hover:rotate-[360deg] group-hover:scale-110"

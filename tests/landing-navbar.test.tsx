@@ -14,6 +14,10 @@ vi.mock('next-auth/react', () => ({
   useSession: useSessionMock,
 }));
 
+vi.mock('next/image', () => ({
+  default: ({ src, alt }: { src: string; alt: string }) => <img src={src} alt={alt} />,
+}));
+
 describe('Landing Navbar', () => {
   it('renders public navigation links for unauthenticated users', () => {
     useSessionMock.mockReturnValue({ status: 'unauthenticated', data: null });
@@ -24,6 +28,17 @@ describe('Landing Navbar', () => {
     expect(screen.getByRole('link', { name: /productos/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /journal/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /jardin 2\.0/i })).toBeInTheDocument();
+  });
+
+  it('uses the local logo path without a query string', () => {
+    useSessionMock.mockReturnValue({ status: 'unauthenticated', data: null });
+
+    render(<Navbar />);
+
+    expect(screen.getByRole('img', { name: 'Botánica Esencial OB' })).toHaveAttribute(
+      'src',
+      '/img/logo/logotrans3-256.png',
+    );
   });
 
   it('does not render a private entry for unauthenticated users', () => {
