@@ -127,6 +127,10 @@ Before any transfer, the wrapper must explicitly record and verify the remote SS
 
 The handoff must name the full candidate SHA in its release directory and preserve the prior `current` target for rollback. It stops at the first failure and records the failed gate, command class, timestamp, remote identity, and non-secret metadata. It does not retry or activate a different SHA.
 
+`ops/scripts/prepare-release.sh` is the POSIX (`/bin/sh`) preparation stage. Its only inputs are `RELEASE_SHA`, `APP_ROOT`, and the expected owner/group/mode policy. It accepts the reviewed `git archive` tar stream on standard input, validates the identity, existing empty target, owner, group, exact mode, and writability before extraction, then runs `npm ci`, `npm run build`, verifies the extracted activation `RELEASE_ID`, and seals the target. Every exit emits one timestamped, non-secret `key=value` record; failed `id`, `stat`, extraction, install, build, and seal stages retain their external exit status. Invoke it explicitly with `/bin/sh`; it does not load secrets, invoke `runuser`, PM2, or activation.
+
+The focused local sandbox tests cover the successful preparation path; every pre-extraction guard; late writability failure; activation-ID rejection; and exact failures from `id`, `stat`, extraction, install, build, and sealing. They do not prove a remote handoff, VPS build or sealing, rollback, G.2, or any later runtime gate. All remain NO-GO until the handoff is executed once with complete non-secret evidence for the selected SHA.
+
 ### One-time credential handling and evidence
 
 Protected one-time credentials are created outside Git, installed only into a root-owned file with owner/group `root:root` and mode `0600`, and consumed only by a root-owned command with command tracing disabled. Never put credential values in shell arguments, terminal output, logs, repository files, test fixtures, or evidence records.

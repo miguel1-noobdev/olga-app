@@ -108,3 +108,18 @@ Authenticated provisioning/login and all role-specific smoke results were not ac
 | Task | Test File | Layer | Safety Net | RED | GREEN | TRIANGULATE | REFACTOR |
 |---|---|---|---|---|---|---|---|
 | Disable Next image disk cache | `tests/next-image-cache.test.ts` | Unit | N/A (new focused test) | Failed: expected `undefined` to equal `0` | Passed: 1/1 | Skipped: structural config with one valid output | None needed |
+
+## Local Correction — POSIX Release Preparation Handoff
+
+- Replaced `ops/scripts/prepare-release.sh` with a minimal `/bin/sh` preparation contract: `RELEASE_SHA` plus `APP_ROOT` and expected owner/group/mode policy; no activation or secret handling.
+- RED: `npm run test:run -- tests/scripts/release-preparation.test.ts` failed in all 15 new sandbox scenarios against the prior partial handoff. GREEN: the same command passed with 15 tests after the replacement.
+- The local fake-command sandbox proves successful preparation, every target guard before extraction, late writability, activation-ID rejection, and exact external-status propagation for `id`, `stat`, extraction, install, build, and sealing. It does not prove remote execution or any VPS state.
+- No SSH, target host, credential, activation, PM2, or service action occurred. G.2 remains unchecked because no runtime handoff evidence exists; all current NO-GO gates remain unchanged.
+
+## Local POSIX Handoff Work Unit Evidence
+
+| Evidence | Result |
+|---|---|
+| Focused test command and exact result | `npm run test:run -- tests/scripts/release-preparation.test.ts` — passed: 1 test file, 16 tests. |
+| Runtime harness command/scenario and exact result | N/A — local temporary-directory harness only; SSH, target preparation, activation, PM2, and services were explicitly out of scope. |
+| Rollback boundary | Remove `ops/scripts/prepare-release.sh` and `tests/scripts/release-preparation.test.ts`; independently revert the local evidence in this progress record and `docs/runbook.md`. |
