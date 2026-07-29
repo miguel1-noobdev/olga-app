@@ -86,25 +86,52 @@ The workflow uses Node.js 20 and the `npm` cache.
 - Roles exist (`suscriptora`, `productora`, `admin`). Public registration creates only `suscriptora` accounts.
 - `productora` and `admin` are staff roles for the Laboratorio; `admin` retains staff support access to Olga's Laboratorio.
 
-## VPS deploy (manual, high-level)
+## Production deployment contract
 
-There is **no deploy automation** in the repo today. The current manual flow is:
+### Recorded state and freeze
 
-1. **Build on the VPS** (or build locally and copy the `.next/` directory):
-   ```bash
-   npm ci
-   npm run build
-   ```
-2. **Environment**: create `.env.local` on the VPS with a valid `MONGODB_URI`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, and `INTERNAL_ACCOUNT_CHECK_ORIGIN=http://127.0.0.1:3000`. Do not commit it. The app rejects an absent or invalid `MONGODB_URI` in production; the account check also fails closed if its value is absent or invalid.
-3. **Database**: make sure MongoDB is reachable from the app process (local Docker container, managed Atlas cluster, etc.).
-4. **Process manager**: start the app with PM2, for example:
-   ```bash
-   pm2 start npm --name "botanica-ob" -- start
-   ```
-   (No PM2 ecosystem file exists yet.)
-5. **Reverse proxy**: configure Nginx to proxy traffic to `localhost:3000` and to cache static assets.
-6. **SSL**: use `acme.sh` (already installed on the VPS) to obtain and renew certificates for the domain.
-7. **Logs**: inspect with `pm2 logs botanica-ob` and `journalctl -u nginx`.
+The read-only audit records that production is serving immutable release `b050790d8dc7ab9638dd74217c18cd770043401f`. Repository `HEAD` is `835dd149c0ab2b3b4646d625adaefb63a0df3183` (`835dd14`), but no evidence establishes that this revision is deployed. Do not describe `835dd14` as deployed.
+
+Runtime acceptance is incomplete: role login and denial evidence is missing, the ACME test failure has not been diagnosed, and no logs are tied to a candidate release. The next runtime action is prohibited until the gates and evidence in this section are reconciled.
+
+### Release identity gate
+
+Activation is permitted only when all four identities match exactly:
+
+| Identity | Required value |
+|---|---|
+| Committed SHA | The reviewed Git commit selected for deployment. |
+| Immutable release SHA | The full commit SHA naming the sealed release directory. |
+| Activation script SHA | The full `RELEASE_ID` embedded in the reviewed, versioned activation script. |
+| `current` symlink target | The sealed release directory named by that same full SHA. |
+
+The operator records all four non-secret values before activation. A mismatch, missing value, unresolved symlink, mutable release content, or failed preflight is a hard failure: do not switch `current`, start or reload PM2, retry, or continue to later gates.
+
+### Required gate order
+
+All gates precede activation and each must produce timestamped, non-secret evidence for the same candidate SHA:
+
+1. Confirm the four release identities and the release directory ownership, mode, and immutable content checks.
+2. Run the reviewed build and focused validation for that committed SHA.
+3. Check the activation script's interpreter and syntax with the interpreter named in its shebang; never execute Bash syntax through `sh`.
+4. Validate secret-file existence, root ownership, mode `0600`, required variable presence, and runtime identity without printing values.
+5. Verify DNS, TLS, loopback health, database/backup recovery, and the ACME test result. Diagnose a failed ACME test before activation; a non-root Nginx validation that cannot read the private key is inconclusive, not passing evidence.
+6. Capture release-aligned PM2 and Nginx diagnostics, then prove anonymous, subscriber, productora, and admin flows plus their denial cases.
+7. Only after every gate passes may the root-only activation script atomically replace `current` and manage PM2. Re-run loopback and public acceptance checks against the activated SHA.
+
+### Versioned POSIX release handoff
+
+The transfer/handoff wrapper must be POSIX-compatible because remote SSH commands may run under `/bin/sh`. Bash-specific syntax, including arrays, `[[ ... ]]`, `pipefail`, `SECONDS`, indirect expansion, and `source`, belongs only inside the versioned activation script invoked through its Bash shebang, not in a `sh` wrapper.
+
+Before any transfer, the wrapper must explicitly record and verify the remote SSH identity with `id`, and verify the release path's owner, group, and mode with a non-destructive metadata check. A non-root SSH session must not invoke `runuser`; only the root-only activation script may change to the PM2 account. The wrapper must propagate failed preflight commands directly. It must not hide failures with command substitutions, `|| true`, redirections, or conditional branches that convert a failed check into success.
+
+The handoff must name the full candidate SHA in its release directory and preserve the prior `current` target for rollback. It stops at the first failure and records the failed gate, command class, timestamp, remote identity, and non-secret metadata. It does not retry or activate a different SHA.
+
+### One-time credential handling and evidence
+
+Protected one-time credentials are created outside Git, installed only into a root-owned file with owner/group `root:root` and mode `0600`, and consumed only by a root-owned command with command tracing disabled. Never put credential values in shell arguments, terminal output, logs, repository files, test fixtures, or evidence records.
+
+Evidence may include timestamps, command names, exit statuses, HTTP statuses, SHA values, file ownership/modes, certificate metadata, checksums, and sanitized log markers. It must exclude secret values, connection strings, session material, passwords, and copied raw logs. Cleanup is mandatory even when a gate fails: securely remove the temporary credential file and record only non-secret proof of its absence. If cleanup evidence is missing, runtime acceptance is incomplete.
 
 ## What is intentionally not deployed
 
@@ -124,8 +151,6 @@ There is **no deploy automation** in the repo today. The current manual flow is:
 
 ## Remaining operational gaps
 
-- No automated deploy script or GitHub Action for releases.
-- No PM2 ecosystem file.
-- No production MongoDB backup or restore runbook.
-- No documented health-check endpoint.
+- Production acceptance evidence is incomplete for role login/denial checks, ACME test diagnosis, and release-aligned PM2/Nginx logs.
+- The release identity and handoff contract is documented, but the candidate `835dd14` has not passed it and must not be activated.
 - No centralized log aggregation or alerting.
