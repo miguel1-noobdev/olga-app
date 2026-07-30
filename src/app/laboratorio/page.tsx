@@ -1,10 +1,11 @@
 import Link from 'next/link';
+import { LaboratoryIcon, type LaboratoryIconName } from '@/components/ui/icons';
 
 interface HubCardProps {
   href: string;
   title: string;
   description: string;
-  icon: string;
+  icon: LaboratoryIconName;
   accent: 'primary' | 'tertiary' | 'secondary-dim';
 }
 
@@ -37,16 +38,12 @@ function HubCard({ href, title, description, icon, accent }: HubCardProps) {
     >
       <div className={`absolute inset-0 bg-gradient-to-br ${gradient} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none`} />
       <div className={`w-12 h-12 rounded-lg bg-surface-bright flex items-center justify-center mb-6 ${iconHoverBg} transition-colors`}>
-        <span className={`material-symbols-outlined text-3xl text-secondary ${hoverText} transition-colors`} style={{ fontVariationSettings: "'FILL' 1" }}>
-          {icon}
-        </span>
+        <LaboratoryIcon name={icon} className={`h-8 w-8 text-secondary ${hoverText} transition-colors`} />
       </div>
       <h2 className={`font-headline text-xl font-bold text-on-surface mb-2 ${hoverText} transition-colors`}>{title}</h2>
       <p className="font-body text-sm text-on-surface-variant flex-1">{description}</p>
       <div className="mt-6 flex justify-end">
-        <span className={`material-symbols-outlined text-on-surface-variant ${hoverText} transform group-hover:translate-x-1 transition-all`}>
-          arrow_forward
-        </span>
+        <LaboratoryIcon name="arrow_forward" className={`h-6 w-6 text-on-surface-variant ${hoverText} transform group-hover:translate-x-1 transition-all`} />
       </div>
     </Link>
   );
@@ -64,7 +61,7 @@ export default async function LaboratoryHomePage() {
           href="/laboratorio/formulas/nueva"
           className="bg-primary text-on-primary-container hover:bg-primary-dim transition-colors duration-200 px-5 py-2.5 rounded-DEFAULT font-label font-medium flex items-center gap-2 shadow-[0_0_15px_rgba(150,248,255,0.15)] hover:shadow-[0_0_20px_rgba(150,248,255,0.3)] w-fit"
         >
-          <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>add</span>
+          <LaboratoryIcon name="add" className="h-6 w-6" />
           Nueva fórmula
         </Link>
       </header>

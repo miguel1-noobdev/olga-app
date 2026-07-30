@@ -7,11 +7,11 @@ import {
   getFormulaStatusStyles,
 } from '@/components/laboratorio/shared-presentation';
 import type { FormulaStatus } from '@/lib/formulas/formula-types';
-import { ArrowRightIcon, FlaskIcon, PlusIcon } from '@/components/ui/icons';
+import { ArrowRightIcon, FlaskIcon, LaboratoryIcon, PlusIcon, type LaboratoryIconName } from '@/components/ui/icons';
 
 const FORMULA_STATUS_PRESENTATION: Record<
   FormulaStatus,
-  { icon: string; iconClass: string; iconBackground: string }
+  { icon: LaboratoryIconName; iconClass: string; iconBackground: string }
 > = {
   validated: {
     icon: 'science',
@@ -84,7 +84,7 @@ export default async function LaboratoryFormulasPage() {
               className="mt-6 inline-flex items-center gap-2 bg-primary text-on-primary-container hover:bg-primary-dim transition-colors duration-200 px-5 py-2.5 rounded-DEFAULT font-label font-medium"
             >
               Crear primera fórmula
-              <span className="material-symbols-outlined text-[18px]">rocket_launch</span>
+              <LaboratoryIcon name="rocket_launch" className="h-[18px] w-[18px]" />
             </Link>
           </div>
         ) : (
@@ -107,12 +107,7 @@ export default async function LaboratoryFormulasPage() {
                       <div
                         className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-lg ${presentation.iconBackground}`}
                       >
-                        <span
-                          className={`material-symbols-outlined text-3xl ${presentation.iconClass}`}
-                          style={{ fontVariationSettings: "'FILL' 1" }}
-                        >
-                          {presentation.icon}
-                        </span>
+                        <LaboratoryIcon name={presentation.icon} className={`h-8 w-8 ${presentation.iconClass}`} />
                       </div>
                       <span
                         className={`inline-flex px-3 py-1 rounded-full text-xs font-label font-semibold uppercase tracking-wider ${getFormulaStatusStyles(formula.status)}`}

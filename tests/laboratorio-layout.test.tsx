@@ -74,7 +74,7 @@ describe('/laboratorio layout', () => {
     getCurrentUserMock.mockResolvedValue({ id: 'user-1', email: 'olga@test.com', role: 'productora' });
 
     const jsx = await LaboratoryLayout({ children: <div>Protected content</div> });
-    render(jsx);
+    const { container } = render(jsx);
 
     expect(screen.getByRole('link', { name: /laboratorio final/i })).toHaveAttribute('href', '/laboratorio');
     expect(screen.getByRole('link', { name: /fórmulas/i })).toHaveAttribute(
@@ -95,6 +95,9 @@ describe('/laboratorio layout', () => {
     );
     expect(screen.getByRole('link', { name: /ver sitio público/i })).toHaveAttribute('href', '/');
     expect(screen.getByRole('button', { name: /cerrar sesión/i })).toBeInTheDocument();
+    expect(container.querySelectorAll('svg').length).toBeGreaterThan(0);
+    expect(container).not.toHaveTextContent(/science|person/);
+    expect(container.querySelector('.material-symbols-outlined')).not.toBeInTheDocument();
   });
 
   it('calls signOut with the public home callbackUrl when sign out is clicked', async () => {

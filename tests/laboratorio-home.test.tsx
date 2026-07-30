@@ -57,13 +57,13 @@ describe('/laboratorio home page', () => {
     );
   });
 
-  it('renders the laboratory hub for authenticated users', async () => {
+  it('renders self-contained SVG icons without Material Symbol glyph names', async () => {
     getServerSessionMock.mockResolvedValue({
       user: { id: 'user-1', email: 'olga@test.com', role: 'productora' },
     });
 
     const jsx = await LaboratoryHomePage();
-    render(jsx);
+    const { container } = render(jsx);
 
     expect(screen.getByText('Hola, Olga')).toBeInTheDocument();
     expect(
@@ -86,5 +86,8 @@ describe('/laboratorio home page', () => {
       'href',
       '/laboratorio/aceites'
     );
+    expect(container.querySelectorAll('svg').length).toBeGreaterThan(0);
+    expect(container).not.toHaveTextContent(/science|inventory_2|yard|opacity|arrow_forward|add/);
+    expect(container.querySelector('.material-symbols-outlined')).not.toBeInTheDocument();
   });
 });

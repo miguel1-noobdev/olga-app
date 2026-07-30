@@ -3,9 +3,10 @@ import type { OilRecord } from '@/lib/db/repository/oil';
 import OilNotesForm from '@/components/laboratorio/oil-notes-form';
 import OilReferenceGallery from '@/components/laboratorio/oil-reference-gallery';
 import type { OilNotesFormValues, SubmitOilNotesResult } from '@/lib/aceites/oil-notes-form-contract';
+import { LaboratoryIcon, type LaboratoryIconName } from '@/components/ui/icons';
 
-function SectionTitle({ icon, children, className }: { icon: string; children: ReactNode; className: string }) {
-  return <h2 className={`flex items-center gap-2 font-headline text-lg font-semibold ${className}`}><span aria-hidden="true" className="material-symbols-outlined text-xl">{icon}</span>{children}</h2>;
+function SectionTitle({ icon, children, className }: { icon: LaboratoryIconName; children: ReactNode; className: string }) {
+  return <h2 className={`flex items-center gap-2 font-headline text-lg font-semibold ${className}`}><LaboratoryIcon name={icon} className="h-5 w-5" />{children}</h2>;
 }
 
 function DetailValue({ label, value, className = '' }: { label: string; value?: string | number | null; className?: string }) {

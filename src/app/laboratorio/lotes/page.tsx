@@ -6,11 +6,11 @@ import {
   getLotStatusStyles,
 } from '@/components/laboratorio/shared-presentation';
 import type { LotStatus } from '@/lib/lots/lot-types';
-import { ArrowRightIcon, PlusIcon } from '@/components/ui/icons';
+import { ArrowRightIcon, LaboratoryIcon, PlusIcon, type LaboratoryIconName } from '@/components/ui/icons';
 
 const LOT_STATUS_PRESENTATION: Record<
   LotStatus,
-  { icon: string; iconClass: string; iconBackground: string; accentClass: string }
+  { icon: LaboratoryIconName; iconClass: string; iconBackground: string; accentClass: string }
 > = {
   in_production: {
     icon: 'autorenew',
@@ -66,12 +66,7 @@ export default async function LaboratoryLotesPage() {
             aria-label="Estado de lotes"
             className="bg-surface-container border border-primary/40 rounded-lg p-12 text-center shadow-[0_0_24px_rgba(150,248,255,0.12)]"
           >
-            <span
-              className="material-symbols-outlined text-5xl text-on-surface-variant mb-5"
-              aria-hidden="true"
-            >
-              inventory_2
-            </span>
+            <LaboratoryIcon name="inventory_2" className="mb-5 h-12 w-12 text-on-surface-variant" />
             <h2 className="font-headline text-xl text-on-surface font-bold mb-2">
               No hay lotes registrados todavía
             </h2>
@@ -99,13 +94,7 @@ export default async function LaboratoryLotesPage() {
                       <div
                         className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-lg ${presentation.iconBackground}`}
                       >
-                        <span
-                          className={`material-symbols-outlined text-3xl ${presentation.iconClass}`}
-                          style={{ fontVariationSettings: "'FILL' 1" }}
-                          aria-hidden="true"
-                        >
-                          {presentation.icon}
-                        </span>
+                        <LaboratoryIcon name={presentation.icon} className={`h-8 w-8 ${presentation.iconClass}`} />
                       </div>
                       <span
                         className={`inline-flex px-3 py-1 rounded-full text-xs font-label font-semibold uppercase tracking-wider ${getLotStatusStyles(lot.status)}`}

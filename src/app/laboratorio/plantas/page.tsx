@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { connectToDatabase } from '@/lib/db/connect';
 import { createPlantRepository } from '@/lib/db/repository/plant';
-import { LeafIcon } from '@/components/ui/icons';
+import { LaboratoryIcon, LeafIcon } from '@/components/ui/icons';
 import {
   formatPlantList,
   formatPlantExtracts,
@@ -31,7 +31,7 @@ export default async function LaboratoryPlantsPage() {
             </p>
           </div>
           <div className="flex items-center gap-2 rounded border border-outline-variant/30 bg-surface-container-low px-4 py-2">
-            <span className="material-symbols-outlined text-sm text-primary">local_florist</span>
+            <LaboratoryIcon name="local_florist" className="h-4 w-4 text-primary" />
             <span className="font-label text-sm font-bold tracking-wider text-primary">
               {plants.length} {countLabel}
             </span>
@@ -108,7 +108,7 @@ export default async function LaboratoryPlantsPage() {
           <footer className="flex items-center justify-between border-t border-outline-variant/30 bg-surface-container-low p-3 font-label text-xs tracking-wide text-on-surface-variant">
             <span>Orden alfabético (A-Z)</span>
             <span className="flex items-center gap-1">
-              <span className="material-symbols-outlined text-sm">database</span>
+              <LaboratoryIcon name="database" className="h-4 w-4" />
               Datos de sólo lectura
             </span>
           </footer>

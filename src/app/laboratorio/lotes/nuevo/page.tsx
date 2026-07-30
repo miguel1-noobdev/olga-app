@@ -7,7 +7,7 @@ import {
   FORMULA_STATUS_LABELS,
   getFormulaStatusStyles,
 } from '@/components/laboratorio/shared-presentation';
-import { ArrowLeftIcon } from '@/components/ui/icons';
+import { ArrowLeftIcon, LaboratoryIcon } from '@/components/ui/icons';
 import type { FormulaRecord } from '@/lib/formulas/formula-types';
 import { submitNewLot } from './actions';
 
@@ -72,12 +72,7 @@ function FormulaSelection({ formulas }: { formulas: FormulaRecord[] }) {
           <article className="flex h-full min-w-0 flex-col rounded-lg border border-outline-variant bg-surface-container p-6 transition-colors hover:border-primary/50">
             <div className="flex items-start justify-between gap-4">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                <span
-                  className="material-symbols-outlined text-3xl text-primary"
-                  style={{ fontVariationSettings: "'FILL' 1" }}
-                >
-                  science
-                </span>
+                <LaboratoryIcon name="science" className="h-8 w-8 text-primary" />
               </div>
               <span className={`inline-flex rounded-full px-3 py-1 text-xs font-label font-semibold uppercase tracking-wider ${getFormulaStatusStyles(formula.status)}`}>
                 {FORMULA_STATUS_LABELS[formula.status]}

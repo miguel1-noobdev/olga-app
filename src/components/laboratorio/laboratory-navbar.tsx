@@ -4,9 +4,9 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
-import { ExternalLinkIcon, MenuIcon, CloseIcon } from '@/components/ui/icons';
+import { ExternalLinkIcon, MenuIcon, CloseIcon, LaboratoryIcon, type LaboratoryIconName } from '@/components/ui/icons';
 
-const NAV_LINKS = [
+const NAV_LINKS: Array<{ href: string; label: string; icon: LaboratoryIconName }> = [
   { href: '/laboratorio/formulas', label: 'Fórmulas', icon: 'science' },
   { href: '/laboratorio/lotes', label: 'Lotes', icon: 'inventory_2' },
   { href: '/laboratorio/plantas', label: 'Mi jardín', icon: 'yard' },
@@ -23,7 +23,7 @@ export default function LaboratoryNavbar() {
     <nav className="relative sticky top-0 z-50 flex w-full items-center justify-between border-b border-primary/20 bg-surface-dim px-6 py-4 shadow-[0_0_15px_rgba(150,248,255,0.1)]">
       <div className="flex items-center gap-8">
         <Link href="/laboratorio" className="font-headline text-xl font-black uppercase tracking-widest text-primary transition-opacity hover:opacity-90">
-          <span className="material-symbols-outlined mr-3 align-[-0.2em] text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>science</span>
+          <LaboratoryIcon name="science" className="mr-3 inline h-8 w-8 align-[-0.2em]" />
           Laboratorio Final
         </Link>
 
@@ -63,7 +63,7 @@ export default function LaboratoryNavbar() {
           className="hidden rounded-full border border-outline-variant/50 bg-surface-variant p-2 text-on-surface-variant transition-colors hover:text-primary md:block"
           aria-label="Cerrar sesión"
         >
-          <span className="material-symbols-outlined text-[18px]">person</span>
+          <LaboratoryIcon name="person" className="h-[18px] w-[18px]" />
         </button>
 
         <button
@@ -101,7 +101,7 @@ export default function LaboratoryNavbar() {
                       : 'text-on-surface hover:bg-surface-variant'
                   }`}
                 >
-                  <span className="material-symbols-outlined text-primary text-[20px]">{icon}</span>
+                  <LaboratoryIcon name={icon} className="h-5 w-5 text-primary" />
                   {label}
                 </Link>
               );
@@ -120,7 +120,7 @@ export default function LaboratoryNavbar() {
               onClick={() => signOut({ callbackUrl: '/' })}
               className="w-full flex items-center gap-3 px-3 py-2 rounded-md font-body text-sm font-medium text-on-surface hover:bg-surface-variant transition-colors text-left"
             >
-              <span className="material-symbols-outlined text-primary text-[20px]">logout</span>
+              <LaboratoryIcon name="logout" className="h-5 w-5 text-primary" />
               Cerrar sesión
             </button>
           </div>

@@ -14,6 +14,7 @@ import {
   LOT_STATUS_LABELS,
   getLotStatusStyles,
 } from '@/components/laboratorio/shared-presentation';
+import { LaboratoryIcon, type LaboratoryIconName } from '@/components/ui/icons';
 
 interface PageProps {
   params: Promise<{ id: string }> | { id: string };
@@ -27,14 +28,6 @@ const FORMULA_STATUS_ACCENTS: Record<FormulaRecord['status'], string> = {
   discarded: 'bg-error',
 };
 
-function MaterialIcon({ name, className = '' }: { name: string; className?: string }) {
-  return (
-    <span className={`material-symbols-outlined ${className}`} aria-hidden="true">
-      {name}
-    </span>
-  );
-}
-
 function FormulaSectionCard({
   title,
   icon,
@@ -42,14 +35,14 @@ function FormulaSectionCard({
   children,
 }: {
   title: string;
-  icon: string;
+  icon: LaboratoryIconName;
   accent?: string;
   children: ReactNode;
 }) {
   return (
     <section className="overflow-hidden rounded-lg border border-outline-variant bg-surface-container shadow-lg shadow-primary/5">
       <div className="flex items-center gap-3 border-b border-outline-variant px-5 py-4">
-        <MaterialIcon name={icon} className={`text-[20px] ${accent}`} />
+        <LaboratoryIcon name={icon} className={`h-5 w-5 ${accent}`} />
         <h2 className={`font-headline text-lg font-bold tracking-tight ${accent}`}>{title}</h2>
       </div>
       <div className="min-w-0 p-5">{children}</div>
@@ -127,23 +120,23 @@ function IdentitySection({ formula }: { formula: FormulaRecord }) {
 
       <div className="mt-5 flex flex-wrap gap-x-5 gap-y-3 font-body text-xs text-on-surface-variant">
         <span className="inline-flex items-center gap-2">
-          <MaterialIcon name="tag" className="text-[17px] text-primary" />
+          <LaboratoryIcon name="tag" className="h-[17px] w-[17px] text-primary" />
           {formula.formulaCode}
         </span>
         <span className="inline-flex items-center gap-2">
-          <MaterialIcon name="history" className="text-[17px] text-primary" />
+          <LaboratoryIcon name="history" className="h-[17px] w-[17px] text-primary" />
           v{formula.formulaVersion}
         </span>
         <span className="inline-flex items-center gap-2">
-          <MaterialIcon name="category" className="text-[17px] text-primary" />
+          <LaboratoryIcon name="category" className="h-[17px] w-[17px] text-primary" />
           {formula.productType}
         </span>
         <span className="inline-flex items-center gap-2">
-          <MaterialIcon name="calendar_today" className="text-[17px] text-primary" />
+          <LaboratoryIcon name="calendar_today" className="h-[17px] w-[17px] text-primary" />
           {formatDate(formula.formulaCreatedAt)}
         </span>
         <span className="inline-flex items-center gap-2">
-          <MaterialIcon name="scale" className="text-[17px] text-primary" />
+          <LaboratoryIcon name="scale" className="h-[17px] w-[17px] text-primary" />
           {formula.targetBatchGrams} g
         </span>
       </div>
@@ -441,7 +434,7 @@ export default async function LaboratoryFormulaDetailPage(props: PageProps) {
               href="/laboratorio/formulas"
               className="inline-flex items-center gap-2 font-label text-xs font-bold uppercase tracking-wider text-on-surface-variant transition-colors hover:text-primary"
             >
-              <MaterialIcon name="arrow_back" className="text-[18px]" />
+              <LaboratoryIcon name="arrow_back" className="h-[18px] w-[18px]" />
               Volver a fórmulas
             </Link>
 
@@ -450,7 +443,7 @@ export default async function LaboratoryFormulaDetailPage(props: PageProps) {
                 href={`/laboratorio/formulas/${formula.id}/edit`}
                 className="inline-flex items-center gap-2 rounded-lg border border-primary/40 px-4 py-2 font-label text-xs font-bold uppercase tracking-wider text-primary transition-colors hover:bg-surface-container"
               >
-                <MaterialIcon name="edit" className="text-[17px]" />
+                <LaboratoryIcon name="edit" className="h-[17px] w-[17px]" />
                 Editar fórmula
               </Link>
 
@@ -459,7 +452,7 @@ export default async function LaboratoryFormulaDetailPage(props: PageProps) {
                   href={`/laboratorio/lotes/nuevo?formulaId=${formula.id}`}
                   className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 font-label text-xs font-bold uppercase tracking-wider text-on-primary transition-colors hover:bg-primary/90"
                 >
-                  <MaterialIcon name="add" className="text-[18px]" />
+                  <LaboratoryIcon name="add" className="h-[18px] w-[18px]" />
                   Crear lote
                 </Link>
               )}

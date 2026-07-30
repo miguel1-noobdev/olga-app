@@ -21,7 +21,7 @@ describe('FormulaForm', () => {
   });
 
   it('renders all minimum form sections in create mode', () => {
-    render(<FormulaForm submitFormula={submitFormulaMock} />);
+    const { container } = render(<FormulaForm submitFormula={submitFormulaMock} />);
 
     expect(screen.getByRole('form', { name: /nueva fórmula/i })).toBeInTheDocument();
     expect(screen.getByRole('group', { name: /identidad/i })).toBeInTheDocument();
@@ -35,6 +35,11 @@ describe('FormulaForm', () => {
     expect(screen.getByRole('group', { name: /prueba de uso/i })).toBeInTheDocument();
     expect(screen.getByRole('group', { name: /inci/i })).toBeInTheDocument();
     expect(screen.getByRole('group', { name: /observaciones finales/i })).toBeInTheDocument();
+    expect(container.querySelectorAll('svg').length).toBeGreaterThan(0);
+    expect(container).not.toHaveTextContent(
+      /science|water_drop|format_list_numbered|tune|fact_check|group|inventory_2|speaker_notes|save/
+    );
+    expect(container.querySelector('.material-symbols-outlined')).not.toBeInTheDocument();
   });
 
   it('groups phases into compact mobile-safe subcards', () => {

@@ -123,7 +123,8 @@ describe('/laboratorio/formulas page', () => {
     expect(within(lavenderCard).getByText('1.0')).toBeInTheDocument();
     expect(within(lavenderCard).getByText('15 ene 2026')).toBeInTheDocument();
     expect(within(lavenderCard).getByText('Borrador')).toBeInTheDocument();
-    expect(within(lavenderCard).getByText('edit_note')).toHaveClass('text-tertiary');
+    expect(within(lavenderCard).queryByText('edit_note')).not.toBeInTheDocument();
+    expect(lavenderCard.querySelector('svg')).toHaveClass('text-tertiary');
     expect(lavenderCard).toHaveAttribute('href', '/laboratorio/formulas/formula-1');
 
     expect(within(calendulaCard).getByText('Aceite de calendula')).toBeInTheDocument();
@@ -131,7 +132,8 @@ describe('/laboratorio/formulas page', () => {
     expect(within(calendulaCard).getByText('2.0')).toBeInTheDocument();
     expect(within(calendulaCard).getByText('1 feb 2026')).toBeInTheDocument();
     expect(within(calendulaCard).getByText('Validada')).toBeInTheDocument();
-    expect(within(calendulaCard).getByText('science')).toHaveClass('text-primary');
+    expect(within(calendulaCard).queryByText('science')).not.toBeInTheDocument();
+    expect(calendulaCard.querySelector('svg')).toHaveClass('text-primary');
     expect(calendulaCard).toHaveAttribute('href', '/laboratorio/formulas/formula-2');
 
     expect(within(lavenderCard).getByText('Ver detalle')).toBeInTheDocument();
@@ -209,7 +211,8 @@ describe('/laboratorio/formulas page', () => {
       const card = screen.getByRole('link', {
         name: new RegExp(`ver detalles de formula ${item.label}`, 'i'),
       });
-      expect(within(card).getByText(item.icon)).toHaveClass(item.iconClass);
+      expect(within(card).queryByText(item.icon)).not.toBeInTheDocument();
+      expect(card.querySelector('svg')).toHaveClass(item.iconClass);
     }
   });
 

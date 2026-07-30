@@ -2,22 +2,23 @@ import type { ReactNode } from 'react';
 import type { FullPlant } from '@/lib/plantas/full-domain';
 import PlantNotesForm from '@/components/laboratorio/plant-notes-form';
 import type { PlantNotesFormValues, SubmitPlantNotesResult } from '@/lib/plantas/plant-notes-form-contract';
+import { LaboratoryIcon, type LaboratoryIconName } from '@/components/ui/icons';
 
 interface PlantInternalDetailProps {
   plant: FullPlant;
   submitPlantNotes?: (values: PlantNotesFormValues) => Promise<SubmitPlantNotesResult>;
 }
 
-function SectionTitle({ icon, children, className = 'text-on-background' }: { icon: string; children: ReactNode; className?: string }) {
+function SectionTitle({ icon, children, className = 'text-on-background' }: { icon: LaboratoryIconName; children: ReactNode; className?: string }) {
   return (
     <h2 className={`mb-4 flex items-center gap-2 font-headline text-lg ${className}`}>
-      <span aria-hidden="true" className="material-symbols-outlined">{icon}</span>
+      <LaboratoryIcon name={icon} className="h-6 w-6" />
       {children}
     </h2>
   );
 }
 
-function InternalNote({ title, icon, text }: { title: string; icon: string; text?: string }) {
+function InternalNote({ title, icon, text }: { title: string; icon: LaboratoryIconName; text?: string }) {
   const displayText = text?.trim() ? text : 'Sin datos registrados';
 
   return (

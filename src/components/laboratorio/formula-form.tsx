@@ -21,6 +21,7 @@ import {
 } from '@/lib/formulas/formula-form-contract';
 import { FORMULA_STATUSES, FormulaStatus } from '@/lib/formulas/formula-types';
 import { FORMULA_STATUS_LABELS } from '@/components/laboratorio/shared-presentation';
+import { LaboratoryIcon } from '@/components/ui/icons';
 
 export interface FormulaFormProps {
   mode?: 'create' | 'edit';
@@ -317,9 +318,7 @@ export default function FormulaForm({
       <fieldset className={cardClassName}>
         <legend className="sr-only">Información básica de la fórmula</legend>
         <h2 className={headingClassName}>
-          <span className="material-symbols-outlined mr-2 text-primary" aria-hidden="true">
-            science
-          </span>
+          <LaboratoryIcon name="science" className="mr-2 h-6 w-6 text-primary" />
           Información básica de la fórmula
         </h2>
 
@@ -485,9 +484,7 @@ export default function FormulaForm({
                 onClick={addProductObjective}
                 className="mt-3 inline-flex items-center gap-1 rounded border border-primary-dim px-3 py-2 text-sm text-primary transition-colors hover:bg-surface-container-high"
               >
-                <span className="material-symbols-outlined text-base" aria-hidden="true">
-                  add
-                </span>
+                <LaboratoryIcon name="add" className="h-4 w-4" />
                 + Agregar objetivo del producto
               </button>
             </div>
@@ -498,9 +495,7 @@ export default function FormulaForm({
       <fieldset className={cardClassName}>
         <legend className="sr-only">Fases e ingredientes</legend>
         <h2 className={`${headingClassName} text-secondary`}>
-          <span className="material-symbols-outlined mr-2 text-sm" aria-hidden="true">
-            water_drop
-          </span>
+          <LaboratoryIcon name="water_drop" className="mr-2 h-4 w-4" />
           Fases e ingredientes
         </h2>
 
@@ -525,9 +520,7 @@ export default function FormulaForm({
                   onClick={() => addIngredient(phase)}
                   className="inline-flex items-center gap-1 text-xs text-on-surface-variant transition-colors hover:text-primary"
                 >
-                  <span className="material-symbols-outlined text-sm" aria-hidden="true">
-                    add
-                  </span>
+                  <LaboratoryIcon name="add" className="h-4 w-4" />
                   Fila
                 </button>
               </div>
@@ -593,9 +586,7 @@ export default function FormulaForm({
           <legend className="sr-only">Procedimiento</legend>
           <div className="flex items-center justify-between gap-3 border-b border-outline-variant pb-3">
             <h2 className="flex items-center font-headline text-lg font-bold uppercase tracking-wide text-tertiary">
-              <span className="material-symbols-outlined mr-2 text-sm" aria-hidden="true">
-                format_list_numbered
-              </span>
+              <LaboratoryIcon name="format_list_numbered" className="mr-2 h-4 w-4" />
               Procedimiento
             </h2>
             <button
@@ -604,9 +595,7 @@ export default function FormulaForm({
               aria-label="+ Agregar paso de procedimiento"
               className="inline-flex items-center gap-1 rounded border border-primary-dim px-2 py-1 text-xs text-primary transition-colors hover:bg-surface-container-high"
             >
-              <span className="material-symbols-outlined text-sm" aria-hidden="true">
-                add
-              </span>
+              <LaboratoryIcon name="add" className="h-4 w-4" />
               Paso
             </button>
           </div>
@@ -646,9 +635,7 @@ export default function FormulaForm({
         <fieldset className={cardClassName}>
           <legend className="sr-only">Datos técnicos</legend>
           <h2 className={headingClassName}>
-            <span className="material-symbols-outlined mr-2 text-sm" aria-hidden="true">
-              tune
-            </span>
+          <LaboratoryIcon name="tune" className="mr-2 h-4 w-4" />
             Datos técnicos
           </h2>
 
@@ -761,9 +748,7 @@ export default function FormulaForm({
       <fieldset className={cardClassName}>
         <legend className="sr-only">Evaluación del producto</legend>
         <h2 className={headingClassName}>
-          <span className="material-symbols-outlined mr-2 text-sm" aria-hidden="true">
-            fact_check
-          </span>
+          <LaboratoryIcon name="fact_check" className="mr-2 h-4 w-4" />
           Evaluación del producto
         </h2>
 
@@ -800,9 +785,7 @@ export default function FormulaForm({
           <legend className="sr-only">Prueba de uso</legend>
           <div className="flex items-center justify-between gap-3 border-b border-outline-variant pb-3">
             <h2 className="flex items-center font-headline text-lg font-bold uppercase tracking-wide text-primary">
-              <span className="material-symbols-outlined mr-2 text-sm" aria-hidden="true">
-                group
-              </span>
+              <LaboratoryIcon name="group" className="mr-2 h-4 w-4" />
               Prueba de uso
             </h2>
             <button
@@ -811,9 +794,7 @@ export default function FormulaForm({
               aria-label="+ Agregar entrada de prueba de uso"
               className="inline-flex items-center gap-1 rounded border border-primary-dim px-2 py-1 text-xs text-primary transition-colors hover:bg-surface-container-high"
             >
-              <span className="material-symbols-outlined text-sm" aria-hidden="true">
-                add
-              </span>
+              <LaboratoryIcon name="add" className="h-4 w-4" />
               Fila
             </button>
           </div>
@@ -874,9 +855,7 @@ export default function FormulaForm({
         <fieldset className={cardClassName}>
           <legend className="sr-only">INCI</legend>
           <h2 className={`${headingClassName} text-primary`}>
-            <span className="material-symbols-outlined mr-2 text-sm" aria-hidden="true">
-              inventory_2
-            </span>
+            <LaboratoryIcon name="inventory_2" className="mr-2 h-4 w-4" />
             INCI / Propiedades
           </h2>
 
@@ -912,9 +891,7 @@ export default function FormulaForm({
       <fieldset className={cardClassName}>
         <legend className="sr-only">Observaciones finales</legend>
         <h2 className={`${headingClassName} text-secondary-fixed-dim`}>
-          <span className="material-symbols-outlined mr-2 text-sm" aria-hidden="true">
-            speaker_notes
-          </span>
+          <LaboratoryIcon name="speaker_notes" className="mr-2 h-4 w-4" />
           Observaciones finales
         </h2>
 
@@ -942,9 +919,7 @@ export default function FormulaForm({
           disabled={isSubmitting}
           className="inline-flex items-center justify-center rounded bg-primary-container px-8 py-2.5 text-sm font-bold uppercase tracking-wider text-on-primary-container transition-all hover:bg-primary hover:shadow-[0_0_15px_rgba(0,241,253,0.3)] disabled:cursor-not-allowed disabled:opacity-50"
         >
-          <span className="material-symbols-outlined mr-2 text-sm" aria-hidden="true">
-            save
-          </span>
+          <LaboratoryIcon name="save" className="mr-2 h-4 w-4" />
           {submitButtonLabel}
         </button>
       </div>

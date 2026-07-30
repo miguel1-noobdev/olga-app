@@ -8,6 +8,7 @@ import {
   type SubmitPlantNotesResult,
   validatePlantNotesForm,
 } from '@/lib/plantas/plant-notes-form-contract';
+import { LaboratoryIcon } from '@/components/ui/icons';
 
 export interface PlantNotesFormProps {
   initialNotes: string;
@@ -77,7 +78,7 @@ export default function PlantNotesForm({ initialNotes, submitPlantNotes }: Plant
         disabled={isPending}
         className="inline-flex items-center gap-2 rounded-lg border border-primary/50 bg-primary/10 px-4 py-2 font-label text-xs font-bold uppercase tracking-wider text-primary transition-colors hover:bg-primary hover:text-on-primary disabled:cursor-not-allowed disabled:opacity-50"
       >
-        <span aria-hidden="true" className="material-symbols-outlined text-base">save</span>
+        <LaboratoryIcon name="save" className="h-4 w-4" />
         {isPending ? 'Guardando...' : 'Guardar notas'}
       </button>
     </form>

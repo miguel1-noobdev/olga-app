@@ -275,11 +275,8 @@ describe('/laboratorio/formulas/[id] page', () => {
       'text-primary',
       'drop-shadow-[0_0_12px_rgba(150,248,255,0.25)]'
     );
-    expect(within(header).getByText('tag')).toHaveClass('material-symbols-outlined');
-    expect(within(header).getByText('history')).toHaveClass('material-symbols-outlined');
-    expect(within(header).getByText('category')).toHaveClass('material-symbols-outlined');
-    expect(within(header).getByText('calendar_today')).toHaveClass('material-symbols-outlined');
-    expect(within(header).getByText('scale')).toHaveClass('material-symbols-outlined');
+    expect(within(header).queryByText(/tag|history|category|calendar_today|scale/)).not.toBeInTheDocument();
+    expect(header.querySelectorAll('svg').length).toBeGreaterThan(0);
     expect(within(header).getByLabelText('Estado validada')).toHaveClass('bg-primary');
     expect(within(header).getByRole('link', { name: 'Editar fórmula' })).toHaveClass(
       'border-primary/40'
@@ -309,10 +306,8 @@ describe('/laboratorio/formulas/[id] page', () => {
       .closest('section');
 
     expect(phases).toHaveClass('bg-surface-container', 'border-outline-variant', 'rounded-lg', 'shadow-lg');
-    expect(within(phases as HTMLElement).getByText('science')).toHaveClass(
-      'material-symbols-outlined',
-      'text-secondary'
-    );
+    expect(within(phases as HTMLElement).queryByText('science')).not.toBeInTheDocument();
+    expect((phases as HTMLElement).querySelector('svg')).toHaveClass('text-secondary');
     expect(screen.getByRole('heading', { name: 'Fases e ingredientes' })).toHaveClass('text-secondary');
     const phaseGrid = phases?.querySelector('[class~="sm:grid-cols-3"]') as HTMLElement;
     expect(phaseGrid).toHaveClass('grid', 'grid-cols-1', 'sm:grid-cols-3', 'min-w-0');
@@ -326,20 +321,24 @@ describe('/laboratorio/formulas/[id] page', () => {
     );
 
     expect(procedure).toHaveClass('border-outline-variant');
-    expect(within(procedure as HTMLElement).getByText('account_tree')).toHaveClass('text-tertiary');
+    expect(within(procedure as HTMLElement).queryByText('account_tree')).not.toBeInTheDocument();
+    expect((procedure as HTMLElement).querySelector('svg')).toHaveClass('text-tertiary');
     expect(screen.getByRole('heading', { name: 'Procedimiento' })).toHaveClass('text-tertiary');
     expect(evaluation).toHaveClass('border-outline-variant');
-    expect(within(evaluation as HTMLElement).getByText('fact_check')).toHaveClass('text-tertiary');
+    expect(within(evaluation as HTMLElement).queryByText('fact_check')).not.toBeInTheDocument();
+    expect((evaluation as HTMLElement).querySelector('svg')).toHaveClass('text-tertiary');
     expect(screen.getByRole('heading', { name: 'Evaluación del producto' })).toHaveClass('text-tertiary');
     expect(within(evaluation as HTMLElement).getByText('Cremosa').closest('div')).toHaveClass(
       'bg-surface-container-lowest'
     );
     expect(evaluation?.querySelector('dl')).toHaveClass('grid', 'grid-cols-1', 'sm:grid-cols-2');
     expect(technical).toHaveClass('border-outline-variant');
-    expect(within(technical as HTMLElement).getByText('settings')).toHaveClass('text-secondary');
+    expect(within(technical as HTMLElement).queryByText('settings')).not.toBeInTheDocument();
+    expect((technical as HTMLElement).querySelector('svg')).toHaveClass('text-secondary');
     expect(screen.getByRole('heading', { name: 'Datos técnicos' })).toHaveClass('text-secondary');
     expect(inci).toHaveClass('border-outline-variant');
-    expect(within(inci as HTMLElement).getByText('menu_book')).toHaveClass('text-tertiary');
+    expect(within(inci as HTMLElement).queryByText('menu_book')).not.toBeInTheDocument();
+    expect((inci as HTMLElement).querySelector('svg')).toHaveClass('text-tertiary');
     expect(screen.getByRole('heading', { name: 'INCI' })).toHaveClass('text-tertiary');
     expect(screen.getByRole('heading', { name: 'Lotes' })).toHaveClass('text-primary');
     expect(screen.getByRole('heading', { name: 'Objetivos' })).toHaveClass('text-primary');
