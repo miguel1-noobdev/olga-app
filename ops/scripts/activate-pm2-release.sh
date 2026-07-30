@@ -3,7 +3,7 @@ set -Eeuo pipefail
 umask 077
 
 readonly APP_ROOT="/srv/botanica-ob"
-readonly RELEASE_ID="b050790d8dc7ab9638dd74217c18cd770043401f"
+readonly RELEASE_ID="${1:-}"
 readonly RELEASE_DIR="$APP_ROOT/releases/$RELEASE_ID"
 readonly CURRENT_LINK="$APP_ROOT/current"
 readonly SECRETS_FILE="/etc/botanica-ob/secrets.env"
@@ -62,6 +62,14 @@ rollback() {
 
 trap rollback EXIT
 
+if (( $# != 1 )) || ! [[ "$RELEASE_ID" =~ ^[0-9a-f]{40}$ ]]; then
+  die 'A full 40-character lowercase Git SHA is required.'
+fi
+
+if [[ ! -d "$RELEASE_DIR" || ! -f "$PM2_CONFIG" ]]; then
+  die "Prepared immutable release is unavailable: $RELEASE_ID"
+fi
+
 if ! [[ "$(id -u)" == "0" ]]; then
   die 'Activation must run as root.'
 fi
@@ -113,9 +121,6 @@ for required_var in "${required_vars[@]}"; do
   fi
 done
 
-if [[ ! -d "$RELEASE_DIR" || ! -f "$PM2_CONFIG" ]]; then
-  die 'Prepared immutable release is unavailable.'
-fi
 if [[ -n "$(find "$RELEASE_DIR" -type f -perm /0222 -print -quit)" ]]; then
   die 'Prepared release contains writable files.'
 fi

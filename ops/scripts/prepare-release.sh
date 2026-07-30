@@ -62,7 +62,7 @@ if tar -xf - -C "$release_dir"; then :; else fail archive_extract $?; fi
 cd "$release_dir" || fail workdir $?
 if npm ci; then :; else fail install $?; fi
 if npm run build; then :; else fail build $?; fi
-if grep -F "readonly RELEASE_ID=\"$release\"" "$activation_script" >/dev/null; then :; else fail activation_identity $?; fi
+if grep -F 'readonly RELEASE_ID="${1:-}"' "$activation_script" >/dev/null; then :; else fail activation_identity $?; fi
 if chmod -R a-w "$release_dir"; then :; else fail seal $?; fi
 stage=sealed
 exit 0

@@ -102,7 +102,7 @@ Activation is permitted only when all four identities match exactly:
 |---|---|
 | Committed SHA | The reviewed Git commit selected for deployment. |
 | Immutable release SHA | The full commit SHA naming the sealed release directory. |
-| Activation script SHA | The full `RELEASE_ID` embedded in the reviewed, versioned activation script. |
+| Activation argument | The full candidate SHA supplied to the reviewed, versioned activation script. |
 | `current` symlink target | The sealed release directory named by that same full SHA. |
 
 The operator records all four non-secret values before activation. A mismatch, missing value, unresolved symlink, mutable release content, or failed preflight is a hard failure: do not switch `current`, start or reload PM2, retry, or continue to later gates.
@@ -127,7 +127,13 @@ Before any transfer, the wrapper must explicitly record and verify the remote SS
 
 The handoff must name the full candidate SHA in its release directory and preserve the prior `current` target for rollback. It stops at the first failure and records the failed gate, command class, timestamp, remote identity, and non-secret metadata. It does not retry or activate a different SHA.
 
-`ops/scripts/prepare-release.sh` is the POSIX (`/bin/sh`) preparation stage. Its only inputs are `RELEASE_SHA`, `APP_ROOT`, and the expected owner/group/mode policy. It accepts the reviewed `git archive` tar stream on standard input, validates the identity, existing empty target, owner, group, exact mode, and writability before extraction, then runs `npm ci`, `npm run build`, verifies the extracted activation `RELEASE_ID`, and seals the target. Every exit emits one timestamped, non-secret `key=value` record; failed `id`, `stat`, extraction, install, build, and seal stages retain their external exit status. Invoke it explicitly with `/bin/sh`; it does not load secrets, invoke `runuser`, PM2, or activation.
+`ops/scripts/prepare-release.sh` is the POSIX (`/bin/sh`) preparation stage. Its only inputs are `RELEASE_SHA`, `APP_ROOT`, and the expected owner/group/mode policy. It accepts the reviewed `git archive` tar stream on standard input, validates the identity, existing empty target, owner, group, exact mode, and writability before extraction, then runs `npm ci`, `npm run build`, verifies the extracted activation accepts a caller-supplied release SHA, and seals the target. Every exit emits one timestamped, non-secret `key=value` record; failed `id`, `stat`, extraction, install, build, and seal stages retain their external exit status. Invoke it explicitly with `/bin/sh`; it does not load secrets, invoke `runuser`, PM2, or activation.
+
+After every preceding gate has passed, activate only the prepared candidate by passing the same full SHA both in its sealed path and as the required argument:
+
+```bash
+sudo /srv/botanica-ob/releases/<full-candidate-sha>/ops/scripts/activate-pm2-release.sh <full-candidate-sha>
+```
 
 The focused local sandbox tests cover the successful preparation path; every pre-extraction guard; late writability failure; activation-ID rejection; and exact failures from `id`, `stat`, extraction, install, build, and sealing. They do not prove a remote handoff, VPS build or sealing, rollback, G.2, or any later runtime gate. All remain NO-GO until the handoff is executed once with complete non-secret evidence for the selected SHA.
 

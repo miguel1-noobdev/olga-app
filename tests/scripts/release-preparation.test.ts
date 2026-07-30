@@ -7,6 +7,9 @@ import { afterEach, describe, expect, it } from 'vitest';
 const scriptPath = resolve(process.cwd(), 'ops/scripts/prepare-release.sh');
 const releaseSha = '835dd149c0ab2b3b4646d625adaefb63a0df3183';
 const temporaryDirectories: string[] = [];
+type GuardCase =
+  | [stage: string, environment: Record<string, string>, setup: (target: string) => void, stat: undefined]
+  | [stage: string, environment: Record<string, string>, setup: undefined, stat: string];
 
 function temporaryDirectory() {
   const directory = mkdtempSync(join(tmpdir(), 'botanica-release-'));
@@ -36,7 +39,7 @@ function run(
   const defaults = {
     id: `if [ "$1" = '-un' ]; then printf '%s\\n' '${owner}'; else printf '%s\\n' '${group}'; fi\n`,
     stat: `printf '%s\\n' '${owner}:${group} 750'\n`,
-    tar: `mkdir -p "$RELEASE_DIR/ops/scripts"\nprintf 'release\\n' > "$RELEASE_DIR/app.txt"\nprintf 'readonly RELEASE_ID="%s"\\n' "$RELEASE_SHA" > "$RELEASE_DIR/ops/scripts/activate-pm2-release.sh"\n`,
+    tar: `mkdir -p "$RELEASE_DIR/ops/scripts"\nprintf 'release\\n' > "$RELEASE_DIR/app.txt"\nprintf 'readonly RELEASE_ID="\${1:-}"\\n' > "$RELEASE_DIR/ops/scripts/activate-pm2-release.sh"\n`,
     npm: `exit 0\n`,
     chmod: `/bin/chmod "$@"\n`,
   };
@@ -102,13 +105,13 @@ describe('local POSIX release preparation', () => {
   });
 
   it.each([
-    ['missing', {}, (target: string) => rmSync(target, { recursive: true })],
-    ['not_empty', {}, (target: string) => writeFileSync(join(target, 'keep'), 'keep')],
+    ['missing', {}, (target: string) => rmSync(target, { recursive: true }), undefined],
+    ['not_empty', {}, (target: string) => writeFileSync(join(target, 'keep'), 'keep'), undefined],
     ['owner', {}, undefined, "printf '%s\\n' 'other:group 750'\n"],
     ['group', {}, undefined, "printf '%s\\n' 'OWNER:other 750'\n"],
     ['mode', {}, undefined, "printf '%s\\n' 'OWNER:GROUP 700'\n"],
     ['writable', {}, undefined, "printf '%s\\n' 'OWNER:GROUP 750'\n/bin/chmod 500 \"$RELEASE_DIR\"\n"],
-  ])('fails closed at the %s guard before extraction', (stage, environment, setup, stat) => {
+  ] satisfies GuardCase[])('fails closed at the %s guard before extraction', (stage, environment, setup, stat) => {
     if (stat) {
       const owner = spawnSync('id', ['-un'], { encoding: 'utf8' }).stdout.trim();
       const group = spawnSync('id', ['-gn'], { encoding: 'utf8' }).stdout.trim();
