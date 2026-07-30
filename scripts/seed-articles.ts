@@ -1,13 +1,12 @@
 import { connectToDatabase } from '../src/lib/db/connect';
-import { createArticleRepository } from '../src/lib/db/repository/article';
+import {
+  createArticleRepository,
+  type ArticleRepository,
+  type CreateArticleInput,
+} from '../src/lib/db/repository/article';
 import { readSafeScriptTarget } from './safe-target';
 
-async function seedArticles() {
-  readSafeScriptTarget();
-  await connectToDatabase();
-  const repo = createArticleRepository();
-
-  const articles = [
+export const ARTICLE_SEEDS: CreateArticleInput[] = [
     {
       title: 'Bienvenida a Botánica Esencial OB',
       slug: 'bienvenida-botanica-esencial-ob',
@@ -148,12 +147,23 @@ En Botánica Esencial OB creo que **cuidarse es un acto de amor propio**, no una
       imageAlt: 'Flores de manzanilla — ingrediente natural calmante para el verano',
       readingTime: '6 min',
     },
-  ];
+];
 
+export async function seedArticles(
+  repo: Pick<ArticleRepository, 'create' | 'findBySlug' | 'review' | 'publish'>,
+  articles = ARTICLE_SEEDS
+): Promise<void> {
   for (const article of articles) {
     const existing = await repo.findBySlug(article.slug);
     if (existing) {
-      console.log(`Article "${article.title}" already exists, skipping.`);
+      if (existing.published) {
+        console.log(`Article "${article.title}" already published, skipping.`);
+        continue;
+      }
+
+      await repo.review(existing.id);
+      await repo.publish(existing.id);
+      console.log(`Reviewed and published existing article: "${article.title}"`);
       continue;
     }
 
@@ -168,15 +178,24 @@ En Botánica Esencial OB creo que **cuidarse es un acto de amor propio**, no una
       readingTime: article.readingTime,
     });
 
+    await repo.review(created.id);
     await repo.publish(created.id);
     console.log(`Created and published: "${article.title}"`);
   }
-
-  console.log('Done seeding articles.');
-  process.exit(0);
 }
 
-seedArticles().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+async function main() {
+  readSafeScriptTarget();
+  await connectToDatabase();
+  await seedArticles(createArticleRepository());
+  console.log('Done seeding articles.');
+}
+
+if (process.argv[1]?.endsWith('seed-articles.ts')) {
+  main()
+    .then(() => process.exit(0))
+    .catch((err) => {
+      console.error(err);
+      process.exit(1);
+    });
+}
