@@ -4,19 +4,37 @@ import { spawnSync } from 'node:child_process';
 import { describe, expect, it } from 'vitest';
 
 const scriptPath = resolve(process.cwd(), 'ops/scripts/activate-pm2-release.sh');
+const releaseSha = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+
+function run(...arguments_: string[]) {
+  return spawnSync('bash', [scriptPath, ...arguments_], { encoding: 'utf8' });
+}
 
 describe('PM2 release activation script', () => {
-  it('is valid executable shell and targets only the prepared immutable release', () => {
+  it('is valid executable shell and requires a caller-supplied immutable release SHA', () => {
     const syntax = spawnSync('bash', ['-n', scriptPath], { encoding: 'utf8' });
     const source = readFileSync(scriptPath, 'utf8');
 
     expect(syntax.status).toBe(0);
     expect(statSync(scriptPath).mode & 0o777).toBe(0o755);
     expect(source).toContain('#!/usr/bin/env bash');
-    expect(source).toContain('RELEASE_ID="b050790d8dc7ab9638dd74217c18cd770043401f"');
+    expect(source).toContain('readonly RELEASE_ID="${1:-}"');
+    expect(source).not.toContain('b050790d8dc7ab9638dd74217c18cd770043401f');
     expect(source).toContain('RELEASE_DIR="$APP_ROOT/releases/$RELEASE_ID"');
     expect(source).toContain('CURRENT_LINK="$APP_ROOT/current"');
     expect(source).toContain('SECRETS_FILE="/etc/botanica-ob/secrets.env"');
+
+    for (const arguments_ of [[], ['not-a-sha'], ['A'.repeat(40)]]) {
+      const result = run(...arguments_);
+
+      expect(result.status, result.stderr).toBe(1);
+      expect(result.stderr).toContain('A full 40-character lowercase Git SHA is required.');
+    }
+
+    const validSha = run(releaseSha);
+
+    expect(validSha.status, validSha.stderr).toBe(1);
+    expect(validSha.stderr).toContain(`Prepared immutable release is unavailable: ${releaseSha}`);
   });
 
   it('sources root-only secrets silently and accepts the established Mongo variable names', () => {
