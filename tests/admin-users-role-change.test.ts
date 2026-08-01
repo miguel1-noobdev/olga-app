@@ -5,6 +5,7 @@ import {
   canApplyStatusChange,
   type AdminUserRecord,
 } from '@/lib/admin/users/role-change';
+import type { UserRecord } from '@/lib/db/repository/user';
 
 const user: AdminUserRecord = {
   id: 'user-1',
@@ -22,6 +23,27 @@ describe('admin user role changes', () => {
       email: 'reader@example.com',
       role: 'suscriptora',
       accountStatus: 'active',
+      createdAt: '2026-07-16T00:00:00.000Z',
+    });
+  });
+
+  it('projects pending email users from the persisted user contract', () => {
+    const pendingEmailUser: UserRecord = {
+      id: 'user-pending-email',
+      email: 'pending@example.com',
+      passwordHash: 'must-never-leak',
+      role: 'suscriptora',
+      accountStatus: 'pending_email',
+      emailVerified: false,
+      securityVersion: 0,
+      createdAt: '2026-07-16T00:00:00.000Z',
+    };
+
+    expect(approvedDirectoryUser(pendingEmailUser)).toEqual({
+      id: 'user-pending-email',
+      email: 'pending@example.com',
+      role: 'suscriptora',
+      accountStatus: 'pending_email',
       createdAt: '2026-07-16T00:00:00.000Z',
     });
   });

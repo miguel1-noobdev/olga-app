@@ -1,7 +1,7 @@
 import { ROLES } from '@/lib/auth/roles';
-import type { Role } from '@/lib/db/models/user';
+import type { AccountStatus, Role } from '@/lib/db/models/user';
 
-export type AccountStatus = 'active' | 'suspended';
+export type { AccountStatus };
 
 export interface AdminUserRecord {
   id: string;
