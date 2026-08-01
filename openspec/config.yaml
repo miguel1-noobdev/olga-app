@@ -4,7 +4,7 @@ context: |
   Project: Botánica Esencial OB (olga-app)
   Type: Single-tenant informational platform (not e-commerce)
   Stack: Next.js 14+ App Router, TypeScript, Tailwind CSS, MongoDB, NextAuth.js
-  Hosting: VPS Ubuntu 24.04 (botanicasob.duckdns.org), PM2 + Nginx + acme.sh
+  Hosting: VPS Ubuntu 24.04 (botanicaob.duckdns.org), PM2 + Nginx + acme.sh
   Auth: Email/password + Google OAuth, roles: suscriptora, productora, admin
   Approach: Build landing section-by-section; strict TDD; conventional commits
 

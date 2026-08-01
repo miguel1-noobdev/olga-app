@@ -8,6 +8,8 @@ export interface UserRecord {
   passwordHash: string;
   role: Role;
   accountStatus: AccountStatus;
+  emailVerified: boolean;
+  securityVersion: number;
   createdAt: string;
 }
 
@@ -15,6 +17,8 @@ export interface CreateUserInput {
   email: string;
   password: string;
   role?: Role;
+  accountStatus?: AccountStatus;
+  emailVerified?: boolean;
 }
 
 export interface UserRepository {
@@ -26,11 +30,12 @@ export interface UserRepository {
   count(): Promise<number>;
   updateRole(id: string, role: Role): Promise<void>;
   updateAccountStatus(id: string, accountStatus: AccountStatus): Promise<void>;
+  advanceSecurityVersion(id: string): Promise<void>;
 }
 
 const MIN_PASSWORD_LENGTH = 8;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const ACCOUNT_STATUSES: readonly AccountStatus[] = ['active', 'suspended'];
+const ACCOUNT_STATUSES: readonly AccountStatus[] = ['pending_email', 'active', 'suspended'];
 
 function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
@@ -55,6 +60,8 @@ function toUserRecord(doc: IUser): UserRecord {
     passwordHash: doc.passwordHash,
     role: doc.role,
     accountStatus: doc.accountStatus ?? 'active',
+    emailVerified: doc.emailVerified ?? doc.accountStatus !== 'pending_email',
+    securityVersion: doc.securityVersion ?? 0,
     createdAt: doc.createdAt.toISOString(),
   };
 }
@@ -73,11 +80,15 @@ export function createUserRepository(): UserRepository {
 
       const passwordHash = await bcrypt.hash(input.password, 10);
       const role: Role = input.role ?? ROLES.SUSCRIPTORA;
+      const accountStatus: AccountStatus = input.accountStatus ?? 'active';
+      const emailVerified = input.emailVerified ?? accountStatus !== 'pending_email';
 
       const user = await UserModel.create({
         email,
         passwordHash,
         role,
+        accountStatus,
+        emailVerified,
       });
 
       return toUserRecord(user);
@@ -120,6 +131,13 @@ export function createUserRepository(): UserRepository {
       }
 
       const result = await UserModel.findByIdAndUpdate(id, { accountStatus });
+      if (!result) {
+        throw new Error('User not found');
+      }
+    },
+
+    async advanceSecurityVersion(id: string): Promise<void> {
+      const result = await UserModel.findByIdAndUpdate(id, { $inc: { securityVersion: 1 } });
       if (!result) {
         throw new Error('User not found');
       }

@@ -99,7 +99,7 @@ Fases 1 y 2 se consideran **cerradas funcionalmente**. Las versiones actuales so
 | Frontend + Backend | Next.js 14+ (App Router) | SSR/SSG para SEO, ecosistema maduro, popular |
 | Base de datos | MongoDB | Flexibilidad para datos variables (plantas, laboratorio) |
 | Auth | NextAuth.js | Email/contraseña + Google OAuth resuelto en pocas líneas |
-| Hosting | VPS propio (Ubuntu 24.04) | botanicasob.duckdns.org |
+| Hosting | VPS propio (Ubuntu 24.04) | botanicaob.duckdns.org |
 | Process manager | PM2 | Ya instalado en el VPS |
 | Reverse proxy | Nginx 1.24 | Ya instalado en el VPS |
 | SSL | acme.sh | Ya instalado en el VPS |
@@ -116,11 +116,11 @@ Fases 1 y 2 se consideran **cerradas funcionalmente**. Las versiones actuales so
 
 ### Estado de la infraestructura
 
-✅ DNS: `botanicasob.duckdns.org` → IP del VPS (212.227.149.125)
+✅ DNS: `botanicaob.duckdns.org` → IP del VPS (212.227.149.125)
 ✅ Nginx respondiendo (redirige HTTP a HTTPS)
 ✅ Otros subdominios funcionando: clau-app.duckdns.org, engram-cloud.duckdns.org, jessnails
-❌ Falta: server block específico para botanicasob en nginx
-❌ Falta: certificado SSL para botanicasob.duckdns.org
+❌ Falta: server block específico para botanicaob en nginx
+❌ Falta: certificado SSL para botanicaob.duckdns.org
 ❌ Falta: deploy de la app Next.js
 
 ### Justificación del stack
