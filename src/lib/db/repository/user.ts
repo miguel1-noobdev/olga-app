@@ -27,6 +27,7 @@ export interface UserRepository {
   findById(id: string): Promise<UserRecord | null>;
   findAll(): Promise<UserRecord[]>;
   verifyPassword(user: UserRecord, password: string): Promise<boolean>;
+  updatePassword(id: string, password: string): Promise<void>;
   count(): Promise<number>;
   updateRole(id: string, role: Role): Promise<void>;
   updateAccountStatus(id: string, accountStatus: AccountStatus): Promise<void>;
@@ -114,6 +115,15 @@ export function createUserRepository(): UserRepository {
 
     async verifyPassword(user: UserRecord, password: string): Promise<boolean> {
       return bcrypt.compare(password, user.passwordHash);
+    },
+
+    async updatePassword(id: string, password: string): Promise<void> {
+      validatePassword(password);
+      const passwordHash = await bcrypt.hash(password, 10);
+      const result = await UserModel.findByIdAndUpdate(id, { passwordHash });
+      if (!result) {
+        throw new Error('User not found');
+      }
     },
 
     async count(): Promise<number> {

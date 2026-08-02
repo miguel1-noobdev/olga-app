@@ -46,11 +46,11 @@ Chain strategy: feature-branch-chain
 
 ## Phase 3: Recovery, Revocation, and Access
 
-> Scope clarification: `src/app/api/auth/account-access/route.ts` is listed in task 3.2 for the future recovery/access slice, but the Phase 2 candidate's disclosed one-line compatibility extension does not satisfy or complete task 3.2. Task 3.2 remains pending.
+> Scope clarification: the Phase 2 candidate's disclosed one-line `account-access/route.ts` extension supported pending-verification enforcement only; Unit 3 now completes the separate recovery, revocation, and persisted-access work described by task 3.2.
 
-- [ ] 3.1 RED: add tests for generic recovery, reset replay, staff role preservation, stale JWT, suspended access, and `/blog` return URLs.
-- [ ] 3.2 GREEN: create recovery/change routes and `scripts/staff-account-recovery.ts`; update `current-user.ts`, `src/proxy.ts`, and `account-access/route.ts`.
-- [ ] 3.3 REFACTOR: receipt-review invalidation; roll back routes/checks while preserving roles/audit records.
+- [x] 3.1 RED: add tests for generic recovery, reset replay, staff role preservation, stale JWT, suspended access, and `/blog` return URLs.
+- [x] 3.2 GREEN: create recovery/change routes and `scripts/staff-account-recovery.ts`; update `current-user.ts`, `src/proxy.ts`, and `account-access/route.ts`.
+- [x] 3.3 REFACTOR: receipt-review invalidation; roll back routes/checks while preserving roles/audit records.
 
 ## Phase 4: Google Linking
 

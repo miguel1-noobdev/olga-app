@@ -37,4 +37,18 @@ describe('getCurrentUser', () => {
 
     await expect(getCurrentUser()).resolves.toBeNull();
   });
+
+  it('denies a session whose security version is stale', async () => {
+    getServerSessionMock.mockResolvedValue({ user: { id: 'user-1', securityVersion: 3 } });
+    findByIdMock.mockResolvedValue({
+      id: 'user-1',
+      email: 'reader@example.com',
+      role: 'suscriptora',
+      accountStatus: 'active',
+      emailVerified: true,
+      securityVersion: 4,
+    });
+
+    await expect(getCurrentUser()).resolves.toBeNull();
+  });
 });
