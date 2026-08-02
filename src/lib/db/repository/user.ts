@@ -30,6 +30,8 @@ export interface UserRepository {
   count(): Promise<number>;
   updateRole(id: string, role: Role): Promise<void>;
   updateAccountStatus(id: string, accountStatus: AccountStatus): Promise<void>;
+  markEmailVerified(id: string): Promise<boolean>;
+  deletePendingRegistration(id: string): Promise<boolean>;
   advanceSecurityVersion(id: string): Promise<void>;
 }
 
@@ -134,6 +136,23 @@ export function createUserRepository(): UserRepository {
       if (!result) {
         throw new Error('User not found');
       }
+    },
+
+    async markEmailVerified(id: string): Promise<boolean> {
+      const result = await UserModel.findOneAndUpdate(
+        { _id: id, accountStatus: 'pending_email', emailVerified: false },
+        { $set: { accountStatus: 'active', emailVerified: true } },
+      );
+      return result !== null;
+    },
+
+    async deletePendingRegistration(id: string): Promise<boolean> {
+      const result = await UserModel.findOneAndDelete({
+        _id: id,
+        accountStatus: 'pending_email',
+        emailVerified: false,
+      });
+      return result !== null;
     },
 
     async advanceSecurityVersion(id: string): Promise<void> {

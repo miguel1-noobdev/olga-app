@@ -37,10 +37,14 @@ export const authOptions: NextAuthOptions = {
           if (dbUser) {
             token.id = dbUser.id;
             token.role = dbUser.role;
+            token.emailVerified = dbUser.emailVerified;
+            token.securityVersion = dbUser.securityVersion;
           }
         } else {
           token.id = user.id;
           token.role = user.role;
+          token.emailVerified = Boolean(user.emailVerified);
+          token.securityVersion = user.securityVersion;
         }
       }
 
@@ -51,6 +55,8 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
+        session.user.emailVerified = Boolean(token.emailVerified);
+        session.user.securityVersion = token.securityVersion as number;
       }
       return session;
     },

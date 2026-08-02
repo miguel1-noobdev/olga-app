@@ -13,7 +13,8 @@ describe('PM2 release activation script', () => {
     expect(syntax.status).toBe(0);
     expect(statSync(scriptPath).mode & 0o777).toBe(0o755);
     expect(source).toContain('#!/usr/bin/env bash');
-    expect(source).toContain('RELEASE_ID="b050790d8dc7ab9638dd74217c18cd770043401f"');
+    expect(source).toContain('readonly RELEASE_ID="${1:-}"');
+    expect(source).not.toContain('b050790d8dc7ab9638dd74217c18cd770043401f');
     expect(source).toContain('RELEASE_DIR="$APP_ROOT/releases/$RELEASE_ID"');
     expect(source).toContain('CURRENT_LINK="$APP_ROOT/current"');
     expect(source).toContain('SECRETS_FILE="/etc/botanica-ob/secrets.env"');

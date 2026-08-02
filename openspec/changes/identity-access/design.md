@@ -1,18 +1,19 @@
 # Design: Identity and Access
 
-## Technical Approach
+## Approach
 
-Extend the existing NextAuth v4 credentials flow, but make MongoDB authoritative for lifecycle, role, status, and security version. Separate accounts, provider identities, and one-time tokens. New accounts are `pending_email`; verification is required only for new registrations, while existing accounts remain active. Protected boundaries revalidate persisted state and session version.
+Extend the existing NextAuth v4 credentials flow while keeping MongoDB authoritative for lifecycle, role, status, and security version. Separate accounts, identities, and hashed tokens. New accounts are `pending_email`; verification applies only to new registrations. Boundaries revalidate persisted state and session version.
 
 ## Architecture Decisions
 
 | Decision | Choice | Alternatives rejected | Rationale |
 |---|---|---|---|
-| Identity model | Keep `User` as account authority; add `Identity` for credentials/Google and `AuthToken` for hashed purpose-bound tokens. | Put providers and reset fields on `User`. | Unique provider keys, atomic consumption, and role preservation stay explicit. |
-| Existing-account policy | Preserve existing accounts as active; enforce email verification only for new registrations. | Retroactively require verification or introduce a grace window. | This is the approved policy and avoids locking out current users while securing future registrations. |
-| Session revocation | Persist `securityVersion`; copy it into JWT and compare during account lookup. Increment on password/security changes. | JWT-only expiry or deleting cookies. | Revokes all old sessions across browsers and PM2 restarts. |
-| Email | `EmailSender` interface with SMTP implementation and validated config; templates contain no secrets. | Provider SDK directly in routes. | Keeps delivery testable and SMTP-first as documented. |
-| Google | Enable only with complete config and release flag; verified Google email may create `suscriptora`; existing local accounts require authenticated explicit linking. | Silent email-based merge or privileged provisioning. | Email equality is not proof of local-account control; public registration never grants staff access. |
+| Identity model | Keep `User` authoritative; add `Identity` and `AuthToken`. | Fields on `User`. | Explicit provider uniqueness, atomic consumption, and role preservation. |
+| Existing accounts | Preserve accounts as active; verify new registrations. | Retroactive verification. | Avoids lockout under the approved policy. |
+| Session revocation | Persist `securityVersion`, copy it into JWT, and compare during lookup. | JWT expiry. | Revokes sessions across browsers and PM2 restarts. |
+| Email transport | `EmailSender` uses validated runtime-only SMTP configuration. Gmail SMTP through `esenciales.ob@gmail.com` is approved temporarily until a custom domain exists; only the address is documented, never app-password values. Mailpit is test-only and captures mail without external delivery. | Provider SDK in routes or credentials in source/examples. | Testability, no secret leakage, and future transport replacement without changing registration contracts. |
+| Abuse controls | Durable rolling-hour limits: 5 per normalized email and 20 per trusted client IP. Forwarded IP headers are trusted only from local Nginx. | Arbitrary forwarded headers or process-local counters. | Prevents spoofing and survives PM2 restarts. |
+| Google | Enable only with complete config and release flag; verified Google email creates only `suscriptora`; local accounts require authenticated explicit linking. | Silent merge or privileged provisioning. | Email equality does not prove local-account control. |
 
 ## Data Flow
 
@@ -22,52 +23,52 @@ Route/UI -> application service -> repository -> MongoDB
                     EmailSender   audit/rate-limit records
 ```
 
-Registration creates a pending account and credential identity, hashes a verification token with SHA-256, stores expiry/purpose, and sends the raw token only in the URL. Verification atomically matches hash/purpose/account, requires unconsumed and unexpired state, activates the account, and consumes the token. Recovery reuses the primitive; password change/reset increments `securityVersion` and consumes relevant tokens.
+Registration creates a pending account and identity, hashes a token, stores purpose/expiry, and sends the raw token only in the URL. Verification atomically matches hash/purpose/account/expiry, activates the account, and consumes the token. Recovery reuses the primitive; security changes increment `securityVersion`.
 
 ## File Changes
 
 | File | Action | Description |
 |---|---|---|
-| `src/lib/db/models/user.ts`, `repository/user.ts` | Modify | Lifecycle, verification, security version, atomic mutations; preserve roles and active accounts. |
-| `src/lib/db/models/identity.ts`, `auth-token.ts`, `rate-limit.ts`, `auth-event.ts` | Create | Provider uniqueness, hashed one-time tokens/TTL, durable limits, redacted audit events. |
-| `src/lib/auth/{options,authorize-credentials,current-user,types}.ts` | Modify | Verified authorization, persisted version checks, conditional Google/linking contracts. |
-| `src/lib/email/{sender,config,templates}.ts` | Create | SMTP boundary, readiness validation, verification/recovery messages. |
-| `src/app/api/auth/{register,verify,resend,forgot-password,reset-password,change-password,link-google}/route.ts` | Modify/Create | Generic responses, auth flows, session checks, rate limits. |
-| `src/proxy.ts`, `src/app/api/auth/account-access/route.ts` | Modify | Fail-closed status, verification, and version enforcement. |
-| `src/components/auth/*`, auth pages | Modify | Accessible pending, recovery, reset, change-password, and gated Google UX. |
-| `scripts/identity-migration.ts`, `scripts/staff-account-recovery.ts`, `.env.example` | Create/Modify | Dry-run/apply migration, role-preserving operator recovery, external config contract. |
-| `tests/**` | Create/Modify | RED-first unit, Mongo integration, HTTP, and browser-facing contracts. |
+| `src/lib/db/models/user.ts`, `src/lib/db/repository/user.ts` | Modify | Lifecycle, verification, version, and role-preserving mutations. |
+| `src/lib/db/models/{identity,auth-token,rate-limit,auth-event}.ts` | Create | Provider uniqueness, hashed tokens, durable limits, redacted audit. |
+| `src/lib/auth/{options,authorize-credentials,current-user,types}.ts` | Modify | Verification, version checks, and linking contracts. |
+| `src/lib/email/{sender,config,templates}.ts` | Create | Runtime-only validated SMTP, temporary Gmail sender, Mailpit adapter, and templates; no app-password values. |
+| `src/app/api/auth/{register,verify,resend,forgot-password,reset-password,change-password,link-google,account-access}/route.ts` | Modify/Create | Generic lifecycle responses, delivery, session checks, and limits. |
+| `src/lib/auth/client-ip.ts`, `src/proxy.ts`, `ops/nginx/botanicasob.conf` | Modify/Create | Local-Nginx trusted forwarded-IP contract and fail-closed enforcement. |
+| `src/components/auth/*`, auth pages, `.env.example`, `scripts/*` | Modify | Pending/recovery UX, external runtime names, migration and recovery runbooks. |
+| `tests/**` | Create/Modify | RED-first unit, Mongo, HTTP, Mailpit, proxy, and browser contracts. |
 
 ## Interfaces / Contracts
 
 ```ts
 type TokenPurpose = 'email_verification' | 'password_reset' | 'google_link';
-interface AuthToken { accountId: string; purpose: TokenPurpose; tokenHash: string; expiresAt: Date; consumedAt?: Date; }
-interface EmailSender { send(message: { to: string; template: 'verify'|'recover'; tokenUrl: string }): Promise<void>; }
+interface EmailSender {
+  send(message: { to: string; template: 'verify' | 'recover'; tokenUrl: string }): Promise<void>;
+}
 interface AccountAccess { role: Role; accountStatus: AccountStatus; emailVerified: boolean; securityVersion: number; }
 ```
 
-Raw tokens use a cryptographically secure source, are never logged or persisted, are hashed before storage, and are consumed with one conditional update (`consumedAt: null`, matching hash/purpose/account/expiry). Durable limits are keyed by normalized email and trusted client IP; invalid proxy configuration fails closed for sensitive operations.
+Sender configuration is read only from runtime environment, validated before use, and fails closed when absent or invalid. The Gmail app-password value never appears in source, examples, fixtures, logs, or artifacts. Limits use normalized email and trusted client IP; direct or untrusted forwarded headers cannot choose the IP key.
 
 ## Testing Strategy
 
-Unit tests cover token replay/expiry, limits, sender readiness, role-preserving recovery, and JWT version claims. Mongo tests cover migration, uniqueness, password changes, and concurrent consumption. HTTP tests cover generic responses, lifecycle flows, stale sessions, signed account access, Google conflicts/linking, and SMTP failures. Existing role/proxy tests remain gates. Tests follow the repository's strict TDD configuration.
+Unit tests cover token replay/expiry, exact 5/20 boundaries, normalization, forwarded-IP trust, sender validation, no-send behavior, and JWT claims. Mailpit integration asserts capture without external delivery and checks the documented sender address without credential values. Mongo tests cover uniqueness and concurrent consumption; HTTP tests cover pending registration, generic responses, rotation, no session before verification, and SMTP failures. Existing role/proxy and Nginx topology tests remain gates. Follow strict TDD.
 
 ## Threat Matrix
 
 | Boundary | Applicability / response / RED test |
 |---|---|
-| Documentation-like paths | N/A — this change does not classify documentation or executable files. |
-| Git repository selection | N/A — the product design does not select repositories or invoke Git commands. |
-| Commit state | N/A — commit/index behavior is outside the product and test scope. |
-| Push state | N/A — remote publication is outside the product and test scope. |
-| PR commands | N/A — pull-request automation and command composition are not part of this change. |
+| Documentation-like paths | N/A — no documentation or executable classification. |
+| Git repository selection | N/A — no repository selection or Git commands. |
+| Commit state | N/A — commit/index behavior is outside product scope. |
+| Push state | N/A — remote publication is outside product scope. |
+| PR commands | N/A — PR automation is not part of this change. |
 
 ## Migration / Rollout
 
-Run a read-only migration report first. Apply after sign-off: preserve every role; existing accounts stay active, while new registrations require verification. Implement in ordered slices: foundation/dry-run; verified registration; recovery/revocation/staff; Google/linking; migration/hardening. Rollback disables new routes/providers, restores config/lifecycle fields through the runbook, and invalidates tokens/sessions; never changes roles.
+Run a read-only migration report, then apply after sign-off while preserving roles and active accounts. Unit 2 uses Gmail SMTP and Mailpit in tests. When a custom domain arrives, change SMTP implementation/configuration and readiness checks without changing registration, verification, resend, or `EmailSender` contracts. Rollback disables new routes/providers, restores configuration, and invalidates tokens/sessions without changing roles.
 
 ## Open Questions
 
-- [ ] Confirm SMTP provider/domain readiness and trusted-proxy/rate-limit thresholds.
+- [ ] Confirm VPS runtime SMTP secret provisioning and local-Nginx forwarded-IP configuration before enabling Unit 2.
 - [ ] Approve Google release flag and explicit local-link proof UX.

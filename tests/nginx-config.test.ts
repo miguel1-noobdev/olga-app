@@ -31,4 +31,11 @@ describe('production Nginx topology', () => {
     expect(config).toContain('proxy_read_timeout 60s;');
     expect(config).not.toContain('proxy_pass http://0.0.0.0:3000;');
   });
+
+  it('marks only the local reverse proxy as trusted for forwarded client IPs', () => {
+    const config = readFileSync(CONFIG_PATH, 'utf8');
+
+    expect(config).toContain('proxy_set_header X-Trusted-Proxy local-nginx;');
+    expect(config).toContain('proxy_set_header X-Forwarded-For $remote_addr;');
+  });
 });
