@@ -13,5 +13,16 @@ export async function getCurrentUser() {
   await connectToDatabase();
   const user = await createUserRepository().findById(session.user.id);
 
-  return user?.accountStatus === 'active' ? user : null;
+  if (!user || user.accountStatus !== 'active' || user.emailVerified === false) {
+    return null;
+  }
+
+  if (
+    typeof session.user.securityVersion === 'number' &&
+    session.user.securityVersion !== user.securityVersion
+  ) {
+    return null;
+  }
+
+  return user;
 }

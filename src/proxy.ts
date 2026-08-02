@@ -14,6 +14,7 @@ const textEncoder = new TextEncoder();
 type PersistedAccount = {
   role: string;
   emailVerified: boolean;
+  securityVersion: number;
 };
 
 function isPersistedAccount(value: unknown): value is PersistedAccount {
@@ -23,7 +24,11 @@ function isPersistedAccount(value: unknown): value is PersistedAccount {
     'role' in value &&
     typeof value.role === 'string' &&
     'emailVerified' in value &&
-    value.emailVerified === true
+    value.emailVerified === true &&
+    'securityVersion' in value &&
+    typeof value.securityVersion === 'number' &&
+    Number.isInteger(value.securityVersion) &&
+    value.securityVersion >= 0
   );
 }
 
@@ -127,7 +132,7 @@ export async function proxy(request: NextRequest) {
 
   const account = await getPersistedAccount(token.id);
 
-  if (!account) {
+  if (!account || (typeof token.securityVersion === 'number' && token.securityVersion !== account.securityVersion)) {
     return NextResponse.redirect(new URL('/', request.url));
   }
 

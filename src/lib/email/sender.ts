@@ -1,10 +1,10 @@
 import net from 'node:net';
 import tls from 'node:tls';
 import { readEmailConfig } from './config';
-import { buildVerificationMessage, type EmailMessage } from './templates';
+import { buildRecoveryMessage, buildVerificationMessage, type EmailMessage } from './templates';
 
 export interface EmailSender {
-  send(message: { to: string; template: 'verify'; tokenUrl: string }): Promise<void>;
+  send(message: { to: string; template: 'verify' | 'recover'; tokenUrl: string }): Promise<void>;
 }
 
 type Socket = net.Socket | tls.TLSSocket;
@@ -92,10 +92,9 @@ export function createEmailSender(environment: NodeJS.ProcessEnv = process.env):
   const config = readEmailConfig(environment);
   return {
     async send({ to, template, tokenUrl }) {
-      const message = template === 'verify' ? buildVerificationMessage({ to, tokenUrl }) : null;
-      if (!message) {
-        throw new Error('Email template is unavailable.');
-      }
+      const message = template === 'verify'
+        ? buildVerificationMessage({ to, tokenUrl })
+        : buildRecoveryMessage({ to, tokenUrl });
       await sendSmtp(config, message);
     },
   };

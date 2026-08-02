@@ -1,8 +1,8 @@
-# Apply Progress: Identity and Access Units 1–2
+# Apply Progress: Identity and Access Units 1–3
 
 ## Status
 
-Unit 1 (Phase 1: Foundation and Dry Run) and Unit 2 (Phase 2: Verified Registration) are complete in Strict TDD mode. This slice is on `feat/identity-access-unit-2-registration`, targeting the immediate parent `feat/identity-access-unit-1-foundation`. The native Unit 2 ledger recorded 838 authored lines; the maintainer explicitly accepted `size:exception` for this evidence-only reconciliation. No commit, push, PR, review, deployment, migration apply, or attempt-lifecycle operation was performed. The temporary Mailpit container used by the runtime harness was stopped after verification.
+Unit 1 (Phase 1: Foundation and Dry Run), Unit 2 (Phase 2: Verified Registration), and Unit 3 (Phase 3: Recovery, Revocation, and Access) are complete in Strict TDD mode. This slice is on `feat/identity-access-unit-3-recovery`, targeting the immediate parent `feat/identity-access-unit-2-registration` under the approved `feature-branch-chain` strategy. Unit 3 recorded 800 total authored changed lines, including the cumulative OpenSpec evidence update, exactly at the 800-line work-unit ceiling. No commit, push, PR, review, deployment, migration apply, or attempt-lifecycle operation was performed. The temporary Mailpit container used by the serial full-suite harness was stopped after verification.
 
 ## Completed Tasks
 
@@ -14,10 +14,13 @@ Unit 1 (Phase 1: Foundation and Dry Run) and Unit 2 (Phase 2: Verified Registrat
 - [x] 2.2 GREEN: Added runtime-only SMTP email delivery, verification/resend routes, pending-account flow, durable 5/20 rolling limits, and local-Nginx client-IP trust.
 - [x] 2.3 GREEN: Added verification/security-version auth claims, pending verification UI status, runtime variable documentation, and Nginx forwarding contract.
 - [x] 2.4 REFACTOR: Completed focused/runtime evidence and recorded the Unit 2 rollback and attempt-settlement boundary below.
+- [x] 3.1 RED: Added generic-recovery, reset-replay, staff-preservation, stale-session, suspended-access, and safe-blog-return-url tests before the Unit 3 production changes.
+- [x] 3.2 GREEN: Added password recovery/change routes, hashed expiring reset tokens, security-version revocation, persisted access checks, and the staff recovery runbook.
+- [x] 3.3 REFACTOR: Reviewed the invalidation and rollback boundary; evidence preserves roles and audit records and keeps Unit 4/5 untouched.
 
 ### Unit 2 Scope Reconciliation
 
-Read-only Git and CodeGraph evidence confirms that the candidate includes a one-line compatibility change in `src/app/api/auth/account-access/route.ts` and its companion test. The change exposes `emailVerified` to the persisted-account check consumed by `src/proxy.ts`, supporting Phase 2's pending-verification enforcement. It is disclosed here as a Phase 2 support change only; it does not implement Phase 3 recovery, revocation, or staff-access behavior. Phase 3 task 3.2 remains pending.
+Read-only Git and CodeGraph evidence confirms that the candidate includes a one-line compatibility change in `src/app/api/auth/account-access/route.ts` and its companion test. The change exposes `emailVerified` to the persisted-account check consumed by `src/proxy.ts`, supporting Phase 2's pending-verification enforcement. It is disclosed here as a Phase 2 support change only; it does not implement Phase 3 recovery, revocation, or staff-access behavior. Phase 3 task 3.2 is complete in Unit 3; Units 4 and 5 remain pending.
 
 ## Implementation Ordering
 
@@ -105,11 +108,49 @@ Read-only Git and CodeGraph evidence confirms that the candidate includes a one-
 
 ## Remaining Tasks
 
-Phase 1 and Phase 2 are complete. Phase 3+ remains pending and out of scope for this slice.
+Phase 1, Phase 2, and Phase 3 are complete. Phase 4 and Phase 5 remain pending and out of scope for this slice.
+
+## Unit 3 Implementation Ordering
+
+1. RED tests were written for generic known/unknown recovery responses, durable recovery limits, reset replay rejection, authenticated staff password changes, stale security versions, persisted account-version responses, and staff-role recovery before adding the recovery implementation.
+2. GREEN production code added `recovery.ts`, password reset/change routes, password hashing persistence, recovery email templates, session/token invalidation, and the staff-account recovery script. `current-user.ts`, `src/proxy.ts`, and `account-access/route.ts` now fail closed on persisted status, verification, and security-version drift.
+3. TRIANGULATE tests covered both successful and denied staff recovery, replayed reset tokens, generic unknown-address handling, rate-limit denial, suspended-session denial, stale JWT denial, and safe `/blog` callback preservation.
+4. REFACTOR review confirmed that recovery mutates only password/security-version/token state, preserves role and lifecycle status, records redacted audit events, and can be rolled back by disabling/reverting the Unit 3 routes and checks without deleting roles or audit records.
+
+## Unit 3 TDD Cycle Evidence
+
+| Task | Test file | Layer | Safety net | RED | GREEN | TRIANGULATE | REFACTOR |
+|---|---|---|---|---|---|---|---|
+| 3.1 | `tests/http/account-recovery.test.ts`, `tests/current-user.test.ts`, `tests/api-auth-account-access.test.ts`, `tests/middleware.test.ts` | Unit + HTTP contract | Existing Unit 1/2 auth/access baseline: 80/80 passed | New route and stale-version assertions failed before routes/checks existed | 5 files / 44 focused tests passed | Known/unknown, replay, rate-limit, staff change, suspended, stale JWT, persisted version, `/blog` return URL | Clean; assertions remain behavior-focused |
+| 3.2 | `src/app/api/auth/*password*/route.ts`, `tests/http/role-access.test.ts`, `tests/unit/staff-account-recovery.test.ts` | HTTP + Mongo integration | Existing repository/token tests remained green | Route imports and missing recovery behavior failed before implementation | Runtime reset/replay/stale-session path passed; staff repository contract passed | Subscriber/admin staff roles, active/suspended state preservation, one-time token, session version advancement | Clean; recovery is isolated in a reusable service |
+| 3.3 | `openspec/changes/identity-access/apply-progress.md` | Receipt/documentation | N/A — evidence artifact | N/A — receipt-review task | N/A — no new behavior; implementation evidence recorded | N/A — rollback and audit-preservation boundary reviewed | Complete; Unit 3 evidence digest recorded below |
+
+## Unit 3 Work Unit Evidence
+
+| Evidence | Exact result |
+|---|---|
+| Focused test command | `npm run test:run -- tests/http/account-recovery.test.ts tests/unit/staff-account-recovery.test.ts tests/current-user.test.ts tests/api-auth-account-access.test.ts tests/middleware.test.ts tests/unit/auth-token.test.ts tests/user-repository.test.ts tests/sanitize-callback-url.test.ts` → exit 0; 9 files passed; 88 tests passed. |
+| Runtime harness command/scenario | `npm run test:run -- tests/http/role-access.test.ts` → exit 0; 1 file and 6 tests passed. The real Next.js HTTP flow signed in a `productora`, reset its password with a one-time token, rejected replay, denied the stale pre-reset session at `/blog`, and accepted a fresh session with the preserved staff role. |
+| Full serial suite | `npm run test:run` with loopback Mailpit on `127.0.0.1:1025/8025` → exit 0; 145 files passed; 963 tests passed; no external email credentials used. |
+| Typecheck | `npx tsc --noEmit` → exit 0. |
+| Script typecheck | `npm run typecheck:scripts` → exit 0. |
+| Build | `npm run build` → exit 0; Next.js compiled and listed `/api/auth/change-password`, `/api/auth/forgot-password`, and `/api/auth/reset-password`. |
+| Diff hygiene | `git diff --check` → exit 0; 800 total authored changed lines (additions plus deletions across source, tests, and cumulative OpenSpec evidence), exactly at the 800-line work-unit ceiling. |
+| Rollback boundary | Revert/disable only `src/app/api/auth/{forgot-password,reset-password,change-password}/route.ts`, `src/lib/auth/recovery.ts`, `scripts/staff-account-recovery.ts`, the Unit 3 changes in `src/lib/{auth/current-user.ts,db/repository/user.ts,email/{sender.ts,templates.ts}}`, `src/proxy.ts`, and `src/app/api/auth/account-access/route.ts`, plus their Unit 3 tests and progress checkboxes. This removes recovery and revocation checks without changing persisted roles or deleting existing audit records. |
+
+## Unit 3 Receipt and Native-Settlement Data
+
+- **Work unit**: `unit-3-recovery-access`
+- **Goal**: `identity-recovery-revocation-access`
+- **Delivery**: force-chained `feature-branch-chain`, PR slice 3, base `feat/identity-access-unit-2-registration`.
+- **Native attempt**: reserved by the orchestrator as `sha256:38f362d058ea99b0ca7a53a4b74a4429cb4699b39173b2e86c2972cb12e96c0c`; no lifecycle operation was invoked by this executor.
+- **Evidence revision**: `sha256:19f056f3c2085e50df0e0092fb7ae47ff5022eb15b9326f64219f5ec024cd218` over the Unit 3 tuple (focused 9/88, runtime role-access 6/6, full 145/963, typecheck pass, script typecheck pass, build pass, diff-check pass, 800 total authored changed lines, Mailpit stopped, and the reserved attempt token).
+- **Settlement recommendation**: `success` for Unit 3 after the orchestrator computes/records the native content-bound evidence revision; Unit 4 and Unit 5 remain pending.
+- **Credentials/services**: only loopback Mailpit was started for the full suite and was stopped afterward; no external credentials or email provider were contacted.
 
 ## Transition Contract
 
-- `next_recommended: sdd-apply`
-- Next scope: Unit 3 — Recovery, Revocation, and Access, after parent settlement and review.
-- Hard prerequisite: Unit 2 focused/runtime evidence and the pre-existing PM2 test failure must be carried into verification context.
-- Final `sdd-verify` is blocked until all 17 tasks are complete.
+- `next_recommended: sdd-verify`
+- Next scope: verify Unit 3 — Recovery, Revocation, and Access, after the parent records native settlement.
+- Hard prerequisite: the Unit 3 native attempt must be settled using the evidence revision above; Unit 2 focused/runtime evidence and its historical diagnostics remain in verification context.
+- Final release verification remains blocked until all 17 tasks are complete; Unit 4 and Unit 5 are intentionally untouched.
