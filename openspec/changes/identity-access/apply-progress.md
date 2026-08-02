@@ -1,8 +1,8 @@
-# Apply Progress: Identity and Access Units 1–3
+# Apply Progress: Identity and Access Units 1–4
 
 ## Status
 
-Unit 1 (Phase 1: Foundation and Dry Run), Unit 2 (Phase 2: Verified Registration), and Unit 3 (Phase 3: Recovery, Revocation, and Access) are complete in Strict TDD mode. This slice is on `feat/identity-access-unit-3-recovery`, targeting the immediate parent `feat/identity-access-unit-2-registration` under the approved `feature-branch-chain` strategy. Unit 3 recorded 800 total authored changed lines, including the cumulative OpenSpec evidence update, exactly at the 800-line work-unit ceiling. No commit, push, PR, review, deployment, migration apply, or attempt-lifecycle operation was performed. The temporary Mailpit container used by the serial full-suite harness was stopped after verification.
+Unit 1 (Phase 1: Foundation and Dry Run), Unit 2 (Phase 2: Verified Registration), Unit 3 (Phase 3: Recovery, Revocation, and Access), and Unit 4 (Phase 4: Google Linking) are complete in Strict TDD mode. This slice is on `feat/identity-access-unit-4-google`, targeting the immediate parent `feat/identity-access-unit-3-recovery` under the approved `feature-branch-chain` strategy. Unit 4 remains uncommitted and has no native attempt lifecycle operation. Google tests use fake configuration, MongoMemoryServer, and mocked NextAuth callbacks only; no external Google OAuth call or credential was used. The temporary Mailpit container used by the serial full-suite harness was stopped after verification.
 
 ## Completed Tasks
 
@@ -17,10 +17,13 @@ Unit 1 (Phase 1: Foundation and Dry Run), Unit 2 (Phase 2: Verified Registration
 - [x] 3.1 RED: Added generic-recovery, reset-replay, staff-preservation, stale-session, suspended-access, and safe-blog-return-url tests before the Unit 3 production changes.
 - [x] 3.2 GREEN: Added password recovery/change routes, hashed expiring reset tokens, security-version revocation, persisted access checks, and the staff recovery runbook.
 - [x] 3.3 REFACTOR: Reviewed the invalidation and rollback boundary; evidence preserves roles and audit records and keeps Unit 4/5 untouched.
+- [x] 4.1 RED: Added Google provider-policy and HTTP linking tests before Unit 4 production changes, covering disabled configuration, tokenized proof, identity conflicts, verified new subscribers, existing identities, and ambiguous email denial.
+- [x] 4.2 GREEN: Added explicit release-gated Google provider activation, verified-profile handling, role-preserving identity sign-in, suscriptora-only new OAuth accounts, and the authenticated two-step `link-google` proof route.
+- [x] 4.3 REFACTOR: Reviewed provider-flag and identity rollback; disabling `GOOGLE_OAUTH_ENABLED` removes provider/linking availability without mutating accounts, identities, roles, or credentials.
 
 ### Unit 2 Scope Reconciliation
 
-Read-only Git and CodeGraph evidence confirms that the candidate includes a one-line compatibility change in `src/app/api/auth/account-access/route.ts` and its companion test. The change exposes `emailVerified` to the persisted-account check consumed by `src/proxy.ts`, supporting Phase 2's pending-verification enforcement. It is disclosed here as a Phase 2 support change only; it does not implement Phase 3 recovery, revocation, or staff-access behavior. Phase 3 task 3.2 is complete in Unit 3; Units 4 and 5 remain pending.
+Read-only Git and CodeGraph evidence confirms that the candidate includes a one-line compatibility change in `src/app/api/auth/account-access/route.ts` and its companion test. The change exposes `emailVerified` to the persisted-account check consumed by `src/proxy.ts`, supporting Phase 2's pending-verification enforcement. It is disclosed here as a Phase 2 support change only; it does not implement Phase 3 recovery, revocation, or staff-access behavior. Phase 3 task 3.2 is complete in Unit 3; Unit 4 is complete in this slice and Unit 5 remains pending.
 
 ## Implementation Ordering
 
@@ -108,7 +111,7 @@ Read-only Git and CodeGraph evidence confirms that the candidate includes a one-
 
 ## Remaining Tasks
 
-Phase 1, Phase 2, and Phase 3 are complete. Phase 4 and Phase 5 remain pending and out of scope for this slice.
+Phase 1, Phase 2, Phase 3, and Phase 4 are complete. Phase 5 remains pending and out of scope for this slice.
 
 ## Unit 3 Implementation Ordering
 
@@ -148,9 +151,48 @@ Phase 1, Phase 2, and Phase 3 are complete. Phase 4 and Phase 5 remain pending a
 - **Settlement recommendation**: `success` for Unit 3 after the orchestrator computes/records the native content-bound evidence revision; Unit 4 and Unit 5 remain pending.
 - **Credentials/services**: only loopback Mailpit was started for the full suite and was stopped afterward; no external credentials or email provider were contacted.
 
+## Unit 4 Implementation Ordering
+
+1. RED tests were written for release-gated provider activation, disabled linking, authenticated tokenized proof, replay denial, provider-identity uniqueness, verified subscriber provisioning, existing identity sign-in, role preservation, and ambiguous email denial before the Google implementation was added.
+2. GREEN production code added `getGoogleOAuthConfig`, conditional `GoogleProvider` registration, verified-profile checks, provider/account identity lookup, suscriptora-only OAuth provisioning, role-preserving linked sign-in, and the two-step `link-google` route. The route requires a current active local session, issues a short-lived hashed `google_link` token, and consumes it atomically before linking.
+3. TRIANGULATE coverage exercises disabled and incomplete configuration, new subscriber and existing staff identity paths, identity conflict, invalid/replayed proof, and local-email ambiguity. Google provider values are fake test strings and all callback behavior is local/mocked.
+4. REFACTOR review confirmed that Google is unavailable unless `GOOGLE_OAUTH_ENABLED=true` plus both runtime credentials are present, matching email alone never links an account, persisted roles are copied unchanged, and the provider/link route can be disabled without mutating account or role records.
+
+## Unit 4 TDD Cycle Evidence
+
+| Task | Test file | Layer | Safety net | RED | GREEN | TRIANGULATE | REFACTOR |
+|---|---|---|---|---|---|---|---|
+| 4.1 | `tests/http/google-linking.test.ts`, `tests/auth/google-provider-policy.test.ts`, `tests/auth-options-google.test.ts` | HTTP contract + unit/Mongo integration | N/A for new HTTP file; existing Google tests were run before their contract updates and exposed stale deferred-provider expectations | 4/4 new HTTP tests failed on missing `link-google` route; initial callback path also exposed the existing connection-mock requirement | Final Unit 4 focused suite passed 5 files / 25 tests | Disabled/partial config, new subscriber, existing identity, staff role, conflict, replay, tokenized proof, and ambiguous email cases | Clean; provider flag and rollback boundary remain explicit |
+| 4.2 | `tests/http/google-linking.test.ts`, `tests/auth-options-google.test.ts` | HTTP + NextAuth callback contract | Existing auth/options compatibility suite remained green after the intended contract update | Missing route/provider behavior failed before implementation | Unit 4 focused suite passed 25/25 | New `suscriptora`, linked `productora`, existing identity, non-Google, disabled, and email-only conflict paths | Clean; implementation split into pure config/linking helpers |
+| 4.3 | `openspec/changes/identity-access/apply-progress.md` | Receipt/documentation | N/A — evidence artifact | N/A — receipt-review task | N/A — artifact records completed behavior | Provider-disable and account/role-preservation rollback cases reviewed | Complete; exact evidence and rollback boundary recorded below |
+
+## Unit 4 Work Unit Evidence
+
+| Evidence | Exact result |
+|---|---|
+| Focused test command | `npm run test:run -- tests/http/google-linking.test.ts tests/auth/google-provider-policy.test.ts tests/auth-options-google.test.ts tests/auth/nextauth-compatibility.test.ts tests/unit/auth-token.test.ts` → exit 0; 5 files passed; 25 tests passed. |
+| Runtime harness command/scenario | `npm run test:run -- tests/http/google-linking.test.ts` → exit 0; 1 file and 5 tests passed using MongoMemoryServer plus mocked NextAuth/Google callback inputs; release gating, token issuance/consumption, replay denial, identity conflict, and role preservation exercised locally; no Google network or credentials. |
+| Full serial suite | Started `axllent/mailpit:latest` as `olga-identity-unit-4-mailpit` on loopback `127.0.0.1:1025/8025`; an initial run had one transient Mailpit test timeout, isolated rerun passed 1/1, then the subsequent `npm run test:run` → exit 0; 146 files passed; 970 tests passed. Mailpit was stopped and removed afterward. |
+| Typecheck | `npx tsc --noEmit` → exit 0 after removing stale ignored `.next/dev/types` generated artifacts; the build also passed TypeScript validation. |
+| Script typecheck | `npm run typecheck:scripts` → exit 0. |
+| Build | `npm run build` → exit 0; Next.js compiled and listed `/api/auth/link-google`; Google remained disabled because the release flag was absent in the build environment. |
+| Diff hygiene | `git diff --check` → exit 0. |
+| Changed-line count | 630 authored changed lines across tracked and new Unit 4 source, tests, and cumulative OpenSpec artifacts; below the 800-line work-unit ceiling. |
+| Rollback boundary | Revert/disable only `src/lib/auth/{google,google-linking}.ts`, `src/app/api/auth/link-google/route.ts`, the Unit 4 additions in `src/lib/auth/options.ts`, and the Unit 4 Google tests plus cumulative progress/task evidence. Operational rollback is to remove or set `GOOGLE_OAUTH_ENABLED` to anything other than `true`; this removes the provider and linking availability without deleting identities, changing roles/status, changing passwords, or touching Units 1–3. |
+
+## Unit 4 Receipt and Native-Settlement Data
+
+- **Work unit**: `unit-4-google-linking`
+- **Goal**: `identity-google-oauth-explicit-linking`
+- **Delivery**: force-chained `feature-branch-chain`, PR slice 4, base `feat/identity-access-unit-3-recovery`.
+- **Reserved native attempt**: `sha256:e1990ca52e95d97fa76e921cbb3c060aef0808dfc41d473bd052d140ef4013da`; no lifecycle operation was invoked by this executor.
+- **Evidence revision**: `sha256:f0769afaf851df41eeeedd29559cb341551becff0a0ef72183aff727791816c0` over `unit-4-google-linking|attempt=sha256:e1990ca52e95d97fa76e921cbb3c060aef0808dfc41d473bd052d140ef4013da|focused=5-files-25-tests|runtime=1-file-5-tests|full=146-files-970-tests|typecheck=pass|script-typecheck=pass|build=pass|diff-check=pass|changed-lines=630|mailpit=stopped-and-removed|external-google=none|external-credentials=none`.
+- **Settlement recommendation**: `success` for Unit 4 after the orchestrator records native content-bound settlement; Unit 5 remains pending.
+- **Credentials/services**: fake Google configuration only in tests, mocked NextAuth callback inputs, local MongoMemoryServer, and loopback Mailpit for the serial suite; no external Google OAuth, access token, client credential, or email provider was contacted.
+
 ## Transition Contract
 
 - `next_recommended: sdd-verify`
-- Next scope: verify Unit 3 — Recovery, Revocation, and Access, after the parent records native settlement.
-- Hard prerequisite: the Unit 3 native attempt must be settled using the evidence revision above; Unit 2 focused/runtime evidence and its historical diagnostics remain in verification context.
-- Final release verification remains blocked until all 17 tasks are complete; Unit 4 and Unit 5 are intentionally untouched.
+- Next scope: verify Unit 4 — Google Linking, after the parent records native settlement.
+- Hard prerequisite: the Unit 4 native attempt must be settled using the evidence revision above; Unit 3 focused/runtime evidence and its historical diagnostics remain in verification context.
+- Final release verification remains blocked until all 17 tasks are complete; Unit 5 remains intentionally untouched.
