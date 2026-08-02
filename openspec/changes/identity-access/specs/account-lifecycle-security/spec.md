@@ -36,12 +36,25 @@ The system MUST provide purpose-bound, expiring verification and resend flows wi
 
 ### Requirement: Email delivery failure is fail-closed
 
-SMTP sender, domain, and readiness configuration MUST be validated before sending. Delivery failure MUST NOT activate an account or expose a raw provider error; provider/domain/SPF/DKIM/DMARC decisions remain configuration decisions.
+SMTP sender and readiness configuration MUST be validated before sending. Temporary production delivery MUST use Gmail SMTP with the dedicated sender `esenciales.ob@gmail.com`. Its app password MUST remain a VPS/runtime secret and MUST NOT appear in source, examples, test fixtures, or artifacts. Automated tests MUST use Mailpit and MUST NOT deliver external email. SMTP MUST fail closed when its approved runtime configuration is absent or invalid. Delivery failure MUST NOT activate an account or expose a raw provider error.
+(Previously: provider, domain, and SPF/DKIM/DMARC readiness remained undecided configuration.)
 
-#### Scenario: Registration email cannot be delivered
-- GIVEN account persistence or delivery fails during registration
-- WHEN the flow completes
-- THEN the account cannot authenticate as verified and the response is generic
+#### Scenario: Approved production SMTP is used
+- GIVEN approved runtime SMTP configuration is present and valid
+- WHEN a production verification or recovery message is sent
+- THEN Gmail SMTP sends it using `esenciales.ob@gmail.com`
+- AND no credential value is written to source, examples, fixtures, or artifacts
+
+#### Scenario: Automated email remains local
+- GIVEN automated tests exercise an email flow
+- WHEN a message is sent
+- THEN Mailpit receives it
+- AND no external email provider is contacted
+
+#### Scenario: Missing or invalid SMTP fails closed
+- GIVEN approved runtime SMTP configuration is absent or invalid
+- WHEN an email flow attempts delivery
+- THEN no message is sent, the account cannot authenticate as verified, and the response is generic
 
 ### Requirement: Token security
 
@@ -72,12 +85,23 @@ The system MUST enforce persisted status and a session/security version so users
 
 ### Requirement: Abuse limits and audit
 
-Verification, resend, login, recovery, reset, and OAuth/linking endpoints MUST use durable, trusted-proxy-aware rate limits; thresholds and proxy trust MUST be configuration decisions. Security events MUST be auditable without secrets or raw tokens.
+Verification, resend, login, recovery, reset, and OAuth/linking endpoints MUST use durable rate limits of 5 attempts per normalized email per rolling hour and 20 attempts per trusted client IP per rolling hour. The app MAY trust forwarded client-IP headers only from the local Nginx reverse proxy; direct or untrusted forwarded headers MUST NOT determine the limit key. Security events MUST be auditable without secrets or raw tokens.
+(Previously: thresholds and proxy trust remained undecided configuration.)
 
 #### Scenario: Limit reached
-- GIVEN an identity or network exceeds a configured limit
+- GIVEN a normalized email has reached 5 attempts or a trusted client IP has reached 20 attempts in the rolling hour
 - WHEN another sensitive request arrives
 - THEN it is rejected generically and an audit event records the outcome
+
+#### Scenario: Only the local proxy supplies the client IP key
+- GIVEN a request arrives through the local Nginx reverse proxy with a forwarded client IP
+- WHEN the IP-based limit key is calculated
+- THEN the forwarded client IP determines the key
+
+#### Scenario: Untrusted forwarding cannot evade limits
+- GIVEN a request arrives directly or through an untrusted proxy with a forwarded client IP
+- WHEN the IP-based limit key is calculated
+- THEN the forwarded value is ignored and MUST NOT determine the key
 
 ### Requirement: Migration and rollback
 

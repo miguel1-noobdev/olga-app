@@ -30,7 +30,7 @@ Separate accounts, identities, and hashed tokens. Raw tokens exist only in URLs;
 
 New accounts remain `pending_email` until verified. Existing accounts receive no implicit upgrade: dry-run, preserve roles, then apply the approved verification/grace policy. An authenticated operator runbook recovers the targeted staff account, preserves `admin`/`productora`, revokes sessions, and never changes role/status incidentally.
 
-`EmailSender` is SMTP-first; secrets stay external. Sender/configuration validation, delivery failures, SPF/DKIM/DMARC, and fail-closed no-send are prerequisites. Google stays disabled without explicit complete configuration; verified Google email creates only `suscriptora`; credentials accounts need authenticated explicit linking; identities are unique by provider/account ID.
+`EmailSender` is SMTP-first and reads runtime-only secrets. Unit 2 temporarily uses Gmail SMTP sender `esenciales.ob@gmail.com` until a custom domain exists; absent or invalid SMTP configuration fails closed. Mailpit is test-only and never sends externally. Abuse controls allow 5 attempts per normalized email and 20 per trusted client IP per rolling hour; forwarded client IP is trusted only from local Nginx. Google stays disabled without explicit complete configuration; verified Google email creates only `suscriptora`; credentials accounts need authenticated explicit linking; identities are unique by provider/account ID.
 
 ## Affected Areas
 
@@ -47,8 +47,8 @@ New accounts remain `pending_email` until verified. Existing accounts receive no
 ## Validation Required
 
 - Public-account grace duration and staff-verification allowlist.
-- SMTP provider/domain/readiness; trusted-proxy/rate-limit thresholds.
-- Google release flag and proof for explicit local linking.
+- Unit 2 SMTP runtime provisioning and local-Nginx forwarded-IP configuration before enablement; the approved sender, Mailpit isolation, fail-closed behavior, and 5/20 limits are fixed.
+- Google release flag and proof for explicit local linking (Unit 4).
 
 ## Risks and Rollback
 

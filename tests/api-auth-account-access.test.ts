@@ -37,12 +37,12 @@ describe('GET /api/auth/account-access', () => {
   });
 
   it('returns only the current role for an active internally verified account', async () => {
-    findByIdMock.mockResolvedValue({ accountStatus: 'active', role: 'productora' });
+    findByIdMock.mockResolvedValue({ accountStatus: 'active', role: 'productora', emailVerified: true });
 
     const response = await GET(createInternalRequest('user-1'));
 
     expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ role: 'productora' });
+    expect(await response.json()).toEqual({ role: 'productora', emailVerified: true });
     expect(response.headers.get('Cache-Control')).toBe('no-store');
   });
 

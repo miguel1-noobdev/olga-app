@@ -35,7 +35,7 @@ function mockActiveToken(role: 'suscriptora' | 'productora' | 'admin') {
   getTokenMock.mockResolvedValue({ id: 'user-1', email: 'test@test.com', role });
   fetchMock.mockResolvedValue({
     ok: true,
-    json: vi.fn().mockResolvedValue({ role }),
+    json: vi.fn().mockResolvedValue({ role, emailVerified: true }),
   });
 }
 
@@ -216,6 +216,20 @@ describe('middleware', () => {
     it('rejects a missing persisted user and database unavailability without leaking errors', async () => {
       getTokenMock.mockResolvedValue({ id: 'user-1', email: 'test@test.com', role: 'suscriptora' });
       fetchMock.mockResolvedValue({ ok: false, json: vi.fn() });
+
+      await middleware(createMockRequest('/blog'));
+
+      expect(NextResponse.redirect).toHaveBeenCalledTimes(1);
+      const redirectUrl = vi.mocked(NextResponse.redirect).mock.calls[0][0] as URL;
+      expect(redirectUrl.pathname).toBe('/');
+    });
+
+    it('rejects a persisted account that is not email verified', async () => {
+      getTokenMock.mockResolvedValue({ id: 'user-1', email: 'test@test.com', role: 'suscriptora' });
+      fetchMock.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ role: 'suscriptora', emailVerified: false }),
+      });
 
       await middleware(createMockRequest('/blog'));
 

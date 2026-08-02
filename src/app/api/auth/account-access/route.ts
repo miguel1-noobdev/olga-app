@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
       return new NextResponse(null, { status: 403 });
     }
 
-    return NextResponse.json({ role: user.role }, {
+    return NextResponse.json({ role: user.role, emailVerified: user.emailVerified }, {
       headers: { 'Cache-Control': 'no-store' },
     });
   } catch {

@@ -20,7 +20,12 @@ describe('authorizeWithRepository', () => {
   });
 
   it('returns user object for valid credentials', async () => {
-    const created = await repo.create({ email: 'olga@botanicaob.com', password: 'secret123' });
+    const created = await repo.create({
+      email: 'olga@botanicaob.com',
+      password: 'secret123',
+      accountStatus: 'active',
+      emailVerified: true,
+    });
 
     const user = await authorizeWithRepository(repo, {
       email: 'olga@botanicaob.com',
@@ -31,6 +36,7 @@ describe('authorizeWithRepository', () => {
       id: created.id,
       email: 'olga@botanicaob.com',
       role: 'suscriptora',
+      securityVersion: 0,
     });
   });
 
@@ -88,6 +94,22 @@ describe('authorizeWithRepository', () => {
 
     const user = await authorizeWithRepository(repo, {
       email: 'suspended@botanicaob.com',
+      password: 'secret123',
+    });
+
+    expect(user).toBeNull();
+  });
+
+  it('rejects a pending account even when its password is valid', async () => {
+    await repo.create({
+      email: 'pending@botanicaob.com',
+      password: 'secret123',
+      accountStatus: 'pending_email',
+      emailVerified: false,
+    });
+
+    const user = await authorizeWithRepository(repo, {
+      email: 'pending@botanicaob.com',
       password: 'secret123',
     });
 

@@ -48,7 +48,7 @@ export default function RegisterForm() {
         return;
       }
 
-      // Registration successful - redirect to login
+      // Registration remains pending until the verification link is consumed.
       router.push('/login?registered=true');
     } catch {
       setError('Ocurrió un error. Intentá de nuevo.');

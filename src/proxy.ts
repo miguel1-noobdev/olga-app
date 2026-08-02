@@ -13,6 +13,7 @@ const textEncoder = new TextEncoder();
 
 type PersistedAccount = {
   role: string;
+  emailVerified: boolean;
 };
 
 function isPersistedAccount(value: unknown): value is PersistedAccount {
@@ -20,7 +21,9 @@ function isPersistedAccount(value: unknown): value is PersistedAccount {
     typeof value === 'object' &&
     value !== null &&
     'role' in value &&
-    typeof value.role === 'string'
+    typeof value.role === 'string' &&
+    'emailVerified' in value &&
+    value.emailVerified === true
   );
 }
 

@@ -17,6 +17,8 @@ function LoginFormInner() {
   const [isLoading, setIsLoading] = useState(false);
 
   const errorParam = searchParams.get('error');
+  const registrationAccepted = searchParams.get('registered') === 'true';
+  const verificationCompleted = searchParams.get('verified') === 'true';
   const callbackUrl = sanitizeCallbackUrl(searchParams.get('callbackUrl'));
 
   useEffect(() => {
@@ -71,6 +73,15 @@ function LoginFormInner() {
   return (
     <div className="glass-card p-8">
       <form onSubmit={handleSubmit} className="space-y-6">
+        {(registrationAccepted || verificationCompleted) && (
+          <div role="status" className="p-3 bg-green-50 border border-green-200 rounded-lg">
+            <p className="text-sm text-green-700">
+              {registrationAccepted
+                ? 'Revisá tu email para verificar la cuenta antes de iniciar sesión.'
+                : 'Email verificado. Ya podés iniciar sesión.'}
+            </p>
+          </div>
+        )}
         {/* Email */}
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-on-surface mb-2">

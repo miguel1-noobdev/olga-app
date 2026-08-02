@@ -1,6 +1,12 @@
 import { NextResponse } from 'next/server';
 import { createUserRepository } from '@/lib/db/repository/user';
 import { connectToDatabase } from '@/lib/db/connect';
+import { getClientIp } from '@/lib/auth/client-ip';
+import { consumeRateLimit } from '@/lib/auth/rate-limit';
+import { createEmailSender } from '@/lib/email/sender';
+import { issueVerificationEmail, normalizeRegistrationEmail } from '@/lib/auth/registration';
+
+const RESPONSE = { message: 'If the address can be registered, a verification email will be sent.' };
 
 function isDuplicateEmailError(error: unknown): boolean {
   return (
@@ -24,21 +30,34 @@ export async function POST(request: Request) {
       );
     }
 
-    const repo = createUserRepository();
-    await repo.create({ email, password });
+    const normalizedEmail = normalizeRegistrationEmail(email);
+    const ip = getClientIp(request.headers);
+    const allowed = await Promise.all([
+      consumeRateLimit({ subject: 'email', key: normalizedEmail, limit: 5 }),
+      consumeRateLimit({ subject: 'ip', key: ip, limit: 20 }),
+    ]);
+    if (!allowed.every(Boolean)) return NextResponse.json(RESPONSE, { status: 429 });
 
-    return NextResponse.json(
-      { message: 'Registration request accepted' },
-      { status: 202 }
-    );
+    const repo = createUserRepository();
+    const user = await repo.create({
+      email: normalizedEmail,
+      password,
+      accountStatus: 'pending_email',
+      emailVerified: false,
+    });
+    try {
+      await issueVerificationEmail(user, createEmailSender());
+    } catch (error) {
+      await repo.deletePendingRegistration(user.id);
+      throw error;
+    }
+
+    return NextResponse.json(RESPONSE, { status: 202 });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Registration failed';
 
     if (isDuplicateEmailError(error)) {
-      return NextResponse.json(
-        { message: 'Registration request accepted' },
-        { status: 202 }
-      );
+      return NextResponse.json(RESPONSE, { status: 202 });
     }
 
     if (message.includes('Password must be at least')) {
@@ -55,9 +74,7 @@ export async function POST(request: Request) {
       );
     }
 
-    return NextResponse.json(
-      { error: 'Registration failed' },
-      { status: 500 }
-    );
+    const status = message.includes('Email delivery') ? 503 : 500;
+    return NextResponse.json({ message: status === 503 ? 'Registration could not be completed.' : 'Registration failed' }, { status });
   }
 }

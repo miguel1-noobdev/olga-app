@@ -2,12 +2,18 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
-const { connectToDatabaseMock } = vi.hoisted(() => ({
+const { connectToDatabaseMock, sendMock, createEmailSenderMock } = vi.hoisted(() => ({
   connectToDatabaseMock: vi.fn(),
+  sendMock: vi.fn().mockResolvedValue(undefined),
+  createEmailSenderMock: vi.fn(),
 }));
 
 vi.mock('@/lib/db/connect', () => ({
   connectToDatabase: connectToDatabaseMock,
+}));
+
+vi.mock('@/lib/email/sender', () => ({
+  createEmailSender: createEmailSenderMock,
 }));
 
 async function callRegisterRoute(body: unknown): Promise<Response> {
@@ -27,10 +33,13 @@ describe('/api/auth/register POST', () => {
   beforeEach(async () => {
     mongoServer = await MongoMemoryServer.create();
     await mongoose.connect(mongoServer.getUri());
+    vi.stubEnv('NEXTAUTH_URL', 'https://botanicaob.example.test');
     connectToDatabaseMock.mockResolvedValue(undefined);
+    createEmailSenderMock.mockReturnValue({ send: sendMock });
   });
 
   afterEach(async () => {
+    vi.unstubAllEnvs();
     vi.restoreAllMocks();
     vi.clearAllMocks();
     await mongoose.disconnect();
@@ -45,7 +54,9 @@ describe('/api/auth/register POST', () => {
 
     expect(res.status).toBe(202);
     const json = await res.json();
-    expect(json).toEqual({ message: 'Registration request accepted' });
+    expect(json).toEqual({
+      message: 'If the address can be registered, a verification email will be sent.',
+    });
   });
 
   it('stores a bcrypt hashed password, not plaintext', async () => {
@@ -125,7 +136,9 @@ describe('/api/auth/register POST', () => {
     });
 
     expect(res.status).toBe(202);
-    expect(await res.json()).toEqual({ message: 'Registration request accepted' });
+    expect(await res.json()).toEqual({
+      message: 'If the address can be registered, a verification email will be sent.',
+    });
   });
 
   it('returns 400 when email or password is missing', async () => {
@@ -175,6 +188,6 @@ describe('/api/auth/register POST', () => {
 
     expect(res.status).toBe(500);
     const json = await res.json();
-    expect(json.error).toBe('Registration failed');
+    expect(json.message).toBe('Registration failed');
   });
 });
