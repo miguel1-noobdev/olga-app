@@ -2,6 +2,7 @@ import { ROLES } from '@/lib/auth/roles';
 import type { AccountStatus, Role } from '@/lib/db/models/user';
 
 export type EditableAccountStatus = Extract<AccountStatus, 'active' | 'suspended'>;
+export type { AccountStatus };
 
 export interface AdminUserRecord {
   id: string;
