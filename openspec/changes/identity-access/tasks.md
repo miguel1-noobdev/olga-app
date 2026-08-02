@@ -26,7 +26,7 @@ Chain strategy: feature-branch-chain
 | 4 | Google/linking | 4, ≤800; base = PR 3 branch | `npm test -- google-linking` | disabled/proof flow | Provider/linking only |
 | 5 | Migration hardening | 5, ≤800; base = PR 4 branch | `npm test -- identity-migration` | apply rehearsal receipt | Migration/config/runbook |
 
-**Delivery:** the tracker accumulates the release; PR #1 targets the tracker, PR #2 (`feat/identity-access-unit-2-registration`) targets `feat/identity-access-unit-1-foundation`, and each later child targets its immediate prior child branch. **Unit 2 transport:** temporary Gmail SMTP sender `esenciales.ob@gmail.com`; Mailpit is test-only and never delivers externally; the Gmail app password is VPS-only and never source-controlled. Unit 1 is autonomous and credential-free; Google approval remains a Unit 4 blocker.
+**Delivery:** the tracker accumulates the release; PR #1 targets the tracker, PR #2 (`feat/identity-access-unit-2-registration`) targets `feat/identity-access-unit-1-foundation`, and each later child targets its immediate prior child branch. **Unit 2 transport:** temporary Gmail SMTP sender `esenciales.ob@gmail.com`; Mailpit is test-only and never delivers externally; the Gmail app password is VPS-only and never source-controlled. Unit 1 is autonomous and credential-free; Unit 4 requires the explicit `GOOGLE_OAUTH_ENABLED` release flag and tokenized local proof.
 
 ## Phase 1: Foundation and Dry Run
 
@@ -54,9 +54,9 @@ Chain strategy: feature-branch-chain
 
 ## Phase 4: Google Linking
 
-- [ ] 4.1 RED: add `tests/http/google-linking.test.ts`: disabled config, verified subscriber, existing identity, ambiguous-email denial.
-- [ ] 4.2 GREEN: wire `src/lib/auth/options.ts` and `link-google/route.ts` only after approved proof UX; never merge silently.
-- [ ] 4.3 REFACTOR: receipt-review provider flag; rollback by disabling Google/linking without touching accounts or roles.
+- [x] 4.1 RED: add `tests/http/google-linking.test.ts`: disabled config, verified subscriber, existing identity, ambiguous-email denial.
+- [x] 4.2 GREEN: wire `src/lib/auth/options.ts` and `link-google/route.ts` only after approved proof UX; never merge silently.
+- [x] 4.3 REFACTOR: receipt-review provider flag; rollback by disabling Google/linking without touching accounts or roles.
 
 ## Phase 5: Apply, Audit, and Release Hardening
 
