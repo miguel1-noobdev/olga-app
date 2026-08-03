@@ -42,6 +42,11 @@ describe('email configuration', () => {
   it('documents the existing NextAuth application URL convention', () => {
     const environment = readFileSync('.env.example', 'utf8');
     expect(environment).toContain('NEXTAUTH_URL=https://botanicaob.duckdns.org');
+    expect(environment).toContain('SMTP_HOST=smtp.gmail.com');
+    expect(environment).toContain('SMTP_PORT=465');
+    expect(environment).toContain('SMTP_SECURE=true');
+    expect(environment).toContain('SMTP_FROM=esenciales.ob@gmail.com');
+    expect(environment).toContain('TRUSTED_PROXY_NAME=local-nginx');
     expect(environment).not.toContain('APP_URL=');
   });
 });

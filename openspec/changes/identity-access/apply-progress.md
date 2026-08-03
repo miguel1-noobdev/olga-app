@@ -1,8 +1,8 @@
-# Apply Progress: Identity and Access Units 1–4
+# Apply Progress: Identity and Access Units 1–5
 
 ## Status
 
-Unit 1 (Phase 1: Foundation and Dry Run), Unit 2 (Phase 2: Verified Registration), Unit 3 (Phase 3: Recovery, Revocation, and Access), and Unit 4 (Phase 4: Google Linking) are complete in Strict TDD mode. This slice is on `feat/identity-access-unit-4-google`, targeting the immediate parent `feat/identity-access-unit-3-recovery` under the approved `feature-branch-chain` strategy. Unit 4 remains uncommitted and has no native attempt lifecycle operation. Google tests use fake configuration, MongoMemoryServer, and mocked NextAuth callbacks only; no external Google OAuth call or credential was used. The temporary Mailpit container used by the serial full-suite harness was stopped after verification.
+Unit 1 (Phase 1: Foundation and Dry Run), Unit 2 (Phase 2: Verified Registration), Unit 3 (Phase 3: Recovery, Revocation, and Access), Unit 4 (Phase 4: Google Linking), and Unit 5 (Phase 5: Apply, Audit, and Release Hardening) are complete in Strict TDD mode. This slice is on `feat/identity-access-unit-5-hardening`, based on `origin/feat/identity-access-unit-1-foundation` under the approved `feature-branch-chain` strategy; the chain strategy and target were not changed. Unit 5 remains uncommitted and has no native attempt lifecycle operation. Google tests use fake configuration, MongoMemoryServer, and mocked NextAuth callbacks only; no external Google OAuth call or credential was used. The temporary Mailpit container used by the serial full-suite harness was stopped after verification.
 
 ## Completed Tasks
 
@@ -20,10 +20,13 @@ Unit 1 (Phase 1: Foundation and Dry Run), Unit 2 (Phase 2: Verified Registration
 - [x] 4.1 RED: Added Google provider-policy and HTTP linking tests before Unit 4 production changes, covering disabled configuration, tokenized proof, identity conflicts, verified new subscribers, existing identities, and ambiguous email denial.
 - [x] 4.2 GREEN: Added explicit release-gated Google provider activation, verified-profile handling, role-preserving identity sign-in, suscriptora-only new OAuth accounts, and the authenticated two-step `link-google` proof route.
 - [x] 4.3 REFACTOR: Reviewed provider-flag and identity rollback; disabling `GOOGLE_OAUTH_ENABLED` removes provider/linking availability without mutating accounts, identities, roles, or credentials.
+- [x] 5.1 RED: Added migration apply/receipt-integrity, proxy fail-closed, approved-limit, and token-free audit tests before the hardening implementation.
+- [x] 5.2 GREEN: Added reviewed migration apply with role guards, canonical 5/20 rolling-hour defaults and denial audits, hashed/sanitized audit events, runtime proxy marker configuration, approved environment values, and migration/rollback runbook instructions.
+- [x] 5.3 REFACTOR: Rehearsed credential-free dry-run/apply guard and MongoMemoryServer apply behavior; reviewed provider/route disable and token/session invalidation rollback without role mutation.
 
 ### Unit 2 Scope Reconciliation
 
-Read-only Git and CodeGraph evidence confirms that the candidate includes a one-line compatibility change in `src/app/api/auth/account-access/route.ts` and its companion test. The change exposes `emailVerified` to the persisted-account check consumed by `src/proxy.ts`, supporting Phase 2's pending-verification enforcement. It is disclosed here as a Phase 2 support change only; it does not implement Phase 3 recovery, revocation, or staff-access behavior. Phase 3 task 3.2 is complete in Unit 3; Unit 4 is complete in this slice and Unit 5 remains pending.
+Read-only Git and CodeGraph evidence confirms that the candidate includes a one-line compatibility change in `src/app/api/auth/account-access/route.ts` and its companion test. The change exposes `emailVerified` to the persisted-account check consumed by `src/proxy.ts`, supporting Phase 2's pending-verification enforcement. It is disclosed here as a Phase 2 support change only; it does not implement Phase 3 recovery, revocation, or staff-access behavior. Phase 3 task 3.2 is complete in Unit 3; Unit 4 and Unit 5 are complete in their respective slices.
 
 ## Implementation Ordering
 
@@ -111,7 +114,7 @@ Read-only Git and CodeGraph evidence confirms that the candidate includes a one-
 
 ## Remaining Tasks
 
-Phase 1, Phase 2, Phase 3, and Phase 4 are complete. Phase 5 remains pending and out of scope for this slice.
+At the Unit 2 completion point, Phase 1, Phase 2, Phase 3, and Phase 4 were complete and Phase 5 remained pending; Unit 5 now completes that final phase in this slice.
 
 ## Unit 3 Implementation Ordering
 
@@ -187,12 +190,65 @@ Phase 1, Phase 2, Phase 3, and Phase 4 are complete. Phase 5 remains pending and
 - **Delivery**: force-chained `feature-branch-chain`, PR slice 4, base `feat/identity-access-unit-3-recovery`.
 - **Reserved native attempt**: `sha256:e1990ca52e95d97fa76e921cbb3c060aef0808dfc41d473bd052d140ef4013da`; no lifecycle operation was invoked by this executor.
 - **Evidence revision**: `sha256:f0769afaf851df41eeeedd29559cb341551becff0a0ef72183aff727791816c0` over `unit-4-google-linking|attempt=sha256:e1990ca52e95d97fa76e921cbb3c060aef0808dfc41d473bd052d140ef4013da|focused=5-files-25-tests|runtime=1-file-5-tests|full=146-files-970-tests|typecheck=pass|script-typecheck=pass|build=pass|diff-check=pass|changed-lines=630|mailpit=stopped-and-removed|external-google=none|external-credentials=none`.
-- **Settlement recommendation**: `success` for Unit 4 after the orchestrator records native content-bound settlement; Unit 5 remains pending.
+- **Settlement recommendation**: `success` for Unit 4 after the orchestrator records native content-bound settlement; Unit 5 follows as the final implementation slice.
 - **Credentials/services**: fake Google configuration only in tests, mocked NextAuth callback inputs, local MongoMemoryServer, and loopback Mailpit for the serial suite; no external Google OAuth, access token, client credential, or email provider was contacted.
 
 ## Transition Contract
 
 - `next_recommended: sdd-verify`
-- Next scope: verify Unit 4 — Google Linking, after the parent records native settlement.
-- Hard prerequisite: the Unit 4 native attempt must be settled using the evidence revision above; Unit 3 focused/runtime evidence and its historical diagnostics remain in verification context.
-- Final release verification remains blocked until all 17 tasks are complete; Unit 5 remains intentionally untouched.
+- Next scope: verify Unit 5 — Apply, Audit, and Release Hardening, after the parent records the native settlement for `sha256:0831780685c3b10f714cdbf15a1eb0c8888cdcad80792921987faec980f4dad7`.
+- Hard prerequisite: the Unit 5 native attempt must be settled using the evidence revision below; prior Unit 1–4 focused/runtime evidence remains in verification context.
+- Final release verification is unblocked by task completion; all 17 tasks are marked complete.
+
+## Unit 5 Implementation Ordering
+
+1. RED tests were written for reviewed receipt integrity and role-preserving apply, proxy rejection without a JWT security version, approved rolling-hour defaults and denial audits, token-free audit persistence, configured trusted-proxy markers, and approved runtime environment names.
+2. GREEN added `applyIdentityMigration` with exact receipt digest/sign-off and role-match guards, canonical 5/20 defaults with denial audit events, scalar-only audit metadata and hashed identifiers, fail-closed stale/missing security-version handling, runtime proxy marker configuration, and the migration/rollback runbook.
+3. TRIANGULATE covered both admin/productora apply preservation and role mismatch rejection, email/IP limits, empty/safe audit metadata, trusted/untrusted proxy markers, and existing timeout/database failure paths.
+4. REFACTOR separated script database connection ownership so apply remains connected for the mutation and always disconnects in the CLI finally block; no real database migration or credential use occurred.
+
+## Unit 5 TDD Cycle Evidence
+
+| Task | Test file | Layer | Safety net | RED | GREEN | TRIANGULATE | REFACTOR |
+|---|---|---|---|---|---|---|---|
+| 5.1 | `tests/unit/auth-token.test.ts`, `tests/unit/auth-event-audit.test.ts`, `tests/unit/rate-limit.test.ts`, `tests/middleware.test.ts` | Unit + Mongo integration | Existing Unit 1–4 auth/access baseline passed before edits | Receipt apply/tamper, denial audit, and missing JWT version assertions failed before hardening | Final focused slice passed 6 files / 61 tests | Role mismatch, email/IP boundaries, scalar metadata, and proxy failure paths | Clean; no raw identifiers or secrets persisted |
+| 5.2 | `tests/unit/client-ip.test.ts`, `tests/unit/email-config.test.ts` | Unit + configuration contract | Existing client-IP/email config tests: 6 tests passed before edits | Configured proxy marker and approved env assertions failed before configuration changes | Final focused slice passed 6 files / 61 tests | Trusted marker override and Gmail/TLS/sender values | Clean; password remains runtime-only |
+| 5.3 | `tests/unit/auth-token.test.ts`, `tests/http/role-access.test.ts` | Mongo integration + HTTP runtime | Existing migration/role-access coverage preserved | Apply receipt and role-preservation cases were added before implementation | Apply rehearsal and real HTTP role flow passed | Admin/productora roles, stale-session invalidation, and provider-disable policy remained unchanged | Clean; rollback changes no roles |
+
+## Unit 5 Work Unit Evidence
+
+| Evidence | Exact result |
+|---|---|
+| Focused test command | `npm run test:run -- tests/unit/auth-token.test.ts tests/unit/auth-event-audit.test.ts tests/unit/rate-limit.test.ts tests/unit/client-ip.test.ts tests/middleware.test.ts tests/unit/email-config.test.ts` → exit 0; 6 files passed; 61 tests passed. |
+| Runtime harness command/scenario | `npm run test:run -- tests/http/verified-registration.test.ts tests/http/account-recovery.test.ts tests/http/google-linking.test.ts tests/http/role-access.test.ts` → exit 0; 4 files passed; 20 tests passed. The real Next.js HTTP role flow and local MongoMemoryServer exercised stale-session invalidation and preserved staff access. |
+| Dry-run harness | `printf '[{"id":"legacy-admin","email":"admin@example.test","role":"admin"},{"id":"legacy-productora","email":"olga@example.test","role":"productora","accountStatus":"active","securityVersion":2}]\n' | node --experimental-strip-types scripts/identity-migration.ts --dry-run --stdin` → exit 0; sourceCount 2, one proposed change, rolePreservation true. |
+| Apply guard harness | `node --experimental-strip-types scripts/identity-migration.ts --apply` → exit 1; reviewed receipt/sign-off arguments required before any database connection. |
+| Apply rehearsal | `npm run test:run -- tests/unit/auth-token.test.ts` → exit 0; 12 tests passed, including reviewed apply, receipt tamper rejection, admin/productora role preservation, and role mismatch hard stop against MongoMemoryServer. |
+| Full serial suite | Loopback Mailpit on `127.0.0.1:1025/8025`; `npm run test:run` → exit 0; 147 files passed; 978 tests passed; Mailpit stopped afterward. |
+| Typechecks | `npm run typecheck:scripts` and `npx tsc --noEmit` → exit 0. |
+| Build | `npm run build` → exit 0; Next.js compiled and listed the identity routes. |
+| Diff hygiene | `git diff --check` → exit 0. |
+| Changed-line count | 567 authored changed lines across Unit 5 source, tests, configuration, runbook, and cumulative OpenSpec artifacts; below the 800-line work-unit ceiling. |
+| Rollback boundary | Revert only Unit 5 changes in `.env.example`, `docs/runbook.md`, `scripts/identity-migration.ts`, `src/lib/auth/{client-ip,rate-limit}.ts`, `src/lib/db/models/auth-event.ts`, `src/proxy.ts`, and the Unit 5 tests/progress checkboxes. Operationally disable Google, revert the identity release/routes, delete auth tokens, and advance affected security versions through the approved procedure; never mutate `role`, `accountStatus`, or audit history. |
+
+## Unit 5 Receipt and Native-Settlement Data
+
+- **Work unit**: `unit-5-migration-hardening`
+- **Goal**: `identity-migration-audit-release-hardening`
+- **Delivery**: force-chained `feature-branch-chain`; child branch `feat/identity-access-unit-5-hardening`, based on `origin/feat/identity-access-unit-1-foundation`; chain strategy unchanged.
+- **Reserved native attempt**: `sha256:0831780685c3b10f714cdbf15a1eb0c8888cdcad80792921987faec980f4dad7`; no lifecycle operation was invoked by this executor.
+- **Evidence revision**: `sha256:41b1f8add1724ae24ec3a44b196c912e1a0e72275049fa2dbe87114691b76bb2` over `unit-5-migration-hardening|attempt=sha256:0831780685c3b10f714cdbf15a1eb0c8888cdcad80792921987faec980f4dad7|focused=6-files-61-tests|runtime=4-files-20-tests|full=147-files-978-tests|dry-run=exit-0-source-2-proposed-1-role-preservation|apply-guard=exit-1|apply-rehearsal=12-tests|typecheck=pass|script-typecheck=pass|build=pass|diff-check=pass|changed-lines=567|mailpit=stopped-and-removed|external-google=none|external-credentials=none|real-database-migration=none`.
+- **Settlement recommendation**: `success` for Unit 5 after the orchestrator records native content-bound settlement; next recommended phase is `sdd-verify`.
+- **Credentials/services**: only loopback Mailpit and MongoMemoryServer were used; no external SMTP, Google OAuth, credentials, or real database migration was used.
+
+## Result Contract
+
+- `status`: `success`
+- `change`: `identity-access`
+- `work_unit`: `unit-5-migration-hardening`
+- `attempt`: `sha256:0831780685c3b10f714cdbf15a1eb0c8888cdcad80792921987faec980f4dad7`
+- `next_recommended`: `sdd-verify`
+- `settlement`: `success` recommendation; parent owns native settlement
+- `evidence_revision`: `sha256:41b1f8add1724ae24ec3a44b196c912e1a0e72275049fa2dbe87114691b76bb2`
+- `delivery_strategy`: `force-chained`
+- `chain_strategy`: `feature-branch-chain`
