@@ -86,6 +86,43 @@ The workflow uses Node.js 20 and the `npm` cache.
 - Roles exist (`suscriptora`, `productora`, `admin`). Public registration creates only `suscriptora` accounts.
 - `productora` and `admin` are staff roles for the Laboratorio; `admin` retains staff support access to Olga's Laboratorio.
 
+### Identity migration and rollback rehearsal
+
+Identity migration is a two-step operator action. The dry run is read-only and must be reviewed before any apply. Both commands must target an explicitly allowlisted local/test database while rehearsing; never use a production URI for a rehearsal and never place a password or token in a command, receipt, log, or evidence record.
+
+1. Create and save a non-secret dry-run receipt from the reviewed release:
+
+   ```bash
+   export SCRIPT_ENV=test
+   printf '%s\n' '[{"id":"legacy-admin","email":"admin@example.test","role":"admin"}]' \
+     | node --experimental-strip-types scripts/identity-migration.ts --dry-run --stdin \
+     > identity-migration-receipt.json
+   ```
+
+2. Review the exact `receiptId`, proposed lifecycle fields, and `rolePreservation: true`. Obtain explicit operator sign-off for that receipt. The apply command rejects a missing, altered, or mismatched receipt/sign-off and updates only the lifecycle fields; it never writes a role.
+
+3. Apply only the reviewed receipt against the approved target, recording non-secret output:
+
+   ```bash
+   node --experimental-strip-types scripts/identity-migration.ts --apply \
+     --receipt-file identity-migration-receipt.json \
+     --approved-by admin@example.test \
+     --reviewed-at 2026-08-02T13:00:00.000Z
+   ```
+
+   `MONGODB_URI` and `SCRIPT_ENV` are loaded from the runtime environment. The script reads the current accounts, verifies every receipt role before changing anything, then reports an apply receipt. A role mismatch or missing account is a hard stop. Existing roles remain authoritative and existing active accounts remain active.
+
+#### Approved runtime configuration
+
+- Temporary production SMTP is Gmail at `smtp.gmail.com:465` with TLS, sender `esenciales.ob@gmail.com`, and `SMTP_PASSWORD` supplied only as a VPS runtime secret. The password is never stored in this repository or copied into a receipt.
+- Automated tests MUST use loopback Mailpit (`127.0.0.1:1025`) and MUST NOT contact Gmail.
+- Nginx is the only trusted forwarded-IP source. It sends `X-Trusted-Proxy: local-nginx` and `X-Forwarded-For: $remote_addr`; the application uses `TRUSTED_PROXY_NAME=local-nginx` and ignores forwarded values from other callers.
+- Google remains disabled unless `GOOGLE_OAUTH_ENABLED=true` and complete runtime credentials are deliberately provisioned.
+
+#### Rollback boundary
+
+If delivery or access checks fail, stop activation and restore the prior release/configuration through the deployment runbook. Disable Google by removing or setting `GOOGLE_OAUTH_ENABLED` to a non-true value, and disable the new identity routes by reverting the release rather than changing account roles. Invalidate issued tokens and sessions by deleting auth tokens and advancing each affected account's `securityVersion` through the approved operator procedure. Verify that `role`, `accountStatus`, and audit records are unchanged; never roll back by assigning or removing `admin` or `productora`.
+
 ## Production deployment contract
 
 ### Recorded state and freeze

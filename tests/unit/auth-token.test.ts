@@ -1,6 +1,6 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import mongoose from 'mongoose';
-import { MongoMemoryServer } from 'mongodb-memory-server';
+import { MongoMemoryReplSet, MongoMemoryServer } from 'mongodb-memory-server';
 import {
   AuthTokenModel,
   consumeAuthToken,
@@ -12,6 +12,7 @@ import { RateLimitModel } from '@/lib/db/models/rate-limit';
 import { createUserRepository } from '@/lib/db/repository/user';
 import { UserModel } from '@/lib/db/models/user';
 import {
+  applyIdentityMigration,
   assertReceiptApprovedForApply,
   createDryRunReceipt,
   type MigrationUserSnapshot,
@@ -139,6 +140,24 @@ describe('auth token primitives', () => {
 });
 
 describe('identity migration dry-run', () => {
+  let migrationMongoServer: MongoMemoryReplSet;
+
+  beforeAll(async () => {
+    migrationMongoServer = await MongoMemoryReplSet.create({ replSet: { count: 1 } });
+    await mongoose.connect(migrationMongoServer.getUri());
+  });
+
+  beforeEach(async () => {
+    vi.restoreAllMocks();
+    await UserModel.deleteMany({});
+    await AuthEventModel.deleteMany({});
+  });
+
+  afterAll(async () => {
+    await mongoose.disconnect();
+    await migrationMongoServer.stop();
+  });
+
   const legacyUsers: MigrationUserSnapshot[] = [
     {
       id: 'legacy-admin',
@@ -153,6 +172,14 @@ describe('identity migration dry-run', () => {
       securityVersion: 3,
     },
   ];
+
+  function legacyUser(
+    id: mongoose.Types.ObjectId,
+    role: MigrationUserSnapshot['role'],
+    lifecycle: Record<string, unknown> = {},
+  ) {
+    return { _id: id, email: `${id}@example.test`, passwordHash: 'legacy-hash', role, createdAt: new Date(), ...lifecycle };
+  }
 
   it('reports missing lifecycle fields without mutating legacy roles or snapshots', () => {
     const before = structuredClone(legacyUsers);
@@ -171,6 +198,18 @@ describe('identity migration dry-run', () => {
     expect(legacyUsers).toEqual(before);
   });
 
+  it('proposes only missing lifecycle fields without overwriting persisted safeguards', () => {
+    const receipt = createDryRunReceipt([
+      { id: 'suspended-user', email: 'suspended@example.test', role: 'suscriptora', accountStatus: 'suspended' },
+      { id: 'secured-user', email: 'secured@example.test', role: 'productora', securityVersion: 7 },
+    ]);
+
+    expect(receipt.proposedChanges).toEqual([
+      { id: 'suspended-user', role: 'suscriptora', securityVersion: 0 },
+      { id: 'secured-user', role: 'productora', accountStatus: 'active' },
+    ]);
+  });
+
   it('forbids applying a dry-run receipt before review and explicit sign-off', () => {
     const receipt = createDryRunReceipt(
       legacyUsers,
@@ -185,6 +224,144 @@ describe('identity migration dry-run', () => {
       approvedBy: 'admin@example.test',
       reviewedAt: new Date('2026-07-31T13:00:00.000Z'),
     })).not.toThrow();
+  });
+
+  it('rejects a receipt changed after its reviewed digest was issued', () => {
+    const receipt = createDryRunReceipt(
+      legacyUsers,
+      new Date('2026-07-31T12:00:00.000Z'),
+    );
+    receipt.proposedChanges[0].role = 'productora';
+
+    expect(() => assertReceiptApprovedForApply(receipt, {
+      receiptId: receipt.receiptId,
+      approvedBy: 'admin@example.test',
+      reviewedAt: new Date('2026-07-31T13:00:00.000Z'),
+    })).toThrow('Identity migration receipt is invalid.');
+  });
+
+  it('applies only the reviewed changes while preserving every persisted role', async () => {
+    const adminId = new mongoose.Types.ObjectId();
+    const productoraId = new mongoose.Types.ObjectId();
+    await UserModel.collection.insertMany([
+      {
+        _id: adminId,
+        email: 'legacy-admin@example.test',
+        passwordHash: 'legacy-hash',
+        role: 'admin',
+        createdAt: new Date(),
+      },
+      {
+        _id: productoraId,
+        email: 'legacy-productora@example.test',
+        passwordHash: 'legacy-hash',
+        role: 'productora',
+        createdAt: new Date(),
+      },
+    ]);
+    const receipt = createDryRunReceipt([
+      { id: adminId.toString(), email: 'legacy-admin@example.test', role: 'admin' },
+      { id: productoraId.toString(), email: 'legacy-productora@example.test', role: 'productora' },
+    ], new Date('2026-08-02T12:00:00.000Z'));
+
+    const result = await applyIdentityMigration(receipt, {
+      receiptId: receipt.receiptId,
+      approvedBy: 'admin@example.test',
+      reviewedAt: new Date('2026-08-02T13:00:00.000Z'),
+    });
+
+    expect(result).toMatchObject({
+      mode: 'apply',
+      receiptId: receipt.receiptId,
+      rolePreservation: true,
+    });
+    expect(result.appliedChanges).toHaveLength(2);
+    expect(await UserModel.findById(adminId)).toMatchObject({
+      role: 'admin',
+      accountStatus: 'active',
+      securityVersion: 0,
+    });
+    expect(await UserModel.findById(productoraId)).toMatchObject({
+      role: 'productora',
+      accountStatus: 'active',
+      securityVersion: 0,
+    });
+    expect(await AuthEventModel.findOne({ event: 'identity_migration', outcome: 'success' })).toMatchObject({
+      metadata: { appliedChanges: 2, rolePreservation: true },
+    });
+  });
+
+  it('preserves existing account status and security version during a partial migration', async () => {
+    const suspendedId = new mongoose.Types.ObjectId();
+    const securedId = new mongoose.Types.ObjectId();
+    await UserModel.collection.insertMany([
+      legacyUser(suspendedId, 'suscriptora', { accountStatus: 'suspended' }),
+      legacyUser(securedId, 'productora', { securityVersion: 7 }),
+    ]);
+    const receipt = createDryRunReceipt([
+      { id: suspendedId.toString(), email: 'suspended@example.test', role: 'suscriptora', accountStatus: 'suspended' },
+      { id: securedId.toString(), email: 'secured@example.test', role: 'productora', securityVersion: 7 },
+    ]);
+
+    await applyIdentityMigration(receipt, {
+      receiptId: receipt.receiptId,
+      approvedBy: 'admin@example.test',
+      reviewedAt: new Date(),
+    });
+
+    expect(await UserModel.collection.findOne({ _id: suspendedId })).toMatchObject({
+      accountStatus: 'suspended',
+      securityVersion: 0,
+    });
+    expect(await UserModel.collection.findOne({ _id: securedId })).toMatchObject({
+      accountStatus: 'active',
+      securityVersion: 7,
+    });
+  });
+
+  it('rolls back lifecycle changes when audit recording fails', async () => {
+    const firstId = new mongoose.Types.ObjectId();
+    const secondId = new mongoose.Types.ObjectId();
+    await UserModel.collection.insertMany([
+      legacyUser(firstId, 'suscriptora'),
+      legacyUser(secondId, 'productora'),
+    ]);
+    const receipt = createDryRunReceipt([
+      { id: firstId.toString(), email: 'first@example.test', role: 'suscriptora' },
+      { id: secondId.toString(), email: 'second@example.test', role: 'productora' },
+    ]);
+    vi.spyOn(AuthEventModel, 'create').mockRejectedValueOnce(new Error('audit unavailable'));
+
+    await expect(applyIdentityMigration(receipt, {
+      receiptId: receipt.receiptId,
+      approvedBy: 'admin@example.test',
+      reviewedAt: new Date(),
+    })).rejects.toThrow('audit unavailable');
+
+    const users = await UserModel.collection.find({ _id: { $in: [firstId, secondId] } }).toArray();
+    expect(users).toHaveLength(2);
+    expect(users.every((user) => user.accountStatus === undefined && user.securityVersion === undefined)).toBe(true);
+  });
+
+  it('rejects a receipt whose role snapshot no longer matches the account', async () => {
+    const productoraId = new mongoose.Types.ObjectId();
+    await UserModel.collection.insertOne({
+      _id: productoraId,
+      email: 'legacy-productora@example.test',
+      passwordHash: 'legacy-hash',
+      role: 'productora',
+      createdAt: new Date(),
+    });
+    const receipt = createDryRunReceipt([
+      { id: productoraId.toString(), email: 'legacy-productora@example.test', role: 'admin' },
+    ]);
+
+    await expect(applyIdentityMigration(receipt, {
+      receiptId: receipt.receiptId,
+      approvedBy: 'admin@example.test',
+      reviewedAt: new Date(),
+    })).rejects.toThrow('Identity migration role guard failed');
+    expect(await UserModel.findById(productoraId)).toMatchObject({ role: 'productora' });
   });
 });
 

@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
 export interface MigrationUserSnapshot {
@@ -12,8 +13,8 @@ export interface MigrationUserSnapshot {
 export interface MigrationChange {
   id: string;
   role: MigrationUserSnapshot['role'];
-  accountStatus: 'active';
-  securityVersion: 0;
+  accountStatus?: 'active';
+  securityVersion?: 0;
 }
 
 export interface IdentityMigrationReceipt {
@@ -22,6 +23,15 @@ export interface IdentityMigrationReceipt {
   generatedAt: string;
   sourceCount: number;
   proposedChanges: MigrationChange[];
+  rolePreservation: true;
+}
+
+export interface IdentityMigrationApplyReceipt {
+  receiptId: string;
+  mode: 'apply';
+  appliedAt: string;
+  sourceCount: number;
+  appliedChanges: MigrationChange[];
   rolePreservation: true;
 }
 
@@ -37,12 +47,14 @@ export function createDryRunReceipt(
 ): IdentityMigrationReceipt {
   const proposedChanges = users
     .filter((user) => user.accountStatus === undefined || user.securityVersion === undefined)
-    .map((user): MigrationChange => ({
-      id: user.id,
-      role: user.role,
-      accountStatus: 'active',
-      securityVersion: 0,
-    }));
+    .map((user): MigrationChange => {
+      const change: MigrationChange = { id: user.id, role: user.role };
+
+      if (user.accountStatus === undefined) change.accountStatus = 'active';
+      if (user.securityVersion === undefined) change.securityVersion = 0;
+
+      return change;
+    });
   const payload = {
     mode: 'dry-run' as const,
     generatedAt: generatedAt.toISOString(),
@@ -50,7 +62,7 @@ export function createDryRunReceipt(
     proposedChanges,
     rolePreservation: true as const,
   };
-  const receiptId = createHash('sha256').update(JSON.stringify(payload), 'utf8').digest('hex');
+  const receiptId = calculateReceiptId(payload);
 
   return { receiptId, ...payload };
 }
@@ -61,6 +73,19 @@ export function assertReceiptApprovedForApply(
 ): void {
   if (
     receipt.mode !== 'dry-run' ||
+    receipt.receiptId !== calculateReceiptId({
+      mode: receipt.mode,
+      generatedAt: receipt.generatedAt,
+      sourceCount: receipt.sourceCount,
+      proposedChanges: receipt.proposedChanges,
+      rolePreservation: receipt.rolePreservation,
+    }) ||
+    receipt.rolePreservation !== true
+  ) {
+    throw new Error('Identity migration receipt is invalid.');
+  }
+
+  if (
     !signoff ||
     signoff.receiptId !== receipt.receiptId ||
     !signoff.approvedBy.trim() ||
@@ -72,6 +97,69 @@ export function assertReceiptApprovedForApply(
   }
 }
 
+function calculateReceiptId(payload: Omit<IdentityMigrationReceipt, 'receiptId'>): string {
+  return createHash('sha256').update(JSON.stringify(payload), 'utf8').digest('hex');
+}
+
+export async function applyIdentityMigration(
+  receipt: IdentityMigrationReceipt,
+  signoff?: MigrationSignoff,
+  appliedAt = new Date(),
+): Promise<IdentityMigrationApplyReceipt> {
+  assertReceiptApprovedForApply(receipt, signoff);
+
+  const { UserModel } = await import('../src/lib/db/models/user');
+  const { AuthEventModel } = await import('../src/lib/db/models/auth-event');
+  const session = await UserModel.db.startSession();
+
+  try {
+    await session.withTransaction(async () => {
+      for (const change of receipt.proposedChanges) {
+        const lifecycleChanges: Record<string, string | number> = {};
+        const missingFieldGuards: Record<string, { $exists: false }> = {};
+
+        if (change.accountStatus !== undefined) {
+          lifecycleChanges.accountStatus = change.accountStatus;
+          missingFieldGuards.accountStatus = { $exists: false };
+        }
+        if (change.securityVersion !== undefined) {
+          lifecycleChanges.securityVersion = change.securityVersion;
+          missingFieldGuards.securityVersion = { $exists: false };
+        }
+
+        const result = await UserModel.updateOne(
+          { _id: change.id, role: change.role, ...missingFieldGuards },
+          { $set: lifecycleChanges },
+          { session },
+        );
+        if (result.matchedCount !== 1) {
+          throw new Error(`Identity migration role guard failed for account ${change.id}.`);
+        }
+      }
+
+      await AuthEventModel.create([{
+        event: 'identity_migration',
+        outcome: 'success',
+        metadata: {
+          appliedChanges: receipt.proposedChanges.length,
+          rolePreservation: true,
+        },
+      }], { session });
+    });
+  } finally {
+    await session.endSession();
+  }
+
+  return {
+    receiptId: receipt.receiptId,
+    mode: 'apply',
+    appliedAt: appliedAt.toISOString(),
+    sourceCount: receipt.sourceCount,
+    appliedChanges: receipt.proposedChanges,
+    rolePreservation: true,
+  };
+}
+
 async function readStdin(): Promise<string> {
   let input = '';
   for await (const chunk of process.stdin) {
@@ -81,16 +169,8 @@ async function readStdin(): Promise<string> {
 }
 
 async function readUsersFromDatabase(): Promise<MigrationUserSnapshot[]> {
-  const [{ default: mongoose }, { UserModel }, { readSafeScriptTarget }] = await Promise.all([
-    import('mongoose'),
-    import('../src/lib/db/models/user'),
-    import('./safe-target'),
-  ]);
-  const target = readSafeScriptTarget();
-  await mongoose.connect(target.MONGODB_URI, {
-    serverSelectionTimeoutMS: 5000,
-    connectTimeoutMS: 5000,
-  });
+  const mongoose = await connectToScriptDatabase();
+  const { UserModel } = await import('../src/lib/db/models/user');
 
   try {
     const users = await UserModel.find({})
@@ -109,6 +189,19 @@ async function readUsersFromDatabase(): Promise<MigrationUserSnapshot[]> {
   }
 }
 
+async function connectToScriptDatabase() {
+  const [{ default: mongoose }, { readSafeScriptTarget }] = await Promise.all([
+    import('mongoose'),
+    import('./safe-target'),
+  ]);
+  const target = readSafeScriptTarget();
+  await mongoose.connect(target.MONGODB_URI, {
+    serverSelectionTimeoutMS: 5000,
+    connectTimeoutMS: 5000,
+  });
+  return mongoose;
+}
+
 async function readUsersFromStdin(): Promise<MigrationUserSnapshot[]> {
   const input = await readStdin();
   const users: unknown = JSON.parse(input);
@@ -121,14 +214,35 @@ async function readUsersFromStdin(): Promise<MigrationUserSnapshot[]> {
 }
 
 export async function runIdentityMigration(args: readonly string[] = process.argv.slice(2)) {
-  if (args.includes('--apply')) {
-    throw new Error(
-      'Identity migration apply requires reviewed dry-run receipt and explicit sign-off.',
-    );
+  const applying = args.includes('--apply');
+  const dryRunning = args.includes('--dry-run');
+  if (applying === dryRunning) {
+    throw new Error('Identity migration requires exactly one of --dry-run or --apply.');
   }
 
-  if (!args.includes('--dry-run')) {
-    throw new Error('Identity migration requires --dry-run.');
+  if (applying) {
+    const receiptPath = argumentValue(args, '--receipt-file');
+    const approvedBy = argumentValue(args, '--approved-by');
+    const reviewedAt = argumentValue(args, '--reviewed-at');
+    if (!receiptPath || !approvedBy || !reviewedAt) {
+      throw new Error(
+        'Identity migration apply requires reviewed dry-run receipt and explicit sign-off: --receipt-file, --approved-by, and --reviewed-at.',
+      );
+    }
+
+    const receipt = JSON.parse(await readFile(receiptPath, 'utf8')) as IdentityMigrationReceipt;
+    const mongoose = await connectToScriptDatabase();
+    try {
+      const result = await applyIdentityMigration(receipt, {
+        receiptId: receipt.receiptId,
+        approvedBy,
+        reviewedAt: new Date(reviewedAt),
+      });
+      console.log(JSON.stringify(result, null, 2));
+      return result;
+    } finally {
+      await mongoose.disconnect();
+    }
   }
 
   const users = args.includes('--stdin')
@@ -138,6 +252,11 @@ export async function runIdentityMigration(args: readonly string[] = process.arg
   const receipt = createDryRunReceipt(users);
   console.log(JSON.stringify(receipt, null, 2));
   return receipt;
+}
+
+function argumentValue(args: readonly string[], name: string): string | undefined {
+  const index = args.indexOf(name);
+  return index >= 0 ? args[index + 1] : undefined;
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {

@@ -1,20 +1,41 @@
 import { RateLimitModel, type RateLimitSubject } from '@/lib/db/models/rate-limit';
+import { recordAuthEvent } from '@/lib/db/models/auth-event';
 
 const WINDOW_MS = 60 * 60 * 1000;
+
+export const RATE_LIMITS = {
+  email: 5,
+  ip: 20,
+} as const;
+
+async function recordRateLimitDenial(subject: RateLimitSubject, key: string, limit: number) {
+  await recordAuthEvent({
+    event: 'rate_limit',
+    outcome: 'denied',
+    email: subject === 'email' ? key : undefined,
+    ip: subject === 'ip' ? key : undefined,
+    metadata: { subject, limit },
+  });
+}
 
 export async function consumeRateLimit(input: {
   subject: RateLimitSubject;
   key: string;
-  limit: number;
+  limit?: number;
   now?: Date;
 }): Promise<boolean> {
   const now = input.now ?? new Date();
+  const limit = input.limit ?? RATE_LIMITS[input.subject];
   const current = await RateLimitModel.findOneAndUpdate(
     { subject: input.subject, key: input.key, expiresAt: { $gt: now } },
     { $inc: { hits: 1 } },
     { returnDocument: 'after' },
   );
-  if (current) return current.hits <= input.limit;
+  if (current) {
+    const allowed = current.hits <= limit;
+    if (!allowed) await recordRateLimitDenial(input.subject, input.key, limit);
+    return allowed;
+  }
 
   try {
     const created = await RateLimitModel.create({
@@ -24,7 +45,9 @@ export async function consumeRateLimit(input: {
       windowStartedAt: now,
       expiresAt: new Date(now.getTime() + WINDOW_MS),
     });
-    return created.hits <= input.limit;
+    const allowed = created.hits <= limit;
+    if (!allowed) await recordRateLimitDenial(input.subject, input.key, limit);
+    return allowed;
   } catch (error) {
     if (!(error && typeof error === 'object' && 'code' in error && error.code === 11000)) {
       throw error;
@@ -41,6 +64,8 @@ export async function consumeRateLimit(input: {
     }
     existing.hits += 1;
     await existing.save();
-    return existing.hits <= input.limit;
+    const allowed = existing.hits <= limit;
+    if (!allowed) await recordRateLimitDenial(input.subject, input.key, limit);
+    return allowed;
   }
 }

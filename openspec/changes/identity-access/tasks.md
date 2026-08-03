@@ -60,6 +60,6 @@ Chain strategy: feature-branch-chain
 
 ## Phase 5: Apply, Audit, and Release Hardening
 
-- [ ] 5.1 RED: cover apply receipts, proxy failure, generic limits, and token-free audits in migration/limit/audit tests.
-- [ ] 5.2 GREEN: update `.env.example`, `rate-limit.ts`, `auth-event.ts`, and migration runbook with approved SMTP/proxy values.
-- [ ] 5.3 REFACTOR: receipt-review dry-run then apply; rehearse route/provider disable and token/session invalidation, never roles.
+- [x] 5.1 RED: cover apply receipts, proxy failure, generic limits, and token-free audits in migration/limit/audit tests.
+- [x] 5.2 GREEN: update `.env.example`, `rate-limit.ts`, `auth-event.ts`, and migration runbook with approved SMTP/proxy values.
+- [x] 5.3 REFACTOR: receipt-review dry-run then apply; rehearse route/provider disable and token/session invalidation, never roles.

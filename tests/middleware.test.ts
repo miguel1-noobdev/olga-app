@@ -199,6 +199,20 @@ describe('middleware', () => {
       expect(redirectUrl.pathname).toBe('/');
     });
 
+    it('fails closed when the JWT has no persisted security version', async () => {
+      getTokenMock.mockResolvedValue({ id: 'user-1', email: 'test@test.com', role: 'admin' });
+      fetchMock.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ role: 'admin', emailVerified: true, securityVersion: 0 }),
+      });
+
+      await middleware(createMockRequest('/admin'));
+
+      expect(NextResponse.redirect).toHaveBeenCalledTimes(1);
+      const redirectUrl = vi.mocked(NextResponse.redirect).mock.calls[0][0] as URL;
+      expect(redirectUrl.pathname).toBe('/');
+    });
+
     it.each(['/blog', '/jardin-digital', '/laboratorio', '/admin'])(
       'rejects a suspended user with an already-issued JWT from %s',
       async (path) => {

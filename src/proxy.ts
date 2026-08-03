@@ -132,7 +132,7 @@ export async function proxy(request: NextRequest) {
 
   const account = await getPersistedAccount(token.id);
 
-  if (!account || (typeof token.securityVersion === 'number' && token.securityVersion !== account.securityVersion)) {
+  if (!account || typeof token.securityVersion !== 'number' || token.securityVersion !== account.securityVersion) {
     return NextResponse.redirect(new URL('/', request.url));
   }
 
