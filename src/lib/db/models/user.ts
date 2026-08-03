@@ -1,13 +1,15 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
 export type Role = 'suscriptora' | 'productora' | 'admin';
-export type AccountStatus = 'active' | 'suspended';
+export type AccountStatus = 'pending_email' | 'active' | 'suspended';
 
 export interface IUser extends Document {
   email: string;
   passwordHash: string;
   role: Role;
   accountStatus: AccountStatus;
+  emailVerified: boolean;
+  securityVersion: number;
   createdAt: Date;
 }
 
@@ -31,8 +33,17 @@ const UserSchema = new Schema<IUser>(
     },
     accountStatus: {
       type: String,
-      enum: ['active', 'suspended'],
+      enum: ['pending_email', 'active', 'suspended'],
       default: 'active',
+    },
+    emailVerified: {
+      type: Boolean,
+      default: true,
+    },
+    securityVersion: {
+      type: Number,
+      default: 0,
+      min: 0,
     },
   },
   {

@@ -8,6 +8,8 @@ export interface UserRecord {
   passwordHash: string;
   role: Role;
   accountStatus: AccountStatus;
+  emailVerified: boolean;
+  securityVersion: number;
   createdAt: string;
 }
 
@@ -15,6 +17,8 @@ export interface CreateUserInput {
   email: string;
   password: string;
   role?: Role;
+  accountStatus?: AccountStatus;
+  emailVerified?: boolean;
 }
 
 export interface UserRepository {
@@ -23,14 +27,18 @@ export interface UserRepository {
   findById(id: string): Promise<UserRecord | null>;
   findAll(): Promise<UserRecord[]>;
   verifyPassword(user: UserRecord, password: string): Promise<boolean>;
+  updatePassword(id: string, password: string): Promise<void>;
   count(): Promise<number>;
   updateRole(id: string, role: Role): Promise<void>;
   updateAccountStatus(id: string, accountStatus: AccountStatus): Promise<void>;
+  markEmailVerified(id: string): Promise<boolean>;
+  deletePendingRegistration(id: string): Promise<boolean>;
+  advanceSecurityVersion(id: string): Promise<void>;
 }
 
 const MIN_PASSWORD_LENGTH = 8;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const ACCOUNT_STATUSES: readonly AccountStatus[] = ['active', 'suspended'];
+const ACCOUNT_STATUSES: readonly AccountStatus[] = ['pending_email', 'active', 'suspended'];
 
 function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
@@ -55,6 +63,8 @@ function toUserRecord(doc: IUser): UserRecord {
     passwordHash: doc.passwordHash,
     role: doc.role,
     accountStatus: doc.accountStatus ?? 'active',
+    emailVerified: doc.emailVerified ?? doc.accountStatus !== 'pending_email',
+    securityVersion: doc.securityVersion ?? 0,
     createdAt: doc.createdAt.toISOString(),
   };
 }
@@ -73,11 +83,15 @@ export function createUserRepository(): UserRepository {
 
       const passwordHash = await bcrypt.hash(input.password, 10);
       const role: Role = input.role ?? ROLES.SUSCRIPTORA;
+      const accountStatus: AccountStatus = input.accountStatus ?? 'active';
+      const emailVerified = input.emailVerified ?? accountStatus !== 'pending_email';
 
       const user = await UserModel.create({
         email,
         passwordHash,
         role,
+        accountStatus,
+        emailVerified,
       });
 
       return toUserRecord(user);
@@ -103,6 +117,15 @@ export function createUserRepository(): UserRepository {
       return bcrypt.compare(password, user.passwordHash);
     },
 
+    async updatePassword(id: string, password: string): Promise<void> {
+      validatePassword(password);
+      const passwordHash = await bcrypt.hash(password, 10);
+      const result = await UserModel.findByIdAndUpdate(id, { passwordHash });
+      if (!result) {
+        throw new Error('User not found');
+      }
+    },
+
     async count(): Promise<number> {
       return UserModel.countDocuments();
     },
@@ -120,6 +143,30 @@ export function createUserRepository(): UserRepository {
       }
 
       const result = await UserModel.findByIdAndUpdate(id, { accountStatus });
+      if (!result) {
+        throw new Error('User not found');
+      }
+    },
+
+    async markEmailVerified(id: string): Promise<boolean> {
+      const result = await UserModel.findOneAndUpdate(
+        { _id: id, accountStatus: 'pending_email', emailVerified: false },
+        { $set: { accountStatus: 'active', emailVerified: true } },
+      );
+      return result !== null;
+    },
+
+    async deletePendingRegistration(id: string): Promise<boolean> {
+      const result = await UserModel.findOneAndDelete({
+        _id: id,
+        accountStatus: 'pending_email',
+        emailVerified: false,
+      });
+      return result !== null;
+    },
+
+    async advanceSecurityVersion(id: string): Promise<void> {
+      const result = await UserModel.findByIdAndUpdate(id, { $inc: { securityVersion: 1 } });
       if (!result) {
         throw new Error('User not found');
       }

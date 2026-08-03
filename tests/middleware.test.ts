@@ -32,10 +32,10 @@ function createMockRequest(path: string, origin = 'http://localhost:3000'): Next
 }
 
 function mockActiveToken(role: 'suscriptora' | 'productora' | 'admin') {
-  getTokenMock.mockResolvedValue({ id: 'user-1', email: 'test@test.com', role });
+  getTokenMock.mockResolvedValue({ id: 'user-1', email: 'test@test.com', role, securityVersion: 0 });
   fetchMock.mockResolvedValue({
     ok: true,
-    json: vi.fn().mockResolvedValue({ role }),
+    json: vi.fn().mockResolvedValue({ role, emailVerified: true, securityVersion: 0 }),
   });
 }
 
@@ -199,6 +199,20 @@ describe('middleware', () => {
       expect(redirectUrl.pathname).toBe('/');
     });
 
+    it('fails closed when the JWT has no persisted security version', async () => {
+      getTokenMock.mockResolvedValue({ id: 'user-1', email: 'test@test.com', role: 'admin' });
+      fetchMock.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ role: 'admin', emailVerified: true, securityVersion: 0 }),
+      });
+
+      await middleware(createMockRequest('/admin'));
+
+      expect(NextResponse.redirect).toHaveBeenCalledTimes(1);
+      const redirectUrl = vi.mocked(NextResponse.redirect).mock.calls[0][0] as URL;
+      expect(redirectUrl.pathname).toBe('/');
+    });
+
     it.each(['/blog', '/jardin-digital', '/laboratorio', '/admin'])(
       'rejects a suspended user with an already-issued JWT from %s',
       async (path) => {
@@ -216,6 +230,20 @@ describe('middleware', () => {
     it('rejects a missing persisted user and database unavailability without leaking errors', async () => {
       getTokenMock.mockResolvedValue({ id: 'user-1', email: 'test@test.com', role: 'suscriptora' });
       fetchMock.mockResolvedValue({ ok: false, json: vi.fn() });
+
+      await middleware(createMockRequest('/blog'));
+
+      expect(NextResponse.redirect).toHaveBeenCalledTimes(1);
+      const redirectUrl = vi.mocked(NextResponse.redirect).mock.calls[0][0] as URL;
+      expect(redirectUrl.pathname).toBe('/');
+    });
+
+  it('rejects a persisted account that is not email verified', async () => {
+      getTokenMock.mockResolvedValue({ id: 'user-1', email: 'test@test.com', role: 'suscriptora' });
+      fetchMock.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ role: 'suscriptora', emailVerified: false }),
+      });
 
       await middleware(createMockRequest('/blog'));
 
@@ -371,5 +399,19 @@ describe('middleware', () => {
       expect(NextResponse.next).toHaveBeenCalledTimes(1);
       expect(result).toEqual({ type: 'next' });
     });
+  });
+
+  it('rejects an authenticated request when the JWT security version is stale', async () => {
+    getTokenMock.mockResolvedValue({ id: 'user-1', email: 'test@test.com', role: 'suscriptora', securityVersion: 3 });
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({ role: 'suscriptora', emailVerified: true, securityVersion: 4 }),
+    });
+
+    await middleware(createMockRequest('/blog'));
+
+    expect(NextResponse.redirect).toHaveBeenCalledTimes(1);
+    const redirectUrl = vi.mocked(NextResponse.redirect).mock.calls[0][0] as URL;
+    expect(redirectUrl.pathname).toBe('/');
   });
 });

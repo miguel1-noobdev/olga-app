@@ -40,7 +40,7 @@ Si tenés una duda sobre QUÉ construir, leé primero el CONTEXTO_PLATAFORMA.md.
 | Estilos | Tailwind CSS | Rapidez de desarrollo |
 | Base de datos | MongoDB | Flexibilidad para datos semi-estructurados |
 | Auth | NextAuth.js | Email/contraseña + Google OAuth |
-| Hosting | VPS propio (Ubuntu 24.04) | botanicasob.duckdns.org |
+| Hosting | VPS propio (Ubuntu 24.04) | botanicaob.duckdns.org |
 | Process manager | PM2 | Ya instalado en VPS |
 | Reverse proxy | Nginx 1.24 | Ya instalado en VPS |
 | SSL | acme.sh | Ya instalado en VPS |

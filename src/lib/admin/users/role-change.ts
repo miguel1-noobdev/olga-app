@@ -1,7 +1,8 @@
 import { ROLES } from '@/lib/auth/roles';
-import type { Role } from '@/lib/db/models/user';
+import type { AccountStatus, Role } from '@/lib/db/models/user';
 
-export type AccountStatus = 'active' | 'suspended';
+export type EditableAccountStatus = Extract<AccountStatus, 'active' | 'suspended'>;
+export type { AccountStatus };
 
 export interface AdminUserRecord {
   id: string;
@@ -20,7 +21,7 @@ export interface ApprovedDirectoryUser {
   createdAt: string;
 }
 
-const APPROVED_ACCOUNT_STATUSES: readonly AccountStatus[] = ['active', 'suspended'];
+const APPROVED_ACCOUNT_STATUSES: readonly EditableAccountStatus[] = ['active', 'suspended'];
 const APPROVED_ROLES: readonly Role[] = [ROLES.SUSCRIPTORA, ROLES.PRODUCTORA, ROLES.ADMIN];
 
 export function isLastActiveAdmin(
@@ -54,6 +55,6 @@ export function canApplyRoleChange(input: { role: string; confirmed: boolean }):
 export function canApplyStatusChange(input: {
   accountStatus: string;
   confirmed: boolean;
-}): input is { accountStatus: AccountStatus; confirmed: true } {
-  return input.confirmed && APPROVED_ACCOUNT_STATUSES.includes(input.accountStatus as AccountStatus);
+}): input is { accountStatus: EditableAccountStatus; confirmed: true } {
+  return input.confirmed && APPROVED_ACCOUNT_STATUSES.includes(input.accountStatus as EditableAccountStatus);
 }

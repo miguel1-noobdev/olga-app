@@ -4,11 +4,14 @@ import { spawn, type ChildProcess } from 'node:child_process';
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import { AuthTokenModel, hashAuthToken } from '@/lib/db/models/auth-token';
 import { createUserRepository } from '@/lib/db/repository/user';
 
 const PORT = 3416;
 const BASE_URL = `http://127.0.0.1:${PORT}`;
 const PASSWORD = 'role-test-password';
+const RESET_PASSWORD = 'role-reset-password';
+const RESET_TOKEN = 'role-reset-token';
 const roles = ['suscriptora', 'productora', 'admin'] as const;
 type Role = (typeof roles)[number];
 
@@ -19,6 +22,7 @@ type CookieJar = Map<string, string>;
 let mongoServer: MongoMemoryServer;
 let nextServer: ChildProcess;
 let serverOutput = '';
+let productoraId: string;
 
 function cookieHeader(jar: CookieJar): string {
   return [...jar].map(([name, value]) => `${name}=${value}`).join('; ');
@@ -40,7 +44,7 @@ async function request(path: string, jar?: CookieJar, init?: RequestInit): Promi
   return response;
 }
 
-async function signIn(email: string): Promise<CookieJar> {
+async function signIn(email: string, password = PASSWORD): Promise<CookieJar> {
   const jar = new Map<string, string>();
   const csrfResponse = await request('/api/auth/csrf', jar);
   const { csrfToken } = await csrfResponse.json() as { csrfToken: string };
@@ -50,7 +54,7 @@ async function signIn(email: string): Promise<CookieJar> {
     body: new URLSearchParams({
       csrfToken,
       email,
-      password: PASSWORD,
+      password,
       callbackUrl: `${BASE_URL}/`,
     }),
   });
@@ -85,8 +89,16 @@ describe('real HTTP role access', () => {
     await mongoose.connect(mongoServer.getUri());
     const repository = createUserRepository();
     for (const role of roles) {
-      await repository.create({ email: `${role}@example.com`, password: PASSWORD, role });
+      const user = await repository.create({ email: `${role}@example.com`, password: PASSWORD, role });
+      if (role === 'productora') productoraId = user.id;
     }
+    await AuthTokenModel.create({
+      accountId: productoraId,
+      purpose: 'password_reset',
+      tokenHash: hashAuthToken(RESET_TOKEN),
+      expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+      securityVersion: 0,
+    });
     await mongoose.disconnect();
 
     nextServer = spawn(process.execPath, ['node_modules/next/dist/bin/next', 'dev', '--hostname', '127.0.0.1', '--port', String(PORT)], {
@@ -151,5 +163,29 @@ describe('real HTTP role access', () => {
       expect(response.status, role).toBe(403);
     }
     expect((await request('/api/admin/health', await signIn('admin@example.com'))).status).toBe(200);
+  });
+
+  it('rejects a reset-token replay and invalidates the prior staff session', async () => {
+    const oldSession = await signIn('productora@example.com');
+    expect((await request('/blog', oldSession)).status).toBe(200);
+
+    const reset = await request('/api/auth/reset-password', undefined, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ accountId: productoraId, token: RESET_TOKEN, password: RESET_PASSWORD }),
+    });
+    expect(reset.status).toBe(200);
+
+    const replay = await request('/api/auth/reset-password', undefined, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ accountId: productoraId, token: RESET_TOKEN, password: RESET_PASSWORD }),
+    });
+    expect(replay.status).toBe(400);
+
+    const staleBlog = await request('/blog', oldSession);
+    expect(staleBlog.status).toBe(307);
+    expect(new URL(staleBlog.headers.get('location')!, BASE_URL).pathname).toBe('/');
+    expect((await request('/blog', await signIn('productora@example.com', RESET_PASSWORD))).status).toBe(200);
   });
 });

@@ -29,9 +29,15 @@ export async function authorizeWithRepository(
     return null;
   }
 
+  if (!user.emailVerified) {
+    return null;
+  }
+
   return {
     id: user.id,
     email: user.email,
     role: user.role,
+    emailVerified: user.emailVerified,
+    securityVersion: user.securityVersion,
   };
 }
