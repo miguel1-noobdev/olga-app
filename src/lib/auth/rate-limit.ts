@@ -18,6 +18,51 @@ async function recordRateLimitDenial(subject: RateLimitSubject, key: string, lim
   });
 }
 
+function isDuplicateKeyError(error: unknown): boolean {
+  return Boolean(error && typeof error === 'object' && 'code' in error && error.code === 11000);
+}
+
+async function incrementRateLimit(input: {
+  subject: RateLimitSubject;
+  key: string;
+  now: Date;
+}) {
+  const expiresAt = new Date(input.now.getTime() + WINDOW_MS);
+  const isCurrentWindow = { $gt: ['$expiresAt', input.now] };
+  const update = [
+    {
+      $set: {
+        hits: {
+          $cond: [
+            isCurrentWindow,
+            { $add: [{ $ifNull: ['$hits', 0] }, 1] },
+            1,
+          ],
+        },
+        windowStartedAt: {
+          $cond: [isCurrentWindow, '$windowStartedAt', input.now],
+        },
+        expiresAt: {
+          $cond: [isCurrentWindow, '$expiresAt', expiresAt],
+        },
+      },
+    },
+  ];
+
+  while (true) {
+    try {
+      const current = await RateLimitModel.findOneAndUpdate(
+        { subject: input.subject, key: input.key },
+        update,
+        { returnDocument: 'after', updatePipeline: true, upsert: true },
+      );
+      if (current) return current;
+    } catch (error) {
+      if (!isDuplicateKeyError(error)) throw error;
+    }
+  }
+}
+
 export async function consumeRateLimit(input: {
   subject: RateLimitSubject;
   key: string;
@@ -26,46 +71,12 @@ export async function consumeRateLimit(input: {
 }): Promise<boolean> {
   const now = input.now ?? new Date();
   const limit = input.limit ?? RATE_LIMITS[input.subject];
-  const current = await RateLimitModel.findOneAndUpdate(
-    { subject: input.subject, key: input.key, expiresAt: { $gt: now } },
-    { $inc: { hits: 1 } },
-    { returnDocument: 'after' },
-  );
-  if (current) {
-    const allowed = current.hits <= limit;
-    if (!allowed) await recordRateLimitDenial(input.subject, input.key, limit);
-    return allowed;
-  }
-
-  try {
-    const created = await RateLimitModel.create({
-      subject: input.subject,
-      key: input.key,
-      hits: 1,
-      windowStartedAt: now,
-      expiresAt: new Date(now.getTime() + WINDOW_MS),
-    });
-    const allowed = created.hits <= limit;
-    if (!allowed) await recordRateLimitDenial(input.subject, input.key, limit);
-    return allowed;
-  } catch (error) {
-    if (!(error && typeof error === 'object' && 'code' in error && error.code === 11000)) {
-      throw error;
-    }
-
-    const existing = await RateLimitModel.findOne({ subject: input.subject, key: input.key });
-    if (!existing) return false;
-    if (existing.expiresAt <= now) {
-      existing.hits = 1;
-      existing.windowStartedAt = now;
-      existing.expiresAt = new Date(now.getTime() + WINDOW_MS);
-      await existing.save();
-      return true;
-    }
-    existing.hits += 1;
-    await existing.save();
-    const allowed = existing.hits <= limit;
-    if (!allowed) await recordRateLimitDenial(input.subject, input.key, limit);
-    return allowed;
-  }
+  const current = await incrementRateLimit({
+    subject: input.subject,
+    key: input.key,
+    now,
+  });
+  const allowed = current.hits <= limit;
+  if (!allowed) await recordRateLimitDenial(input.subject, input.key, limit);
+  return allowed;
 }

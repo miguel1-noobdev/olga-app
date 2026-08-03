@@ -3,6 +3,7 @@
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { hashAuthToken, AuthTokenModel } from '@/lib/db/models/auth-token';
 import { IdentityModel } from '@/lib/db/models/identity';
 import { createUserRepository } from '@/lib/db/repository/user';
 
@@ -72,45 +73,47 @@ describe('Google linking HTTP contract', () => {
     expect(await response.json()).toEqual({ error: 'google_unavailable' });
   });
 
-  it('creates only a Google identity for an authenticated verified subscriber', async () => {
+  it('fails closed when a client supplies an asserted Google identity', async () => {
     getServerSessionMock.mockResolvedValue({
       user: { id: subscriberId, role: 'suscriptora', securityVersion: 0 },
     });
 
-    const start = await postLink({ action: 'start' });
-    expect(start.status).toBe(201);
-    const { proofUrl } = await start.json() as { proofUrl: string };
-    const rawToken = new URL(proofUrl).searchParams.get('token');
-    expect(rawToken).toBeTruthy();
+    const rawToken = 'locally-issued-link-token';
+    await AuthTokenModel.create({
+      accountId: subscriberId,
+      purpose: 'google_link',
+      tokenHash: hashAuthToken(rawToken),
+      expiresAt: new Date(Date.now() + 10 * 60 * 1000),
+      securityVersion: 0,
+    });
 
     const response = await postLink({
       action: 'complete',
-      token: rawToken!,
-      providerAccountId: 'google-account-1',
-      email: 'google-owner@example.test',
+      token: rawToken,
+      providerAccountId: 'attacker-controlled-google-subject',
+      email: 'attacker-controlled@example.test',
       emailVerified: true,
     });
 
-    expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ linked: true });
-    await expect(IdentityModel.findOne({
-      accountId: subscriberId,
-      provider: 'google',
-      providerAccountId: 'google-account-1',
-    })).resolves.toMatchObject({ email: 'google-owner@example.test' });
-    await expect(IdentityModel.countDocuments({ accountId: subscriberId })).resolves.toBe(1);
-
-    const replay = await postLink({
-      action: 'complete',
-      token: rawToken!,
-      providerAccountId: 'google-account-1',
-      email: 'google-owner@example.test',
-      emailVerified: true,
-    });
-    expect(replay.status).toBe(400);
+    expect(response.status).toBe(503);
+    expect(await response.json()).toEqual({ error: 'google_unavailable' });
+    await expect(IdentityModel.countDocuments({ accountId: subscriberId })).resolves.toBe(0);
+    await expect(AuthTokenModel.countDocuments({ accountId: subscriberId, purpose: 'google_link' })).resolves.toBe(1);
   });
 
-  it('rejects a provider identity that is already linked to another account', async () => {
+  it('keeps the linking endpoint unavailable when the release flag is enabled', async () => {
+    getServerSessionMock.mockResolvedValue({
+      user: { id: subscriberId, role: 'suscriptora', securityVersion: 0 },
+    });
+
+    const response = await postLink({ action: 'start' });
+
+    expect(response.status).toBe(503);
+    expect(await response.json()).toEqual({ error: 'google_unavailable' });
+    await expect(AuthTokenModel.countDocuments({ accountId: subscriberId, purpose: 'google_link' })).resolves.toBe(0);
+  });
+
+  it('does not disclose or act on a client-supplied identity conflict', async () => {
     const other = await createUserRepository().create({
       email: 'other@example.test',
       password: 'other-password',
@@ -125,21 +128,16 @@ describe('Google linking HTTP contract', () => {
       user: { id: subscriberId, role: 'suscriptora', securityVersion: 0 },
     });
 
-    const start = await postLink({ action: 'start' });
-    const { proofUrl } = await start.json() as { proofUrl: string };
-    const rawToken = new URL(proofUrl).searchParams.get('token');
-    expect(rawToken).toBeTruthy();
-
     const response = await postLink({
       action: 'complete',
-      token: rawToken!,
+      token: 'attacker-controlled-link-token',
       providerAccountId: 'google-account-1',
       email: 'google-owner@example.test',
       emailVerified: true,
     });
 
-    expect(response.status).toBe(409);
-    expect(await response.json()).toEqual({ error: 'google_link_denied' });
+    expect(response.status).toBe(503);
+    expect(await response.json()).toEqual({ error: 'google_unavailable' });
     await expect(IdentityModel.countDocuments({ accountId: subscriberId })).resolves.toBe(0);
   });
 
