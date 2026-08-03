@@ -41,6 +41,39 @@ describe('durable rolling-hour rate limits', () => {
     expect(await consumeRateLimit({ subject: 'email', key: 'reader@example.test', limit: 1, now: new Date('2026-08-01T13:01:00.000Z') })).toBe(true);
   });
 
+  it('enforces the limit across concurrent first requests', async () => {
+    const attempts = await Promise.all(
+      Array.from({ length: 12 }, () => consumeRateLimit({
+        subject: 'email',
+        key: 'concurrent@example.test',
+        limit: 5,
+      })),
+    );
+
+    expect(attempts.filter(Boolean)).toHaveLength(5);
+    expect(await RateLimitModel.findOne({ subject: 'email', key: 'concurrent@example.test' }))
+      .toMatchObject({ hits: 12 });
+  });
+
+  it('resets an expired window atomically under concurrent requests', async () => {
+    const first = new Date('2030-08-01T12:00:00.000Z');
+    const expired = new Date('2030-08-01T13:01:00.000Z');
+    await consumeRateLimit({ subject: 'email', key: 'expired-concurrent@example.test', limit: 3, now: first });
+
+    const attempts = await Promise.all(
+      Array.from({ length: 6 }, () => consumeRateLimit({
+        subject: 'email',
+        key: 'expired-concurrent@example.test',
+        limit: 3,
+        now: expired,
+      })),
+    );
+
+    expect(attempts.filter(Boolean)).toHaveLength(3);
+    expect(await RateLimitModel.findOne({ subject: 'email', key: 'expired-concurrent@example.test' }))
+      .toMatchObject({ hits: 6, windowStartedAt: expired });
+  });
+
   it('uses the approved rolling-hour defaults when a caller omits a limit', async () => {
     const emailAttempts: boolean[] = [];
     for (let i = 0; i < 6; i += 1) {
