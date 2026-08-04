@@ -74,6 +74,29 @@ afterEach(() => temporaryDirectories.splice(0).forEach((directory) => {
 }));
 
 describe('local POSIX release preparation', () => {
+  it('archives only deployable release content', () => {
+    const archivePath = join(temporaryDirectory(), 'release.tar');
+    const archive = spawnSync('git', ['archive', '--worktree-attributes', '--format=tar', '--output', archivePath, 'HEAD'], {
+      cwd: process.cwd(),
+      encoding: 'utf8',
+    });
+    expect(archive.status, archive.stderr).toBe(0);
+
+    const listing = spawnSync('tar', ['-tf', archivePath], { encoding: 'utf8' });
+    expect(listing.status, listing.stderr).toBe(0);
+    const entries = listing.stdout.split('\n');
+
+    expect(entries).toContain('src/app/layout.tsx');
+    expect(entries).toContain('ops/scripts/prepare-release.sh');
+    expect(entries).toContain('ops/scripts/activate-pm2-release.sh');
+    expect(entries).toContain('public/img/hero-img2.png');
+    expect(entries).toContain('package.json');
+    expect(entries).toContain('package-lock.json');
+    expect(entries.some((entry) => entry.startsWith('ideas/'))).toBe(false);
+    expect(entries.some((entry) => entry.startsWith('tests/'))).toBe(false);
+    expect(entries).not.toContain('.env.example');
+  });
+
   it('prepares, builds, verifies, and seals without activation', () => {
     const { result, target } = run();
     expect(result.status, result.stderr).toBe(0);
