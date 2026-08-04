@@ -186,7 +186,7 @@ Evidence may include timestamps, command names, exit statuses, HTTP statuses, SH
 |-------------|------------------|
 | `ideas/` | Planning documents, UI references, and historical design explorations. Not part of the application. |
 | `tests/` | Test code; not needed at runtime. |
-| `.env*.local`, `.env` | Secrets and local configuration; never committed. |
+| `.env.example`, `.env*.local`, `.env` | Local configuration templates and secrets; not part of a deployable release. |
 | `img/WhatsApp Image*.jpeg` | Local reference captures from Olga's notebook; ignored by `.gitignore`. |
 
 ## Common issues checklist
