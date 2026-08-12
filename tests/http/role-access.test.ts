@@ -1,6 +1,7 @@
 // @vitest-environment node
 
 import { spawn, type ChildProcess } from 'node:child_process';
+import { createHmac } from 'node:crypto';
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
@@ -12,6 +13,8 @@ const BASE_URL = `http://127.0.0.1:${PORT}`;
 const PASSWORD = 'role-test-password';
 const RESET_PASSWORD = 'role-reset-password';
 const RESET_TOKEN = 'role-reset-token';
+const ACCOUNT_CHECK_SIGNATURE_HEADER = 'x-account-check-signature';
+const USER_ID_HEADER = 'x-user-id';
 const roles = ['suscriptora', 'productora', 'admin'] as const;
 type Role = (typeof roles)[number];
 
@@ -23,6 +26,29 @@ let mongoServer: MongoMemoryServer;
 let nextServer: ChildProcess;
 let serverOutput = '';
 let productoraId: string;
+
+describe('HTTP role harness helpers', () => {
+  it('requires successful readiness responses and reports protected-route diagnostics', () => {
+    expect(isReadyStatus(200)).toBe(true);
+    expect(isReadyStatus(503)).toBe(false);
+    expect(describeProtectedResponse(new Response(null, {
+      status: 503,
+      headers: { location: '/login', server: 'next.js' },
+    }))).toBe('status=503 Location=/login server=next.js');
+    expect(() => expectProtectedStatus(new Response(null, {
+      status: 503,
+      headers: { location: '/login', server: 'next.js' },
+    }), '/blog', 200)).toThrow('/blog status=503 Location=/login server=next.js');
+  });
+});
+
+function isReadyStatus(status: number): boolean {
+  return status >= 200 && status < 300;
+}
+
+function describeProtectedResponse(response: Response): string {
+  return `status=${response.status} Location=${response.headers.get('location') ?? 'none'} server=${response.headers.get('server') ?? 'none'}`;
+}
 
 function cookieHeader(jar: CookieJar): string {
   return [...jar].map(([name, value]) => `${name}=${value}`).join('; ');
@@ -69,13 +95,41 @@ async function waitForServer(): Promise<void> {
   while (Date.now() < deadline) {
     try {
       const response = await fetch(`${BASE_URL}/api/health`);
-      if (response.status !== 404) return;
+      if (isReadyStatus(response.status)) return;
     } catch {
       // The development server is still starting.
     }
     await new Promise((resolve) => setTimeout(resolve, 500));
   }
   throw new Error(`Next.js HTTP server did not become ready\n${serverOutput}`);
+}
+
+async function waitForAccountAccess(userId: string): Promise<void> {
+  const deadline = Date.now() + 120_000;
+  let latestResponse = 'request failed before receiving an HTTP response';
+  while (Date.now() < deadline) {
+    try {
+      const signature = createHmac('sha256', process.env.NEXTAUTH_SECRET!)
+        .update(userId)
+        .digest('hex');
+      const response = await fetch(`${BASE_URL}/api/auth/account-access`, {
+        headers: {
+          [ACCOUNT_CHECK_SIGNATURE_HEADER]: signature,
+          [USER_ID_HEADER]: userId,
+        },
+      });
+      latestResponse = describeProtectedResponse(response);
+      if (isReadyStatus(response.status)) return;
+    } catch {
+      latestResponse = 'request failed before receiving an HTTP response';
+    }
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+  throw new Error(`Signed account-access dependency did not become ready: ${latestResponse}\n${serverOutput}`);
+}
+
+function expectProtectedStatus(response: Response, path: string, expectedStatus: number): void {
+  expect(response.status, `${path} ${describeProtectedResponse(response)}`).toBe(expectedStatus);
 }
 
 describe('real HTTP role access', () => {
@@ -109,6 +163,7 @@ describe('real HTTP role access', () => {
     nextServer.stdout?.on('data', (chunk) => { serverOutput += chunk.toString(); });
     nextServer.stderr?.on('data', (chunk) => { serverOutput += chunk.toString(); });
     await waitForServer();
+    await waitForAccountAccess(productoraId);
   }, 180_000);
 
   afterAll(async () => {
@@ -122,7 +177,7 @@ describe('real HTTP role access', () => {
 
     for (const path of ['/blog', '/jardin-digital', '/laboratorio', '/admin']) {
       const response = await request(path);
-      expect(response.status, path).toBe(307);
+      expectProtectedStatus(response, path, 307);
       expect(new URL(response.headers.get('location')!, BASE_URL).pathname).toBe('/login');
     }
   });
@@ -130,11 +185,11 @@ describe('real HTTP role access', () => {
   it('allows suscriptora only into registered-user areas', async () => {
     const session = await signIn('suscriptora@example.com');
     for (const path of ['/blog', '/jardin-digital']) {
-      expect((await request(path, session)).status, path).toBe(200);
+      expectProtectedStatus(await request(path, session), path, 200);
     }
     for (const path of ['/laboratorio', '/admin']) {
       const response = await request(path, session);
-      expect(response.status, path).toBe(307);
+      expectProtectedStatus(response, path, 307);
       expect(new URL(response.headers.get('location')!, BASE_URL).pathname).toBe('/');
     }
   });
@@ -142,32 +197,36 @@ describe('real HTTP role access', () => {
   it('allows productora into the laboratory but denies admin', async () => {
     const session = await signIn('productora@example.com');
     for (const path of ['/blog', '/jardin-digital', '/laboratorio']) {
-      expect((await request(path, session)).status, path).toBe(200);
+      expectProtectedStatus(await request(path, session), path, 200);
     }
     const response = await request('/admin', session);
-    expect(response.status).toBe(307);
+    expectProtectedStatus(response, '/admin', 307);
     expect(new URL(response.headers.get('location')!, BASE_URL).pathname).toBe('/');
   });
 
   it('allows admin into admin and laboratory areas', async () => {
     const session = await signIn('admin@example.com');
     for (const path of ['/blog', '/jardin-digital', '/laboratorio', '/admin']) {
-      expect((await request(path, session)).status, path).toBe(200);
+      expectProtectedStatus(await request(path, session), path, 200);
     }
   });
 
   it('denies every non-admin role at the admin HTTP API boundary', async () => {
-    expect((await request('/api/admin/health')).status).toBe(401);
+    expectProtectedStatus(await request('/api/admin/health'), '/api/admin/health', 401);
     for (const role of ['suscriptora', 'productora'] as const) {
       const response = await request('/api/admin/health', await signIn(`${role}@example.com`));
-      expect(response.status, role).toBe(403);
+      expectProtectedStatus(response, `/api/admin/health (${role})`, 403);
     }
-    expect((await request('/api/admin/health', await signIn('admin@example.com'))).status).toBe(200);
+    expectProtectedStatus(
+      await request('/api/admin/health', await signIn('admin@example.com')),
+      '/api/admin/health (admin)',
+      200,
+    );
   });
 
   it('rejects a reset-token replay and invalidates the prior staff session', async () => {
     const oldSession = await signIn('productora@example.com');
-    expect((await request('/blog', oldSession)).status).toBe(200);
+    expectProtectedStatus(await request('/blog', oldSession), '/blog', 200);
 
     const reset = await request('/api/auth/reset-password', undefined, {
       method: 'POST',
@@ -184,8 +243,12 @@ describe('real HTTP role access', () => {
     expect(replay.status).toBe(400);
 
     const staleBlog = await request('/blog', oldSession);
-    expect(staleBlog.status).toBe(307);
+    expectProtectedStatus(staleBlog, '/blog', 307);
     expect(new URL(staleBlog.headers.get('location')!, BASE_URL).pathname).toBe('/');
-    expect((await request('/blog', await signIn('productora@example.com', RESET_PASSWORD))).status).toBe(200);
+    expectProtectedStatus(
+      await request('/blog', await signIn('productora@example.com', RESET_PASSWORD)),
+      '/blog',
+      200,
+    );
   });
 });
