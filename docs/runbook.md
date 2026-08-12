@@ -4,9 +4,9 @@ How to run the project locally, execute checks, and deploy to the VPS. This docu
 
 ## Quick path: local run
 
-1. Start MongoDB:
+1. Start MongoDB and Mailpit:
    ```bash
-   docker compose up -d mongo
+   docker compose up -d mongo mailpit
    ```
 2. Copy and extend the environment file:
    ```bash
@@ -46,15 +46,15 @@ The first public registration never becomes an administrator. Provision or recov
 
 Use a password manager or the deployment secret store. For local one-off work in zsh, follow the silent interactive password-prompt procedure in [`docs/scripts.md`](./scripts.md#privileged-admin-scripts) and run the selected script with `npx tsx`; never inline a password in a shell command or save it in a committed environment file. Both scripts fail before connecting when a required value is absent or invalid and never print credentials.
 
-## MongoDB startup
+## Local service startup
 
-`docker-compose.yml` runs MongoDB 7.0 bound to `127.0.0.1:27017` with a persistent Docker volume named `mongo-data`.
+`docker-compose.yml` runs MongoDB 7.0 bound to `127.0.0.1:27017` with a persistent Docker volume named `mongo-data`. It also runs Mailpit with SMTP at `127.0.0.1:1025` and its local API at `127.0.0.1:8025`.
 
 ```bash
-docker compose up -d mongo
+docker compose up -d mongo mailpit
 ```
 
-The container is configured with `restart: unless-stopped`. It has **no authentication** in the local setup; the port is bound to localhost only so it is not exposed to the network.
+Both services are configured with `restart: unless-stopped`. MongoDB has **no authentication** in the local setup; every published port is bound to localhost only so it is not exposed to the network. Run one local Docker test harness at a time because these host ports are shared. Before runtime email tests, start both services and wait for MongoDB to accept connections and for Mailpit to report `healthy` in `docker compose ps`.
 
 ## Build, test, and CI checks
 
@@ -191,7 +191,7 @@ Evidence may include timestamps, command names, exit statuses, HTTP statuses, SH
 
 ## Common issues checklist
 
-- [ ] MongoDB is not running → `docker compose up -d mongo`
+- [ ] MongoDB or Mailpit is not running → `docker compose up -d mongo mailpit`
 - [ ] `NEXTAUTH_SECRET` is missing → the app may build, but login will fail
 - [ ] `MONGODB_URI` points to the wrong database → scripts will affect the wrong data
 - [ ] `npx tsx` is not available → run `npm install`, then retry the verified local invocation

@@ -50,13 +50,15 @@ This is **not an e-commerce site**. It explains the brand, shares content with r
 - Node.js 20
 - Docker or Docker Desktop
 
-### Start MongoDB
+### Start local services
 
 ```bash
-docker compose up -d mongo
+docker compose up -d mongo mailpit
 ```
 
-This binds MongoDB to `127.0.0.1:27017` with a persistent volume.
+This binds MongoDB to `127.0.0.1:27017` with a persistent volume. Mailpit captures local test email through SMTP at `127.0.0.1:1025` and exposes its local API at `127.0.0.1:8025`.
+
+Run one local Docker test harness at a time: these host ports are shared. Start both services and wait for MongoDB to accept connections and Mailpit to report `healthy` in `docker compose ps` before running runtime email tests.
 
 Copy `.env.example` to `.env.local` if you have not already, then add the extra variables required for NextAuth:
 
