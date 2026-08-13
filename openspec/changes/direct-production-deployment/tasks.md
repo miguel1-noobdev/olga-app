@@ -97,8 +97,8 @@ Each canonical Step 1–16 is one independent work unit and one conventional-com
 - [x] 14.1 Release immutable app build under `migue`; start PM2 loopback-only. Harness: `curl 127.0.0.1:3000/api/health`. Rollback: prior release and PM2 reload.
 
 ### Blocking reconciliation gate: candidate release handoff
-- [ ] G.1 Record the same full SHA for the reviewed commit, sealed release directory, versioned activation script, and `current` target before activation. Any mismatch stops before symlink or PM2 changes.
-- [ ] G.2 Use a POSIX-compatible SSH handoff wrapper that explicitly verifies remote identity and release ownership/mode, does not use Bash syntax through `sh`, does not call `runuser` as non-root, and does not mask preflight failures.
+- [ ] G.1 Record the same full SHA for the reviewed commit, sealed release directory, versioned activation script, and `current` target before activation. The receipt-only fields `release`, `connection_count`, `identity`, `metadata`, and `effective_root` do not establish the other identities; they remain unverified until separately evidenced. Any mismatch stops before symlink or PM2 changes.
+- [ ] G.2 Use a POSIX-compatible SSH handoff wrapper that explicitly verifies remote identity and release ownership/mode, does not use Bash syntax through `sh`, does not call `runuser` as non-root, and does not mask preflight failures. Receipt-only mode records `transfer=absent`, `preparation=absent`, and `activation=absent`; this is not activation evidence.
 - [ ] G.3 Capture non-secret, release-aligned evidence for all role logins and denials, ACME test diagnosis, PM2/Nginx log review, and credential cleanup. A failure or missing record is NO-GO.
 
 ### Step 15: Connect Nginx, force HTTPS, validate callbacks/login
