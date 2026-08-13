@@ -2,7 +2,7 @@
 
 ## Current State
 
-Canonical Steps 1–10, 12, 13, and 14 are complete according to their recorded historic implementation and runtime evidence. Production currently serves release `b050790d8dc7ab9638dd74217c18cd770043401f`; repository `HEAD` is `835dd149c0ab2b3b4646d625adaefb63a0df3183`, with no evidence that `835dd14` is deployed. Task 11.1 remains pending application login proof. Steps 15 and 16 remain pending their public callback/login and full production smoke evidence.
+The current G.2 operational state is **inconclusive and NO-GO**. After corrected merges, one authorized ordinary receipt-only command was invoked once and exited nonzero, but no sanitized stderr receipt was captured. This does not establish a remote failure or success, or any result about transfer, preparation, archive handling, activation, `current`, PM2, HTTPS, or deployment. There was no retry. The external executor/capture boundary defect is reported in [Gentle AI #3180](https://github.com/gentle-ai/gentle-ai/issues/3180). Historical operational assertions without the required captured receipt are unverified.
 
 The latest reconciliation is documentation-only: it records no new deployment or native-attempt execution and preserves only evidence-supported task boxes. The next runtime action is prohibited until the release-identity gate, POSIX handoff contract, and incomplete evidence are reconciled.
 
@@ -72,33 +72,33 @@ Each canonical Step 1–16 is one independent work unit and one conventional-com
 - [x] 6.2 GREEN: correct auth/route policy files required by failing tests. Harness: local authenticated Mongo. Rollback: policy files and tests.
 
 ### Step 7: Create VPS app/release/log directories owned by `migue`
-- [x] 7.1 Provision and verify ownership/permissions. Harness: `sudo -u migue` create-file check. Rollback: deployment directories.
+- [ ] 7.1 Operational ownership/permissions status is unverified in this reconciliation; do not infer it from the uncaptured G.2 attempt. Harness: `sudo -u migue` create-file check. Rollback: deployment directories.
 
 ### Step 8: Install Node 20, npm, PM2
-- [x] 8.1 Install pinned Node 20 toolchain and PM2; verify versions as `migue`. Harness: `node --version`, `npm --version`, `pm2 --version`. Rollback: packages/toolchain.
+- [ ] 8.1 Operational Node/npm/PM2 status is unverified in this reconciliation; do not infer it from the uncaptured G.2 attempt. Harness: `node --version`, `npm --version`, `pm2 --version`. Rollback: packages/toolchain.
 
 ### Step 9: Create private authenticated persistent MongoDB
-- [x] 9.1 RED: run deployment validation rejecting public, unauthenticated, or ephemeral Mongo configuration.
-- [x] 9.2 GREEN: provision Mongo with private binding, auth, and persistence. Harness: authenticated loopback connect plus external rejection. Rollback: Mongo service/data volume.
+- [ ] 9.1 Operational deployment validation status is unverified in this reconciliation; do not infer it from the uncaptured G.2 attempt.
+- [ ] 9.2 Operational Mongo binding, authentication, and persistence status is unverified in this reconciliation; do not infer it from the uncaptured G.2 attempt. Harness: authenticated loopback connect plus external rejection. Rollback: Mongo service/data volume.
 
 ### Step 10: Configure backups and prove restore before real data
-- [x] 10.1 Create backup/restore scripts in `ops/scripts/**`; prove restore to isolated Mongo before data entry. Harness: backup-to-restore integrity check. Rollback: backup configuration.
+- [ ] 10.1 Operational backup/restore status is unverified in this reconciliation; do not infer it from the uncaptured G.2 attempt. Harness: backup-to-restore integrity check. Rollback: backup configuration.
 
 ### Step 11: Create Admin and Olga using reviewed scripts without exposing credentials
 - [ ] 11.1 Run hardened scripts with protected input; verify each role can log in. Harness: Step 6 HTTP suite. Rollback: created accounts.
 
 ### Step 12: Restore DNS `botanicaob.duckdns.org` to `212.227.149.125`
-- [x] 12.1 Update DuckDNS and verify public DNS resolution. Harness: authoritative/public lookup. Rollback: DNS record.
+- [ ] 12.1 Operational DNS status is unverified in this reconciliation; do not infer it from the uncaptured G.2 attempt. Harness: authoritative/public lookup. Rollback: DNS record.
 
 ### Step 13: Configure Nginx and issue TLS with acme.sh
-- [x] 13.1 Add `ops/nginx/botanicasob.conf`; issue and verify certificate with acme.sh. Harness: TLS handshake. Rollback: Nginx site/certificate.
+- [ ] 13.1 Operational Nginx/TLS success is unverified in this reconciliation; do not infer it from the uncaptured G.2 attempt. A future authorized operational check requires its own captured, sanitized evidence. Harness: TLS handshake. Rollback: Nginx site/certificate.
 
 ### Step 14: Publish the app with PM2 on `127.0.0.1:3000`
-- [x] 14.1 Release immutable app build under `migue`; start PM2 loopback-only. Harness: `curl 127.0.0.1:3000/api/health`. Rollback: prior release and PM2 reload.
+- [ ] 14.1 Operational release, `current`, PM2, and loopback-health success are unverified in this reconciliation; do not infer them from the uncaptured G.2 attempt. Harness: `curl 127.0.0.1:3000/api/health`. Rollback: prior release and PM2 reload.
 
 ### Blocking reconciliation gate: candidate release handoff
 - [ ] G.1 Record the same full SHA for the reviewed commit, sealed release directory, versioned activation script, and `current` target before activation. The receipt-only fields `release`, `connection_count`, `identity`, `metadata`, and `effective_root` do not establish the other identities; they remain unverified until separately evidenced. Any mismatch stops before symlink or PM2 changes.
-- [ ] G.2 Use a POSIX-compatible SSH handoff wrapper that explicitly verifies remote identity and release ownership/mode, does not use Bash syntax through `sh`, does not call `runuser` as non-root, and does not mask preflight failures. Receipt-only mode records `transfer=absent`, `preparation=absent`, and `activation=absent`; this is not activation evidence.
+- [ ] G.2 is inconclusive and NO-GO. The one authorized ordinary receipt-only attempt after corrected merges exited nonzero without a captured sanitized stderr receipt; no remote result is inferred and no retry occurred. A later claim requires one captured sanitized receipt containing `release`, `execution_class`, `connection_count`, `identity`, `metadata`, `effective_root`, `transfer`, `preparation`, and `activation`. Receipt-only mode never establishes activation evidence. See [Gentle AI #3180](https://github.com/gentle-ai/gentle-ai/issues/3180) for the external executor/capture boundary defect.
 - [ ] G.3 Capture non-secret, release-aligned evidence for all role logins and denials, ACME test diagnosis, PM2/Nginx log review, and credential cleanup. A failure or missing record is NO-GO.
 
 ### Step 15: Connect Nginx, force HTTPS, validate callbacks/login

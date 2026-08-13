@@ -103,6 +103,15 @@ The remote release handoff wrapper MUST be POSIX-compatible. It MUST not run Bas
 
 Receipt-only mode MUST accept only an approved non-secret endpoint selector and owner/group/mode comparison policy. It MUST make exactly one non-mutating remote query to derive the active managed release and effective root, validate the canonical immutable release relationship and policy, and emit a sanitized receipt with `release`, `execution_class`, `connection_count`, `identity`, `metadata`, `effective_root`, `transfer`, `preparation`, and `activation`. `execution_class=remote_command_failure` MUST identify a nonzero SSH exit, `execution_class=invalid_remote_output` MUST identify a successful SSH exit with invalid managed-release output, and `execution_class=success` MUST identify valid remote execution and output. It MUST not archive, transfer, prepare, activate, manage services, retry, infer unobserved G.1/G.2 evidence, or classify an external caller-side capture failure. Missing selector or policy MUST fail locally; malformed, ambiguous, or mismatched query output MUST fail closed after at most one query.
 
+#### Scenario: authorized receipt-only attempt has no captured receipt
+
+- **GIVEN** corrected merges are present and one authorized ordinary receipt-only command is invoked
+- **WHEN** that command exits nonzero and no sanitized stderr receipt is captured
+- **THEN** G.2 is inconclusive and NO-GO, with no retry
+- **AND THEN** the record MUST NOT infer remote failure or success, transfer, preparation, archive handling, activation, `current`, PM2, HTTPS, or deployment status
+- **AND THEN** any later G.2 claim requires one captured sanitized receipt containing `release`, `execution_class`, `connection_count`, `identity`, `metadata`, `effective_root`, `transfer`, `preparation`, and `activation`
+- **AND THEN** the record MUST link the external executor/capture boundary defect in [Gentle AI #3180](https://github.com/gentle-ai/gentle-ai/issues/3180)
+
 #### Scenario: Receipt-only preflight establishes bounded evidence
 - GIVEN an approved selector and complete comparison policy
 - WHEN receipt-only preflight runs

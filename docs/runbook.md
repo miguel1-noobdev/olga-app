@@ -125,11 +125,13 @@ If delivery or access checks fail, stop activation and restore the prior release
 
 ## Production deployment contract
 
-### Recorded state and freeze
+### G.2 evidence status and freeze
 
-The read-only audit records that production is serving immutable release `b050790d8dc7ab9638dd74217c18cd770043401f`. Repository `HEAD` is `835dd149c0ab2b3b4646d625adaefb63a0df3183` (`835dd14`), but no evidence establishes that this revision is deployed. Do not describe `835dd14` as deployed.
+**NO-GO:** G.2 is inconclusive. After the corrected merges, one authorized ordinary receipt-only command was invoked once and exited nonzero. No sanitized stderr receipt was captured. The absence of that captured receipt means this record cannot determine the remote outcome, the receipt fields, or whether the command reached the remote executor. It does not imply remote failure or success, transfer, preparation, archive handling, activation, a `current` target, PM2 state, HTTPS state, or deployment status. There was no retry.
 
-Runtime acceptance is incomplete: role login and denial evidence is missing, the ACME test failure has not been diagnosed, and no logs are tied to a candidate release. The next runtime action is prohibited until the gates and evidence in this section are reconciled.
+The external executor/capture boundary defect is publicly reported in [Gentle AI #3180](https://github.com/gentle-ai/gentle-ai/issues/3180). Do not restore historical operational claims from this missing receipt.
+
+A later G.2 claim requires one captured, sanitized receipt for the authorized receipt-only attempt containing exactly these contract fields: `release`, `execution_class`, `connection_count`, `identity`, `metadata`, `effective_root`, `transfer`, `preparation`, and `activation`. Until that evidence exists, release identity, remote identity, owner/group/mode comparison, preflight outcome, and the absence of transfer, preparation, and activation are all unverified.
 
 ### Release identity gate
 
@@ -180,7 +182,7 @@ After every preceding gate has passed, activate only the prepared candidate by p
 sudo /srv/botanica-ob/releases/<full-candidate-sha>/ops/scripts/activate-pm2-release.sh <full-candidate-sha>
 ```
 
-The focused local sandbox tests cover the successful preparation path; every pre-extraction guard; late writability failure; activation-ID rejection; and exact failures from `id`, `stat`, extraction, install, build, and sealing. They do not prove a remote handoff, VPS build or sealing, rollback, G.2, or any later runtime gate. All remain NO-GO until the handoff is executed once with complete non-secret evidence for the selected SHA.
+The focused local sandbox tests cover the successful preparation path; every pre-extraction guard; late writability failure; activation-ID rejection; and exact failures from `id`, `stat`, extraction, install, build, and sealing. They do not prove a remote handoff, VPS build or sealing, rollback, G.2, or any later runtime gate. G.2 remains NO-GO until a later authorized receipt-only attempt produces the complete captured non-secret receipt named above.
 
 ### One-time credential handling and evidence
 
@@ -206,6 +208,6 @@ Evidence may include timestamps, command names, exit statuses, HTTP statuses, SH
 
 ## Remaining operational gaps
 
-- Production acceptance evidence is incomplete for role login/denial checks, ACME test diagnosis, and release-aligned PM2/Nginx logs.
-- The release identity and handoff contract is documented, but the candidate `835dd14` has not passed it and must not be activated.
+- G.2 is inconclusive because the single authorized receipt-only attempt exited nonzero without a captured sanitized stderr receipt. It is NO-GO; no remote operational outcome may be asserted.
+- Release identity, remote identity, ownership/mode comparison, and non-mutation fields remain unverified until a captured receipt contains the required contract fields.
 - No centralized log aggregation or alerting.
