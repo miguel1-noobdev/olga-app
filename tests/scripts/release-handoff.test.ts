@@ -162,6 +162,7 @@ describe('POSIX release handoff', () => {
 
     expect(attempt.result.status, attempt.result.stderr).toBe(0);
     expect(attempt.result.stderr).toContain('stage=transferred');
+    expect(attempt.result.stderr).not.toContain('execution_class=');
     expect(attempt.sshCalls()).toBe(2);
     expect(attempt.archiveCalls()).toBe(1);
   });
@@ -232,6 +233,7 @@ describe('POSIX release handoff', () => {
     expect(attempt.result.status, attempt.result.stderr).toBe(0);
     expect(attempt.result.stderr).toContain(`release=${releaseSha}`);
     expect(attempt.result.stderr).toContain('stage=receipt-preflight');
+    expect(attempt.result.stderr).toContain('execution_class=success');
     expect(attempt.result.stderr).toContain('identity=matched');
     expect(attempt.result.stderr).toContain('metadata=matched');
     expect(attempt.result.stderr).toContain('connection_count=1');
@@ -248,8 +250,11 @@ describe('POSIX release handoff', () => {
 
     expect(attempt.result.status, attempt.result.stderr).toBe(23);
     expect(attempt.result.stderr).toContain('stage=receipt-preflight');
+    expect(attempt.result.stderr).toContain('execution_class=remote_command_failure');
     expect(attempt.result.stderr).toContain('connection_count=1');
     expect(attempt.result.stderr).toContain('transfer=absent');
+    expect(attempt.result.stderr).toContain('preparation=absent');
+    expect(attempt.result.stderr).toContain('activation=absent');
     expect(attempt.sshCalls()).toBe(1);
     expect(attempt.archiveCalls()).toBe(0);
   });
@@ -264,6 +269,9 @@ describe('POSIX release handoff', () => {
 
     expect(attempt.result.status, attempt.result.stderr).not.toBe(0);
     expect(attempt.result.stderr).toContain('stage=input');
+    expect(attempt.result.stderr).toContain('execution_class=not_attempted');
+    expect(attempt.result.stderr).toContain('preparation=absent');
+    expect(attempt.result.stderr).toContain('activation=absent');
     expect(attempt.sshCalls()).toBe(0);
     expect(attempt.archiveCalls()).toBe(0);
   });
@@ -293,7 +301,10 @@ describe('POSIX release handoff', () => {
 
     expect(attempt.result.status, attempt.result.stderr).not.toBe(0);
     expect(attempt.result.stderr).toContain('stage=receipt-preflight');
+    expect(attempt.result.stderr).toContain('execution_class=invalid_remote_output');
     expect(attempt.result.stderr).toContain('transfer=absent');
+    expect(attempt.result.stderr).toContain('preparation=absent');
+    expect(attempt.result.stderr).toContain('activation=absent');
     expect(attempt.sshCalls()).toBe(1);
     expect(attempt.archiveCalls()).toBe(0);
   });
@@ -326,10 +337,12 @@ describe('POSIX release handoff', () => {
     const runbook = readFileSync(resolve(process.cwd(), 'docs/runbook.md'), 'utf8');
     const operationsSpec = readFileSync(resolve(process.cwd(), 'openspec/changes/direct-production-deployment/specs/production-operations/spec.md'), 'utf8');
 
-    for (const field of ['connection_count', 'identity', 'metadata', 'effective_root', 'transfer', 'preparation', 'activation']) {
+    for (const field of ['execution_class', 'connection_count', 'identity', 'metadata', 'effective_root', 'transfer', 'preparation', 'activation']) {
       expect(runbook).toContain(field);
     }
     expect(operationsSpec).toContain('receipt-only');
     expect(operationsSpec).toContain('unverified');
+    expect(operationsSpec).toContain('remote_command_failure');
+    expect(operationsSpec).toContain('invalid_remote_output');
   });
 });
