@@ -1,10 +1,11 @@
-import { chmodSync, existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, cpSync, existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 
 const scriptPath = resolve(process.cwd(), 'ops/scripts/handoff-release.sh');
+const prepareScriptPath = resolve(process.cwd(), 'ops/scripts/prepare-release.sh');
 const releaseSha = '835dd149c0ab2b3b4646d625adaefb63a0df3183';
 const temporaryDirectories: string[] = [];
 type ReceiptReplacement = Partial<Record<'releaseDir' | 'owner' | 'group' | 'mode', string>>;
@@ -35,7 +36,11 @@ function run(options: Record<string, string> = {}) {
     if [ "$calls" -eq 1 ] && [ "$HANDOFF_RECEIPT_ONLY" = 1 ]; then
       printf '%s\\n' "$MOCK_REMOTE_OUTPUT"
     elif [ "$calls" -eq 1 ]; then
-      printf '%s\\n' 'handoff-user' 'handoff-group' 'handoff-user:handoff-group 750'
+      if [ "\${MOCK_EXECUTE_PREFLIGHT-0}" = 1 ]; then
+        env -i PATH="$PATH" /bin/sh -c "$2"
+      else
+        printf '%s\\n' 'handoff-user' 'handoff-group' 'handoff-user:handoff-group 750'
+      fi
     else
       cat >/dev/null
     fi
@@ -75,7 +80,68 @@ function run(options: Record<string, string> = {}) {
   };
 }
 
-afterEach(() => temporaryDirectories.splice(0).forEach((directory) => rmSync(directory, { recursive: true, force: true })));
+function runPreparationHandoff(options: { expectedGroup?: string; expectedOwner?: string; preflightFailure?: string; targetContains?: string } = {}) {
+  const root = temporaryDirectory();
+  const appRoot = join(root, 'app');
+  const archiveSource = join(root, 'archive-source');
+  const bin = join(root, 'bin');
+  const archiveCalls = join(root, 'archive-calls');
+  const releaseDirectory = join(appRoot, 'releases', releaseSha);
+  const owner = spawnSync('id', ['-un'], { encoding: 'utf8' }).stdout.trim();
+  const group = spawnSync('id', ['-gn'], { encoding: 'utf8' }).stdout.trim();
+
+  mkdirSync(join(appRoot, 'ops', 'scripts'), { recursive: true });
+  cpSync(prepareScriptPath, join(appRoot, 'ops', 'scripts', 'prepare-release.sh'));
+  mkdirSync(join(archiveSource, 'ops', 'scripts'), { recursive: true });
+  writeFileSync(join(archiveSource, 'package.json'), '{"scripts":{"build":"true"}}\n');
+  writeFileSync(join(archiveSource, 'ops', 'scripts', 'activate-pm2-release.sh'), 'readonly RELEASE_ID="${1:-}"\n');
+  mkdirSync(releaseDirectory, { recursive: true });
+  chmodSync(releaseDirectory, 0o750);
+  if (options.targetContains) writeFileSync(join(releaseDirectory, options.targetContains), 'already here\n');
+  mkdirSync(bin);
+  command(bin, 'git', `printf 'archive\n' >> "$ARCHIVE_CALLS"\ntar -cf - -C "$ARCHIVE_SOURCE" .`);
+  command(bin, 'npm', 'exit 0');
+  command(bin, 'ssh', `
+    if [ "$2" = "RELEASE_SHA='$releaseSha' /bin/sh '$appRoot/releases/$releaseSha/ops/scripts/prepare-release.sh'" ]; then
+      printf '%s\\n' 'unexpected in-target preparer' >&2
+      exit 97
+    fi
+    if [ "\${MOCK_PREFLIGHT_FAILURE-0}" -ne 0 ]; then exit "$MOCK_PREFLIGHT_FAILURE"; fi
+    case "$2" in
+      *"stat -c"*) printf '%s\\n' "$EXPECTED_RELEASE_OWNER" "$EXPECTED_RELEASE_GROUP" "$EXPECTED_RELEASE_OWNER:$EXPECTED_RELEASE_GROUP 750" ;;
+      *) env -i PATH="$PATH" /bin/sh -c "$2" ;;
+    esac
+  `);
+
+  const result = spawnSync('/bin/sh', [scriptPath], {
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      ARCHIVE_SOURCE: archiveSource,
+      EXPECTED_RELEASE_GROUP: options.expectedGroup ?? group,
+      EXPECTED_RELEASE_MODE: '750',
+      EXPECTED_RELEASE_OWNER: options.expectedOwner ?? owner,
+      ARCHIVE_CALLS: archiveCalls,
+      MOCK_APP_ROOT: appRoot,
+      MOCK_PREFLIGHT_FAILURE: options.preflightFailure ?? '0',
+      PATH: `${bin}:${process.env.PATH}`,
+      RELEASE_SHA: releaseSha,
+      REMOTE_APP_ROOT: appRoot,
+      REMOTE_HOST: 'handoff.test',
+    },
+  });
+
+  return {
+    archiveCalls: () => existsSync(archiveCalls) ? readFileSync(archiveCalls, 'utf8').trim().split('\n').filter(Boolean).length : 0,
+    releaseDirectory,
+    result,
+  };
+}
+
+afterEach(() => temporaryDirectories.splice(0).forEach((directory) => {
+  spawnSync('/bin/chmod', ['-R', 'u+w', directory]);
+  rmSync(directory, { recursive: true, force: true });
+}));
 
 describe('POSIX release handoff', () => {
   it.each([
@@ -98,6 +164,61 @@ describe('POSIX release handoff', () => {
     expect(attempt.result.stderr).toContain('stage=transferred');
     expect(attempt.sshCalls()).toBe(2);
     expect(attempt.archiveCalls()).toBe(1);
+  });
+
+  it('treats an apostrophe-bearing remote app root as a literal preflight path', () => {
+    const remoteAppRoot = join(temporaryDirectory(), "app' ; false #");
+    const owner = spawnSync('id', ['-un'], { encoding: 'utf8' }).stdout.trim();
+    const group = spawnSync('id', ['-gn'], { encoding: 'utf8' }).stdout.trim();
+    mkdirSync(join(remoteAppRoot, 'releases', releaseSha), { recursive: true });
+    chmodSync(join(remoteAppRoot, 'releases', releaseSha), 0o750);
+
+    const attempt = run({
+      EXPECTED_RELEASE_GROUP: group,
+      EXPECTED_RELEASE_OWNER: owner,
+      MOCK_EXECUTE_PREFLIGHT: '1',
+      REMOTE_APP_ROOT: remoteAppRoot,
+    });
+
+    expect(attempt.result.status, attempt.result.stderr).toBe(0);
+    expect(attempt.sshCalls()).toBe(2);
+    expect(attempt.archiveCalls()).toBe(1);
+  });
+
+  it('prepares an empty target with the external versioned preparer', () => {
+    const attempt = runPreparationHandoff();
+
+    expect(attempt.result.status, attempt.result.stderr).toBe(0);
+    expect(readFileSync(join(attempt.releaseDirectory, 'package.json'), 'utf8')).toContain('"build"');
+    expect(existsSync(join(attempt.releaseDirectory, 'ops', 'scripts', 'activate-pm2-release.sh'))).toBe(true);
+  });
+
+  it('forwards policy values to the isolated remote preparer without shell injection', () => {
+    const attempt = runPreparationHandoff({
+      expectedGroup: `${spawnSync('id', ['-gn'], { encoding: 'utf8' }).stdout.trim()}; false`,
+      expectedOwner: `${spawnSync('id', ['-un'], { encoding: 'utf8' }).stdout.trim()}; false`,
+    });
+
+    expect(attempt.result.status, attempt.result.stderr).not.toBe(0);
+    expect(attempt.result.stderr).toContain('stage=owner');
+    expect(existsSync(join(attempt.releaseDirectory, 'package.json'))).toBe(false);
+  });
+
+  it('rejects a non-empty target before archive extraction', () => {
+    const attempt = runPreparationHandoff({ targetContains: 'unexpected.txt' });
+
+    expect(attempt.result.status, attempt.result.stderr).not.toBe(0);
+    expect(attempt.result.stderr).toContain('stage=not_empty');
+    expect(attempt.archiveCalls()).toBe(1);
+    expect(existsSync(join(attempt.releaseDirectory, 'package.json'))).toBe(false);
+  });
+
+  it('prevents transfer when ordinary preflight fails', () => {
+    const attempt = runPreparationHandoff({ preflightFailure: '23' });
+
+    expect(attempt.result.status, attempt.result.stderr).toBe(23);
+    expect(attempt.result.stderr).toContain('stage=preflight');
+    expect(attempt.archiveCalls()).toBe(0);
   });
 
   it('derives the active release and root in exactly one receipt-only query', () => {
