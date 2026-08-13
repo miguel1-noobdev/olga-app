@@ -10,13 +10,19 @@ effective_root=unverified
 transfer=unknown
 preparation=unknown
 activation=unknown
+execution_class=not_attempted
 
 emit() {
   status=$1
   timestamp=$(date -u '+%Y-%m-%dT%H:%M:%SZ') || timestamp=1970-01-01T00:00:00Z
   if [ "$status" -eq 0 ]; then outcome=passed; else outcome=failed; fi
-  printf 'handoff=%s release=%s timestamp=%s stage=%s status=%s identity=%s metadata=%s connection_count=%s effective_root=%s transfer=%s preparation=%s activation=%s\n' \
-    "$outcome" "$release" "$timestamp" "$stage" "$status" "$identity" "$metadata" "$connection_count" "$effective_root" "$transfer" "$preparation" "$activation" >&2
+  if [ "${HANDOFF_RECEIPT_ONLY-}" = 1 ]; then
+    printf 'handoff=%s release=%s timestamp=%s stage=%s status=%s execution_class=%s identity=%s metadata=%s connection_count=%s effective_root=%s transfer=%s preparation=%s activation=%s\n' \
+      "$outcome" "$release" "$timestamp" "$stage" "$status" "$execution_class" "$identity" "$metadata" "$connection_count" "$effective_root" "$transfer" "$preparation" "$activation" >&2
+  else
+    printf 'handoff=%s release=%s timestamp=%s stage=%s status=%s identity=%s metadata=%s connection_count=%s effective_root=%s transfer=%s preparation=%s activation=%s\n' \
+      "$outcome" "$release" "$timestamp" "$stage" "$status" "$identity" "$metadata" "$connection_count" "$effective_root" "$transfer" "$preparation" "$activation" >&2
+  fi
 }
 
 finish() {
@@ -76,7 +82,16 @@ if [ "${HANDOFF_RECEIPT_ONLY-}" = 1 ]; then
     printf "active_release=%s\neffective_root=%s\nrelease_dir=%s\nowner=%s\ngroup=%s\nmode=%s\n" \
       "$active_release" "$effective_root" "$release_dir" \
       "$(stat -c "%U" "$release_dir")" "$(stat -c "%G" "$release_dir")" "$(stat -c "%a" "$release_dir")"
-  ' 2>/dev/null); then :; else fail receipt-preflight $?; fi
+  ' 2>/dev/null); then :; else
+    status=$?
+    execution_class=remote_command_failure
+    fail receipt-preflight "$status"
+  fi
+
+  invalid_remote_output() {
+    execution_class=invalid_remote_output
+    fail receipt-preflight 1
+  }
 
   receipt_value() {
     key=$1
@@ -86,18 +101,19 @@ if [ "${HANDOFF_RECEIPT_ONLY-}" = 1 ]; then
   }
 
   if [ "$(printf '%s\n' "$receipt" | sed '/^$/d' | wc -l)" -ne 6 ] || printf '%s\n' "$receipt" | grep -qvE '^(active_release|effective_root|release_dir|owner|group|mode)='; then
-    fail receipt-preflight 1
+    invalid_remote_output
   fi
-  active_release=$(receipt_value active_release) || fail receipt-preflight 1
-  derived_root=$(receipt_value effective_root) || fail receipt-preflight 1
-  release_dir=$(receipt_value release_dir) || fail receipt-preflight 1
-  remote_owner=$(receipt_value owner) || fail receipt-preflight 1
-  remote_group=$(receipt_value group) || fail receipt-preflight 1
-  remote_mode=$(receipt_value mode) || fail receipt-preflight 1
+  active_release=$(receipt_value active_release) || invalid_remote_output
+  derived_root=$(receipt_value effective_root) || invalid_remote_output
+  release_dir=$(receipt_value release_dir) || invalid_remote_output
+  remote_owner=$(receipt_value owner) || invalid_remote_output
+  remote_group=$(receipt_value group) || invalid_remote_output
+  remote_mode=$(receipt_value mode) || invalid_remote_output
 
-  if [ "${#active_release}" -ne 40 ]; then fail receipt-preflight 1; fi
-  case "$active_release" in *[!0123456789abcdef]*) fail receipt-preflight 1 ;; esac
-  case "$derived_root" in /*) ;; *) fail receipt-preflight 1 ;; esac
+  if [ "${#active_release}" -ne 40 ]; then invalid_remote_output; fi
+  case "$active_release" in *[!0123456789abcdef]*) invalid_remote_output ;; esac
+  case "$derived_root" in /*) ;; *) invalid_remote_output ;; esac
+  execution_class=success
 
   release=$active_release
   effective_root=derived

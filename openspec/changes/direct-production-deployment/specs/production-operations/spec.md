@@ -101,11 +101,11 @@ The remote release handoff wrapper MUST be POSIX-compatible. It MUST not run Bas
 
 ### Requirement: Receipt-only managed-release preflight
 
-Receipt-only mode MUST accept only an approved non-secret endpoint selector and owner/group/mode comparison policy. It MUST make exactly one non-mutating remote query to derive the active managed release and effective root, validate the canonical immutable release relationship and policy, and emit a sanitized receipt with `release`, `connection_count`, `identity`, `metadata`, `effective_root`, `transfer`, `preparation`, and `activation`. It MUST not archive, transfer, prepare, activate, manage services, retry, or infer unobserved G.1/G.2 evidence. Missing selector or policy MUST fail locally; malformed, ambiguous, or mismatched query output MUST fail closed after at most one query.
+Receipt-only mode MUST accept only an approved non-secret endpoint selector and owner/group/mode comparison policy. It MUST make exactly one non-mutating remote query to derive the active managed release and effective root, validate the canonical immutable release relationship and policy, and emit a sanitized receipt with `release`, `execution_class`, `connection_count`, `identity`, `metadata`, `effective_root`, `transfer`, `preparation`, and `activation`. `execution_class=remote_command_failure` MUST identify a nonzero SSH exit, `execution_class=invalid_remote_output` MUST identify a successful SSH exit with invalid managed-release output, and `execution_class=success` MUST identify valid remote execution and output. It MUST not archive, transfer, prepare, activate, manage services, retry, infer unobserved G.1/G.2 evidence, or classify an external caller-side capture failure. Missing selector or policy MUST fail locally; malformed, ambiguous, or mismatched query output MUST fail closed after at most one query.
 
 #### Scenario: Receipt-only preflight establishes bounded evidence
 - GIVEN an approved selector and complete comparison policy
 - WHEN receipt-only preflight runs
 - THEN one remote query derives the active release and effective root
-- AND the receipt reports `connection_count=1`, identity and metadata outcomes, and `transfer=absent`, `preparation=absent`, and `activation=absent`
+- AND the receipt reports `connection_count=1`, the applicable `execution_class`, identity and metadata outcomes, and `transfer=absent`, `preparation=absent`, and `activation=absent`
 - AND reviewed commit, activation-script SHA, `current` target, and runtime health remain explicitly unverified unless separately evidenced
