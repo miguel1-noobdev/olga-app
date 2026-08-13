@@ -164,6 +164,12 @@ Before any transfer, the wrapper must explicitly record and verify the remote SS
 
 The handoff must name the full candidate SHA in its release directory and preserve the prior `current` target for rollback. It stops at the first failure and records the failed gate, command class, timestamp, remote identity, and non-secret metadata. It does not retry or activate a different SHA.
 
+For a non-mutating receipt-only preflight, invoke the wrapper without archive standard input. `HANDOFF_RECEIPT_ONLY=1` validates the exact lowercase 40-character candidate SHA plus remote identity and release ownership/mode, then stops before archive transfer or remote preparation:
+
+```bash
+HANDOFF_RECEIPT_ONLY=1 RELEASE_SHA=<full-candidate-sha> REMOTE_HOST=<host> REMOTE_APP_ROOT=/srv/botanica-ob EXPECTED_RELEASE_OWNER=<owner> EXPECTED_RELEASE_GROUP=<group> /bin/sh ops/scripts/handoff-release.sh
+```
+
 `ops/scripts/prepare-release.sh` is the POSIX (`/bin/sh`) preparation stage. Its only inputs are `RELEASE_SHA`, `APP_ROOT`, and the expected owner/group/mode policy. It accepts the reviewed `git archive` tar stream on standard input, validates the identity, existing empty target, owner, group, exact mode, and writability before extraction, then runs `npm ci`, `npm run build`, verifies the extracted activation accepts a caller-supplied release SHA, and seals the target. Every exit emits one timestamped, non-secret `key=value` record; failed `id`, `stat`, extraction, install, build, and seal stages retain their external exit status. Invoke it explicitly with `/bin/sh`; it does not load secrets, invoke `runuser`, PM2, or activation.
 
 After every preceding gate has passed, activate only the prepared candidate by passing the same full SHA both in its sealed path and as the required argument:
