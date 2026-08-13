@@ -31,6 +31,12 @@ fail() {
   finish "$2"
 }
 
+shell_quote() {
+  printf "'"
+  printf '%s' "$1" | sed "s/'/'\\\\''/g"
+  printf "'"
+}
+
 trap 'finish $?' 0
 
 remote_host=${REMOTE_HOST-}
@@ -115,8 +121,9 @@ fi
 case "$release" in *[!0123456789abcdef]*) fail input 1 ;; esac
 
 release_dir="$remote_app_root/releases/$release"
+release_dir_q=$(shell_quote "$release_dir") || fail preflight $?
 connection_count=1
-if preflight=$(ssh "$remote_host" "id -un; id -gn; stat -c '%U:%G %a' '$release_dir'"); then :; else fail preflight $?; fi
+if preflight=$(ssh "$remote_host" "id -un; id -gn; stat -c '%U:%G %a' $release_dir_q"); then :; else fail preflight $?; fi
 identity=$(printf '%s\n' "$preflight" | sed -n '1p')
 group=$(printf '%s\n' "$preflight" | sed -n '2p')
 metadata=$(printf '%s\n' "$preflight" | sed -n '3p')
@@ -127,7 +134,12 @@ fi
 
 stage=preflight
 
-if git archive --worktree-attributes --format=tar "$release" | ssh "$remote_host" "RELEASE_SHA='$release' /bin/sh '$release_dir/ops/scripts/prepare-release.sh'"; then :; else fail transfer $?; fi
+release_q=$(shell_quote "$release") || fail transfer $?
+remote_app_root_q=$(shell_quote "$remote_app_root") || fail transfer $?
+expected_owner_q=$(shell_quote "$expected_owner") || fail transfer $?
+expected_group_q=$(shell_quote "$expected_group") || fail transfer $?
+expected_mode_q=$(shell_quote "$expected_mode") || fail transfer $?
+if git archive --worktree-attributes --format=tar "$release" | ssh "$remote_host" "RELEASE_SHA=$release_q APP_ROOT=$remote_app_root_q EXPECTED_RELEASE_OWNER=$expected_owner_q EXPECTED_RELEASE_GROUP=$expected_group_q EXPECTED_RELEASE_MODE=$expected_mode_q /bin/sh $remote_app_root_q/ops/scripts/prepare-release.sh"; then :; else fail transfer $?; fi
 connection_count=2
 stage=transferred
 exit 0
