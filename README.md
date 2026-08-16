@@ -73,7 +73,7 @@ The default `MONGODB_URI` points to `mongodb://localhost:27017/botanica-ob`. See
 ```bash
 npm run dev              # Start the Next.js dev server
 npm run build            # Production build
-npm run test:run         # Run the Vitest suite once
+MAILPIT_RUNTIME_TEST=1 npm run test:run # Run the Vitest suite once
 npm run typecheck:scripts # Type-check files under scripts/
 ```
 
@@ -89,7 +89,7 @@ A GitHub Actions workflow runs on every push and pull request to `main`/`master`
 
 1. `npm ci`
 2. `npm run build`
-3. `npm run test:run`
+3. `MAILPIT_RUNTIME_TEST=1 npm run test:run`
 4. `npm run typecheck:scripts`
 
 ## Project layout

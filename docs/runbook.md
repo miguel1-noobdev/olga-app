@@ -63,7 +63,7 @@ Both services are configured with `restart: unless-stopped`. MongoDB has **no au
 | `npm run dev` | Next.js dev server on [http://localhost:3000](http://localhost:3000). |
 | `npm run build` | Production build. |
 | `npm run start` | Production server; requires a prior build. |
-| `npm run test:run` | Run the Vitest suite once. |
+| `MAILPIT_RUNTIME_TEST=1 npm run test:run` | Run the Vitest suite once, including the Mailpit runtime test. |
 | `npm run test:watch` | Run Vitest in watch mode. |
 | `npm run test:coverage` | Run Vitest with `v8` coverage. |
 | `npm run typecheck:scripts` | Type-check the files under `scripts/` separately. |
@@ -74,7 +74,7 @@ Both services are configured with `restart: unless-stopped`. MongoDB has **no au
 
 1. `npm ci`
 2. `npm run build`
-3. `npm run test:run`
+3. `MAILPIT_RUNTIME_TEST=1 npm run test:run`
 4. `npm run typecheck:scripts`
 
 The workflow uses Node.js 20 and the `npm` cache.

@@ -37,7 +37,7 @@ jobs:
         run: npm run build
 
       - name: Run tests
-        run: npm run test:run
+        run: MAILPIT_RUNTIME_TEST=1 npm run test:run
 
       - name: Typecheck scripts
         run: npm run typecheck:scripts

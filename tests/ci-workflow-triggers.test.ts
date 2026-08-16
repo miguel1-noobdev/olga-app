@@ -27,4 +27,8 @@ describe('CI workflow triggers', () => {
     expect(mailpitService).toContain('--health-timeout 3s');
     expect(mailpitService).toContain('--health-retries 12');
   });
+
+  it('enables the Mailpit runtime test when the service is provisioned', () => {
+    expect(workflow).toContain('run: MAILPIT_RUNTIME_TEST=1 npm run test:run');
+  });
 });
