@@ -5,9 +5,15 @@ import GoogleProvider from 'next-auth/providers/google';
 import { createUserRepository } from '@/lib/db/repository/user';
 import { connectToDatabase } from '@/lib/db/connect';
 import { authorizeWithRepository } from './authorize-credentials';
-import { getGoogleOAuthConfig, isVerifiedGoogleProfile, normalizeGoogleEmail } from './google';
+import {
+  getGoogleOAuthConfig,
+  isVerifiedGoogleProfile,
+  normalizeGoogleEmail,
+  resolveGoogleCallbackResult,
+} from './google';
 import { IdentityModel } from '@/lib/db/models/identity';
 import { ROLES } from './roles';
+import type { UserRecord, UserRepository } from '@/lib/db/repository/user';
 
 const providers: NonNullable<NextAuthOptions['providers']> = [
   CredentialsProvider({
@@ -60,40 +66,52 @@ export const authOptions: NextAuthOptions = {
       });
 
       if (providerIdentity) {
-        const linkedUser = await repo.findById(providerIdentity.accountId);
-        if (!linkedUser || linkedUser.accountStatus !== 'active' || !linkedUser.emailVerified) {
-          return false;
-        }
-
-        Object.assign(user, {
-          id: linkedUser.id,
-          email: linkedUser.email,
-          role: linkedUser.role,
-          emailVerified: linkedUser.emailVerified,
-          securityVersion: linkedUser.securityVersion,
-        });
-        return true;
+        return signInLinkedSubscriber(repo, providerIdentity.accountId, user);
       }
 
       const email = normalizeGoogleEmail(profile.email);
       const existingUser = await repo.findByEmail(email);
-      if (existingUser) {
+      const callbackResult = resolveGoogleCallbackResult({
+        providerIdentityFound: false,
+        credentialsAccountFound: Boolean(existingUser),
+      });
+      if (callbackResult !== 'denied') {
         return false;
       }
 
-      const createdUser = await repo.create({
-        email,
-        password: randomPassword(),
-        role: ROLES.SUSCRIPTORA,
-        accountStatus: 'active',
-        emailVerified: true,
-      });
-      await IdentityModel.create({
-        accountId: createdUser.id,
-        provider: 'google',
-        providerAccountId: account.providerAccountId,
-        email,
-      });
+      let createdUser: UserRecord;
+      try {
+        createdUser = await repo.create({
+          email,
+          password: randomPassword(),
+          role: ROLES.SUSCRIPTORA,
+          accountStatus: 'active',
+          emailVerified: true,
+        });
+      } catch (error) {
+        if (!isDuplicateKeyError(error)) {
+          throw error;
+        }
+
+        return signInRacedProviderIdentity(repo, account.providerAccountId, user);
+      }
+
+      try {
+        await IdentityModel.create({
+          accountId: createdUser.id,
+          provider: 'google',
+          providerAccountId: account.providerAccountId,
+          email,
+        });
+      } catch (error) {
+        await repo.deleteById(createdUser.id);
+        if (!isDuplicateKeyError(error)) {
+          throw error;
+        }
+
+        return signInRacedProviderIdentity(repo, account.providerAccountId, user);
+      }
+
       Object.assign(user, {
         id: createdUser.id,
         email: createdUser.email,
@@ -148,4 +166,55 @@ export const authOptions: NextAuthOptions = {
 
 function randomPassword(): string {
   return `google-${randomUUID()}`;
+}
+
+async function signInRacedProviderIdentity(
+  repo: UserRepository,
+  providerAccountId: string,
+  user: object,
+): Promise<boolean> {
+  const racedIdentity = await IdentityModel.findOne({
+    provider: 'google',
+    providerAccountId,
+  });
+
+  if (!racedIdentity) {
+    return false;
+  }
+
+  return signInLinkedSubscriber(repo, racedIdentity.accountId, user);
+}
+
+async function signInLinkedSubscriber(
+  repo: UserRepository,
+  accountId: string,
+  user: object,
+): Promise<boolean> {
+  const linkedUser = await repo.findById(accountId);
+  if (
+    !linkedUser ||
+    linkedUser.role !== ROLES.SUSCRIPTORA ||
+    linkedUser.accountStatus !== 'active' ||
+    !linkedUser.emailVerified
+  ) {
+    return false;
+  }
+
+  Object.assign(user, {
+    id: linkedUser.id,
+    email: linkedUser.email,
+    role: linkedUser.role,
+    emailVerified: linkedUser.emailVerified,
+    securityVersion: linkedUser.securityVersion,
+  });
+  return true;
+}
+
+function isDuplicateKeyError(error: unknown): boolean {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    error.code === 11000
+  );
 }

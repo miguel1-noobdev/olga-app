@@ -33,6 +33,7 @@ export interface UserRepository {
   updateAccountStatus(id: string, accountStatus: AccountStatus): Promise<void>;
   markEmailVerified(id: string): Promise<boolean>;
   deletePendingRegistration(id: string): Promise<boolean>;
+  deleteById(id: string): Promise<boolean>;
   advanceSecurityVersion(id: string): Promise<void>;
 }
 
@@ -162,6 +163,11 @@ export function createUserRepository(): UserRepository {
         accountStatus: 'pending_email',
         emailVerified: false,
       });
+      return result !== null;
+    },
+
+    async deleteById(id: string): Promise<boolean> {
+      const result = await UserModel.findByIdAndDelete(id);
       return result !== null;
     },
 

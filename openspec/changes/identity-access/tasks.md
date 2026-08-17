@@ -1,15 +1,19 @@
 # Tasks: Identity and Access
 
+## Status Reconciliation
+
+Tasks 1.1–5.3 remain recorded as completed (17/17) in `apply-progress.md`. That evidence predates the amended provider-ID-first collision rule; it is not evidence that the new rule is implemented. Tasks 6.1–6.6 are the only remaining work.
+
 ## Review Workload Forecast
 
 | Field | Value |
 |---|---|
-| Estimated changed lines | 2,900–3,800 |
-| 800-line budget risk | High |
+| Estimated changed lines | 430–480 |
+| 400-line budget risk | High |
 | Chained PRs recommended | Yes |
-| Suggested split | PR 1 → PR 2 → PR 3 → PR 4 → PR 5 |
-| Delivery strategy | force-chained |
-| Chain strategy | feature-branch-chain — the integration/tracker branch accumulates the release; PR #1 targets the tracker, then each child PR targets the immediate prior child branch. |
+| Suggested split | PR 1 callback collision → PR 2 linking/UI regressions |
+| Delivery strategy | auto-chain |
+| Chain strategy | feature-branch-chain |
 
 Decision needed before apply: No
 Chained PRs recommended: Yes
@@ -20,46 +24,21 @@ Chain strategy: feature-branch-chain
 
 | Unit | Goal | Likely PR | Focused test command | Runtime harness | Rollback boundary |
 |---|---|---|---|---|---|
-| 1 | Primitives + dry-run | 1, ≤800; base = tracker | `npm test -- identity-foundation` | `--dry-run` receipt | New models/repos/script |
-| 2 | Verified registration | 2, ≤800; branch = `feat/identity-access-unit-2-registration`; base = `feat/identity-access-unit-1-foundation` | `npm test -- registration` | Mailpit captures registration mail; no external delivery | Registration/verify/resend/email/proxy controls |
-| 3 | Recovery + access | 3, ≤800; base = `feat/identity-access-unit-2-registration` | `npm test -- account-access` | stale-session/reset HTTP | Recovery/access/auth checks |
-| 4 | Google/linking | 4, ≤800; base = PR 3 branch | `npm test -- google-linking` | disabled/proof flow | Provider/linking only |
-| 5 | Migration hardening | 5, ≤800; base = PR 4 branch | `npm test -- identity-migration` | apply rehearsal receipt | Migration/config/runbook |
+| 1 | Provider-first callback and collision denial | PR 1; base = feature/tracker branch | `npm run test:run -- tests/auth-options-google.test.ts tests/auth/nextauth-compatibility.test.ts` | Mocked NextAuth + MongoMemoryServer callback scenarios | `src/lib/auth/{options,google}.ts`, `src/lib/db/repository/user.ts`, Unit 1 tests |
+| 2 | Explicit linking and collision UX | PR 2; base = PR 1 branch | `npm run test:run -- tests/http/google-linking.test.ts tests/auth/google-provider-policy.test.ts` | Local HTTP/MongoMemoryServer; no Google network | `google-linking.ts`, `link-google/route.ts`, login/components, Unit 2 tests |
 
-**Delivery:** the tracker accumulates the release; PR #1 targets the tracker, PR #2 (`feat/identity-access-unit-2-registration`) targets `feat/identity-access-unit-1-foundation`, and each later child targets its immediate prior child branch. **Unit 2 transport:** temporary Gmail SMTP sender `esenciales.ob@gmail.com`; Mailpit is test-only and never delivers externally; the Gmail app password is VPS-only and never source-controlled. Unit 1 is autonomous and credential-free; Unit 4 requires the explicit `GOOGLE_OAUTH_ENABLED` release flag and tokenized local proof.
+## Phase 1: Completed Baseline
 
-## Phase 1: Foundation and Dry Run
+- [x] 1.1–5.3 Existing lifecycle, recovery, Google/linking, and hardening tasks are recorded complete; retain their evidence in `apply-progress.md`.
 
-- [x] 1.1 RED: add `tests/unit/auth-token.test.ts` for hash, expiry, replay, atomic consume; add migration dry-run role-preservation coverage.
-- [x] 1.2 GREEN: create `src/lib/db/models/{identity,auth-token,rate-limit,auth-event}.ts`; add status and `securityVersion` to `user.ts`/`repository/user.ts`.
-- [x] 1.3 GREEN: create `scripts/identity-migration.ts --dry-run` receipt; forbid apply before receipt review/sign-off.
-- [x] 1.4 REFACTOR: record Unit 1 receipt, test result, ordering, and model/script rollback boundary.
+## Phase 2: Provider-First Collision Safety
 
-## Phase 2: Verified Registration
+- [x] 6.1 RED: extend `tests/auth-options-google.test.ts` and `tests/auth/nextauth-compatibility.test.ts` for provider-ID-first lookup, existing linked subscriber session, and duplicate-index races.
+- [x] 6.2 RED: assert credentials collisions for `suscriptora`, `productora`, and `admin` create no User/Identity/link/JWT or session and return exactly “No pudimos completar el acceso con Google. Iniciá sesión con tu email y contraseña.”
+- [x] 6.3 GREEN: update `src/lib/auth/{options,google}.ts` and `src/lib/db/repository/user.ts` to implement those callback outcomes without `allowDangerousEmailAccountLinking`.
 
-- [x] 2.1 RED: add `tests/{unit,email,http}/**` for absent/invalid runtime SMTP fail-closed, Mailpit-only no-external delivery, 5 normalized-email/hour, 20 trusted-IP/hour, and local-Nginx-only forwarded IP; retain pending/generic/rotation/no-session cases.
-- [x] 2.2 GREEN: add `src/lib/email/{sender,config,templates}.ts`, `src/lib/auth/client-ip.ts`, and registration routes using VPS-only Gmail SMTP `esenciales.ob@gmail.com`; fail closed, route tests through Mailpit, enforce 5/20 rolling limits and local-Nginx forwarding trust.
-- [x] 2.3 GREEN: update `src/lib/auth/{options,authorize-credentials,types}.ts`, auth UI, `.env.example`, `src/proxy.ts`, and `ops/nginx/botanicasob.conf` for pending verification plus runtime SMTP validation, Mailpit isolation, 5/20 keys, and local-Nginx-only forwarding; document names only, never the app password.
-- [x] 2.4 REFACTOR: receipt-review Unit 2's SMTP fail-closed, Mailpit-only, 5/20, and trusted-proxy evidence; disable routes/config to roll back without roles or secrets.
+## Phase 3: Explicit Linking and Regression Proof
 
-> Evidence reconciliation: the Phase 2 candidate also contains a one-line change to `src/app/api/auth/account-access/route.ts` and its companion test, exposing `emailVerified` to the persisted-account check used by `src/proxy.ts`. This is a Phase 2 compatibility change supporting pending-verification enforcement, not Phase 3 recovery or revocation work.
-
-## Phase 3: Recovery, Revocation, and Access
-
-> Scope clarification: the Phase 2 candidate's disclosed one-line `account-access/route.ts` extension supported pending-verification enforcement only; Unit 3 now completes the separate recovery, revocation, and persisted-access work described by task 3.2.
-
-- [x] 3.1 RED: add tests for generic recovery, reset replay, staff role preservation, stale JWT, suspended access, and `/blog` return URLs.
-- [x] 3.2 GREEN: create recovery/change routes and `scripts/staff-account-recovery.ts`; update `current-user.ts`, `src/proxy.ts`, and `account-access/route.ts`.
-- [x] 3.3 REFACTOR: receipt-review invalidation; roll back routes/checks while preserving roles/audit records.
-
-## Phase 4: Google Linking
-
-- [x] 4.1 RED: add `tests/http/google-linking.test.ts`: disabled config, verified subscriber, existing identity, ambiguous-email denial.
-- [x] 4.2 GREEN: wire `src/lib/auth/options.ts` and `link-google/route.ts` only after approved proof UX; never merge silently.
-- [x] 4.3 REFACTOR: receipt-review provider flag; rollback by disabling Google/linking without touching accounts or roles.
-
-## Phase 5: Apply, Audit, and Release Hardening
-
-- [x] 5.1 RED: cover apply receipts, proxy failure, generic limits, and token-free audits in migration/limit/audit tests.
-- [x] 5.2 GREEN: update `.env.example`, `rate-limit.ts`, `auth-event.ts`, and migration runbook with approved SMTP/proxy values.
-- [x] 5.3 REFACTOR: receipt-review dry-run then apply; rehearse route/provider disable and token/session invalidation, never roles.
+- [ ] 6.4 RED: extend `tests/http/google-linking.test.ts` for authenticated active verified `suscriptora` linking, staff rejection, foreign-identity conflict, and no role mutation.
+- [ ] 6.5 GREEN: update `src/lib/auth/google-linking.ts`, `src/app/api/auth/link-google/route.ts`, and `src/app/(auth)/login/page.tsx`/`src/components/auth/*` for subscriber-only linking and credentials-only fallback UI with no recovery CTA.
+- [ ] 6.6 REFACTOR/verify: run both work-unit commands and regression coverage proving `/forgot-password` remains separate and collision responses contain no recovery/link control; record results and rollback boundaries in `apply-progress.md`.

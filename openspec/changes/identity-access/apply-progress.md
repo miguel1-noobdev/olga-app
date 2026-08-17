@@ -1,8 +1,8 @@
-# Apply Progress: Identity and Access Units 1–5
+# Apply Progress: Identity and Access Units 1–5 plus Amendment Slice 1
 
 ## Status
 
-Unit 1 (Phase 1: Foundation and Dry Run), Unit 2 (Phase 2: Verified Registration), Unit 3 (Phase 3: Recovery, Revocation, and Access), Unit 4 (Phase 4: Google Linking), and Unit 5 (Phase 5: Apply, Audit, and Release Hardening) are complete in Strict TDD mode. This slice is on `feat/identity-access-unit-5-hardening`, based on `origin/feat/identity-access-unit-1-foundation` under the approved `feature-branch-chain` strategy; the chain strategy and target were not changed. Unit 5 remains uncommitted and has no native attempt lifecycle operation. Google tests use fake configuration, MongoMemoryServer, and mocked NextAuth callbacks only; no external Google OAuth call or credential was used. The temporary Mailpit container used by the serial full-suite harness was stopped after verification.
+Unit 1 (Phase 1: Foundation and Dry Run), Unit 2 (Phase 2: Verified Registration), Unit 3 (Phase 3: Recovery, Revocation, and Access), Unit 4 (Phase 4: Google Linking), and Unit 5 (Phase 5: Apply, Audit, and Release Hardening) remain complete in Strict TDD mode. Amendment Slice 1 is uncommitted on `feat/identity-access-01-provider-first-collision`, based on `feat/identity-access-unit-5-hardening` under the approved `auto-chain`/`feature-branch-chain` strategy. Tests use fake configuration, MongoMemoryServer, and mocked NextAuth callbacks only; no external Google OAuth call or credential was used.
 
 ## Completed Tasks
 
@@ -252,3 +252,30 @@ At the Unit 2 completion point, Phase 1, Phase 2, Phase 3, and Phase 4 were comp
 - `evidence_revision`: `sha256:41b1f8add1724ae24ec3a44b196c912e1a0e72275049fa2dbe87114691b76bb2`
 - `delivery_strategy`: `force-chained`
 - `chain_strategy`: `feature-branch-chain`
+
+## Amendment Slice 1: Provider-First Collision Safety
+
+- [x] 6.1 RED: provider-ID-first lookup, linked subscriber sign-in, and duplicate-index race tests.
+- [x] 6.2 RED: subscriber/productora/admin collision tests prove no user, identity, or callback-user mutation and assert the exact Spanish fallback.
+- [x] 6.3 GREEN: callback outcome contract, subscriber-only linked sign-in, duplicate cleanup, and no dangerous email linking.
+
+### TDD Cycle Evidence
+
+| Tasks | Test files | Safety net | RED | GREEN | Triangulation | Refactor |
+|---|---|---|---|---|---|---|
+| 6.1–6.3 | `tests/auth-options-google.test.ts`, `tests/auth/nextauth-compatibility.test.ts` | Existing focused command was blocked by missing local `vitest`; cached sibling dependencies restored the runner without source changes | Tests were written before production edits; first runnable attempt exposed and corrected the race assertion | 2 files / 12 tests passed | Three credential roles, new subscriber, provider-first email mismatch, staff identity, race, fallback, dangerous-linking guard | Helpers isolate linked-subscriber and duplicate-key handling; typecheck remained green |
+
+### Work Unit Evidence
+
+| Evidence | Exact result |
+|---|---|
+| Focused test | `npm run test:run -- tests/auth-options-google.test.ts tests/auth/nextauth-compatibility.test.ts` → exit 0; 2 files / 12 tests. |
+| Runtime harness | Same command; mocked NextAuth callbacks plus MongoMemoryServer exercised collision and race paths; no Google network. |
+| Typechecks/build | `npx tsc --noEmit`, `npm run typecheck:scripts`, and `git diff --check` passed. `npm run build -- --webpack` compiled, then stopped on pre-existing unrelated `editar/page.tsx` `PageProps` type error; Turbopack was skipped because the dependency symlink is outside its root. |
+| Rollback boundary | Revert `src/lib/auth/{google,options}.ts`, `src/lib/db/repository/user.ts`, the two focused test files, and this slice's task/progress entries; this removes provider-first safety without touching linking UI, recovery, roles, or credentials. |
+
+### Result Contract
+
+- `status`: `success`; `change`: `identity-access`; `work_unit`: `amendment-slice-1-provider-first-collision`.
+- `attempt`: `sha256:1282da27cb0f5189e61af61648727070bb74146b76c9c2bca97e29648c77e950`; parent owns settlement; no lifecycle operation invoked.
+- `delivery_strategy`: `auto-chain`; `chain_strategy`: `feature-branch-chain`; `next_recommended`: `sdd-verify` after parent settlement.
