@@ -2,7 +2,7 @@ export const GOOGLE_RELEASE_FLAG = 'GOOGLE_OAUTH_ENABLED';
 export const GOOGLE_CREDENTIALS_FALLBACK =
   'No pudimos completar el acceso con Google. Iniciá sesión con tu email y contraseña.';
 
-export type GoogleCallbackResult = 'sign_in' | 'credentials_fallback' | 'denied';
+export type GoogleCallbackResult = 'sign_in' | 'credentials_fallback' | 'provision_new_subscriber';
 
 export interface GoogleOAuthConfig {
   clientId: string;
@@ -58,5 +58,5 @@ export function resolveGoogleCallbackResult(input: {
     return 'credentials_fallback';
   }
 
-  return 'denied';
+  return 'provision_new_subscriber';
 }

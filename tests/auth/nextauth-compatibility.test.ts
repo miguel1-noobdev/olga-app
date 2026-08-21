@@ -43,5 +43,8 @@ describe('NextAuth compatibility contract', () => {
     expect(
       resolveGoogleCallbackResult({ providerIdentityFound: false, credentialsAccountFound: true }),
     ).toBe('credentials_fallback');
+    expect(
+      resolveGoogleCallbackResult({ providerIdentityFound: false, credentialsAccountFound: false }),
+    ).toBe('provision_new_subscriber');
   });
 });

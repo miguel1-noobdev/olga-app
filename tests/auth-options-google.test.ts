@@ -84,7 +84,7 @@ describe('authOptions Google signIn callback', () => {
         profile: { email: existingUser.email, email_verified: true },
       } as any);
 
-      expect(result).toBe(false);
+      expect(result).toBe('/login?error=GOOGLE_CREDENTIALS_FALLBACK');
       expect(GOOGLE_CREDENTIALS_FALLBACK).toBe(
         'No pudimos completar el acceso con Google. Iniciá sesión con tu email y contraseña.',
       );
@@ -201,8 +201,8 @@ describe('authOptions Google signIn callback', () => {
 
     expect(results).toHaveLength(2);
     expect(results).toContain(true);
-    expect(await repo.findAll()).toHaveLength(1);
     expect(await IdentityModel.countDocuments({ provider: 'google', providerAccountId })).toBe(1);
+    expect(await repo.findAll()).toHaveLength(1);
   });
 
   it('does not create a user for non-Google providers', async () => {

@@ -60,6 +60,7 @@ export const authOptions: NextAuthOptions = {
       }
 
       const repo = createUserRepository();
+      await IdentityModel.init();
       const providerIdentity = await IdentityModel.findOne({
         provider: 'google',
         providerAccountId: account.providerAccountId,
@@ -75,7 +76,10 @@ export const authOptions: NextAuthOptions = {
         providerIdentityFound: false,
         credentialsAccountFound: Boolean(existingUser),
       });
-      if (callbackResult !== 'denied') {
+      if (callbackResult === 'credentials_fallback') {
+        return '/login?error=GOOGLE_CREDENTIALS_FALLBACK';
+      }
+      if (callbackResult !== 'provision_new_subscriber') {
         return false;
       }
 
