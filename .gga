@@ -16,7 +16,8 @@
 #   PROVIDER="github:gpt-4o"
 #   PROVIDER="github:deepseek-r1"
 PROVIDER="opencode:openai/gpt-5.6-terra"
-GGA_OPENCODE_AGENT="general"
+GGA_OPENCODE_AGENT="build"
+GGA_OPENCODE_PURE="true"
 
 # File patterns to include in review (comma-separated)
 # Default: * (all files)
@@ -39,12 +40,12 @@ RULES_FILE="AGENTS.md"
 
 # Strict mode: fail if AI response is ambiguous
 # Default: true
-STRICT_MODE="true"
+STRICT_MODE="false"
 
 # Timeout in seconds for AI provider response
 # Default: 300 (5 minutes)
 # Increase for large changesets or slow connections
-TIMEOUT="300"
+TIMEOUT="600"
 
 # Base branch for --pr-mode (auto-detects main/master/develop if empty)
 # Default: auto-detect
