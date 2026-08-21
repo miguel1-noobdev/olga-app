@@ -128,6 +128,53 @@ describe('LotFollowUpForm', () => {
     ).toBeInTheDocument();
   });
 
+  it('displays a global error when the submit handler rejects', async () => {
+    render(<LotFollowUpForm submitFollowUpEntry={submitFollowUpEntryMock} />);
+
+    await userEvent.type(screen.getByLabelText(/fecha/i), '2026-05-10');
+    await userEvent.type(
+      screen.getByRole('textbox', { name: /nota/i }),
+      'Texture is stable.'
+    );
+
+    submitFollowUpEntryMock.mockRejectedValue(new Error('Network failure'));
+
+    fireEvent.submit(screen.getByRole('form'));
+
+    expect(
+      await screen.findByText(/no se pudo agregar la entrada/i)
+    ).toBeInTheDocument();
+  });
+
+  it('handles a rejected submission after the form unmounts', async () => {
+    let rejectSubmission!: (reason?: unknown) => void;
+    submitFollowUpEntryMock.mockImplementation(
+      () => new Promise((_, reject) => {
+        rejectSubmission = reject;
+      })
+    );
+
+    const { unmount } = render(
+      <LotFollowUpForm submitFollowUpEntry={submitFollowUpEntryMock} />
+    );
+
+    await userEvent.type(screen.getByLabelText(/fecha/i), '2026-05-10');
+    await userEvent.type(
+      screen.getByRole('textbox', { name: /nota/i }),
+      'Texture is stable.'
+    );
+
+    fireEvent.submit(screen.getByRole('form'));
+    await waitFor(() =>
+      expect(submitFollowUpEntryMock).toHaveBeenCalledTimes(1)
+    );
+
+    unmount();
+    rejectSubmission(new Error('Network failure'));
+
+    await Promise.resolve();
+  });
+
   it('disables the submit button while submitting', async () => {
     render(<LotFollowUpForm submitFollowUpEntry={submitFollowUpEntryMock} />);
 
