@@ -8,7 +8,7 @@ import { notFound } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
-export default async function ArticlePage(props: { params: Promise<{ slug: string }> | { slug: string } }) {
+export default async function ArticlePage(props: { params: Promise<{ slug: string }> }) {
   const params = await props.params;
   await connectToDatabase();
   const repo = createArticleRepository();
@@ -22,7 +22,6 @@ export default async function ArticlePage(props: { params: Promise<{ slug: strin
     <>
       <BlogNavbar />
       <main className="min-h-screen bg-surface pt-20">
-        {/* Imagen de cabecera */}
         <div className="w-full h-[400px] md:h-[500px] overflow-hidden bg-white">
           <img
             src={article.image}
@@ -33,21 +32,17 @@ export default async function ArticlePage(props: { params: Promise<{ slug: strin
           />
         </div>
 
-        {/* Contenido del artículo */}
         <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          {/* Metadata */}
           <div className="mb-8">
             <span className="font-sans text-xs font-bold uppercase tracking-widest text-primary">
               {article.category}
             </span>
           </div>
 
-          {/* Título */}
           <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-on-surface leading-tight mb-8">
             {article.title}
           </h1>
 
-          {/* Fecha y tiempo de lectura */}
           <div className="flex items-center gap-6 mb-12 pb-8 border-b border-on-surface-variant/20">
             <span className="font-sans text-sm text-on-surface-variant">
               {new Date(article.publishedAt!).toLocaleDateString('es-ES', {
@@ -61,10 +56,8 @@ export default async function ArticlePage(props: { params: Promise<{ slug: strin
             </span>
           </div>
 
-          {/* Contenido */}
           <ArticleBody content={article.content} />
 
-          {/* Botón volver */}
           <div className="mt-16 pt-8 border-t border-on-surface-variant/20">
             <Link
               href="/blog/articulos"

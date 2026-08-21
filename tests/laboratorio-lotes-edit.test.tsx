@@ -63,7 +63,7 @@ describe('/laboratorio/lotes/[lotId]/editar page', () => {
   it('renders editable production controls for in-production lots', async () => {
     findByIdMock.mockResolvedValue(lot);
 
-    render(await LaboratoryLotEditPage({ params: { lotId: 'lot-1' } }));
+    render(await LaboratoryLotEditPage({ params: Promise.resolve({ lotId: 'lot-1' }) }));
 
     expect(screen.getByRole('form', { name: /editar lote/i })).toBeInTheDocument();
     expect(screen.getByRole('spinbutton', { name: /lote objetivo/i })).toHaveValue(500);
@@ -78,7 +78,7 @@ describe('/laboratorio/lotes/[lotId]/editar page', () => {
   it('keeps discarded terminal lots read-only', async () => {
     findByIdMock.mockResolvedValue({ ...lot, status: 'discarded' });
 
-    render(await LaboratoryLotEditPage({ params: { lotId: 'lot-1' } }));
+    render(await LaboratoryLotEditPage({ params: Promise.resolve({ lotId: 'lot-1' }) }));
 
     expect(screen.getByRole('spinbutton', { name: /lote objetivo/i })).toBeDisabled();
     expect(screen.getByRole('combobox', { name: /estado/i })).toBeDisabled();
@@ -88,7 +88,7 @@ describe('/laboratorio/lotes/[lotId]/editar page', () => {
   it('keeps all production controls read-only for finalized historical lots', async () => {
     findByIdMock.mockResolvedValue({ ...lot, status: 'finalized' });
 
-    render(await LaboratoryLotEditPage({ params: { lotId: 'lot-1' } }));
+    render(await LaboratoryLotEditPage({ params: Promise.resolve({ lotId: 'lot-1' }) }));
 
     expect(screen.getByRole('spinbutton', { name: /lote objetivo/i })).toBeDisabled();
     expect(screen.getByRole('combobox', { name: /estado/i })).toBeDisabled();
@@ -98,7 +98,7 @@ describe('/laboratorio/lotes/[lotId]/editar page', () => {
   it('returns notFound when the canonical lot does not exist', async () => {
     findByIdMock.mockResolvedValue(null);
 
-    await expect(LaboratoryLotEditPage({ params: { lotId: 'missing' } })).rejects.toThrow(
+    await expect(LaboratoryLotEditPage({ params: Promise.resolve({ lotId: 'missing' }) })).rejects.toThrow(
       'NEXT_NOT_FOUND'
     );
     expect(notFoundMock).toHaveBeenCalledTimes(1);

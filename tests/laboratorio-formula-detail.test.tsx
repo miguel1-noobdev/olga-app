@@ -150,6 +150,10 @@ function createMockLot(overrides: Partial<LotRecord> = {}): LotRecord {
   };
 }
 
+function formulaPageProps(id: string) {
+  return { params: Promise.resolve({ id }) };
+}
+
 describe('/laboratorio/formulas/[id] page', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -162,7 +166,7 @@ describe('/laboratorio/formulas/[id] page', () => {
     });
     findByIdMock.mockResolvedValue(null);
 
-    await expect(LaboratoryFormulaDetailPage({ params: { id: 'unknown' } })).rejects.toThrow(
+    await expect(LaboratoryFormulaDetailPage(formulaPageProps('unknown'))).rejects.toThrow(
       'NEXT_NOT_FOUND'
     );
     expect(notFoundMock).toHaveBeenCalled();
@@ -174,7 +178,7 @@ describe('/laboratorio/formulas/[id] page', () => {
     });
     findByIdMock.mockResolvedValue(mockFormula);
 
-    const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
+    const jsx = await LaboratoryFormulaDetailPage(formulaPageProps('formula-1'));
     render(jsx);
 
     expect(screen.getByRole('heading', { name: 'Crema de lavanda', level: 1 })).toBeInTheDocument();
@@ -194,7 +198,7 @@ describe('/laboratorio/formulas/[id] page', () => {
     });
     findByIdMock.mockResolvedValue(mockFormula);
 
-    const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
+    const jsx = await LaboratoryFormulaDetailPage(formulaPageProps('formula-1'));
     render(jsx);
 
     const header = screen.getByRole('banner');
@@ -218,7 +222,7 @@ describe('/laboratorio/formulas/[id] page', () => {
     });
     findByIdMock.mockResolvedValue(mockFormula);
 
-    const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
+    const jsx = await LaboratoryFormulaDetailPage(formulaPageProps('formula-1'));
     render(jsx);
 
     const main = screen.getByRole('main');
@@ -262,7 +266,7 @@ describe('/laboratorio/formulas/[id] page', () => {
     });
     findByIdMock.mockResolvedValue(mockFormula);
 
-    const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
+    const jsx = await LaboratoryFormulaDetailPage(formulaPageProps('formula-1'));
     render(jsx);
 
     const main = screen.getByRole('main');
@@ -290,7 +294,7 @@ describe('/laboratorio/formulas/[id] page', () => {
     });
     findByIdMock.mockResolvedValue(mockFormula);
 
-    const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
+    const jsx = await LaboratoryFormulaDetailPage(formulaPageProps('formula-1'));
     render(jsx);
 
     const phases = screen.getByRole('heading', { name: 'Fases e ingredientes' }).closest('section');
@@ -366,7 +370,7 @@ describe('/laboratorio/formulas/[id] page', () => {
       finalObservations: '',
     });
 
-    const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
+    const jsx = await LaboratoryFormulaDetailPage(formulaPageProps('formula-1'));
     render(jsx);
 
     const grid = screen.getByRole('main').querySelector('[class~="md:grid-cols-12"]') as HTMLElement;
@@ -390,7 +394,7 @@ describe('/laboratorio/formulas/[id] page', () => {
     });
     findByIdMock.mockResolvedValue(mockFormula);
 
-    const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
+    const jsx = await LaboratoryFormulaDetailPage(formulaPageProps('formula-1'));
     render(jsx);
 
     const createLotLink = screen.getByRole('link', { name: /crear lote/i });
@@ -404,7 +408,7 @@ describe('/laboratorio/formulas/[id] page', () => {
     });
     findByIdMock.mockResolvedValue({ ...mockFormula, id: 'formula-42' });
 
-    const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-42' } });
+    const jsx = await LaboratoryFormulaDetailPage(formulaPageProps('formula-42'));
     render(jsx);
 
     expect(screen.getByRole('link', { name: /crear lote/i })).toHaveAttribute(
@@ -419,7 +423,7 @@ describe('/laboratorio/formulas/[id] page', () => {
     });
     findByIdMock.mockResolvedValue({ ...mockFormula, status: 'draft' });
 
-    const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
+    const jsx = await LaboratoryFormulaDetailPage(formulaPageProps('formula-1'));
     render(jsx);
 
     expect(screen.queryByRole('link', { name: /crear lote/i })).not.toBeInTheDocument();
@@ -431,7 +435,7 @@ describe('/laboratorio/formulas/[id] page', () => {
     });
     findByIdMock.mockResolvedValue(mockFormula);
 
-    await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
+    await LaboratoryFormulaDetailPage(formulaPageProps('formula-1'));
 
     expect(findByFormulaIdMock).toHaveBeenCalledWith('formula-1');
   });
@@ -443,7 +447,7 @@ describe('/laboratorio/formulas/[id] page', () => {
     findByIdMock.mockResolvedValue(mockFormula);
     findByFormulaIdMock.mockResolvedValue([]);
 
-    const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
+    const jsx = await LaboratoryFormulaDetailPage(formulaPageProps('formula-1'));
     render(jsx);
 
     expect(screen.getByRole('heading', { name: 'Lotes' })).toBeInTheDocument();
@@ -472,7 +476,7 @@ describe('/laboratorio/formulas/[id] page', () => {
       }),
     ]);
 
-    const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
+    const jsx = await LaboratoryFormulaDetailPage(formulaPageProps('formula-1'));
     render(jsx);
 
     const section = screen.getByRole('heading', { name: 'Lotes' }).closest('section');
@@ -511,7 +515,7 @@ describe('/laboratorio/formulas/[id] page', () => {
       }),
     ]);
 
-    const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
+    const jsx = await LaboratoryFormulaDetailPage(formulaPageProps('formula-1'));
     render(jsx);
 
     const section = screen.getByRole('heading', { name: 'Lotes' }).closest('section');
@@ -536,7 +540,7 @@ describe('/laboratorio/formulas/[id] page', () => {
       createMockLot({ id: 'lot-5', lotNumber: 5, lotCode: 'CF-001-L005' }),
     ]);
 
-    const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-42' } });
+    const jsx = await LaboratoryFormulaDetailPage(formulaPageProps('formula-42'));
     render(jsx);
 
     const section = screen.getByRole('heading', { name: 'Lotes' }).closest('section');
@@ -561,7 +565,7 @@ describe('/laboratorio/formulas/[id] page', () => {
       }),
     ]);
 
-    const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
+    const jsx = await LaboratoryFormulaDetailPage(formulaPageProps('formula-1'));
     render(jsx);
 
     expect(screen.getByText(/Planificado: 1 feb 2026/)).toBeInTheDocument();
@@ -580,7 +584,7 @@ describe('/laboratorio/formulas/[id] page', () => {
       findByIdMock.mockResolvedValue(mockFormula);
       findByFormulaIdMock.mockResolvedValue([createMockLot({ status })]);
 
-      const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
+      const jsx = await LaboratoryFormulaDetailPage(formulaPageProps('formula-1'));
       const { unmount } = render(jsx);
 
       expect(screen.getByRole('heading', { name: 'Lotes' })).toBeInTheDocument();
@@ -594,7 +598,7 @@ describe('/laboratorio/formulas/[id] page', () => {
     });
     findByIdMock.mockResolvedValue(mockFormula);
 
-    const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
+    const jsx = await LaboratoryFormulaDetailPage(formulaPageProps('formula-1'));
     render(jsx);
 
     expect(screen.getByRole('heading', { name: 'Objetivos' })).toBeInTheDocument();
@@ -608,7 +612,7 @@ describe('/laboratorio/formulas/[id] page', () => {
     });
     findByIdMock.mockResolvedValue(mockFormula);
 
-    const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
+    const jsx = await LaboratoryFormulaDetailPage(formulaPageProps('formula-1'));
     render(jsx);
 
     expect(screen.getByRole('heading', { name: 'Fases e ingredientes' })).toBeInTheDocument();
@@ -631,7 +635,7 @@ describe('/laboratorio/formulas/[id] page', () => {
     });
     findByIdMock.mockResolvedValue(mockFormula);
 
-    const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
+    const jsx = await LaboratoryFormulaDetailPage(formulaPageProps('formula-1'));
     render(jsx);
 
     expect(screen.getByRole('heading', { name: 'Procedimiento' })).toBeInTheDocument();
@@ -647,7 +651,7 @@ describe('/laboratorio/formulas/[id] page', () => {
     });
     findByIdMock.mockResolvedValue(mockFormula);
 
-    const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
+    const jsx = await LaboratoryFormulaDetailPage(formulaPageProps('formula-1'));
     render(jsx);
 
     const section = screen.getByRole('heading', { name: 'Datos técnicos' }).closest('section');
@@ -674,7 +678,7 @@ describe('/laboratorio/formulas/[id] page', () => {
     });
     findByIdMock.mockResolvedValue(mockFormula);
 
-    const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
+    const jsx = await LaboratoryFormulaDetailPage(formulaPageProps('formula-1'));
     render(jsx);
 
     const section = screen.getByRole('heading', { name: 'Evaluación del producto' }).closest('section');
@@ -693,7 +697,7 @@ describe('/laboratorio/formulas/[id] page', () => {
     });
     findByIdMock.mockResolvedValue(mockFormula);
 
-    const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
+    const jsx = await LaboratoryFormulaDetailPage(formulaPageProps('formula-1'));
     render(jsx);
 
     expect(screen.getByRole('heading', { name: 'Prueba de uso' })).toBeInTheDocument();
@@ -710,7 +714,7 @@ describe('/laboratorio/formulas/[id] page', () => {
     });
     findByIdMock.mockResolvedValue(mockFormula);
 
-    const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
+    const jsx = await LaboratoryFormulaDetailPage(formulaPageProps('formula-1'));
     render(jsx);
 
     expect(screen.getByRole('heading', { name: 'INCI' })).toBeInTheDocument();
@@ -728,7 +732,7 @@ describe('/laboratorio/formulas/[id] page', () => {
     });
     findByIdMock.mockResolvedValue(mockFormula);
 
-    const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
+    const jsx = await LaboratoryFormulaDetailPage(formulaPageProps('formula-1'));
     render(jsx);
 
     expect(screen.getByRole('heading', { name: 'Observaciones finales' })).toBeInTheDocument();
@@ -751,7 +755,7 @@ describe('/laboratorio/formulas/[id] page', () => {
       finalObservations: '',
     });
 
-    const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
+    const jsx = await LaboratoryFormulaDetailPage(formulaPageProps('formula-1'));
     render(jsx);
 
     expect(screen.getByText('No hay objetivos registrados.')).toBeInTheDocument();
@@ -777,7 +781,7 @@ describe('/laboratorio/formulas/[id] page', () => {
       },
     });
 
-    const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
+    const jsx = await LaboratoryFormulaDetailPage(formulaPageProps('formula-1'));
     render(jsx);
 
     expect(screen.getByRole('heading', { name: 'Fases e ingredientes' })).toBeInTheDocument();
@@ -799,7 +803,7 @@ describe('/laboratorio/formulas/[id] page', () => {
       },
     });
 
-    const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
+    const jsx = await LaboratoryFormulaDetailPage(formulaPageProps('formula-1'));
     render(jsx);
 
     const section = screen.getByRole('heading', { name: 'Datos técnicos' }).closest('section');
@@ -824,7 +828,7 @@ describe('/laboratorio/formulas/[id] page', () => {
       },
     });
 
-    const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
+    const jsx = await LaboratoryFormulaDetailPage(formulaPageProps('formula-1'));
     render(jsx);
 
     const section = screen.getByRole('heading', { name: 'Evaluación del producto' }).closest('section');
@@ -848,7 +852,7 @@ describe('/laboratorio/formulas/[id] page', () => {
       },
     });
 
-    const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
+    const jsx = await LaboratoryFormulaDetailPage(formulaPageProps('formula-1'));
     render(jsx);
 
     const section = screen.getByRole('heading', { name: 'INCI' }).closest('section');
@@ -873,7 +877,7 @@ describe('/laboratorio/formulas/[id] page', () => {
       },
     });
 
-    const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
+    const jsx = await LaboratoryFormulaDetailPage(formulaPageProps('formula-1'));
     render(jsx);
 
     expect(screen.getByText('Vencimiento aproximado')).toBeInTheDocument();
@@ -893,7 +897,7 @@ describe('/laboratorio/formulas/[id] page', () => {
       },
     });
 
-    const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
+    const jsx = await LaboratoryFormulaDetailPage(formulaPageProps('formula-1'));
     render(jsx);
 
     expect(screen.queryByText('Vencimiento aproximado')).not.toBeInTheDocument();
@@ -911,7 +915,7 @@ describe('/laboratorio/formulas/[id] page', () => {
       finalObservations: '   \n  ',
     });
 
-    const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
+    const jsx = await LaboratoryFormulaDetailPage(formulaPageProps('formula-1'));
     render(jsx);
 
     expect(screen.getByText('No hay observaciones finales registradas.')).toBeInTheDocument();
@@ -933,7 +937,7 @@ describe('/laboratorio/formulas/[id] page', () => {
       });
       findByIdMock.mockResolvedValue({ ...mockFormula, status });
 
-      const jsx = await LaboratoryFormulaDetailPage({ params: { id: 'formula-1' } });
+      const jsx = await LaboratoryFormulaDetailPage(formulaPageProps('formula-1'));
       const { unmount } = render(jsx);
 
       expect(screen.getByText(label)).toBeInTheDocument();

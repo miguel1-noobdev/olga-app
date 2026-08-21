@@ -115,7 +115,7 @@ describe('/laboratorio/formulas/[id]/edit page', () => {
     });
     findByIdMock.mockResolvedValue(null);
 
-    await expect(LaboratoryEditFormulaPage({ params: { id: 'unknown' } })).rejects.toThrow(
+    await expect(LaboratoryEditFormulaPage({ params: Promise.resolve({ id: 'unknown' }) })).rejects.toThrow(
       'NEXT_NOT_FOUND'
     );
     expect(notFoundMock).toHaveBeenCalled();
@@ -127,7 +127,7 @@ describe('/laboratorio/formulas/[id]/edit page', () => {
     });
     findByIdMock.mockResolvedValue(mockFormula);
 
-    const jsx = await LaboratoryEditFormulaPage({ params: { id: 'formula-1' } });
+    const jsx = await LaboratoryEditFormulaPage({ params: Promise.resolve({ id: 'formula-1' }) });
     render(jsx);
 
     expect(screen.getByRole('heading', { name: /editar fórmula/i, level: 1 })).toBeInTheDocument();
@@ -146,7 +146,7 @@ describe('/laboratorio/formulas/[id]/edit page', () => {
     });
     findByIdMock.mockResolvedValue(mockFormula);
 
-    const jsx = await LaboratoryEditFormulaPage({ params: { id: 'formula-1' } });
+    const jsx = await LaboratoryEditFormulaPage({ params: Promise.resolve({ id: 'formula-1' }) });
     render(jsx);
 
     expect(screen.getByRole('textbox', { name: /nombre del producto/i })).toHaveValue('Crema de lavanda');
@@ -196,7 +196,7 @@ describe('/laboratorio/formulas/[id]/edit page', () => {
     });
     findByIdMock.mockResolvedValue(mockFormula);
 
-    const jsx = await LaboratoryEditFormulaPage({ params: { id: 'formula-1' } });
+    const jsx = await LaboratoryEditFormulaPage({ params: Promise.resolve({ id: 'formula-1' }) });
     render(jsx);
 
     const submitFormula = formulaFormPropsMock.mock.lastCall?.[0]?.submitFormula;

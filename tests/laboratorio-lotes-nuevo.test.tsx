@@ -74,7 +74,7 @@ describe('/laboratorio/lotes/nuevo', () => {
     ]);
 
     const jsx = await LaboratoryCreateLotPage({
-      searchParams: {},
+      searchParams: Promise.resolve({}),
     });
     render(jsx);
 
@@ -97,7 +97,7 @@ describe('/laboratorio/lotes/nuevo', () => {
     findByStatusMock.mockResolvedValue([validatedFormula]);
 
     const jsx = await LaboratoryCreateLotPage({
-      searchParams: { formulaId: validatedFormula.id },
+      searchParams: Promise.resolve({ formulaId: validatedFormula.id }),
     });
     render(jsx);
 
@@ -119,7 +119,7 @@ describe('/laboratorio/lotes/nuevo', () => {
     findByStatusMock.mockResolvedValue([validatedFormula]);
 
     const jsx = await LaboratoryCreateLotPage({
-      searchParams: { formulaId: 'formula-no-longer-validated' },
+      searchParams: Promise.resolve({ formulaId: 'formula-no-longer-validated' }),
     });
     render(jsx);
 
@@ -134,7 +134,7 @@ describe('/laboratorio/lotes/nuevo', () => {
   it('shows an empty state when no validated formulas are available', async () => {
     findByStatusMock.mockResolvedValue([]);
 
-    const jsx = await LaboratoryCreateLotPage({ searchParams: {} });
+    const jsx = await LaboratoryCreateLotPage({ searchParams: Promise.resolve({}) });
     render(jsx);
 
     expect(screen.getByText('No hay fórmulas validadas disponibles para crear un lote.')).toBeInTheDocument();
@@ -147,7 +147,7 @@ describe('/laboratorio/lotes/nuevo', () => {
     createMock.mockResolvedValue({ id: 'lot-123' });
 
     const jsx = await LaboratoryCreateLotPage({
-      searchParams: { formulaId: validatedFormula.id },
+      searchParams: Promise.resolve({ formulaId: validatedFormula.id }),
     });
     render(jsx);
 

@@ -29,7 +29,7 @@ describe('legacy formula-nested lot redirects', () => {
   it('redirects a matching legacy detail URL to its canonical lot URL', async () => {
     findLotByIdMock.mockResolvedValue({ id: 'lot-1', formulaId: 'formula-1' });
 
-    await expect(LegacyLotDetailPage({ params: { id: 'formula-1', lotId: 'lot-1' } })).rejects.toThrow(
+    await expect(LegacyLotDetailPage({ params: Promise.resolve({ id: 'formula-1', lotId: 'lot-1' }) })).rejects.toThrow(
       'NEXT_REDIRECT /laboratorio/lotes/lot-1'
     );
     expect(findLotByIdMock).toHaveBeenCalledWith('lot-1');
@@ -38,10 +38,10 @@ describe('legacy formula-nested lot redirects', () => {
   it('returns notFound for detail and edit URLs whose lot does not belong to the formula context', async () => {
     findLotByIdMock.mockResolvedValue({ id: 'lot-1', formulaId: 'formula-other' });
 
-    await expect(LegacyLotDetailPage({ params: { id: 'formula-1', lotId: 'lot-1' } })).rejects.toThrow(
+    await expect(LegacyLotDetailPage({ params: Promise.resolve({ id: 'formula-1', lotId: 'lot-1' }) })).rejects.toThrow(
       'NEXT_NOT_FOUND'
     );
-    await expect(LegacyLotEditPage({ params: { id: 'formula-1', lotId: 'lot-1' } })).rejects.toThrow(
+    await expect(LegacyLotEditPage({ params: Promise.resolve({ id: 'formula-1', lotId: 'lot-1' }) })).rejects.toThrow(
       'NEXT_NOT_FOUND'
     );
     expect(notFoundMock).toHaveBeenCalledTimes(2);
@@ -50,7 +50,7 @@ describe('legacy formula-nested lot redirects', () => {
   it('redirects a matching legacy edit URL to the canonical Spanish edit URL', async () => {
     findLotByIdMock.mockResolvedValue({ id: 'lot-1', formulaId: 'formula-1' });
 
-    await expect(LegacyLotEditPage({ params: { id: 'formula-1', lotId: 'lot-1' } })).rejects.toThrow(
+    await expect(LegacyLotEditPage({ params: Promise.resolve({ id: 'formula-1', lotId: 'lot-1' }) })).rejects.toThrow(
       'NEXT_REDIRECT /laboratorio/lotes/lot-1/editar'
     );
   });
@@ -58,7 +58,7 @@ describe('legacy formula-nested lot redirects', () => {
   it('redirects legacy creation only when its formula context is validated', async () => {
     findFormulaByIdMock.mockResolvedValue({ id: 'formula-1', status: 'validated' });
 
-    await expect(LegacyLotCreatePage({ params: { id: 'formula-1' } })).rejects.toThrow(
+    await expect(LegacyLotCreatePage({ params: Promise.resolve({ id: 'formula-1' }) })).rejects.toThrow(
       'NEXT_REDIRECT /laboratorio/lotes/nuevo?formulaId=formula-1'
     );
     expect(findFormulaByIdMock).toHaveBeenCalledWith('formula-1');
@@ -67,8 +67,8 @@ describe('legacy formula-nested lot redirects', () => {
   it('returns notFound when legacy creation has unavailable or unvalidated formula context', async () => {
     findFormulaByIdMock.mockResolvedValueOnce(null).mockResolvedValueOnce({ id: 'formula-1', status: 'draft' });
 
-    await expect(LegacyLotCreatePage({ params: { id: 'missing' } })).rejects.toThrow('NEXT_NOT_FOUND');
-    await expect(LegacyLotCreatePage({ params: { id: 'formula-1' } })).rejects.toThrow('NEXT_NOT_FOUND');
+    await expect(LegacyLotCreatePage({ params: Promise.resolve({ id: 'missing' }) })).rejects.toThrow('NEXT_NOT_FOUND');
+    await expect(LegacyLotCreatePage({ params: Promise.resolve({ id: 'formula-1' }) })).rejects.toThrow('NEXT_NOT_FOUND');
     expect(notFoundMock).toHaveBeenCalledTimes(2);
   });
 });

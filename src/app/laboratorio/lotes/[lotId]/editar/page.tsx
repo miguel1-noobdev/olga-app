@@ -11,7 +11,7 @@ import { ArrowLeftIcon } from '@/components/ui/icons';
 import { submitLotEditUpdate } from './actions';
 
 interface PageProps {
-  params: Promise<{ lotId: string }> | { lotId: string };
+  params: Promise<{ lotId: string }>;
 }
 
 export const dynamic = 'force-dynamic';

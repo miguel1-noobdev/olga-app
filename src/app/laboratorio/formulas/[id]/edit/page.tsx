@@ -8,7 +8,7 @@ import { toFormulaFormValues } from '@/lib/formulas/formula-form-contract';
 import { submitFormulaUpdate } from './actions';
 
 interface PageProps {
-  params: Promise<{ id: string }> | { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export const dynamic = 'force-dynamic';
