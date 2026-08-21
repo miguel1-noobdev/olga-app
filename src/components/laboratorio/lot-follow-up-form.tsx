@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   LotFollowUpFormValues,
@@ -28,6 +28,15 @@ export default function LotFollowUpForm({
   const [errors, setErrors] = useState<LotFollowUpFormValidationError>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isMounted = useRef(true);
+
+  useEffect(() => {
+    isMounted.current = true;
+
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   function updateField<K extends keyof LotFollowUpFormValues>(
     field: K,
@@ -48,20 +57,31 @@ export default function LotFollowUpForm({
     }
 
     setIsSubmitting(true);
-    const result = await submitFollowUpEntry(values);
-    setIsSubmitting(false);
+    try {
+      const result = await submitFollowUpEntry(values);
+      if (!isMounted.current) {
+        return;
+      }
 
-    if (result.success) {
-      router.push(result.redirectTo);
-      return;
-    }
+      setIsSubmitting(false);
 
-    if (!result.success) {
+      if (result.success) {
+        router.push(result.redirectTo);
+        return;
+      }
+
       if ('errors' in result) {
         setErrors(result.errors);
       } else {
         setSubmitError(result.error);
       }
+    } catch {
+      if (!isMounted.current) {
+        return;
+      }
+
+      setIsSubmitting(false);
+      setSubmitError('No se pudo agregar la entrada. Intentá nuevamente.');
     }
   }
 

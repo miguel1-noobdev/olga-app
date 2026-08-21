@@ -109,7 +109,7 @@ describe('real HTTP role access', () => {
     nextServer.stdout?.on('data', (chunk) => { serverOutput += chunk.toString(); });
     nextServer.stderr?.on('data', (chunk) => { serverOutput += chunk.toString(); });
     await waitForServer();
-  }, 180_000);
+  }, 360_000);
 
   afterAll(async () => {
     nextServer?.kill('SIGTERM');

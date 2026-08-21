@@ -13,7 +13,7 @@ describe('/admin/contenido/[id]/previsualizar page', () => {
   it('renders an Admin-only preview of a private draft', async () => {
     findByIdMock.mockResolvedValue({ title: 'Borrador privado', content: 'Contenido sin publicar', category: 'Blog' });
 
-    render(await AdminContentPreviewPage({ params: { id: 'draft-1' } }));
+    render(await AdminContentPreviewPage({ params: Promise.resolve({ id: 'draft-1' }) }));
 
     expect(screen.getByText('Vista previa privada')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Borrador privado' })).toBeInTheDocument();

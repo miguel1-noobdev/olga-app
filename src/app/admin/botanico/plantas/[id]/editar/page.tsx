@@ -5,7 +5,7 @@ import { createPlantRepository } from '@/lib/db/repository/plant';
 
 export const dynamic = 'force-dynamic';
 
-export default async function EditPlantPage(props: { params: Promise<{ id: string }> | { id: string } }) {
+export default async function EditPlantPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   await connectToDatabase();
   const plant = await createPlantRepository().findById(params.id);

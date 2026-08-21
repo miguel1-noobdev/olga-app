@@ -17,7 +17,7 @@ import {
 import LotFollowUpForm from '@/components/laboratorio/lot-follow-up-form';
 
 interface PageProps {
-  params: Promise<{ lotId: string }> | { lotId: string };
+  params: Promise<{ lotId: string }>;
 }
 
 function IdentitySection({ lot }: { lot: LotRecord }) {

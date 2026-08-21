@@ -104,7 +104,7 @@ describe('/laboratorio/lotes/[lotId] page', () => {
     findByIdMock.mockResolvedValue(null);
 
     await expect(
-      LaboratoryLotDetailPage({ params: { lotId: 'unknown' } })
+      LaboratoryLotDetailPage({ params: Promise.resolve({ lotId: 'unknown' }) })
     ).rejects.toThrow('NEXT_NOT_FOUND');
     expect(notFoundMock).toHaveBeenCalledOnce();
   });
@@ -112,7 +112,7 @@ describe('/laboratorio/lotes/[lotId] page', () => {
   it('renders the desktop lot summary in two columns with read-only identity, status, and formula provenance', async () => {
     findByIdMock.mockResolvedValue(lot);
 
-    const jsx = await LaboratoryLotDetailPage({ params: { lotId: 'lot-1' } });
+    const jsx = await LaboratoryLotDetailPage({ params: Promise.resolve({ lotId: 'lot-1' }) });
     render(jsx);
 
     expect(findByIdMock).toHaveBeenCalledWith('lot-1');
@@ -143,7 +143,7 @@ describe('/laboratorio/lotes/[lotId] page', () => {
   it('passes the bound server action to the follow-up form', async () => {
     findByIdMock.mockResolvedValue(lot);
 
-    const jsx = await LaboratoryLotDetailPage({ params: { lotId: 'lot-1' } });
+    const jsx = await LaboratoryLotDetailPage({ params: Promise.resolve({ lotId: 'lot-1' }) });
     const followUpForm = findFollowUpForm(jsx) as React.ReactElement<{
       submitFollowUpEntry: typeof submitLotFollowUpMock;
     }>;
@@ -168,7 +168,7 @@ describe('/laboratorio/lotes/[lotId] page', () => {
     async (status) => {
       findByIdMock.mockResolvedValue({ ...lot, status });
 
-      const jsx = await LaboratoryLotDetailPage({ params: { lotId: 'lot-1' } });
+      const jsx = await LaboratoryLotDetailPage({ params: Promise.resolve({ lotId: 'lot-1' }) });
       render(jsx);
 
       await userEvent.type(screen.getByLabelText(/fecha/i), '2026-05-10');

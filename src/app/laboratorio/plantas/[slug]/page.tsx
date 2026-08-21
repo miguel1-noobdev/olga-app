@@ -7,7 +7,7 @@ import { updatePlantNotes } from './actions';
 import { LaboratoryIcon } from '@/components/ui/icons';
 
 interface PageProps {
-  params: Promise<{ slug: string }> | { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export const dynamic = 'force-dynamic';

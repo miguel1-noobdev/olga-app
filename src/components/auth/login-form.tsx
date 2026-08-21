@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { sanitizeCallbackUrl } from '@/lib/auth/sanitize-callback-url';
 import { performCredentialsLogin } from '@/lib/auth/credentials-login';
 import { getDefaultRedirectForRole } from '@/lib/auth/role-redirect';
+import { GOOGLE_CREDENTIALS_FALLBACK } from '@/lib/auth/google';
 
 function LoginFormInner() {
   const searchParams = useSearchParams();
@@ -19,10 +20,13 @@ function LoginFormInner() {
   const errorParam = searchParams.get('error');
   const registrationAccepted = searchParams.get('registered') === 'true';
   const verificationCompleted = searchParams.get('verified') === 'true';
+  const googleLinkCompleted = searchParams.get('googleLink') === 'verified';
   const callbackUrl = sanitizeCallbackUrl(searchParams.get('callbackUrl'));
 
   useEffect(() => {
-    if (errorParam === 'CredentialsSignin') {
+    if (errorParam === 'GOOGLE_CREDENTIALS_FALLBACK') {
+      setError(GOOGLE_CREDENTIALS_FALLBACK);
+    } else if (errorParam === 'CredentialsSignin') {
       setError('Credenciales inválidas. Verificá tu email y contraseña.');
     } else if (errorParam) {
       setError('Error de autenticación. Intentá de nuevo.');
@@ -73,16 +77,17 @@ function LoginFormInner() {
   return (
     <div className="glass-card p-8">
       <form onSubmit={handleSubmit} className="space-y-6">
-        {(registrationAccepted || verificationCompleted) && (
+        {(registrationAccepted || verificationCompleted || googleLinkCompleted) && (
           <div role="status" className="p-3 bg-green-50 border border-green-200 rounded-lg">
             <p className="text-sm text-green-700">
               {registrationAccepted
                 ? 'Revisá tu email para verificar la cuenta antes de iniciar sesión.'
-                : 'Email verificado. Ya podés iniciar sesión.'}
+                : googleLinkCompleted
+                  ? 'Cuenta de Google vinculada. Ya podés iniciar sesión.'
+                  : 'Email verificado. Ya podés iniciar sesión.'}
             </p>
           </div>
         )}
-        {/* Email */}
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-on-surface mb-2">
             Email
@@ -101,7 +106,6 @@ function LoginFormInner() {
           />
         </div>
 
-        {/* Password */}
         <div>
           <label htmlFor="password" className="block text-sm font-medium text-on-surface mb-2">
             Contraseña
@@ -120,14 +124,12 @@ function LoginFormInner() {
           />
         </div>
 
-        {/* Error Message */}
         {error && (
           <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
             <p className="text-sm text-red-700">{error}</p>
           </div>
         )}
 
-        {/* Submit Button */}
         <button
           type="submit"
           disabled={isLoading}
@@ -140,7 +142,6 @@ function LoginFormInner() {
 
       </form>
 
-      {/* Register Link */}
       <div className="mt-6 text-center">
         <p className="text-sm text-on-surface-variant">
           ¿No tenés cuenta?{' '}

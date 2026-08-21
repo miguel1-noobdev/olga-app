@@ -7,7 +7,7 @@ import PlantDetail from '@/components/jardin-digital/plant-detail';
 import { ArrowLeftIcon } from '@/components/ui/icons';
 
 interface PageProps {
-  params: Promise<{ slug: string }> | { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export const dynamic = 'force-dynamic';

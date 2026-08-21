@@ -26,7 +26,7 @@ describe('PATCH /api/admin/articles/[id]', () => {
     const response = await PATCH(new Request('http://localhost/api/admin/articles/a1', {
       method: 'PATCH',
       body: JSON.stringify({ action: 'publish' }),
-    }), { params: { id: 'a1' } });
+    }), { params: Promise.resolve({ id: 'a1' }) });
 
     expect(response.status).toBe(403);
     expect(publishMock).not.toHaveBeenCalled();
@@ -39,7 +39,7 @@ describe('PATCH /api/admin/articles/[id]', () => {
       const response = await PATCH(new Request('http://localhost/api/admin/articles/a1', {
         method: 'PATCH',
         body: JSON.stringify({ action }),
-      }), { params: { id: 'a1' } });
+      }), { params: Promise.resolve({ id: 'a1' }) });
 
       expect(response.status).toBe(200);
     }
@@ -47,5 +47,20 @@ describe('PATCH /api/admin/articles/[id]', () => {
     expect(reviewMock).toHaveBeenCalledWith('a1');
     expect(publishMock).toHaveBeenCalledWith('a1');
     expect(unpublishMock).toHaveBeenCalledWith('a1');
+  });
+
+  it('returns the invalid-action response for malformed JSON', async () => {
+    getCurrentUserMock.mockResolvedValue({ role: 'admin' });
+
+    const response = await PATCH(new Request('http://localhost/api/admin/articles/a1', {
+      method: 'PATCH',
+      body: '{',
+    }), { params: Promise.resolve({ id: 'a1' }) });
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({ error: 'Invalid content action' });
+    expect(reviewMock).not.toHaveBeenCalled();
+    expect(publishMock).not.toHaveBeenCalled();
+    expect(unpublishMock).not.toHaveBeenCalled();
   });
 });

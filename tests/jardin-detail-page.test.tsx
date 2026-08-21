@@ -82,7 +82,7 @@ describe('PlantDetailPage', () => {
     findBySlugMock.mockResolvedValueOnce(null);
 
     await expect(
-      PlantDetailPage({ params: { slug: 'unknown' } })
+      PlantDetailPage({ params: Promise.resolve({ slug: 'unknown' }) })
     ).rejects.toThrow('NEXT_NOT_FOUND');
 
     expect(notFoundMock).toHaveBeenCalled();
@@ -92,7 +92,7 @@ describe('PlantDetailPage', () => {
     findBySlugMock.mockResolvedValueOnce(mockPlant);
 
     const element = await PlantDetailPage({
-      params: { slug: 'lavandula-angustifolia-mill' },
+      params: Promise.resolve({ slug: 'lavandula-angustifolia-mill' }),
     });
     const html = renderToStaticMarkup(element);
 
