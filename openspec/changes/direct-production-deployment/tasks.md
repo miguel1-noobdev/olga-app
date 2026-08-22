@@ -74,7 +74,7 @@ Each canonical Step 1–16 is one independent work unit and one conventional-com
 ### Step 7: Create VPS app/release/log directories owned by `migue`
 - [ ] 7.1 Operational ownership/permissions status is unverified in this reconciliation; do not infer it from the uncaptured G.2 attempt. Harness: `sudo -u migue` create-file check. Rollback: deployment directories.
 
-### Step 8: Install Node 20, npm, PM2
+### Step 8: Install Node.js 24 LTS, npm, PM2
 - [ ] 8.1 Operational Node/npm/PM2 status is unverified in this reconciliation; do not infer it from the uncaptured G.2 attempt. Harness: `node --version`, `npm --version`, `pm2 --version`. Rollback: packages/toolchain.
 
 ### Step 9: Create private authenticated persistent MongoDB

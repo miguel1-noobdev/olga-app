@@ -47,7 +47,7 @@ This is **not an e-commerce site**. It explains the brand, shares content with r
 
 ### Requirements
 
-- Node.js 20
+- Node.js 24 LTS
 - Docker or Docker Desktop
 
 ### Start local services
