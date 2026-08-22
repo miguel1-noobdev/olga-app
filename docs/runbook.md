@@ -77,7 +77,7 @@ Both services are configured with `restart: unless-stopped`. MongoDB has **no au
 3. `MAILPIT_RUNTIME_TEST=1 npm run test:run`
 4. `npm run typecheck:scripts`
 
-The workflow uses Node.js 20 and the `npm` cache.
+The workflow uses Node.js 24 LTS and the `npm` cache.
 
 ## Auth reality
 

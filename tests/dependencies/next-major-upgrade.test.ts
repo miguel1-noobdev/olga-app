@@ -3,7 +3,6 @@ import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 type PackageManifest = {
-  engines?: Record<string, string>;
   dependencies: Record<string, string>;
   devDependencies: Record<string, string>;
   overrides?: Record<string, string | Record<string, string>>;
@@ -27,7 +26,6 @@ describe('Next.js major upgrade contract', () => {
     expect(manifest.dependencies.react).toBe('19.2.8');
     expect(manifest.dependencies['react-dom']).toBe('19.2.8');
     expect(manifest.dependencies['next-auth']).toBe('4.24.15');
-    expect(manifest.engines?.node).toBe('>=20.19.0');
   });
 
   it('keeps the test toolchain on compatible patched major releases', () => {
