@@ -41,7 +41,7 @@ This is **not an e-commerce site**. It explains the brand, shares content with r
 - Phase 1 is closed functionally. Landing, blog, `/jardin-digital`, and email/password auth are accepted as first versions; Google OAuth, registration UX polish, and landing aesthetic tweaks are deferred.
 - `/admin/blog/*` is a **temporary** article-creation tool. Its long-term home is the real admin dashboard (Phase 4).
 - `plantas` is the full source-of-truth plant domain; `/jardin-digital` is only the public-facing projection of part of that domain.
-- See [`ideas/designUI/CONTEXTO_PLATAFORMA.md`](./ideas/designUI/CONTEXTO_PLATAFORMA.md) for the full product context and remapped phases.
+- See [`ideas/designUI/CONTEXTO_PLATAFORMA.md`](./ideas/designUI/CONTEXTO_PLATAFORMA.md) for planning history and remapped phases.
 
 ## Local development
 
@@ -115,4 +115,4 @@ olga-app/
 - [`AGENTS.md`](./AGENTS.md) — Rules for AI agents working on this repository.
 - [`docs/runbook.md`](./docs/runbook.md) — Local run, deploy, and operational reference.
 - [`docs/scripts.md`](./docs/scripts.md) — What each script does and how to run it.
-- [`ideas/designUI/CONTEXTO_PLATAFORMA.md`](./ideas/designUI/CONTEXTO_PLATAFORMA.md) — Full product context and long-term vision (Spanish, planning-only).
+- [`ideas/designUI/CONTEXTO_PLATAFORMA.md`](./ideas/designUI/CONTEXTO_PLATAFORMA.md) — Planning history and long-term vision (Spanish, planning-only).

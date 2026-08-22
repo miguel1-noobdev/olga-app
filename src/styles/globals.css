@@ -86,7 +86,7 @@
 
 @layer components {
   /* Glassmorphism panel — translucent white, backdrop blur, hairline border, soft shadow. */
-  /* Source of truth: ideas/designUI/ejemplo3/.../code.html .glass-card rule. */
+  /* Visual reference: ideas/designUI/ejemplo3/.../code.html .glass-card rule. */
   .glass-card {
     background: rgba(255, 255, 255, 0.6);
     backdrop-filter: blur(20px);

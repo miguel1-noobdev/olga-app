@@ -1,6 +1,6 @@
 # Botánica Esencial OB — Stack de Especificaciones
 
-> **Documento histórico / pre-decisiones.** Este archivo refleja ideas y opciones previas a la consolidación del stack. La fuente de verdad actual del proyecto está en [`designUI/CONTEXTO_PLATAFORMA.md`](./designUI/CONTEXTO_PLATAFORMA.md).
+> **Aviso: no canónico y exploratorio.** `ideas/` conserva planificación e historial; su contenido puede cambiar y no define el comportamiento implementado ni contratos de cambio aceptados.
 
 Este repositorio de ideas documenta la visión, el diseño y la arquitectura del proyecto **Botánica Esencial OB**: un ecosistema digital formado por una **web pública** y una **aplicación privada de producción**, ambas intercomunicadas.
 
