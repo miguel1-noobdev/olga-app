@@ -1,7 +1,7 @@
 # Contexto de la Plataforma — Botánica Esencial OB
 
-> Documento vivo. Se va actualizando con las decisiones del usuario **antes** de lanzar el SDD formal.
-> Sirve como base para la fase de propuesta del SDD.
+> **Aviso: documento no canónico y exploratorio.** Conserva planificación e historial, puede cambiar y no define el comportamiento implementado ni contratos de cambio aceptados.
+> Consultá la [jerarquía de autoridad del proyecto](../../AGENTS.md#2-jerarquía-de-autoridad-del-proyecto) antes de usar este material como referencia.
 
 ---
 
@@ -28,9 +28,9 @@ Plataforma single-tenant con dos roles diferenciados.
 
 ---
 
-## Estado actual: cierre funcional de Fases 1 y 2
+## Snapshot histórico: cierre funcional de Fases 1 y 2
 
-Fases 1 y 2 se consideran **cerradas funcionalmente**. Las versiones actuales son aceptables como primera entrega; retoques y mejoras quedan aplazados o se gestionan como issues independientes.
+Este snapshot registra que las Fases 1 y 2 se consideraban **cerradas funcionalmente**. Las versiones documentadas eran aceptables como primera entrega; retoques y mejoras quedaban aplazados o se gestionaban como issues independientes.
 
 | Pieza | Estado | Notas |
 |-------|--------|-------|
@@ -260,10 +260,10 @@ Fases 1 y 2 se consideran **cerradas funcionalmente**. Las versiones actuales so
 **Acceso**: `botanicaob.com/laboratorio` para roles staff `productora` y `admin`; Admin conserva acceso de soporte (mismo patrón que `/admin` para Admin)
 
 ### Archivo reconciliado: experimento de UI de Laboratorio descartado
-- El experimento `feat/laboratorio-hub-stitch` queda descartado: no se incorpora código, QA ni documentación de implementación como autoridad.
+- El experimento `feat/laboratorio-hub-stitch` queda descartado: no se incorpora como requisito de código, QA ni documentación de implementación.
 - El futuro diseño se crea y aprueba en Stitch como en Figma, página por página: primero escritorio y luego móvil; recién después se implementa código.
 - El hub privado conserva intención y copy en español: saludo fijo `Hola, Olga`, acción secundaria `Nueva fórmula` y sin panel de workflow.
-- Sus cuatro dominios y rutas canónicas son: `Fórmulas` (`/laboratorio/formulas`), `Lotes` (`/laboratorio/lotes`), `Mi jardín` (`/laboratorio/plantas`) y `Mis aceites` (`/laboratorio/aceites`).
+- El plan histórico enumera cuatro dominios y rutas: `Fórmulas` (`/laboratorio/formulas`), `Lotes` (`/laboratorio/lotes`), `Mi jardín` (`/laboratorio/plantas`) y `Mis aceites` (`/laboratorio/aceites`).
 - La navegación conserva enlace de marca al hub (`/laboratorio`), pestañas de escritorio desde `640px`, y navegación móvil solo con iconos accesibles, etiquetas programáticas y objetivos de al menos `44px`. El cierre de sesión sigue separado y conserva su callback de retorno.
 - Dirección de producto global: Laboratorio oscuro por defecto, con selector claro/oscuro. Los tokens visuales y la composición se redefinen desde las nuevas pantallas de Stitch aprobadas; no se copian del experimento descartado.
 
@@ -296,7 +296,7 @@ Fases 1 y 2 se consideran **cerradas funcionalmente**. Las versiones actuales so
   - Puede haber campos variables según lo que Olga quiera anotar
 - **Siempre hay imagen/URL** del cuaderno original o del producto fabricado
 
-**Ciclo canónico del lote:**
+**Ciclo propuesto del lote:**
 1. Crear lote en `in_production` (En producción).
 2. Registrar seguimiento y observaciones append-only durante la producción.
 3. Cerrar normalmente en `finalized` (Finalizado), o salir de forma terminal en `discarded` (Descartado).
@@ -457,7 +457,7 @@ Fases 1 y 2 se consideran **cerradas funcionalmente**. Las versiones actuales so
 - **Los problemas se solucionan y se archivan** (memoria persistente)
 
 ### Documentación
-- **Todo en `CONTEXTO_PLATAFORMA.md`** (es la fuente de verdad)
+- Seguir la [jerarquía de autoridad del proyecto](../../AGENTS.md#2-jerarquía-de-autoridad-del-proyecto) al documentar cambios.
 - **Session summary al cerrar sesión** (memoria persistente)
 - **Comentarios en código solo cuando agreguen valor** (no narrar lo obvio)
 - **Sin emoji en código** (regla del repo)
@@ -485,9 +485,9 @@ Fases 1 y 2 se consideran **cerradas funcionalmente**. Las versiones actuales so
 
 ---
 
-## Próximas tareas
+## Próximas tareas del plan histórico
 
-### Fases de producción (vigentes)
+### Fases de producción históricas
 
 **Fase 1 — Auth + Landing + Blog** *(cerrada funcionalmente)*
 - Auth email/contraseña, landing, blog y Jardín Digital como primeras versiones aceptables.

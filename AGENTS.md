@@ -20,14 +20,19 @@
 
 ---
 
-## 2. Contexto completo
+## 2. Jerarquía de autoridad del proyecto
 
-**Toda la información detallada del proyecto está en:**
-- **`ideas/designUI/CONTEXTO_PLATAFORMA.md`** — fuente de verdad (léelo antes de proponer cambios)
+Para resolver contradicciones, usá esta jerarquía:
+
+1. El código y los tests describen el comportamiento implementado.
+2. Los artefactos OpenSpec activos y aprobados describen el contrato de cambio aceptado.
+3. Los GitHub issues describen trabajo pendiente y dependencias.
+4. `docs/runbook.md` describe las operaciones de producción.
+5. `ideas/` es no canónico, exploratorio y puede cambiar.
+
+Referencias útiles:
 - **`img/`** — galería oficial de assets locales. Para galerías de plantas, también se autorizan URLs remotas curadas y persistidas en `images[]`; no se buscan ni generan imágenes arbitrariamente.
 - **`ideas/designUI/ejemplo3/`** — referencias visuales de Stitch (no assets finales)
-
-Si tenés una duda sobre QUÉ construir, leé primero el CONTEXTO_PLATAFORMA.md.
 
 ---
 
@@ -74,7 +79,7 @@ Si tenés una duda sobre QUÉ construir, leé primero el CONTEXTO_PLATAFORMA.md.
 - **Tareas pequeñas** que se completen en una sesión
 
 ### 4.4 Documentación
-- **Todo en `CONTEXTO_PLATAFORMA.md`** (es la fuente de verdad)
+- Seguí la jerarquía de autoridad del proyecto al documentar cambios.
 - **Session summary al cerrar sesión** vía herramienta de memoria persistente
 - **Si descubrís algo importante**, guardalo en memoria
 
@@ -117,7 +122,7 @@ Si GGA está en un bucle o no para de fallar por cosas razonables, **avisale al 
 
 ### 6.1 Fases de producción
 
-El proyecto se construye en **4 fases** (ver CONTEXTO_PLATAFORMA.md para detalles):
+El proyecto se construye en **4 fases**:
 
 1. **Fase 1** — Auth + Landing + Blog + Jardín Digital (cerrada funcionalmente; retoques y Google OAuth aplazados)
 2. **Fase 2** — Dominio de plantas: consolidar `plantas` como fuente de verdad, estructura pública vs. interna, carga de plantas, refinar `/jardin-digital` como proyección pública
@@ -195,7 +200,3 @@ Si necesitás una imagen fuera de los assets locales o de las URLs curadas de pl
 ¿Cuál es el primer paso?
 → SDD de Fase 1: Auth + Landing (sección por sección) + Blog.
 ```
-
----
-
-**Antes de cualquier cambio importante, leé `CONTEXTO_PLATAFORMA.md`.**
