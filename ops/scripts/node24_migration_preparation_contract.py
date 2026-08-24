@@ -1,25 +1,28 @@
-"""Pure, bounded validation for an authorized Node 24 preparation transaction."""
+"""Pure, bounded archive profiles for an authorized Node 24 preparation transaction."""
 import hashlib
 import json
 from collections import namedtuple
 from functools import wraps
+from typing import NoReturn
 
 from ops.scripts import node24_migration_checkpoint as checkpoint
 from ops.scripts import node24_migration_policy as policy
 
-BundleMember = namedtuple("BundleMember", "closure_identity version architecture logical_name size digest")
-SourceRelease = namedtuple("SourceRelease", "size digest")
-Preparer = namedtuple("Preparer", "identity digest")
+ArchiveProfile = namedtuple(
+    "ArchiveProfile",
+    "logical_name filename root_name closure_identity version architecture size digest compression",
+)
 PreparationStatus = namedtuple("PreparationStatus", "transaction_id sequence stage")
-_PREPARER_IDENTITY = "ops/scripts/node24-prepare-release.sh"
-_PREPARER_DIGEST = "f178f17788b61a5cd3b23cfb9746bad49686daf896b63b4027d64553c8e17668"
-_MAX_AUTHORIZATION, _MAX_MEMBERS, _MAX_BUNDLE, _MAX_SOURCE = 65536, 64, 512 * 1024**2, 16384
+_MAX_AUTHORIZATION, _MAX_ARCHIVE = 65536, 512 * 1024**2
+
 
 class PreparationContractError(ValueError):
-    """A bounded error that never includes authorization or bundle contents."""
+    """A bounded error that never includes authorization or archive contents."""
 
-def _reject():
+
+def _reject() -> NoReturn:
     raise PreparationContractError("invalid preparation contract")
+
 
 def _bounded(function):
     @wraps(function)
@@ -30,10 +33,12 @@ def _bounded(function):
             raise PreparationContractError("invalid preparation contract") from None
     return call
 
+
 def _decode(raw, validator):
     if type(raw) is not bytes or not raw or len(raw) > _MAX_AUTHORIZATION:
         _reject()
     return validator(json.loads(raw.decode("utf-8"), object_pairs_hook=policy._unique_object))
+
 
 def _authorization(value):
     if (type(value) is not policy.Authorization
@@ -43,60 +48,59 @@ def _authorization(value):
     clean_policy = _decode(value.policy_bytes, policy._validate_policy)
     clean_manifest = _decode(value.manifest_bytes, checkpoint.validate_manifest)
     expected = policy.authorize_manifest(clean_policy, clean_manifest)
-    if value != expected or value.policy_bytes != policy._encode(clean_policy) or value.manifest_bytes != checkpoint._encode(clean_manifest):
+    if (value != expected or value.policy_bytes != policy._encode(clean_policy)
+            or value.manifest_bytes != checkpoint._encode(clean_manifest)):
         _reject()
     return clean_policy, clean_manifest
 
-def _entries(clean, logical_name):
-    if type(logical_name) is not str or logical_name not in ("node_target", "node_rollback", "pm2"):
+
+def _profile(authorization, logical_name):
+    if type(logical_name) is not str:
         _reject()
-    artifact = clean["artifacts"][logical_name]
+    clean, _ = _authorization(authorization)
+    artifact = clean["artifacts"].get(logical_name)
+    profiles = {
+        "node_target": ("nodejs", "xz"),
+        "node_rollback": ("nodejs", "xz"),
+        "pm2": ("pm2", "gzip"),
+        "source_release": ("source", "gzip"),
+    }
+    if artifact is None or logical_name not in profiles:
+        _reject()
     closure = artifact["closure"]
-    if not 0 < len(closure) <= _MAX_MEMBERS or artifact["size"] > _MAX_BUNDLE or artifact["size"] != sum(member["size"] for member in closure):
+    if len(closure) != 1 or not 0 < artifact["size"] <= _MAX_ARCHIVE:
         _reject()
-    extension = ".tgz" if logical_name == "pm2" else ".deb"
-    return artifact, tuple(("%04d%s" % (index, extension), member) for index, member in enumerate(closure))
+    member, (primary, compression) = closure[0], profiles[logical_name]
+    if (member["identity"] != primary or member["version"] != artifact["version"]
+            or member["architecture"] != artifact["architecture"]
+            or member["size"] != artifact["size"] or member["digest"] != artifact["digest"]):
+        _reject()
+    version = artifact["version"]
+    if logical_name in ("node_target", "node_rollback"):
+        filename = "node-v%s-linux-x64.tar.xz" % version
+        root_name = filename.removesuffix(".tar.xz")
+    elif logical_name == "pm2":
+        filename = "pm2-7.0.3.tar.gz"
+        root_name = "pm2-7.0.3"
+    else:
+        filename = "release-%s.tar.gz" % version
+        root_name = "release-%s" % version
+    return ArchiveProfile(
+        logical_name, filename, root_name, primary, version, artifact["architecture"],
+        artifact["size"], artifact["digest"], compression,
+    )
+
 
 @_bounded
-def validate_bundle(authorization, logical_name, bundle_bytes):
-    """Validate exact authorized closure bytes without inspecting embedded metadata."""
-    clean, _ = _authorization(authorization)
-    artifact, entries = _entries(clean, logical_name)
-    if type(bundle_bytes) is not bytes or len(bundle_bytes) != artifact["size"]:
+def validate_archive(authorization, logical_name, archive_bytes):
+    """Return a sanitized immutable profile only for exact authorized archive bytes."""
+    profile = _profile(authorization, logical_name)
+    if type(archive_bytes) is not bytes or len(archive_bytes) != profile.size:
         _reject()
-    view = memoryview(bundle_bytes)
-    if hashlib.sha256(view).hexdigest() != artifact["digest"]:
+    if hashlib.sha256(archive_bytes).hexdigest() != profile.digest:
         _reject()
-    offset, result = 0, []
-    for name, member in entries:
-        size = member["size"]
-        if hashlib.sha256(view[offset:offset + size]).hexdigest() != member["digest"]:
-            _reject()
-        result.append(BundleMember(member["identity"], member["version"], member["architecture"], name, size, member["digest"]))
-        offset += size
-    if offset != len(view):
-        _reject()
-    return tuple(result)
+    return profile
 
-@_bounded
-def authorized_source_release(authorization):
-    """Expose the immutable source archive identity from Authorization."""
-    clean, _ = _authorization(authorization)
-    source = clean["artifacts"]["source_release"]
-    if not 0 < source["size"] <= _MAX_BUNDLE:
-        _reject()
-    return SourceRelease(source["size"], source["digest"])
-
-@_bounded
-def validate_preparer(authorization, identity, source_bytes):
-    """Bind the reviewed dedicated preparer source to its literal digest."""
-    _authorization(authorization)
-    if type(identity) is not str or identity != _PREPARER_IDENTITY or type(source_bytes) is not bytes or not source_bytes or len(source_bytes) > _MAX_SOURCE:
-        _reject()
-    digest = hashlib.sha256(source_bytes).hexdigest()
-    if digest != _PREPARER_DIGEST:
-        _reject()
-    return Preparer(identity, digest)
 
 def _prepared(authorization):
     _, manifest = _authorization(authorization)
@@ -104,9 +108,11 @@ def _prepared(authorization):
     projected["sequence"], projected["stage"] = 2, "prepared"
     return checkpoint._encode(projected), manifest
 
+
 @_bounded
 def prepared_checkpoint(authorization):
     return _prepared(authorization)[0]
+
 
 @_bounded
 def validate_prepared_checkpoint(authorization, prepared_bytes):
@@ -114,6 +120,7 @@ def validate_prepared_checkpoint(authorization, prepared_bytes):
     if type(prepared_bytes) is not bytes or prepared_bytes != expected:
         _reject()
     return PreparationStatus(manifest["transaction_id"], 2, "prepared")
+
 
 @_bounded
 def preparation_status(authorization, checkpoint_bytes):
