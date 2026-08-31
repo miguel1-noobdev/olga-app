@@ -14,8 +14,7 @@ type GuardCase =
   | [stage: string, environment: Record<string, string>, setup: undefined, stat: string];
 type RuntimeOptions = {
   binaryMode?: string; binaryOwner?: string;
-  configMode?: string;
-  configNodePath?: string;
+  configMode?: string; configNodePath?: string;
   configOwner?: string;
   configShape?: 'reordered';
   configSymlink?: boolean;
