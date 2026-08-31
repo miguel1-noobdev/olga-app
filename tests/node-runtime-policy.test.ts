@@ -94,6 +94,16 @@ describe('Node runtime policy', () => {
     expect(effectiveEngineStrict(readProjectFile('.npmrc'))).toBe('true');
   });
 
+  it('pins production preparation to the documented Node 24 runtime config', () => {
+    const runbook = readProjectFile('docs/runbook.md');
+
+    expect(readProjectFile('ops/scripts/prepare-release.sh')).toContain('PATH=/usr/bin:/bin');
+    expect(runbook).toContain('${APP_ROOT}/config/node24-runtime.conf');
+    for (const key of ['NODE24_BIN', 'NODE24_VERSION', 'NPM_CLI', 'NPM_VERSION']) {
+    expect(runbook).toContain(key);
+    }
+  });
+
   it.each(runtimeDocuments)(
     '%s identifies Node.js 24 LTS without retaining a Node 20 installation instruction',
     (path) => {

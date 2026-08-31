@@ -87,8 +87,12 @@ function runPreparationHandoff(options: { expectedGroup?: string; expectedOwner?
   const bin = join(root, 'bin');
   const archiveCalls = join(root, 'archive-calls');
   const releaseDirectory = join(appRoot, 'releases', releaseSha);
-  const owner = spawnSync('id', ['-un'], { encoding: 'utf8' }).stdout.trim();
-  const group = spawnSync('id', ['-gn'], { encoding: 'utf8' }).stdout.trim();
+  const runtimeDirectory = join(root, 'runtime');
+  const nodeBin = join(runtimeDirectory, 'node');
+  const npmCli = join(runtimeDirectory, 'npm-cli.js');
+  const nodeConfig = join(appRoot, 'config', 'node24-runtime.conf');
+  const owner = 'root';
+  const group = 'root';
 
   mkdirSync(join(appRoot, 'ops', 'scripts'), { recursive: true });
   cpSync(prepareScriptPath, join(appRoot, 'ops', 'scripts', 'prepare-release.sh'));
@@ -96,20 +100,35 @@ function runPreparationHandoff(options: { expectedGroup?: string; expectedOwner?
   writeFileSync(join(archiveSource, 'package.json'), '{"scripts":{"build":"true"}}\n');
   writeFileSync(join(archiveSource, 'ops', 'scripts', 'activate-pm2-release.sh'), 'readonly RELEASE_ID="${1:-}"\n');
   mkdirSync(releaseDirectory, { recursive: true });
+  mkdirSync(runtimeDirectory);
+  mkdirSync(join(appRoot, 'config'));
   chmodSync(releaseDirectory, 0o750);
   if (options.targetContains) writeFileSync(join(releaseDirectory, options.targetContains), 'already here\n');
+  command(runtimeDirectory, 'node', `
+    if [ "$1" = '--version' ]; then printf '%s\\n' 'v24.13.1'; exit 0; fi
+    if [ "$1" != '${npmCli}' ]; then exit 97; fi
+    if [ "$2" = '--version' ]; then printf '%s\\n' '11.10.0'; exit 0; fi
+    exit 0
+  `);
+  chmodSync(nodeBin, 0o555);
+  writeFileSync(npmCli, '// npm CLI fixture\n');
+  chmodSync(npmCli, 0o444);
+  writeFileSync(nodeConfig, [
+    `NODE24_BIN=${nodeBin}`,
+    'NODE24_VERSION=v24.13.1',
+    `NPM_CLI=${npmCli}`,
+    'NPM_VERSION=11.10.0',
+    '',
+  ].join('\n'));
+  chmodSync(nodeConfig, 0o444);
   mkdirSync(bin);
-  command(bin, 'git', `printf 'archive\n' >> "$ARCHIVE_CALLS"\ntar -cf - -C "$ARCHIVE_SOURCE" .`);
-  command(bin, 'npm', 'exit 0');
+  command(bin, 'git', `printf 'archive\n' >> "$ARCHIVE_CALLS"\ntar --owner=0 --group=0 -cf - -C "$ARCHIVE_SOURCE" .`);
+  command(bin, 'npm', 'exit 99');
   command(bin, 'ssh', `
-    if [ "$2" = "RELEASE_SHA='$releaseSha' /bin/sh '$appRoot/releases/$releaseSha/ops/scripts/prepare-release.sh'" ]; then
-      printf '%s\\n' 'unexpected in-target preparer' >&2
-      exit 97
-    fi
     if [ "\${MOCK_PREFLIGHT_FAILURE-0}" -ne 0 ]; then exit "$MOCK_PREFLIGHT_FAILURE"; fi
     case "$2" in
       *"stat -c"*) printf '%s\\n' "$EXPECTED_RELEASE_OWNER" "$EXPECTED_RELEASE_GROUP" "$EXPECTED_RELEASE_OWNER:$EXPECTED_RELEASE_GROUP 750" ;;
-      *) env -i PATH="$PATH" /bin/sh -c "$2" ;;
+      *) env -i PATH="$PATH" unshare -Ur /bin/sh -c "$2" ;;
     esac
   `);
 
@@ -122,7 +141,6 @@ function runPreparationHandoff(options: { expectedGroup?: string; expectedOwner?
       EXPECTED_RELEASE_MODE: '750',
       EXPECTED_RELEASE_OWNER: options.expectedOwner ?? owner,
       ARCHIVE_CALLS: archiveCalls,
-      MOCK_APP_ROOT: appRoot,
       MOCK_PREFLIGHT_FAILURE: options.preflightFailure ?? '0',
       PATH: `${bin}:${process.env.PATH}`,
       RELEASE_SHA: releaseSha,

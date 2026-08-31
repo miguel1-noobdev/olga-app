@@ -36,6 +36,8 @@ jobs:
       - name: Build application
         run: npm run build
 
+      - name: Enable user namespaces for release tests
+        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
       - name: Run tests
         run: MAILPIT_RUNTIME_TEST=1 npm run test:run
 
