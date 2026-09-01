@@ -116,8 +116,16 @@ function runPreparationHandoff(options: { expectedGroup?: string; expectedOwner?
   writeFileSync(nodeConfig, [
     `NODE24_BIN=${nodeBin}`,
     'NODE24_VERSION=v24.13.1',
-    `NPM_CLI=${npmCli}`,
-    'NPM_VERSION=11.10.0',
+    `NODE24_NPM_CLI=${npmCli}`,
+    'NODE24_NPM_VERSION=11.10.0',
+    `NODE20_BIN=${join(runtimeDirectory, 'node20')}`,
+    'NODE20_VERSION=v20.19.6',
+    `NODE20_PM2_CLI=${join(runtimeDirectory, 'node20-pm2-cli.js')}`,
+    'NODE20_PM2_VERSION=5.4.3',
+    `NODE24_PM2_CLI=${join(runtimeDirectory, 'node24-pm2-cli.js')}`,
+    'NODE24_PM2_VERSION=5.4.3',
+    'PM2_RUN_AS=botanica',
+    `PM2_HOME=${join(root, 'pm2-home')}`,
     '',
   ].join('\n'));
   chmodSync(nodeConfig, 0o444);

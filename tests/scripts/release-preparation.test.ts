@@ -16,7 +16,7 @@ type RuntimeOptions = {
   binaryMode?: string; binaryOwner?: string;
   configMode?: string; configNodePath?: string;
   configOwner?: string;
-  configShape?: 'reordered';
+  configShape?: 'duplicate' | 'missing' | 'reordered' | 'unknown';
   configSymlink?: boolean;
   missingCli?: boolean;
   nodeReportedVersion?: string;
@@ -84,10 +84,21 @@ function run(
   const configLines = [
     `NODE24_BIN=${configuredNode}`,
     `NODE24_VERSION=${nodeVersion}`,
-    `NPM_CLI=${npmCli}`,
-    `NPM_VERSION=${npmVersion}`,
+    `NODE24_NPM_CLI=${npmCli}`,
+    `NODE24_NPM_VERSION=${npmVersion}`,
+    `NODE20_BIN=${join(runtimeDirectory, 'node20')}`,
+    'NODE20_VERSION=v20.19.6',
+    `NODE20_PM2_CLI=${join(runtimeDirectory, 'node20-pm2-cli.js')}`,
+    'NODE20_PM2_VERSION=5.4.3',
+    `NODE24_PM2_CLI=${join(runtimeDirectory, 'node24-pm2-cli.js')}`,
+    'NODE24_PM2_VERSION=5.4.3',
+    'PM2_RUN_AS=botanica',
+    `PM2_HOME=${join(root, 'pm2-home')}`,
   ];
+  if (runtime.configShape === 'duplicate') configLines[10] = 'NODE24_PM2_VERSION=5.4.3';
+  if (runtime.configShape === 'missing') configLines.splice(10, 1);
   if (runtime.configShape === 'reordered') configLines.reverse();
+  if (runtime.configShape === 'unknown') configLines.push('UNEXPECTED_RUNTIME_FIELD=value');
   writeFileSync(configSource, `${configLines.join('\n')}\n`);
   if (runtime.configSymlink) symlinkSync(configSource, config);
   chmodSync(configSource, 0o444);
@@ -227,7 +238,10 @@ describe('local POSIX release preparation', () => {
       ['npm version', { npmReportedVersion: '11.9.0' }, 'runtime_npm_version'],
       ['relative node path', { configNodePath: 'runtime/node' }, 'runtime_path'],
       ['non-canonical node path', { nonCanonicalNode: true }, 'runtime_path'],
+      ['duplicate config field', { configShape: 'duplicate' }, 'runtime_config_shape'],
+      ['missing config field', { configShape: 'missing' }, 'runtime_config_shape'],
       ['reordered config', { configShape: 'reordered' }, 'runtime_config_shape'],
+      ['unknown config field', { configShape: 'unknown' }, 'runtime_config_shape'],
       ['symlinked config', { configSymlink: true }, 'runtime_config'],
       ['non-root config', { configOwner: 'release-user' }, 'runtime_config_metadata'],
       ['writable config', { configMode: '664' }, 'runtime_config_metadata'],

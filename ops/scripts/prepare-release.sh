@@ -92,24 +92,40 @@ if [ "$config_owner" != root ]; then fail runtime_config_metadata 1; fi
 {
   IFS= read -r node_line &&
   IFS= read -r node_version_line &&
-  IFS= read -r npm_line &&
-  IFS= read -r npm_version_line &&
+  IFS= read -r node24_npm_line &&
+  IFS= read -r node24_npm_version_line &&
+  IFS= read -r node20_bin_line &&
+  IFS= read -r node20_version_line &&
+  IFS= read -r node20_pm2_line &&
+  IFS= read -r node20_pm2_version_line &&
+  IFS= read -r node24_pm2_line &&
+  IFS= read -r node24_pm2_version_line &&
+  IFS= read -r pm2_run_as_line &&
+  IFS= read -r pm2_home_line &&
   ! IFS= read -r _extra_line
 } < "$runtime_config" || fail runtime_config_shape 1
 case "$node_line" in NODE24_BIN=*) node24_bin=${node_line#NODE24_BIN=} ;; *) fail runtime_config_shape 1 ;; esac
 case "$node_version_line" in NODE24_VERSION=*) configured_node_version=${node_version_line#NODE24_VERSION=} ;; *) fail runtime_config_shape 1 ;; esac
-case "$npm_line" in NPM_CLI=*) npm_cli=${npm_line#NPM_CLI=} ;; *) fail runtime_config_shape 1 ;; esac
-case "$npm_version_line" in NPM_VERSION=*) configured_npm_version=${npm_version_line#NPM_VERSION=} ;; *) fail runtime_config_shape 1 ;; esac
-case "$node24_bin:$npm_cli" in /*:/*) ;; *) fail runtime_path 1 ;; esac
+case "$node24_npm_line" in NODE24_NPM_CLI=*) node24_npm_cli=${node24_npm_line#NODE24_NPM_CLI=} ;; *) fail runtime_config_shape 1 ;; esac
+case "$node24_npm_version_line" in NODE24_NPM_VERSION=*) configured_node24_npm_version=${node24_npm_version_line#NODE24_NPM_VERSION=} ;; *) fail runtime_config_shape 1 ;; esac
+case "$node20_bin_line" in NODE20_BIN=*) ;; *) fail runtime_config_shape 1 ;; esac
+case "$node20_version_line" in NODE20_VERSION=*) ;; *) fail runtime_config_shape 1 ;; esac
+case "$node20_pm2_line" in NODE20_PM2_CLI=*) ;; *) fail runtime_config_shape 1 ;; esac
+case "$node20_pm2_version_line" in NODE20_PM2_VERSION=*) ;; *) fail runtime_config_shape 1 ;; esac
+case "$node24_pm2_line" in NODE24_PM2_CLI=*) ;; *) fail runtime_config_shape 1 ;; esac
+case "$node24_pm2_version_line" in NODE24_PM2_VERSION=*) ;; *) fail runtime_config_shape 1 ;; esac
+case "$pm2_run_as_line" in PM2_RUN_AS=*) ;; *) fail runtime_config_shape 1 ;; esac
+case "$pm2_home_line" in PM2_HOME=*) ;; *) fail runtime_config_shape 1 ;; esac
+case "$node24_bin:$node24_npm_cli" in /*:/*) ;; *) fail runtime_path 1 ;; esac
 if [ ! -f "$node24_bin" ] || [ -L "$node24_bin" ] || [ ! -r "$node24_bin" ] || [ ! -x "$node24_bin" ]; then
   fail runtime_node 1
 fi
-if [ ! -f "$npm_cli" ] || [ -L "$npm_cli" ] || [ ! -r "$npm_cli" ]; then fail runtime_npm 1; fi
+if [ ! -f "$node24_npm_cli" ] || [ -L "$node24_npm_cli" ] || [ ! -r "$node24_npm_cli" ]; then fail runtime_npm 1; fi
 if canonical_node=$(realpath -- "$node24_bin" 2>/dev/null); then :; else fail runtime_path 1; fi
-if canonical_npm=$(realpath -- "$npm_cli" 2>/dev/null); then :; else fail runtime_path 1; fi
-if [ "$canonical_node" != "$node24_bin" ] || [ "$canonical_npm" != "$npm_cli" ]; then fail runtime_path 1; fi
+if canonical_npm=$(realpath -- "$node24_npm_cli" 2>/dev/null); then :; else fail runtime_path 1; fi
+if [ "$canonical_node" != "$node24_bin" ] || [ "$canonical_npm" != "$node24_npm_cli" ]; then fail runtime_path 1; fi
 if node_metadata=$(stat -c '%U %a' "$node24_bin" 2>/dev/null); then :; else fail runtime_node_metadata $?; fi
-if npm_metadata=$(stat -c '%U %a' "$npm_cli" 2>/dev/null); then :; else fail runtime_npm_metadata $?; fi
+if npm_metadata=$(stat -c '%U %a' "$node24_npm_cli" 2>/dev/null); then :; else fail runtime_npm_metadata $?; fi
 if [ "${node_metadata%% *}" != root ]; then fail runtime_node_metadata 1; fi
 if [ "${npm_metadata%% *}" != root ]; then fail runtime_npm_metadata 1; fi
 if ! mode_permissions "${node_metadata##* }"; then fail runtime_node_metadata 1; fi
@@ -120,8 +136,8 @@ case "$permissions" in *[2367]*) fail runtime_npm_metadata 1 ;; esac
 case "$configured_node_version" in v24.*.*) ;; *) fail runtime_node_version 1 ;; esac
 node_tail=${configured_node_version#v24.}
 case "$node_tail" in *[!0123456789.]*|.*|*.|*..*|*.*.*) fail runtime_node_version 1 ;; esac
-case "$configured_npm_version" in *.*.*) ;; *) fail runtime_npm_version 1 ;; esac
-case "$configured_npm_version" in *[!0123456789.]*|.*|*.|*..*|*.*.*.*) fail runtime_npm_version 1 ;; esac
+case "$configured_node24_npm_version" in *.*.*) ;; *) fail runtime_npm_version 1 ;; esac
+case "$configured_node24_npm_version" in *[!0123456789.]*|.*|*.|*..*|*.*.*.*) fail runtime_npm_version 1 ;; esac
 
 if reported_node_version=$("$node24_bin" --version 2>/dev/null); then :; else fail runtime_node_version $?; fi
 if [ "$reported_node_version" != "$configured_node_version" ]; then fail runtime_node_version 1; fi
@@ -131,14 +147,14 @@ PREPARATION_LIFECYCLE_NODE=$canonical_node
 PREPARATION_LIFECYCLE_SHELL=1
 npm_config_script_shell=$canonical_preparer
 export PATH PREPARATION_LIFECYCLE_NODE PREPARATION_LIFECYCLE_SHELL npm_config_script_shell
-if reported_npm_version=$("$node24_bin" "$npm_cli" --version 2>/dev/null); then :; else fail runtime_npm_version $?; fi
-if [ "$reported_npm_version" != "$configured_npm_version" ]; then fail runtime_npm_version 1; fi
-receipt_npm_version=$configured_npm_version
+if reported_npm_version=$("$node24_bin" "$node24_npm_cli" --version 2>/dev/null); then :; else fail runtime_npm_version $?; fi
+if [ "$reported_npm_version" != "$configured_node24_npm_version" ]; then fail runtime_npm_version 1; fi
+receipt_npm_version=$configured_node24_npm_version
 
 if tar -xf - -C "$release_dir" >/dev/null 2>&1; then :; else fail archive_extract $?; fi
 cd "$release_dir" 2>/dev/null || fail workdir $?
-if "$node24_bin" "$npm_cli" ci >/dev/null 2>&1; then :; else fail install $?; fi
-if "$node24_bin" "$npm_cli" run build >/dev/null 2>&1; then :; else fail build $?; fi
+if "$node24_bin" "$node24_npm_cli" ci >/dev/null 2>&1; then :; else fail install $?; fi
+if "$node24_bin" "$node24_npm_cli" run build >/dev/null 2>&1; then :; else fail build $?; fi
 if grep -F "readonly RELEASE_ID=\"\${1:-}\"" "$activation_script" >/dev/null 2>&1; then :; else fail activation_identity $?; fi
 if chmod -R a-w "$release_dir" >/dev/null 2>&1; then :; else fail seal $?; fi
 stage=sealed
