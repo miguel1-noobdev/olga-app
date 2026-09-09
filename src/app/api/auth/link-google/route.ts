@@ -1,24 +1,18 @@
-import { randomBytes } from 'node:crypto';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/options';
 import { getCurrentUser } from '@/lib/auth/current-user';
 import { getGoogleOAuthConfig } from '@/lib/auth/google';
-import { linkGoogleIdentity } from '@/lib/auth/google-linking';
+import { issueGoogleLinkIntent } from '@/lib/auth/google-link-intent';
+import { ROLES } from '@/lib/auth/roles';
 import { connectToDatabase } from '@/lib/db/connect';
-import {
-  AuthTokenModel,
-  consumeAuthToken,
-  hashAuthToken,
-} from '@/lib/db/models/auth-token';
-
-const LINK_TOKEN_TTL_MS = 10 * 60 * 1000;
 
 function denied(status: 400 | 409): Response {
   return Response.json({ error: 'google_link_denied' }, { status });
 }
 
 export async function POST(request: Request): Promise<Response> {
-  if (!getGoogleOAuthConfig()) {
+  const googleConfig = getGoogleOAuthConfig();
+  if (!googleConfig) {
     return Response.json({ error: 'google_unavailable' }, { status: 503 });
   }
 
@@ -27,18 +21,16 @@ export async function POST(request: Request): Promise<Response> {
     return denied(400);
   }
 
-  const account = await getCurrentUser();
-  if (!account || account.id !== session.user.id) {
+  if (typeof session.user.securityVersion !== 'number') {
     return denied(400);
   }
 
-  let body: {
-    action?: string;
-    token?: string;
-    providerAccountId?: string;
-    email?: string;
-    emailVerified?: boolean;
-  };
+  const account = await getCurrentUser();
+  if (!account || account.id !== session.user.id || account.role !== ROLES.SUSCRIPTORA) {
+    return denied(400);
+  }
+
+  let body: { action?: unknown };
 
   try {
     body = await request.json();
@@ -48,59 +40,24 @@ export async function POST(request: Request): Promise<Response> {
 
   await connectToDatabase();
 
-  if (body.action === 'start') {
-    const token = randomBytes(32).toString('hex');
-    const expiresAt = new Date(Date.now() + LINK_TOKEN_TTL_MS);
+  if (body.action !== 'start') {
+    return denied(400);
+  }
 
-    await AuthTokenModel.deleteMany({ accountId: account.id, purpose: 'google_link' });
-    await AuthTokenModel.create({
+  try {
+    const callbackUrl = new URL('/api/auth/link-google/callback', request.url).toString();
+    const intent = await issueGoogleLinkIntent({
       accountId: account.id,
-      purpose: 'google_link',
-      tokenHash: hashAuthToken(token),
-      expiresAt,
       securityVersion: account.securityVersion,
+      clientId: googleConfig.clientId,
+      callbackUrl,
     });
 
-    const proofUrl = new URL(request.url);
-    proofUrl.searchParams.set('token', token);
-
     return Response.json(
-      { proofUrl: proofUrl.toString(), expiresAt: expiresAt.toISOString() },
+      { authorizationUrl: intent.authorizationUrl, expiresAt: intent.expiresAt.toISOString() },
       { status: 201 },
     );
+  } catch {
+    return Response.json({ error: 'google_unavailable' }, { status: 503 });
   }
-
-  if (
-    body.action !== 'complete' ||
-    !body.token ||
-    !body.providerAccountId ||
-    !body.email ||
-    body.emailVerified !== true
-  ) {
-    return denied(400);
-  }
-
-  const consumed = await consumeAuthToken({
-    accountId: account.id,
-    purpose: 'google_link',
-    rawToken: body.token,
-    securityVersion: account.securityVersion,
-  });
-
-  if (!consumed) {
-    return denied(400);
-  }
-
-  const result = await linkGoogleIdentity({
-    accountId: account.id,
-    providerAccountId: body.providerAccountId,
-    email: body.email,
-    emailVerified: body.emailVerified,
-  });
-
-  if (result === 'conflict') {
-    return denied(409);
-  }
-
-  return Response.json({ linked: true });
 }

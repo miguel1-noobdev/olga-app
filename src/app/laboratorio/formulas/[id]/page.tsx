@@ -17,7 +17,7 @@ import {
 import { LaboratoryIcon, type LaboratoryIconName } from '@/components/ui/icons';
 
 interface PageProps {
-  params: Promise<{ id: string }> | { id: string };
+  params: Promise<{ id: string }>;
 }
 
 const FORMULA_STATUS_ACCENTS: Record<FormulaRecord['status'], string> = {

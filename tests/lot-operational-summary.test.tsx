@@ -146,7 +146,7 @@ describe('Resumen operativo presentation', () => {
       updatedAt: '2026-07-18T00:00:00.000Z',
     });
 
-    render(await LaboratoryLotDetailPage({ params: { lotId: 'lot-1' } }));
+    render(await LaboratoryLotDetailPage({ params: Promise.resolve({ lotId: 'lot-1' }) }));
 
     const section = screen.getByTestId('lot-operational-summary');
     expect(section).toHaveClass('border-[#FF0000]', 'shadow-[0_0_24px_rgba(255,0,0,0.35)]');
@@ -181,7 +181,7 @@ describe('Resumen operativo presentation', () => {
       updatedAt: '2026-07-19T00:00:00.000Z',
     });
 
-    render(await LaboratoryLotDetailPage({ params: { lotId: 'lot-1' } }));
+    render(await LaboratoryLotDetailPage({ params: Promise.resolve({ lotId: 'lot-1' }) }));
 
     const section = screen.getByTestId('lot-operational-summary');
     expect(section).toHaveTextContent('Fecha de inicio');

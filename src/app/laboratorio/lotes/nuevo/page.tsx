@@ -12,7 +12,7 @@ import type { FormulaRecord } from '@/lib/formulas/formula-types';
 import { submitNewLot } from './actions';
 
 interface PageProps {
-  searchParams: Promise<{ formulaId?: string }> | { formulaId?: string };
+  searchParams: Promise<{ formulaId?: string }>;
 }
 
 export const dynamic = 'force-dynamic';

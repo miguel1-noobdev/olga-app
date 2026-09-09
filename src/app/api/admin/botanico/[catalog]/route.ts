@@ -6,7 +6,7 @@ import { createOilRepository } from '@/lib/db/repository/oil';
 import { createPlantRepository } from '@/lib/db/repository/plant';
 
 interface RouteContext {
-  params: Promise<{ catalog: string }> | { catalog: string };
+  params: Promise<{ catalog: string }>;
 }
 
 export async function POST(request: Request, props: RouteContext) {
@@ -22,7 +22,12 @@ export async function POST(request: Request, props: RouteContext) {
   }
 
   await connectToDatabase();
-  const body = await request.json();
+  let body: Awaited<ReturnType<Request['json']>>;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ errors: { form: 'Invalid catalog mutation.' } }, { status: 400 });
+  }
   const dependencies = {
     plants: createPlantRepository(),
     oils: createOilRepository(),

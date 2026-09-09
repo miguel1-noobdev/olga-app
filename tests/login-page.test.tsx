@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import LoginForm from '@/components/auth/login-form';
+import { GOOGLE_CREDENTIALS_FALLBACK } from '@/lib/auth/google';
 
 const { signInMock, getSessionMock, useSearchParamsMock } = vi.hoisted(() => ({
   signInMock: vi.fn(),
@@ -57,6 +58,42 @@ describe('LoginForm component', () => {
     expect(screen.queryByRole('button', { name: /google/i })).not.toBeInTheDocument();
     expect(screen.queryByText(/continuar con google/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/^o$/i)).not.toBeInTheDocument();
+  });
+
+  it('shows the credentials-only fallback for a Google email collision without recovery controls', async () => {
+    useSearchParamsMock.mockReturnValue(
+      new URLSearchParams({ error: 'GOOGLE_CREDENTIALS_FALLBACK' }),
+    );
+
+    render(<LoginForm />);
+
+    expect(await screen.findByText(GOOGLE_CREDENTIALS_FALLBACK)).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /recuper|forgot|restablec/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /vincular|link/i })).not.toBeInTheDocument();
+  });
+
+  it('shows the fixed success outcome after the server verifies and links a Google identity', async () => {
+    useSearchParamsMock.mockReturnValue(
+      new URLSearchParams({ googleLink: 'verified' }),
+    );
+
+    render(<LoginForm />);
+
+    expect(await screen.findByRole('status')).toHaveTextContent(
+      'Cuenta de Google vinculada. Ya podés iniciar sesión.',
+    );
+    expect(screen.queryByRole('button', { name: /google/i })).not.toBeInTheDocument();
+  });
+
+  it('shows the generic fixed denial outcome without exposing OAuth failure details', async () => {
+    useSearchParamsMock.mockReturnValue(
+      new URLSearchParams({ error: 'GOOGLE_LINK_DENIED' }),
+    );
+
+    render(<LoginForm />);
+
+    expect(await screen.findByText('Error de autenticación. Intentá de nuevo.')).toBeInTheDocument();
+    expect(screen.queryByText(/token|state|nonce|google subject/i)).not.toBeInTheDocument();
   });
 
   it('shows error when fields are empty on submit', async () => {

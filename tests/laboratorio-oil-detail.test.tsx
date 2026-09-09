@@ -40,7 +40,7 @@ describe('/laboratorio/aceites/[slug]', () => {
   it('loads the canonical slug and maps every populated detail section', async () => {
     const oil = buildOil();
     findBySlugMock.mockResolvedValue(oil);
-    render(await LaboratoryOilDetailPage({ params: { slug: oil.slug } }));
+    render(await LaboratoryOilDetailPage({ params: Promise.resolve({ slug: oil.slug }) }));
 
     expect(findBySlugMock).toHaveBeenCalledWith(oil.slug);
     expect(screen.getByRole('link', { name: 'Volver a Mis aceites' })).toHaveAttribute('href', '/laboratorio/aceites');
@@ -56,7 +56,7 @@ describe('/laboratorio/aceites/[slug]', () => {
 
   it('uses the not-found boundary for an unknown slug', async () => {
     findBySlugMock.mockResolvedValue(null);
-    await expect(LaboratoryOilDetailPage({ params: { slug: 'unknown' } })).rejects.toThrow('NEXT_NOT_FOUND');
+    await expect(LaboratoryOilDetailPage({ params: Promise.resolve({ slug: 'unknown' }) })).rejects.toThrow('NEXT_NOT_FOUND');
     expect(notFoundMock).toHaveBeenCalledOnce();
   });
 

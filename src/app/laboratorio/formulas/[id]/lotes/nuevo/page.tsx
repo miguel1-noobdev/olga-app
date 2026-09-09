@@ -3,7 +3,7 @@ import { connectToDatabase } from '@/lib/db/connect';
 import { createFormulaRepository } from '@/lib/db/repository/formula';
 
 interface PageProps {
-  params: Promise<{ id: string }> | { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export const dynamic = 'force-dynamic';

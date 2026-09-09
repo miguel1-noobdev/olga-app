@@ -83,7 +83,7 @@ describe('/laboratorio/plantas/[slug]', () => {
     findBySlugMock.mockResolvedValue(plant);
 
     const element = await LaboratoryPlantDetailPage({
-      params: { slug: plant.slug },
+      params: Promise.resolve({ slug: plant.slug }),
     });
     render(element);
 
@@ -136,7 +136,7 @@ describe('/laboratorio/plantas/[slug]', () => {
     findBySlugMock.mockResolvedValue(null);
 
     await expect(
-      LaboratoryPlantDetailPage({ params: { slug: 'unknown' } })
+      LaboratoryPlantDetailPage({ params: Promise.resolve({ slug: 'unknown' }) })
     ).rejects.toThrow('NEXT_NOT_FOUND');
 
     expect(notFoundMock).toHaveBeenCalledOnce();

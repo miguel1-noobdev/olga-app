@@ -5,7 +5,7 @@ import { createOilRepository } from '@/lib/db/repository/oil';
 
 export const dynamic = 'force-dynamic';
 
-export default async function EditOilPage(props: { params: Promise<{ id: string }> | { id: string } }) {
+export default async function EditOilPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   await connectToDatabase();
   const oil = await createOilRepository().findById(params.id);

@@ -34,7 +34,7 @@ describe('POST /api/admin/botanico/[catalog]', () => {
         method: 'POST',
         body: JSON.stringify({ commonName: 'Lavanda', scientificName: 'Lavandula angustifolia', family: 'Lamiaceae' }),
       }),
-      { params: { catalog: 'plants' } }
+      { params: Promise.resolve({ catalog: 'plants' }) }
     );
 
     expect(response.status).toBe(403);
@@ -49,7 +49,7 @@ describe('POST /api/admin/botanico/[catalog]', () => {
         method: 'POST',
         body: JSON.stringify({ commonName: 'Lavanda', scientificName: 'Lavandula angustifolia', family: 'Lamiaceae' }),
       }),
-      { params: { catalog: 'plants' } }
+      { params: Promise.resolve({ catalog: 'plants' }) }
     );
 
     expect(response.status).toBe(201);
@@ -69,7 +69,7 @@ describe('POST /api/admin/botanico/[catalog]', () => {
         method: 'POST',
         body: JSON.stringify({ id: 'oil-1', name: 'Aceite de jojoba', recommendedPercentage: -1 }),
       }),
-      { params: { catalog: 'oils' } }
+      { params: Promise.resolve({ catalog: 'oils' }) }
     );
 
     expect(response.status).toBe(400);
@@ -77,5 +77,21 @@ describe('POST /api/admin/botanico/[catalog]', () => {
       errors: { recommendedPercentage: 'Recommended percentage must be between 0 and 100.' },
     });
     expect(oilUpdateMock).not.toHaveBeenCalled();
+  });
+
+  it('returns the invalid-mutation response for malformed JSON', async () => {
+    getCurrentUserMock.mockResolvedValue({ role: 'admin' });
+
+    const response = await POST(
+      new Request('http://localhost/api/admin/botanico/plants', {
+        method: 'POST',
+        body: '{',
+      }),
+      { params: Promise.resolve({ catalog: 'plants' }) }
+    );
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({ errors: { form: 'Invalid catalog mutation.' } });
+    expect(plantCreateMock).not.toHaveBeenCalled();
   });
 });

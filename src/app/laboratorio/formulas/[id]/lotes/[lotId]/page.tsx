@@ -3,7 +3,7 @@ import { connectToDatabase } from '@/lib/db/connect';
 import { createLotRepository } from '@/lib/db/repository/lot';
 
 interface PageProps {
-  params: Promise<{ id: string; lotId: string }> | { id: string; lotId: string };
+  params: Promise<{ id: string; lotId: string }>;
 }
 
 export const dynamic = 'force-dynamic';
