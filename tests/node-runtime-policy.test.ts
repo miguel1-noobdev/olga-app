@@ -4,6 +4,20 @@ import { describe, expect, it } from 'vitest';
 
 const root = process.cwd();
 const reviewedNodeTypesVersion = '24.13.3';
+const runtimeConfigShape = [
+  'NODE24_BIN=/absolute/canonical/path/to/node',
+  'NODE24_VERSION=v24.<minor>.<patch>',
+  'NODE24_NPM_CLI=/absolute/canonical/path/to/npm-cli.js',
+  'NODE24_NPM_VERSION=<major>.<minor>.<patch>',
+  'NODE20_BIN=/absolute/canonical/path/to/node',
+  'NODE20_VERSION=v20.<minor>.<patch>',
+  'NODE20_PM2_CLI=/absolute/canonical/path/to/node20-pm2-cli.js',
+  'NODE20_PM2_VERSION=<major>.<minor>.<patch>',
+  'NODE24_PM2_CLI=/absolute/canonical/path/to/node24-pm2-cli.js',
+  'NODE24_PM2_VERSION=<major>.<minor>.<patch>',
+  'PM2_RUN_AS=<pm2-execution-account>',
+  'PM2_HOME=/absolute/path/to/pm2-home',
+].join('\n');
 const runtimeDocuments = [
   'README.md',
   'docs/runbook.md',
@@ -94,13 +108,19 @@ describe('Node runtime policy', () => {
     expect(effectiveEngineStrict(readProjectFile('.npmrc'))).toBe('true');
   });
 
-  it('pins production preparation to the documented Node 24 runtime config', () => {
+  it('pins production preparation to the complete documented runtime config contract', () => {
     const runbook = readProjectFile('docs/runbook.md');
+    const preparationScript = readProjectFile('ops/scripts/prepare-release.sh');
 
-    expect(readProjectFile('ops/scripts/prepare-release.sh')).toContain('PATH=/usr/bin:/bin');
+    expect(preparationScript).toContain('PATH=/usr/bin:/bin');
     expect(runbook).toContain('${APP_ROOT}/config/node24-runtime.conf');
-    for (const key of ['NODE24_BIN', 'NODE24_VERSION', 'NPM_CLI', 'NPM_VERSION']) {
-    expect(runbook).toContain(key);
+    expect(runbook).toContain(runtimeConfigShape);
+    expect(runbook).toContain('fixed-shape, non-secret runtime configuration');
+    expect(runbook).toContain('root-owned regular, non-symlink file');
+    expect(runbook).toContain('not group/world writable');
+    for (const key of runtimeConfigShape.split('\n').map((line) => line.split('=')[0])) {
+      expect(preparationScript).toContain(key);
+      expect(runbook).toContain(key);
     }
   });
 
