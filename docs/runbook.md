@@ -203,6 +203,8 @@ After every preceding gate has passed, activate only the prepared candidate by p
 sudo /srv/botanica-ob/releases/<full-candidate-sha>/ops/scripts/activate-pm2-release.sh <full-candidate-sha>
 ```
 
+Candidate activation reads that fixed-shape config before mutation and invokes PM2 only through its validated Node 24 binary and PM2 CLI, with the configured account, home, interpreter, and candidate cwd. It verifies loopback HTTP 200 plus a stable PID whose executable and cwd match that candidate. Exact Node 20 recovery and rollback health remain pending slice 3; this slice does not claim rollback proof.
+
 The focused local sandbox tests cover the successful preparation path; every pre-extraction guard; late writability failure; activation-ID rejection; and exact failures from `id`, `stat`, extraction, install, build, and sealing. They do not prove a remote handoff, VPS build or sealing, rollback, G.2, or any later runtime gate. G.2 remains NO-GO until a later authorized receipt-only attempt produces the complete captured non-secret receipt named above.
 
 ### One-time credential handling and evidence
