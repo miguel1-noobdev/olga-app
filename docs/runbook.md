@@ -197,13 +197,13 @@ The ordinary handoff quotes and explicitly forwards `RELEASE_SHA`, `APP_ROOT`, a
 
 Preparation verifies that the extracted activation accepts a caller-supplied release SHA and seals the target without activating it. A release directory approved as empty remains empty until preparation begins archive extraction. Every exit emits one sanitized, timestamped `key=value` record containing `release=unverified` until the candidate SHA passes validation, then the validated SHA, plus stage, status, and verified versions, without config contents, hosts, usernames, home paths, or environment values; failed `id`, `stat`, extraction, install, build, and seal stages retain their external exit status. Invoke it explicitly with `/bin/sh`; it does not load secrets, invoke `runuser`, PM2, or activation.
 
-After every preceding gate has passed, activate only the prepared candidate by passing the same full SHA both in its sealed path and as the required argument:
+After every preceding gate has passed, activate only the prepared candidate with its full SHA and the declared full rollback SHA:
 
 ```bash
-sudo /srv/botanica-ob/releases/<full-candidate-sha>/ops/scripts/activate-pm2-release.sh <full-candidate-sha>
+sudo /srv/botanica-ob/releases/<full-candidate-sha>/ops/scripts/activate-pm2-release.sh <full-candidate-sha> <full-rollback-sha>
 ```
 
-Candidate activation reads that fixed-shape config before mutation and invokes PM2 only through its validated Node 24 binary and PM2 CLI, with the configured account, home, interpreter, and candidate cwd. It verifies loopback HTTP 200 plus a stable PID whose executable and cwd match that candidate. Exact Node 20 recovery and rollback health remain pending slice 3; this slice does not claim rollback proof.
+Candidate activation fully validates the fixed Node 24 and Node 20 runtime pairs before mutation and invokes candidate PM2 only through Node 24. `current` must resolve to the declared immutable rollback release; after a candidate failure, it deletes through Node 24, atomically restores that link, then starts and proves the rollback through Node 20 (`rollback=passed` requires loopback HTTP 200 and a stable Node 20 PID/cwd; otherwise `rollback=failed`).
 
 The focused local sandbox tests cover the successful preparation path; every pre-extraction guard; late writability failure; activation-ID rejection; and exact failures from `id`, `stat`, extraction, install, build, and sealing. They do not prove a remote handoff, VPS build or sealing, rollback, G.2, or any later runtime gate. G.2 remains NO-GO until a later authorized receipt-only attempt produces the complete captured non-secret receipt named above.
 
