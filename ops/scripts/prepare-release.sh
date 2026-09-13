@@ -155,7 +155,8 @@ if tar -xf - -C "$release_dir" >/dev/null 2>&1; then :; else fail archive_extrac
 cd "$release_dir" 2>/dev/null || fail workdir $?
 if "$node24_bin" "$node24_npm_cli" ci >/dev/null 2>&1; then :; else fail install $?; fi
 if "$node24_bin" "$node24_npm_cli" run build >/dev/null 2>&1; then :; else fail build $?; fi
-if grep -F "readonly RELEASE_ID=\"\${1:-}\"" "$activation_script" >/dev/null 2>&1; then :; else fail activation_identity $?; fi
+if grep -Fx "readonly CANDIDATE_SHA=\"\${1:-}\"" "$activation_script" >/dev/null 2>&1 &&
+  grep -Fx "readonly ROLLBACK_SHA=\"\${2:-}\"" "$activation_script" >/dev/null 2>&1; then :; else fail activation_identity $?; fi
 if chmod -R a-w "$release_dir" >/dev/null 2>&1; then :; else fail seal $?; fi
 stage=sealed
 exit 0
