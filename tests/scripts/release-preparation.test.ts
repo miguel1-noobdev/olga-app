@@ -118,7 +118,7 @@ function run(
 *) exit 96 ;;
       esac
     `,
-    tar: `/bin/mkdir -p "$RELEASE_DIR/ops/scripts"\nprintf 'release\\n' > "$RELEASE_DIR/app.txt"\nprintf 'readonly RELEASE_ID="\${1:-}"\\n' > "$RELEASE_DIR/ops/scripts/activate-pm2-release.sh"\n`,
+    tar: `/bin/mkdir -p "$RELEASE_DIR/ops/scripts"\nprintf 'release\\n' > "$RELEASE_DIR/app.txt"\nprintf 'readonly CANDIDATE_SHA="\${1:-}"\\nreadonly ROLLBACK_SHA="\${2:-}"\\n' > "$RELEASE_DIR/ops/scripts/activate-pm2-release.sh"\n`,
   };
   for (const [name, source] of Object.entries({ ...defaults, ...commandOverrides })) command(bin, name, source);
     const result = spawnSync('/usr/bin/unshare', ['-Ur', '-m', '/bin/sh', '-ceu', `
@@ -339,11 +339,15 @@ describe('local POSIX release preparation', () => {
     record(run(environment, commands).result, stage, status);
   });
 
-  it('records a late activation identity failure without activating', () => {
+  it.each([
+    ['missing rollback identity', 'readonly CANDIDATE_SHA="${1:-}"\n'],
+    ['malformed rollback identity', 'readonly CANDIDATE_SHA="${1:-}"\nreadonly ROLLBACK_SHA="${rollback:-}"\n'],
+    ['legacy identity', 'readonly RELEASE_ID="${1:-}"\n'],
+  ])('rejects a %s before sealing', (_case, activationScript) => {
     const { result, target } = run({}, {
-      tar: 'mkdir -p "$RELEASE_DIR/ops/scripts"\nprintf "readonly RELEASE_ID=\\\"wrong\\\"\\n" > "$RELEASE_DIR/ops/scripts/activate-pm2-release.sh"\n',
+      tar: `mkdir -p "$RELEASE_DIR/ops/scripts"\nprintf '%s' '${activationScript}' > "$RELEASE_DIR/ops/scripts/activate-pm2-release.sh"\n`,
     });
     record(result, 'activation_identity', 1);
-    expect(existsSync(join(target, 'app.txt'))).toBe(false);
+    expect(statSync(join(target, 'ops', 'scripts', 'activate-pm2-release.sh')).mode & 0o222).not.toBe(0);
   });
 });
