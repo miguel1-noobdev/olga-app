@@ -174,6 +174,6 @@ fi
 final_health="$(health_status 2>/dev/null)"
 [[ "$final_health" == 200 ]] || fail verification
 finished_at="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
-printf 'rehearsal=passed transaction=%s scenario=%s candidate=%s rollback=%s node24_version=%s node20_version=%s node24_pm2_version=%s node20_pm2_version=%s started_at=%s finished_at=%s preparation=passed activation=%s health=%s rollback_result=%s\n' \
+printf 'rehearsal=passed transaction=%s scenario=%s candidate=%s rollback=%s node24_version=%s node20_version=%s node24_pm2_version=%s node20_pm2_version=%s started_at=%s finished_at=%s preparation=passed activation=%s final_executable_identity=true final_cwd_identity=true health=%s rollback_result=%s\n' \
   "$transaction_id" "$scenario" "$candidate_sha" "$rollback_sha" "$node24_version" "$node20_version" \
   "$node24_pm2_version" "$node20_pm2_version" "$started_at" "$finished_at" "$activation_result" "$final_health" "$rollback_result" >&2

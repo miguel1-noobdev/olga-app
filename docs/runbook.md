@@ -79,6 +79,32 @@ Both services are configured with `restart: unless-stopped`. MongoDB has **no au
 
 The workflow uses Node.js 24 LTS and the `npm` cache.
 
+### GitHub-hosted Node runtime rehearsal
+
+`.github/workflows/node24-systemd-rehearsal.yml` proves the Node 24 cutover and Node 20 recovery path on disposable GitHub-hosted Ubuntu 24.04 VMs. It runs when a pull request targets the issue #71 tracker branch. Never substitute personal WSL or the production VPS for this evidence.
+
+#### Review path
+
+1. Confirm each matrix job proves `systemd` is PID 1 and rejects WSL or a container runtime before provisioning.
+2. Review the pinned Node 20, Node 24, and PM2 versions in the workflow.
+3. Require all three fresh-VM scenarios to pass:
+
+   | Scenario | Required final state |
+   |----------|----------------------|
+   | `positive` | Candidate is current, healthy, and running through configured Node 24. |
+   | `health-failure` | Candidate health is disrupted externally; rollback is current, healthy, and running through configured Node 20. |
+   | `interruption` | Activation is interrupted after link mutation; rollback is current, healthy, and running through configured Node 20. |
+
+4. Download `node24-systemd-receipt-<scenario>` for each job. Every artifact contains one sanitized line with the transaction identifier, exact SHAs and versions, timestamps, stage outcomes, identity booleans, HTTP status, and rollback result.
+
+The workflow provisions only job-local users, loopback SSH, runtime copies, PM2 homes, releases, secrets, and MongoDB. GitHub discards each VM after its job. Child logs and environment values are not uploaded.
+
+A failed or missing scenario is **NO-GO** for issue #71. Passing this rehearsal does not authorize production deployment, production access, OAuth activation, or a retry against another environment. Those remain separate operator decisions.
+
+#### Manual rerun
+
+After the workflow exists on the default branch, `workflow_dispatch` accepts one full lowercase rollback commit SHA. The selected workflow ref supplies the candidate SHA. Both commits must exist, be distinct, and remain available to `git archive`; otherwise the run stops before provisioning.
+
 ## Auth reality
 
 - **Email and password** is the only login path exposed to end users in the UI.
