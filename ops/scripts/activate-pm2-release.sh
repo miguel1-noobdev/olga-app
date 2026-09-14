@@ -94,8 +94,8 @@ load_runtime() {
   [[ "$("$NODE20_BIN" --version 2>/dev/null)" == "$NODE20_VERSION" ]] || die 'Node 20 runtime version drift.'
   pm2_uid="$(id -u "$PM2_RUN_AS" 2>/dev/null)" || die 'Configured PM2 account is unavailable.'
   [[ "$pm2_uid" =~ ^[0-9]+$ && -d "$PM2_HOME" && "$(stat -c '%u' "$PM2_HOME" 2>/dev/null)" == "$pm2_uid" ]] || die 'Configured PM2 home is invalid.'
-  [[ "$(run_node24_pm2 "$RELEASE_DIR" --version 2>/dev/null)" == "$NODE24_PM2_VERSION" ]] || die 'Node 24 PM2 version drift.'
-  [[ "$(run_node20_pm2 "$ROLLBACK_DIR" --version 2>/dev/null)" == "$NODE20_PM2_VERSION" ]] || die 'Node 20 PM2 version drift.'
+  [[ "$(run_node24_pm2 "$RELEASE_DIR" -v 2>/dev/null)" == "$NODE24_PM2_VERSION" ]] || die 'Node 24 PM2 version drift.'
+  [[ "$(run_node20_pm2 "$ROLLBACK_DIR" -v 2>/dev/null)" == "$NODE20_PM2_VERSION" ]] || die 'Node 20 PM2 version drift.'
 }
 
 run_node24_pm2() {

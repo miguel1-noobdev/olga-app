@@ -73,7 +73,7 @@ function runCandidate(options: CandidateOptions = {}) {
   command(runtime, 'node24', `
     if [ "$1" = '--version' ]; then printf '%s\\n' "$NODE_REPORTED_VERSION"; exit 0; fi
     if [ "$1" != "$PM2_CLI" ]; then exit 97; fi
-    if [ "$2" = '--version' ]; then printf '%s\\n' "$PM2_REPORTED_VERSION"; exit 0; fi
+    if [ "$2" = '-v' ]; then printf '%s\\n' "$PM2_REPORTED_VERSION"; exit 0; fi
     printf '%s|%s|%s\\n' "$PM2_NODE_BIN" "$PM2_CWD" "$2" >> "$PM2_CALLS"
     if [ "$2" = delete ] && [ "\${CANDIDATE_DELETE_FAIL-}" = 1 ]; then exit 43; fi
     if [ "$2" = start ] && [ "\${CANDIDATE_START_FAIL-}" = 1 ]; then exit 42; fi
@@ -87,7 +87,7 @@ function runCandidate(options: CandidateOptions = {}) {
   command(runtime, 'node20', `
     if [ "$1" = '--version' ]; then printf '%s\\n' "$NODE20_REPORTED_VERSION"; exit 0; fi
     if [ "$1" != "$NODE20_PM2_CLI" ]; then exit 97; fi
-    if [ "$2" = '--version' ]; then printf '%s\\n' "$NODE20_PM2_REPORTED_VERSION"; exit 0; fi
+    if [ "$2" = '-v' ]; then printf '%s\\n' "$NODE20_PM2_REPORTED_VERSION"; exit 0; fi
     printf '%s|%s|%s\\n' "$PM2_NODE_BIN" "$PM2_CWD" "$2" >> "$NODE20_PM2_CALLS"
     if [ "$2" = start ] && [ "\${ROLLBACK_START_FAIL-}" = 1 ]; then exit 86; fi
     if [ "$2" = pid ]; then
