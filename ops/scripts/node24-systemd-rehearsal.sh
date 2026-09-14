@@ -149,8 +149,8 @@ kill_candidate_processes() {
 fail_activation() {
   case "$(tail -n 1 "$child_log" 2>/dev/null)" in
     'Node 24 PM2 version probe failed.') fail activation-node24-probe ;;
-    'Node 24 PM2 version drift.') fail activation-node24-pm2 ;;
-    'Node 20 PM2 version drift.') fail activation-node20-pm2 ;;
+    *runtime* | *PM2*) fail activation-runtime ;;
+    *release*) fail activation-release ;;
   esac
   fail activation
 }
