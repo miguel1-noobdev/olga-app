@@ -208,8 +208,8 @@ jobs:
           fi
           pid="$(sudo -u botanica-app env PM2_HOME="$PM2_HOME" "$NODE20_BIN" "$NODE20_PM2_CLI" pid botanica-ob)"
           [[ "$pid" =~ ^[1-9][0-9]*$ ]]
-          [[ "$(readlink -f "/proc/$pid/exe")" == "$NODE20_BIN" ]]
-          [[ "$(readlink -f "/proc/$pid/cwd")" == "$APP_ROOT/releases/$ROLLBACK_SHA" ]]
+          [[ "$(sudo readlink -f "/proc/$pid/exe")" == "$NODE20_BIN" ]]
+          [[ "$(sudo readlink -f "/proc/$pid/cwd")" == "$APP_ROOT/releases/$ROLLBACK_SHA" ]]
 
       - name: Run guarded cutover rehearsal
         shell: bash

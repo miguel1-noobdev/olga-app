@@ -52,6 +52,8 @@ describe('GitHub-hosted Node 24 systemd rehearsal', () => {
     expect(workflow).toContain('(( healthy_responses >= 3 )) && break');
     expect(workflow).toContain('if (( healthy_responses < 3 )); then');
     expect(workflow).toContain("sed -E 's#mongodb(s)?://[^[:space:]]+#mongodb://<redacted>#g'");
+    expect(workflow).toContain('[[ "$(sudo readlink -f "/proc/$pid/exe")" == "$NODE20_BIN" ]]');
+    expect(workflow).toContain('[[ "$(sudo readlink -f "/proc/$pid/cwd")" == "$APP_ROOT/releases/$ROLLBACK_SHA" ]]');
   });
 
   it('uses an isolated Mongo service and the real release boundary', () => {
