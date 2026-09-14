@@ -187,6 +187,7 @@ jobs:
           set -a
           source /etc/botanica-ob/secrets.env
           set +a
+          cd "$pm2_home"
           /usr/sbin/runuser -u botanica-app -- env PM2_HOME="$pm2_home" PATH="$(dirname "$NODE20_BIN"):/usr/bin:/bin" \
             PM2_NODE_BIN="$NODE20_BIN" PM2_CWD="$rollback_dir" MONGODB_URI="$MONGODB_URI" \
             NEXTAUTH_SECRET="$NEXTAUTH_SECRET" NEXTAUTH_URL="$NEXTAUTH_URL" INTERNAL_ACCOUNT_CHECK_ORIGIN="$INTERNAL_ACCOUNT_CHECK_ORIGIN" \

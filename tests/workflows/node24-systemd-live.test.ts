@@ -48,6 +48,7 @@ describe('GitHub-hosted Node 24 systemd rehearsal', () => {
   it('loads the root-only secret file inside the privileged baseline boundary', () => {
     expect(workflow).toContain("sudo env NODE20_BIN=\"$NODE20_BIN\" NODE20_PM2_CLI=\"$NODE20_PM2_CLI\" /bin/bash <<'BASH'");
     expect(position('/bin/bash <<\'BASH\'')).toBeLessThan(position('source /etc/botanica-ob/secrets.env'));
+    expect(position('cd "$pm2_home"')).toBeLessThan(position('/usr/sbin/runuser'));
   });
 
   it('uses an isolated Mongo service and the real release boundary', () => {
