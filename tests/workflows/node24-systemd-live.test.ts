@@ -72,6 +72,7 @@ describe('GitHub-hosted Node 24 systemd rehearsal', () => {
     expect(workflow).toContain('|| driver_status=$?');
     expect(position('cat "$RUNNER_TEMP/node24-systemd-receipt.txt"')).toBeLessThan(position('if (( driver_status != 0 )); then'));
     expect(workflow).toContain('exit "$driver_status"');
+    expect(workflow).toContain('botanica-ob-out.log" "$PM2_HOME/pm2.log');
     expect(workflow).toContain('if-no-files-found: error');
     expect(workflow).not.toMatch(/path:.*(?:child|log)/);
   });

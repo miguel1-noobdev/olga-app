@@ -225,7 +225,7 @@ jobs:
           ! grep -Eqi '(secret|mongodb|localhost|username|password|/srv/|environment=)' "$RUNNER_TEMP/node24-systemd-receipt.txt"
           cat "$RUNNER_TEMP/node24-systemd-receipt.txt"
           if (( driver_status != 0 )); then
-            sudo tail -n 50 "$PM2_HOME/logs/botanica-ob-error.log" 2>/dev/null |
+            sudo tail -n 50 "$PM2_HOME/logs/botanica-ob-error.log" "$PM2_HOME/logs/botanica-ob-out.log" "$PM2_HOME/pm2.log" 2>/dev/null |
               sed -E 's#mongodb(s)?://[^[:space:]]+#mongodb://<redacted>#g' >&2 || true
             exit "$driver_status"
           fi
