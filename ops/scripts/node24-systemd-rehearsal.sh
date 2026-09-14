@@ -152,7 +152,8 @@ fail_activation() {
     *runtime* | *PM2*) fail activation-runtime ;;
     *release*) fail activation-release ;;
   esac
-  fail activation
+  [[ -s "$child_log" ]] || fail activation
+  fail "activation-$(sha256sum "$child_log" | cut -c 1-12)"
 }
 
 started_at="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
