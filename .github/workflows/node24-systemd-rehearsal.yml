@@ -144,7 +144,7 @@ jobs:
           PM2_RUN_AS=botanica-app
           PM2_HOME=$PM2_HOME
           EOF
-          sudo install -o root -g root -m 600 "$RUNNER_TEMP/node24-runtime.conf" "$APP_ROOT/config/node24-runtime.conf"
+          sudo install -o root -g botanica-runtime -m 640 "$RUNNER_TEMP/node24-runtime.conf" "$APP_ROOT/config/node24-runtime.conf"
 
           cat > "$RUNNER_TEMP/rehearsal-secrets.env" <<'EOF'
           MONGODB_URI=mongodb://127.0.0.1:27017/botanica-ob
