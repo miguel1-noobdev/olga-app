@@ -49,6 +49,9 @@ describe('GitHub-hosted Node 24 systemd rehearsal', () => {
     expect(workflow).toContain("sudo env NODE20_BIN=\"$NODE20_BIN\" NODE20_PM2_CLI=\"$NODE20_PM2_CLI\" /bin/bash <<'BASH'");
     expect(position('/bin/bash <<\'BASH\'')).toBeLessThan(position('source /etc/botanica-ob/secrets.env'));
     expect(position('cd "$pm2_home"')).toBeLessThan(position('/usr/sbin/runuser'));
+    expect(workflow).toContain('(( healthy_responses >= 3 )) && break');
+    expect(workflow).toContain('if (( healthy_responses < 3 )); then');
+    expect(workflow).toContain("sed -E 's#mongodb(s)?://[^[:space:]]+#mongodb://<redacted>#g'");
   });
 
   it('uses an isolated Mongo service and the real release boundary', () => {

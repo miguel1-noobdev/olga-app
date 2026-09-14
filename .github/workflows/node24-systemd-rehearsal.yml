@@ -193,8 +193,19 @@ jobs:
             NEXTAUTH_SECRET="$NEXTAUTH_SECRET" NEXTAUTH_URL="$NEXTAUTH_URL" INTERNAL_ACCOUNT_CHECK_ORIGIN="$INTERNAL_ACCOUNT_CHECK_ORIGIN" \
             "$NODE20_BIN" "$NODE20_PM2_CLI" start "$rollback_dir/ops/pm2/ecosystem.config.cjs" --only botanica-ob --update-env
           BASH
-          for _ in {1..60}; do [[ "$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/api/health || true)" == 200 ]] && break; sleep 1; done
-          [[ "$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/api/health)" == 200 ]]
+          healthy_responses=0
+          for _ in {1..60}; do
+            status="$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/api/health || true)"
+            if [[ "$status" == 200 ]]; then (( healthy_responses += 1 )); else healthy_responses=0; fi
+            (( healthy_responses >= 3 )) && break
+            sleep 1
+          done
+          if (( healthy_responses < 3 )); then
+            echo 'baseline=failed reason=health_unstable' >&2
+            sudo tail -n 50 "$PM2_HOME/logs/botanica-ob-error.log" 2>/dev/null |
+              sed -E 's#mongodb(s)?://[^[:space:]]+#mongodb://<redacted>#g' >&2 || true
+            exit 1
+          fi
           pid="$(sudo -u botanica-app env PM2_HOME="$PM2_HOME" "$NODE20_BIN" "$NODE20_PM2_CLI" pid botanica-ob)"
           [[ "$pid" =~ ^[1-9][0-9]*$ ]]
           [[ "$(readlink -f "/proc/$pid/exe")" == "$NODE20_BIN" ]]
