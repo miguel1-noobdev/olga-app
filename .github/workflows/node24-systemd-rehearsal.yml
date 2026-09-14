@@ -218,12 +218,14 @@ jobs:
           printf '%s\n' "$transaction" | sudo tee /run/botanica-ob-node24-rehearsal >/dev/null
           sudo chown root:root /run/botanica-ob-node24-rehearsal
           sudo chmod 400 /run/botanica-ob-node24-rehearsal
+          driver_status=0
           sudo "$APP_ROOT/ops/scripts/node24-systemd-rehearsal.sh" "${{ matrix.scenario }}" \
-            "$CANDIDATE_SHA" "$ROLLBACK_SHA" "$transaction" 2> "$RUNNER_TEMP/node24-systemd-receipt.txt"
+            "$CANDIDATE_SHA" "$ROLLBACK_SHA" "$transaction" 2> "$RUNNER_TEMP/node24-systemd-receipt.txt" || driver_status=$?
           [[ "$(wc -l < "$RUNNER_TEMP/node24-systemd-receipt.txt")" == 1 ]]
-          grep -Eq '^rehearsal=passed .* final_executable_identity=true final_cwd_identity=true health=200 rollback_result=(not-required|passed)$' "$RUNNER_TEMP/node24-systemd-receipt.txt"
           ! grep -Eqi '(secret|mongodb|localhost|username|password|/srv/|environment=)' "$RUNNER_TEMP/node24-systemd-receipt.txt"
           cat "$RUNNER_TEMP/node24-systemd-receipt.txt"
+          (( driver_status == 0 ))
+          grep -Eq '^rehearsal=passed .* final_executable_identity=true final_cwd_identity=true health=200 rollback_result=(not-required|passed)$' "$RUNNER_TEMP/node24-systemd-receipt.txt"
 
       - name: Publish sanitized rehearsal receipt
         uses: actions/upload-artifact@v4

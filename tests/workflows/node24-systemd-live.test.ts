@@ -68,6 +68,9 @@ describe('GitHub-hosted Node 24 systemd rehearsal', () => {
     expect(workflow).toContain('path: ${{ runner.temp }}/node24-systemd-receipt.txt');
     expect(workflow).toContain('final_cwd_identity=true health=200 rollback_result=');
     expect(workflow).not.toContain('final_cwd_identity=true .* health=200');
+    expect(workflow).toContain('driver_status=0');
+    expect(workflow).toContain('|| driver_status=$?');
+    expect(position('cat "$RUNNER_TEMP/node24-systemd-receipt.txt"')).toBeLessThan(position('(( driver_status == 0 ))'));
     expect(workflow).toContain('if-no-files-found: error');
     expect(workflow).not.toMatch(/path:.*(?:child|log)/);
   });
