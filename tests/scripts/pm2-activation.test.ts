@@ -167,7 +167,7 @@ function runCandidate(options: CandidateOptions = {}) {
   const result = spawnSync('/usr/bin/unshare', ['-Ur', '/bin/bash', scriptPath, releaseSha, rollbackSha], {
     encoding: 'utf8',
     env: {
-      NODE_ENV: 'test', APP_ROOT: appRoot, NODE24_BIN: join(poison, 'node'), PATH: `${bin}:${poison}:/usr/bin:/bin`,
+      NODE_ENV: 'test', APP_ROOT: appRoot, NODE24_BIN: join(poison, 'node'), RUNUSER_BIN: join(bin, 'runuser'), PATH: `${bin}:${poison}:/usr/bin:/bin`,
       CANDIDATE_DELETE_FAIL: options.candidateDeleteFails ? '1' : '', CANDIDATE_START_FAIL: options.candidateStartFails ? '1' : '',
       PM2_CALLS: pm2Calls, PM2_CLI: pm2Cli, PM2_PIDS: options.pm2Pids ?? '4242,4242', PID_DIAGNOSTIC: options.pidDiagnostic ?? '',
       PM2_REPORTED_VERSION: options.pm2Version ?? '5.4.3', NODE_REPORTED_VERSION: 'v24.13.1', NODE20_REPORTED_VERSION: options.node20Version ?? 'v20.19.6',

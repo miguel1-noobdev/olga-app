@@ -146,24 +146,16 @@ kill_candidate_processes() {
   done
 }
 
-fail_activation() {
-  case "$(tail -n 1 "$child_log" 2>/dev/null)" in
-    'Node 24 PM2 version probe failed.') fail activation-node24-probe ;;
-    'activation=failed; rollback=failed') fail "activation-rollback-$(head -n 1 "$child_log" | sha256sum | cut -c 1-12)" ;;
-  esac
-  fail activation
-}
-
 started_at="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
 activation_result=passed
 rollback_result=not-required
 if [[ "$scenario" == positive ]]; then
-  /bin/bash "$activation_script" "$candidate_sha" "$rollback_sha" >"$child_log" 2>&1 || fail_activation
+  /bin/bash "$activation_script" "$candidate_sha" "$rollback_sha" >"$child_log" 2>&1 || fail activation
   link_matches "$candidate_dir" || fail verification
 else
   setsid /bin/bash "$activation_script" "$candidate_sha" "$rollback_sha" >"$child_log" 2>&1 &
   activation_pid=$!
-  wait_for_link "$candidate_dir" "$activation_pid" || fail_activation
+  wait_for_link "$candidate_dir" "$activation_pid" || fail activation
   if [[ "$scenario" == health-failure ]]; then
     kill_candidate_processes "$activation_pid" &
     fault_pid=$!

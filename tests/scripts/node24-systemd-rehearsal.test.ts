@@ -75,7 +75,6 @@ rollback="$2"
 candidate_dir="$REHEARSAL_APP_ROOT/releases/$candidate"
 rollback_dir="$REHEARSAL_APP_ROOT/releases/$rollback"
 printf 'activate:%s:%s:%s\\n' "$REHEARSAL_SCENARIO" "$candidate" "$rollback" >> "$REHEARSAL_CALLS"
-if [[ -n \${FAKE_ACTIVATION_ERROR:-} ]]; then printf '%s\\n' "$FAKE_ACTIVATION_ERROR" >&2; exit 1; fi
 if [[ \${FAKE_ACTIVATION_MODE:-} == slow ]]; then trap 'printf "terminated\\n" >> "$REHEARSAL_CALLS"; exit 143' TERM; sleep 30; fi
 restore() { ln -sfnT "$rollback_dir" "$REHEARSAL_APP_ROOT/current"; printf 'activation=failed; rollback=passed\\n' >&2; }
 ln -sfnT "$candidate_dir" "$REHEARSAL_APP_ROOT/current"
@@ -170,13 +169,6 @@ describe('disposable Node 24 systemd rehearsal', () => {
 
     expect(result.status).not.toBe(0);
     expect(result.stderr).toBe('rehearsal=failed stage=environment\n');
-  });
-
-  it('classifies an activation runtime preflight failure without leaking its diagnostic', () => {
-    const attempt = run('positive', { FAKE_ACTIVATION_ERROR: 'Node 24 PM2 version probe failed.' });
-
-    expect(attempt.result.status).not.toBe(0);
-    expect(attempt.result.stderr).toBe('rehearsal=failed stage=activation-node24-probe\n');
   });
 
   it('terminates and reaps an activation that never switches the release link', () => {

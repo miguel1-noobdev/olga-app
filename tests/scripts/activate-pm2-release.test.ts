@@ -34,6 +34,7 @@ describe('PM2 immutable release activation', () => {
     expect(source).toContain('readonly CANDIDATE_SHA="${1:-}"');
     expect(source).toContain('readonly ROLLBACK_SHA="${2:-}"');
     expect(source).not.toContain('b050790d8dc7ab9638dd74217c18cd770043401f');
+    expect(source).toContain('readonly RUNUSER_BIN="${RUNUSER_BIN:-/usr/sbin/runuser}"');
   });
 
   it('launches cross-user PM2 commands from the configured accessible home', () => {

@@ -10,12 +10,13 @@ is_unprivileged_user_namespace() {
   [[ "$inside_uid" == 0 && "$outside_uid" =~ ^[1-9][0-9]*$ && "$range" == 1 ]]
 }
 
-if [[ -n ${APP_ROOT:-} && "$APP_ROOT" != "$PRODUCTION_APP_ROOT" ]] && ! is_unprivileged_user_namespace; then
+if [[ (-n ${APP_ROOT:-} && "$APP_ROOT" != "$PRODUCTION_APP_ROOT") || -n ${RUNUSER_BIN:-} ]] && ! is_unprivileged_user_namespace; then
   printf '%s\n' 'Application root override requires an unprivileged user namespace.' >&2
   exit 1
 fi
 
 readonly APP_ROOT="${APP_ROOT:-$PRODUCTION_APP_ROOT}"
+readonly RUNUSER_BIN="${RUNUSER_BIN:-/usr/sbin/runuser}"
 readonly CANDIDATE_SHA="${1:-}"
 readonly ROLLBACK_SHA="${2:-}"
 readonly RELEASE_DIR="$APP_ROOT/releases/$CANDIDATE_SHA"
@@ -104,7 +105,7 @@ run_node24_pm2() {
   PM2_NODE_BIN="$NODE24_BIN" PM2_CWD="$1"; shift
   export PM2_HOME PM2_NODE_BIN PM2_CWD
   cd -- "$PM2_HOME" || return
-  runuser --preserve-environment --user "$PM2_RUN_AS" -- /usr/bin/env PM2_HOME="$PM2_HOME" PM2_NODE_BIN="$PM2_NODE_BIN" PM2_CWD="$PM2_CWD" PATH="$(dirname "$NODE24_BIN"):/usr/bin:/bin" "$NODE24_BIN" "$NODE24_PM2_CLI" "$@" || status=$?
+  "$RUNUSER_BIN" --preserve-environment --user "$PM2_RUN_AS" -- /usr/bin/env PM2_HOME="$PM2_HOME" PM2_NODE_BIN="$PM2_NODE_BIN" PM2_CWD="$PM2_CWD" PATH="$(dirname "$NODE24_BIN"):/usr/bin:/bin" "$NODE24_BIN" "$NODE24_PM2_CLI" "$@" || status=$?
   cd -- "$caller_cwd" || return
   return "$status"
 }
@@ -114,7 +115,7 @@ run_node20_pm2() {
   PM2_NODE_BIN="$NODE20_BIN" PM2_CWD="$1"; shift
   export PM2_HOME PM2_NODE_BIN PM2_CWD
   cd -- "$PM2_HOME" || return
-  runuser --preserve-environment --user "$PM2_RUN_AS" -- /usr/bin/env PM2_HOME="$PM2_HOME" PM2_NODE_BIN="$PM2_NODE_BIN" PM2_CWD="$PM2_CWD" PATH="$(dirname "$NODE20_BIN"):/usr/bin:/bin" "$NODE20_BIN" "$NODE20_PM2_CLI" "$@" || status=$?
+  "$RUNUSER_BIN" --preserve-environment --user "$PM2_RUN_AS" -- /usr/bin/env PM2_HOME="$PM2_HOME" PM2_NODE_BIN="$PM2_NODE_BIN" PM2_CWD="$PM2_CWD" PATH="$(dirname "$NODE20_BIN"):/usr/bin:/bin" "$NODE20_BIN" "$NODE20_PM2_CLI" "$@" || status=$?
   cd -- "$caller_cwd" || return
   return "$status"
 }
