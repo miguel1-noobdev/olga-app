@@ -166,8 +166,8 @@ else
   activation_pid=""
   [[ "$activation_status" != 0 ]] || fail activation
   if [[ -n "$fault_pid" ]]; then wait "$fault_pid"; fault_pid=""; fi
-  grep -Fx 'activation=failed; rollback=passed' "$child_log" >/dev/null 2>&1 || fail recovery
-  link_matches "$rollback_dir" || fail recovery
+  grep -Fx 'activation=failed; rollback=passed' "$child_log" >/dev/null 2>&1 || fail recovery-output
+  link_matches "$rollback_dir" || fail recovery-link
   activation_result=failed-as-planned
   rollback_result=passed
 fi
