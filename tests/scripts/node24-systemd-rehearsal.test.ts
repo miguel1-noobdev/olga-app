@@ -173,10 +173,10 @@ describe('disposable Node 24 systemd rehearsal', () => {
   });
 
   it('classifies an activation runtime preflight failure without leaking its diagnostic', () => {
-    const attempt = run('positive', { FAKE_ACTIVATION_ERROR: 'Node 24 PM2 version drift.' });
+    const attempt = run('positive', { FAKE_ACTIVATION_ERROR: 'Node 24 PM2 version probe failed.' });
 
     expect(attempt.result.status).not.toBe(0);
-    expect(attempt.result.stderr).toBe('rehearsal=failed stage=activation-node24-pm2\n');
+    expect(attempt.result.stderr).toBe('rehearsal=failed stage=activation-node24-probe\n');
   });
 
   it('terminates and reaps an activation that never switches the release link', () => {

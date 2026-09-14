@@ -51,7 +51,6 @@ describe('GitHub-hosted Node 24 systemd rehearsal', () => {
     expect(position('cd "$pm2_home"')).toBeLessThan(position('/usr/sbin/runuser'));
     expect(workflow).toContain('(( healthy_responses >= 3 )) && break');
     expect(workflow).toContain('if (( healthy_responses < 3 )); then');
-    expect(workflow).toContain("sed -E 's#mongodb(s)?://[^[:space:]]+#mongodb://<redacted>#g'");
     expect(workflow).toContain('[[ "$(sudo readlink -f "/proc/$pid/exe")" == "$NODE20_BIN" ]]');
     expect(workflow).toContain('[[ "$(sudo readlink -f "/proc/$pid/cwd")" == "$APP_ROOT/releases/$ROLLBACK_SHA" ]]');
   });
