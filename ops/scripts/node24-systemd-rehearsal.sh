@@ -148,8 +148,6 @@ kill_candidate_processes() {
 
 fail_activation() {
   grep -Fqx 'Node 24 PM2 version drift.' "$child_log" 2>/dev/null && fail activation-node24-pm2
-  grep -Fqx 'Node 20 PM2 version drift.' "$child_log" 2>/dev/null && fail activation-node20-pm2
-  grep -Eq '^Node (20|24) runtime version drift\.$' "$child_log" 2>/dev/null && fail activation-runtime
   fail activation
 }
 
