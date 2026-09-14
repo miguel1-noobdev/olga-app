@@ -176,7 +176,7 @@ describe('disposable Node 24 systemd rehearsal', () => {
     const attempt = run('positive', { FAKE_ACTIVATION_ERROR: 'Node 24 PM2 version drift.' });
 
     expect(attempt.result.status).not.toBe(0);
-    expect(attempt.result.stderr).toBe('rehearsal=failed stage=activation-runtime\n');
+    expect(attempt.result.stderr).toBe('rehearsal=failed stage=activation-node24-pm2\n');
   });
 
   it('terminates and reaps an activation that never switches the release link', () => {
