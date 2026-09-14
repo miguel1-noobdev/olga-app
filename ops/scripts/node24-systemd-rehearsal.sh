@@ -149,7 +149,7 @@ kill_candidate_processes() {
 fail_activation() {
   case "$(tail -n 1 "$child_log" 2>/dev/null)" in
     'Node 24 PM2 version probe failed.') fail activation-node24-probe ;;
-    'activation=failed; rollback=failed') fail activation-rollback ;;
+    'activation=failed; rollback=failed') fail "activation-rollback-$(head -n 1 "$child_log" | sha256sum | cut -c 1-12)" ;;
   esac
   fail activation
 }
