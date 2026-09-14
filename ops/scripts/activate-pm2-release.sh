@@ -99,15 +99,23 @@ load_runtime() {
 }
 
 run_node24_pm2() {
+  local caller_cwd="$PWD" status=0
   PM2_NODE_BIN="$NODE24_BIN" PM2_CWD="$1"; shift
   export PM2_HOME PM2_NODE_BIN PM2_CWD
-  runuser --preserve-environment --user "$PM2_RUN_AS" -- "$NODE24_BIN" "$NODE24_PM2_CLI" "$@"
+  cd -- "$PM2_HOME" || return
+  runuser --preserve-environment --user "$PM2_RUN_AS" -- "$NODE24_BIN" "$NODE24_PM2_CLI" "$@" || status=$?
+  cd -- "$caller_cwd" || return
+  return "$status"
 }
 
 run_node20_pm2() {
+  local caller_cwd="$PWD" status=0
   PM2_NODE_BIN="$NODE20_BIN" PM2_CWD="$1"; shift
   export PM2_HOME PM2_NODE_BIN PM2_CWD
-  runuser --preserve-environment --user "$PM2_RUN_AS" -- "$NODE20_BIN" "$NODE20_PM2_CLI" "$@"
+  cd -- "$PM2_HOME" || return
+  runuser --preserve-environment --user "$PM2_RUN_AS" -- "$NODE20_BIN" "$NODE20_PM2_CLI" "$@" || status=$?
+  cd -- "$caller_cwd" || return
+  return "$status"
 }
 
 wait_for_health() {
