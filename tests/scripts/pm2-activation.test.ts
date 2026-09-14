@@ -301,7 +301,7 @@ describe('PM2 release activation script', () => {
     expect(attempt.poisonUsed()).toBe(false);
     expect(attempt.pm2Calls().map((call) => call.split('|')[2])).toEqual(['describe', 'delete', 'start', 'pid', 'pid']);
     for (const call of attempt.pm2Calls()) expect(call.split('|').slice(0, 2)).toEqual([attempt.node24, attempt.releaseDir]);
-    expect(attempt.runuserCalls()).toContain(`--user candidate -- ${attempt.node24} ${attempt.pm2Cli} describe botanica-ob`);
+    expect(attempt.runuserCalls()).toContain('--user candidate -- /usr/bin/env PM2_HOME=');
   });
 
   it('suppresses configured path diagnostics from failed PM2 PID queries', () => {

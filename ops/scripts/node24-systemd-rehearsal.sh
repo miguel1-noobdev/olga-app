@@ -149,11 +149,9 @@ kill_candidate_processes() {
 fail_activation() {
   case "$(tail -n 1 "$child_log" 2>/dev/null)" in
     'Node 24 PM2 version probe failed.') fail activation-node24-probe ;;
-    *runtime* | *PM2*) fail activation-runtime ;;
-    *release*) fail activation-release ;;
+    'activation=failed; rollback=failed') fail activation-rollback ;;
   esac
-  [[ -s "$child_log" ]] || fail activation
-  fail "activation-$(tail -n 1 "$child_log" | sha256sum | cut -c 1-12)"
+  fail activation
 }
 
 started_at="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"

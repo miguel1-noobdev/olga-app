@@ -104,7 +104,7 @@ run_node24_pm2() {
   PM2_NODE_BIN="$NODE24_BIN" PM2_CWD="$1"; shift
   export PM2_HOME PM2_NODE_BIN PM2_CWD
   cd -- "$PM2_HOME" || return
-  runuser --preserve-environment --user "$PM2_RUN_AS" -- "$NODE24_BIN" "$NODE24_PM2_CLI" "$@" || status=$?
+  runuser --preserve-environment --user "$PM2_RUN_AS" -- /usr/bin/env PM2_HOME="$PM2_HOME" PM2_NODE_BIN="$PM2_NODE_BIN" PM2_CWD="$PM2_CWD" PATH="$(dirname "$NODE24_BIN"):/usr/bin:/bin" "$NODE24_BIN" "$NODE24_PM2_CLI" "$@" || status=$?
   cd -- "$caller_cwd" || return
   return "$status"
 }
@@ -114,7 +114,7 @@ run_node20_pm2() {
   PM2_NODE_BIN="$NODE20_BIN" PM2_CWD="$1"; shift
   export PM2_HOME PM2_NODE_BIN PM2_CWD
   cd -- "$PM2_HOME" || return
-  runuser --preserve-environment --user "$PM2_RUN_AS" -- "$NODE20_BIN" "$NODE20_PM2_CLI" "$@" || status=$?
+  runuser --preserve-environment --user "$PM2_RUN_AS" -- /usr/bin/env PM2_HOME="$PM2_HOME" PM2_NODE_BIN="$PM2_NODE_BIN" PM2_CWD="$PM2_CWD" PATH="$(dirname "$NODE20_BIN"):/usr/bin:/bin" "$NODE20_BIN" "$NODE20_PM2_CLI" "$@" || status=$?
   cd -- "$caller_cwd" || return
   return "$status"
 }
