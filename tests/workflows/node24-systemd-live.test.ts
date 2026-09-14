@@ -39,6 +39,8 @@ describe('GitHub-hosted Node 24 systemd rehearsal', () => {
     expect(workflow).not.toContain('$NODE20_BIN $NODE20_PM2_CLI --version');
     expect(workflow).not.toContain('$NODE24_BIN $NODE24_PM2_CLI --version');
     expect(workflow).toContain('install -o root -g botanica-runtime -m 640 "$RUNNER_TEMP/node24-runtime.conf"');
+    expect(workflow).toContain('chmod -R a-w /opt/botanica-runtimes');
+    expect(workflow).not.toContain('chmod -R go-w /opt/botanica-runtimes');
     expect(workflow).toContain('NODE20_BIN: /opt/botanica-runtimes/node20/bin/node');
     expect(workflow).toContain('NODE24_BIN: /opt/botanica-runtimes/node24/bin/node');
   });

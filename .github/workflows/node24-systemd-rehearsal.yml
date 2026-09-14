@@ -113,7 +113,7 @@ jobs:
           sudo "$NODE20_BIN" /opt/botanica-runtimes/node20/lib/node_modules/npm/bin/npm-cli.js install --global --prefix /opt/botanica-runtimes/pm2-node20 --ignore-scripts pm2@5.4.3
           sudo "$NODE24_BIN" /opt/botanica-runtimes/node24/lib/node_modules/npm/bin/npm-cli.js install --global --prefix /opt/botanica-runtimes/pm2-node24 --ignore-scripts pm2@5.4.3
           sudo chown -R root:root /opt/botanica-runtimes
-          sudo chmod -R go-w /opt/botanica-runtimes
+          sudo chmod -R a-w /opt/botanica-runtimes
 
           sudo groupadd botanica-runtime
           sudo useradd --create-home --shell /bin/bash --gid botanica-runtime botanica-deploy
