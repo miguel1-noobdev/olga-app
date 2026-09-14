@@ -224,7 +224,11 @@ jobs:
           [[ "$(wc -l < "$RUNNER_TEMP/node24-systemd-receipt.txt")" == 1 ]]
           ! grep -Eqi '(secret|mongodb|localhost|username|password|/srv/|environment=)' "$RUNNER_TEMP/node24-systemd-receipt.txt"
           cat "$RUNNER_TEMP/node24-systemd-receipt.txt"
-          (( driver_status == 0 ))
+          if (( driver_status != 0 )); then
+            sudo tail -n 50 "$PM2_HOME/logs/botanica-ob-error.log" 2>/dev/null |
+              sed -E 's#mongodb(s)?://[^[:space:]]+#mongodb://<redacted>#g' >&2 || true
+            exit "$driver_status"
+          fi
           grep -Eq '^rehearsal=passed .* final_executable_identity=true final_cwd_identity=true health=200 rollback_result=(not-required|passed)$' "$RUNNER_TEMP/node24-systemd-receipt.txt"
 
       - name: Publish sanitized rehearsal receipt
