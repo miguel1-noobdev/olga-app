@@ -1,0 +1,236 @@
+name: Ubuntu systemd Node24/Node20 cutover rehearsal
+
+on:
+  pull_request:
+    branches: [test/issue-71-node24-systemd-rehearsal]
+    paths:
+      - .github/workflows/node24-systemd-rehearsal.yml
+      - ops/scripts/**
+      - ops/pm2/**
+      - package*.json
+      - src/**
+  workflow_dispatch:
+    inputs:
+      rollback_sha:
+        description: Full rollback commit SHA
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  rehearsal:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'ci/issue-71-node24-systemd-live')
+    name: Ubuntu systemd Node24/Node20 cutover rehearsal (${{ matrix.scenario }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        scenario: [positive, health-failure]
+    services:
+      mongo:
+        image: mongo:8.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.runCommand({ ping: 1 })'"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      CANDIDATE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+      ROLLBACK_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || inputs.rollback_sha }}
+      NODE20_BIN: /opt/botanica-runtimes/node20/bin/node
+      NODE24_BIN: /opt/botanica-runtimes/node24/bin/node
+      NODE20_PM2_CLI: /opt/botanica-runtimes/pm2-node20/lib/node_modules/pm2/lib/binaries/CLI.js
+      NODE24_PM2_CLI: /opt/botanica-runtimes/pm2-node24/lib/node_modules/pm2/lib/binaries/CLI.js
+      APP_ROOT: /srv/botanica-ob
+      PM2_HOME: /srv/botanica-ob/.pm2
+
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ env.CANDIDATE_SHA }}
+
+      - name: Verify immutable release identities
+        shell: bash
+        run: |
+          [[ "$CANDIDATE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$ROLLBACK_SHA" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$CANDIDATE_SHA" != "$ROLLBACK_SHA" ]]
+          git cat-file -e "$CANDIDATE_SHA^{commit}"
+          git cat-file -e "$ROLLBACK_SHA^{commit}"
+
+      - name: Prove disposable systemd VM
+        shell: bash
+        run: |
+          pid1="$(ps -p 1 -o comm= | tr -d '[:space:]')"
+          [[ "$pid1" == systemd ]]
+          virtualization="$(systemd-detect-virt --vm)"
+          case "$virtualization" in none|wsl|docker|podman|lxc|container) exit 1 ;; esac
+
+      - name: Setup pinned Node 20
+        uses: actions/setup-node@v5
+        with:
+          node-version: 20.20.2
+      - name: Locate Node 20
+        id: node20
+        shell: bash
+        run: |
+          [[ "$(node --version)" == v20.20.2 ]]
+          printf 'root=%s\n' "$(dirname "$(dirname "$(command -v node)")")" >> "$GITHUB_OUTPUT"
+
+      - name: Setup pinned Node 24
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24.21.0
+      - name: Locate Node 24
+        id: node24
+        shell: bash
+        run: |
+          [[ "$(node --version)" == v24.21.0 ]]
+          printf 'root=%s\n' "$(dirname "$(dirname "$(command -v node)")")" >> "$GITHUB_OUTPUT"
+
+      - name: Provision isolated rehearsal resources
+        shell: bash
+        env:
+          NODE20_SOURCE: ${{ steps.node20.outputs.root }}
+          NODE24_SOURCE: ${{ steps.node24.outputs.root }}
+        run: |
+          set -Eeuo pipefail
+          sudo install -d -o root -g root -m 755 /opt/botanica-runtimes "$APP_ROOT" "$APP_ROOT/config" "$APP_ROOT/ops/scripts" "$APP_ROOT/releases"
+          sudo install -d -o root -g root -m 755 /opt/botanica-runtimes/node20 /opt/botanica-runtimes/node24
+          sudo cp -a "$NODE20_SOURCE/." /opt/botanica-runtimes/node20/
+          sudo cp -a "$NODE24_SOURCE/." /opt/botanica-runtimes/node24/
+          sudo "$NODE20_BIN" /opt/botanica-runtimes/node20/lib/node_modules/npm/bin/npm-cli.js install --global --prefix /opt/botanica-runtimes/pm2-node20 --ignore-scripts pm2@5.4.3
+          sudo "$NODE24_BIN" /opt/botanica-runtimes/node24/lib/node_modules/npm/bin/npm-cli.js install --global --prefix /opt/botanica-runtimes/pm2-node24 --ignore-scripts pm2@5.4.3
+          sudo chown -R root:root /opt/botanica-runtimes
+          sudo chmod -R a-w /opt/botanica-runtimes
+
+          sudo groupadd botanica-runtime
+          sudo useradd --create-home --shell /bin/bash --gid botanica-runtime botanica-deploy
+          sudo useradd --create-home --shell /usr/sbin/nologin --gid botanica-runtime botanica-app
+          sudo install -d -o botanica-app -g botanica-runtime -m 750 "$PM2_HOME"
+          sudo install -o root -g root -m 555 ops/scripts/handoff-release.sh ops/scripts/prepare-release.sh \
+            ops/scripts/activate-pm2-release.sh ops/scripts/node24-systemd-rehearsal.sh "$APP_ROOT/ops/scripts/"
+
+          node20_version="$($NODE20_BIN --version)"
+          node24_version="$($NODE24_BIN --version)"
+          node20_npm_version="$($NODE20_BIN /opt/botanica-runtimes/node20/lib/node_modules/npm/bin/npm-cli.js --version)"
+          node24_npm_version="$($NODE24_BIN /opt/botanica-runtimes/node24/lib/node_modules/npm/bin/npm-cli.js --version)"
+          node20_pm2_package="$(dirname "$(dirname "$(dirname "$NODE20_PM2_CLI")")")/package.json"
+          node24_pm2_package="$(dirname "$(dirname "$(dirname "$NODE24_PM2_CLI")")")/package.json"
+          node20_pm2_version="$($NODE20_BIN -e 'process.stdout.write(require(process.argv[1]).version)' "$node20_pm2_package")"
+          node24_pm2_version="$($NODE24_BIN -e 'process.stdout.write(require(process.argv[1]).version)' "$node24_pm2_package")"
+          cat > "$RUNNER_TEMP/node24-runtime.conf" <<EOF
+          NODE24_BIN=$NODE24_BIN
+          NODE24_VERSION=$node24_version
+          NODE24_NPM_CLI=/opt/botanica-runtimes/node24/lib/node_modules/npm/bin/npm-cli.js
+          NODE24_NPM_VERSION=$node24_npm_version
+          NODE20_BIN=$NODE20_BIN
+          NODE20_VERSION=$node20_version
+          NODE20_PM2_CLI=$NODE20_PM2_CLI
+          NODE20_PM2_VERSION=$node20_pm2_version
+          NODE24_PM2_CLI=$NODE24_PM2_CLI
+          NODE24_PM2_VERSION=$node24_pm2_version
+          PM2_RUN_AS=botanica-app
+          PM2_HOME=$PM2_HOME
+          EOF
+          sudo install -o root -g botanica-runtime -m 640 "$RUNNER_TEMP/node24-runtime.conf" "$APP_ROOT/config/node24-runtime.conf"
+
+          cat > "$RUNNER_TEMP/rehearsal-secrets.env" <<'EOF'
+          MONGODB_URI=mongodb://127.0.0.1:27017/botanica-ob
+          NEXTAUTH_SECRET=disposable-rehearsal-secret-not-for-production
+          NEXTAUTH_URL=http://127.0.0.1:3000
+          INTERNAL_ACCOUNT_CHECK_ORIGIN=http://127.0.0.1:3000
+          EOF
+          sudo install -d -o root -g root -m 755 /etc/botanica-ob
+          sudo install -o root -g root -m 600 "$RUNNER_TEMP/rehearsal-secrets.env" /etc/botanica-ob/secrets.env
+
+          ssh-keygen -q -t ed25519 -N '' -f "$RUNNER_TEMP/rehearsal-key"
+          sudo install -d -o botanica-deploy -g botanica-runtime -m 700 /home/botanica-deploy/.ssh
+          sudo install -o botanica-deploy -g botanica-runtime -m 600 "$RUNNER_TEMP/rehearsal-key.pub" /home/botanica-deploy/.ssh/authorized_keys
+          sudo systemctl start ssh.service
+          ssh-keyscan -H localhost > "$RUNNER_TEMP/known_hosts" 2>/dev/null
+          install -d -m 700 "$HOME/.ssh"
+          install -m 600 "$RUNNER_TEMP/rehearsal-key" "$HOME/.ssh/id_ed25519"
+          install -m 600 "$RUNNER_TEMP/known_hosts" "$HOME/.ssh/known_hosts"
+          sudo install -d -o root -g root -m 700 /root/.ssh
+          sudo install -o root -g root -m 600 "$RUNNER_TEMP/rehearsal-key" /root/.ssh/id_ed25519
+          sudo install -o root -g root -m 600 "$RUNNER_TEMP/known_hosts" /root/.ssh/known_hosts
+
+      - name: Prepare sealed Node 20 rollback release
+        shell: bash
+        run: |
+          sudo install -d -o botanica-deploy -g botanica-runtime -m 750 "$APP_ROOT/releases/$ROLLBACK_SHA"
+          RELEASE_SHA="$ROLLBACK_SHA" REMOTE_HOST="botanica-deploy@localhost" REMOTE_APP_ROOT="$APP_ROOT" \
+            EXPECTED_RELEASE_OWNER=botanica-deploy EXPECTED_RELEASE_GROUP=botanica-runtime EXPECTED_RELEASE_MODE=750 \
+            /bin/sh "$APP_ROOT/ops/scripts/handoff-release.sh"
+          sudo ln -s "$APP_ROOT/releases/$ROLLBACK_SHA" "$APP_ROOT/current"
+
+      - name: Start and verify Node 20 baseline
+        shell: bash
+        run: |
+          sudo env NODE20_BIN="$NODE20_BIN" NODE20_PM2_CLI="$NODE20_PM2_CLI" /bin/bash <<'BASH'
+          set -Eeuo pipefail
+          app_root=/srv/botanica-ob
+          pm2_home=/srv/botanica-ob/.pm2
+          rollback_dir="$(realpath "$app_root/current")"
+          set -a
+          source /etc/botanica-ob/secrets.env
+          set +a
+          cd "$pm2_home"
+          /usr/sbin/runuser -u botanica-app -- env PM2_HOME="$pm2_home" PATH="$(dirname "$NODE20_BIN"):/usr/bin:/bin" \
+            PM2_NODE_BIN="$NODE20_BIN" PM2_CWD="$rollback_dir" MONGODB_URI="$MONGODB_URI" \
+            NEXTAUTH_SECRET="$NEXTAUTH_SECRET" NEXTAUTH_URL="$NEXTAUTH_URL" INTERNAL_ACCOUNT_CHECK_ORIGIN="$INTERNAL_ACCOUNT_CHECK_ORIGIN" \
+            "$NODE20_BIN" "$NODE20_PM2_CLI" start "$rollback_dir/ops/pm2/ecosystem.config.cjs" --only botanica-ob --update-env
+          BASH
+          healthy_responses=0
+          for _ in {1..60}; do
+            status="$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/api/health || true)"
+            if [[ "$status" == 200 ]]; then (( healthy_responses += 1 )); else healthy_responses=0; fi
+            (( healthy_responses >= 3 )) && break
+            sleep 1
+          done
+          if (( healthy_responses < 3 )); then
+            echo 'baseline=failed reason=health_unstable' >&2
+            exit 1
+          fi
+          pid="$(sudo -u botanica-app env PM2_HOME="$PM2_HOME" "$NODE20_BIN" "$NODE20_PM2_CLI" pid botanica-ob)"
+          [[ "$pid" =~ ^[1-9][0-9]*$ ]]
+          [[ "$(sudo readlink -f "/proc/$pid/exe")" == "$NODE20_BIN" ]]
+          [[ "$(sudo readlink -f "/proc/$pid/cwd")" == "$APP_ROOT/releases/$ROLLBACK_SHA" ]]
+
+      - name: Run guarded cutover rehearsal
+        shell: bash
+        run: |
+          transaction="gha-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${{ matrix.scenario }}"
+          printf '%s\n' "$transaction" | sudo tee /run/botanica-ob-node24-rehearsal >/dev/null
+          sudo chown root:root /run/botanica-ob-node24-rehearsal
+          sudo chmod 400 /run/botanica-ob-node24-rehearsal
+          driver_status=0
+          sudo "$APP_ROOT/ops/scripts/node24-systemd-rehearsal.sh" "${{ matrix.scenario }}" \
+            "$CANDIDATE_SHA" "$ROLLBACK_SHA" "$transaction" 2> "$RUNNER_TEMP/node24-systemd-receipt.txt" || driver_status=$?
+          [[ "$(wc -l < "$RUNNER_TEMP/node24-systemd-receipt.txt")" == 1 ]]
+          ! grep -Eqi '(secret|mongodb|localhost|username|password|/srv/|environment=)' "$RUNNER_TEMP/node24-systemd-receipt.txt"
+          cat "$RUNNER_TEMP/node24-systemd-receipt.txt"
+          if (( driver_status != 0 )); then
+            exit "$driver_status"
+          fi
+          grep -Eq '^rehearsal=passed .* final_executable_identity=true final_cwd_identity=true health=200 rollback_result=(not-required|passed)$' "$RUNNER_TEMP/node24-systemd-receipt.txt"
+
+      - name: Publish sanitized rehearsal receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: node24-systemd-receipt-${{ matrix.scenario }}
+          path: ${{ runner.temp }}/node24-systemd-receipt.txt
+          if-no-files-found: error
+          retention-days: 14

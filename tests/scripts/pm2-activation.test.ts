@@ -73,7 +73,7 @@ function runCandidate(options: CandidateOptions = {}) {
   command(runtime, 'node24', `
     if [ "$1" = '--version' ]; then printf '%s\\n' "$NODE_REPORTED_VERSION"; exit 0; fi
     if [ "$1" != "$PM2_CLI" ]; then exit 97; fi
-    if [ "$2" = '--version' ]; then printf '%s\\n' "$PM2_REPORTED_VERSION"; exit 0; fi
+    if [ "$2" = '-v' ] && [ "$3" = '--' ]; then [ ! -f "$RUNUSER_CALLS" ] || exit 96; printf '%s\\n' "$PM2_REPORTED_VERSION"; exit 0; fi
     printf '%s|%s|%s\\n' "$PM2_NODE_BIN" "$PM2_CWD" "$2" >> "$PM2_CALLS"
     if [ "$2" = delete ] && [ "\${CANDIDATE_DELETE_FAIL-}" = 1 ]; then exit 43; fi
     if [ "$2" = start ] && [ "\${CANDIDATE_START_FAIL-}" = 1 ]; then exit 42; fi
@@ -87,7 +87,7 @@ function runCandidate(options: CandidateOptions = {}) {
   command(runtime, 'node20', `
     if [ "$1" = '--version' ]; then printf '%s\\n' "$NODE20_REPORTED_VERSION"; exit 0; fi
     if [ "$1" != "$NODE20_PM2_CLI" ]; then exit 97; fi
-    if [ "$2" = '--version' ]; then printf '%s\\n' "$NODE20_PM2_REPORTED_VERSION"; exit 0; fi
+    if [ "$2" = '-v' ] && [ "$3" = '--' ]; then [ ! -f "$RUNUSER_CALLS" ] || exit 96; printf '%s\\n' "$NODE20_PM2_REPORTED_VERSION"; exit 0; fi
     printf '%s|%s|%s\\n' "$PM2_NODE_BIN" "$PM2_CWD" "$2" >> "$NODE20_PM2_CALLS"
     if [ "$2" = start ] && [ "\${ROLLBACK_START_FAIL-}" = 1 ]; then exit 86; fi
     if [ "$2" = pid ]; then
@@ -167,7 +167,7 @@ function runCandidate(options: CandidateOptions = {}) {
   const result = spawnSync('/usr/bin/unshare', ['-Ur', '/bin/bash', scriptPath, releaseSha, rollbackSha], {
     encoding: 'utf8',
     env: {
-      NODE_ENV: 'test', APP_ROOT: appRoot, NODE24_BIN: join(poison, 'node'), PATH: `${bin}:${poison}:/usr/bin:/bin`,
+      NODE_ENV: 'test', APP_ROOT: appRoot, NODE24_BIN: join(poison, 'node'), RUNUSER_BIN: join(bin, 'runuser'), PATH: `${bin}:${poison}:/usr/bin:/bin`,
       CANDIDATE_DELETE_FAIL: options.candidateDeleteFails ? '1' : '', CANDIDATE_START_FAIL: options.candidateStartFails ? '1' : '',
       PM2_CALLS: pm2Calls, PM2_CLI: pm2Cli, PM2_PIDS: options.pm2Pids ?? '4242,4242', PID_DIAGNOSTIC: options.pidDiagnostic ?? '',
       PM2_REPORTED_VERSION: options.pm2Version ?? '5.4.3', NODE_REPORTED_VERSION: 'v24.13.1', NODE20_REPORTED_VERSION: options.node20Version ?? 'v20.19.6',
@@ -301,7 +301,7 @@ describe('PM2 release activation script', () => {
     expect(attempt.poisonUsed()).toBe(false);
     expect(attempt.pm2Calls().map((call) => call.split('|')[2])).toEqual(['describe', 'delete', 'start', 'pid', 'pid']);
     for (const call of attempt.pm2Calls()) expect(call.split('|').slice(0, 2)).toEqual([attempt.node24, attempt.releaseDir]);
-    expect(attempt.runuserCalls()).toContain(`--user candidate -- ${attempt.node24} ${attempt.pm2Cli} describe botanica-ob`);
+    expect(attempt.runuserCalls()).toContain('--user candidate -- /usr/bin/env PM2_HOME=');
   });
 
   it('suppresses configured path diagnostics from failed PM2 PID queries', () => {

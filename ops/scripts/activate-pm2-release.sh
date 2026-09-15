@@ -10,12 +10,13 @@ is_unprivileged_user_namespace() {
   [[ "$inside_uid" == 0 && "$outside_uid" =~ ^[1-9][0-9]*$ && "$range" == 1 ]]
 }
 
-if [[ -n ${APP_ROOT:-} && "$APP_ROOT" != "$PRODUCTION_APP_ROOT" ]] && ! is_unprivileged_user_namespace; then
+if [[ (-n ${APP_ROOT:-} && "$APP_ROOT" != "$PRODUCTION_APP_ROOT") || -n ${RUNUSER_BIN:-} ]] && ! is_unprivileged_user_namespace; then
   printf '%s\n' 'Application root override requires an unprivileged user namespace.' >&2
   exit 1
 fi
 
 readonly APP_ROOT="${APP_ROOT:-$PRODUCTION_APP_ROOT}"
+readonly RUNUSER_BIN="${RUNUSER_BIN:-/usr/sbin/runuser}"
 readonly CANDIDATE_SHA="${1:-}"
 readonly ROLLBACK_SHA="${2:-}"
 readonly RELEASE_DIR="$APP_ROOT/releases/$CANDIDATE_SHA"
@@ -62,7 +63,7 @@ validate_runtime_file() {
 }
 
 load_runtime() {
-  local metadata node_line node_version_line npm_line npm_version_line node20_line node20_version_line node20_pm2_line node20_pm2_version_line pm2_line pm2_version_line run_as_line home_line
+  local metadata node_line node_version_line npm_line npm_version_line node20_line node20_version_line node20_pm2_line node20_pm2_version_line pm2_line pm2_version_line run_as_line home_line node24_pm2_actual
   [[ -f "$RUNTIME_CONFIG" && ! -L "$RUNTIME_CONFIG" && -r "$RUNTIME_CONFIG" ]] || die 'Node 24 runtime configuration is unavailable.'
   metadata="$(stat -c '%U %a' "$RUNTIME_CONFIG" 2>/dev/null)" || die 'Node 24 runtime configuration metadata is unavailable.'
   [[ "${metadata%% *}" == root ]] && mode_permissions "${metadata##* }" || die 'Node 24 runtime configuration metadata is invalid.'
@@ -94,20 +95,29 @@ load_runtime() {
   [[ "$("$NODE20_BIN" --version 2>/dev/null)" == "$NODE20_VERSION" ]] || die 'Node 20 runtime version drift.'
   pm2_uid="$(id -u "$PM2_RUN_AS" 2>/dev/null)" || die 'Configured PM2 account is unavailable.'
   [[ "$pm2_uid" =~ ^[0-9]+$ && -d "$PM2_HOME" && "$(stat -c '%u' "$PM2_HOME" 2>/dev/null)" == "$pm2_uid" ]] || die 'Configured PM2 home is invalid.'
-  [[ "$(run_node24_pm2 "$RELEASE_DIR" --version 2>/dev/null)" == "$NODE24_PM2_VERSION" ]] || die 'Node 24 PM2 version drift.'
-  [[ "$(run_node20_pm2 "$ROLLBACK_DIR" --version 2>/dev/null)" == "$NODE20_PM2_VERSION" ]] || die 'Node 20 PM2 version drift.'
+  node24_pm2_actual="$("$NODE24_BIN" "$NODE24_PM2_CLI" -v -- 2>/dev/null)" || die 'Node 24 PM2 version probe failed.'
+  [[ "$node24_pm2_actual" == "$NODE24_PM2_VERSION" ]] || die 'Node 24 PM2 version drift.'
+  [[ "$("$NODE20_BIN" "$NODE20_PM2_CLI" -v -- 2>/dev/null)" == "$NODE20_PM2_VERSION" ]] || die 'Node 20 PM2 version drift.'
 }
 
 run_node24_pm2() {
+  local caller_cwd="$PWD" status=0
   PM2_NODE_BIN="$NODE24_BIN" PM2_CWD="$1"; shift
   export PM2_HOME PM2_NODE_BIN PM2_CWD
-  runuser --preserve-environment --user "$PM2_RUN_AS" -- "$NODE24_BIN" "$NODE24_PM2_CLI" "$@"
+  cd -- "$PM2_HOME" || return
+  "$RUNUSER_BIN" --preserve-environment --user "$PM2_RUN_AS" -- /usr/bin/env PM2_HOME="$PM2_HOME" PM2_NODE_BIN="$PM2_NODE_BIN" PM2_CWD="$PM2_CWD" PATH="$(dirname "$NODE24_BIN"):/usr/bin:/bin" "$NODE24_BIN" "$NODE24_PM2_CLI" "$@" || status=$?
+  cd -- "$caller_cwd" || return
+  return "$status"
 }
 
 run_node20_pm2() {
+  local caller_cwd="$PWD" status=0
   PM2_NODE_BIN="$NODE20_BIN" PM2_CWD="$1"; shift
   export PM2_HOME PM2_NODE_BIN PM2_CWD
-  runuser --preserve-environment --user "$PM2_RUN_AS" -- "$NODE20_BIN" "$NODE20_PM2_CLI" "$@"
+  cd -- "$PM2_HOME" || return
+  "$RUNUSER_BIN" --preserve-environment --user "$PM2_RUN_AS" -- /usr/bin/env PM2_HOME="$PM2_HOME" PM2_NODE_BIN="$PM2_NODE_BIN" PM2_CWD="$PM2_CWD" PATH="$(dirname "$NODE20_BIN"):/usr/bin:/bin" "$NODE20_BIN" "$NODE20_PM2_CLI" "$@" || status=$?
+  cd -- "$caller_cwd" || return
+  return "$status"
 }
 
 wait_for_health() {
