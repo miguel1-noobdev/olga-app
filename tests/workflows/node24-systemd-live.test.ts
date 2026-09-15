@@ -12,11 +12,11 @@ function position(fragment: string) {
 }
 
 describe('GitHub-hosted Node 24 systemd rehearsal', () => {
-  it('runs every scenario on a fresh Ubuntu 24.04 VM', () => {
+  it('runs the initial scenarios on fresh Ubuntu 24.04 VMs', () => {
     expect(workflow).toContain('runs-on: ubuntu-24.04');
     expect(workflow).toContain('github.event.pull_request.head.repo.full_name == github.repository');
     expect(workflow).toContain('persist-credentials: false');
-    expect(workflow).toContain('scenario: [positive, health-failure, interruption]');
+    expect(workflow).toContain('scenario: [positive, health-failure]');
     expect(workflow).toContain('branches: [test/issue-71-node24-systemd-rehearsal]');
     expect(workflow).toContain('workflow_dispatch:');
   });

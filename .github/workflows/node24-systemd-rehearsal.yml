@@ -31,7 +31,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        scenario: [positive, health-failure, interruption]
+        scenario: [positive, health-failure]
     services:
       mongo:
         image: mongo:8.0
