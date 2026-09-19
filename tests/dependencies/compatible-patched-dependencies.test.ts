@@ -22,10 +22,10 @@ const lockfile = JSON.parse(
 
 describe('reviewed dependency policy', () => {
   it('keeps the reviewed framework and authentication releases', () => {
-    expect(manifest.dependencies.next).toBe('16.2.12');
+    expect(manifest.dependencies.next).toBe('16.3.5');
     expect(manifest.dependencies['next-auth']).toBe('4.24.15');
     expect(manifest.devDependencies.postcss).toBe('8.5.24');
-    expect(manifest.overrides).toEqual({ postcss: '8.5.24', sharp: '0.35.3' });
+    expect(manifest.overrides).toEqual({ postcss: '8.5.24', sharp: '0.35.4' });
   });
 
   it('locks the patched authentication and nested CSS dependencies', () => {
