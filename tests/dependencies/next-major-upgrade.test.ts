@@ -22,23 +22,23 @@ const lockfile = JSON.parse(
 
 describe('Next.js major upgrade contract', () => {
   it('uses the reviewed Next.js 16 and React 19 package set', () => {
-    expect(manifest.dependencies.next).toBe('16.2.12');
+    expect(manifest.dependencies.next).toBe('16.3.5');
     expect(manifest.dependencies.react).toBe('19.2.8');
     expect(manifest.dependencies['react-dom']).toBe('19.2.8');
     expect(manifest.dependencies['next-auth']).toBe('4.24.15');
   });
 
   it('keeps the test toolchain on compatible patched major releases', () => {
-    expect(manifest.devDependencies.vitest).toBe('4.1.10');
-    expect(manifest.devDependencies['@vitest/coverage-v8']).toBe('4.1.10');
+    expect(manifest.devDependencies.vitest).toBe('4.1.11');
+    expect(manifest.devDependencies['@vitest/coverage-v8']).toBe('4.1.11');
     expect(manifest.devDependencies['@vitejs/plugin-react']).toBe('5.2.0');
     expect(manifest.devDependencies.vite).toBe('7.3.6');
     expect(manifest.devDependencies['happy-dom']).toBe('20.11.1');
   });
 
   it('pins the patched image optimizer dependency required by Next.js', () => {
-    expect(manifest.overrides?.sharp).toBe('0.35.3');
-    expect(lockfile.packages['node_modules/sharp']?.version).toBe('0.35.3');
+    expect(manifest.overrides?.sharp).toBe('0.35.4');
+    expect(lockfile.packages['node_modules/sharp']?.version).toBe('0.35.4');
   });
 
   it('uses the Next.js 16 proxy convention for protected routes', () => {
