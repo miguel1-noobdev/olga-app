@@ -138,6 +138,7 @@ describe('disposable Node 24 systemd rehearsal', () => {
     ]);
     expect(attempt.result.stderr).not.toContain('must-not-appear');
     expect(attempt.result.stderr).toContain(`rehearsal=passed transaction=${transactionId} scenario=${scenario}`);
+    expect(attempt.result.stderr).toContain('final_executable_identity=true final_cwd_identity=true');
     expect(readlinkSync(join(attempt.appRoot, 'current'))).toBe(
       scenario === 'positive'
         ? join(attempt.appRoot, 'releases', candidateSha)
