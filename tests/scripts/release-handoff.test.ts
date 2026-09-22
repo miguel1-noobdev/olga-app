@@ -98,7 +98,7 @@ function runPreparationHandoff(options: { expectedGroup?: string; expectedOwner?
   cpSync(prepareScriptPath, join(appRoot, 'ops', 'scripts', 'prepare-release.sh'));
   mkdirSync(join(archiveSource, 'ops', 'scripts'), { recursive: true });
   writeFileSync(join(archiveSource, 'package.json'), '{"scripts":{"build":"true"}}\n');
-  writeFileSync(join(archiveSource, 'ops', 'scripts', 'activate-pm2-release.sh'), 'readonly RELEASE_ID="${1:-}"\n');
+  writeFileSync(join(archiveSource, 'ops', 'scripts', 'activate-pm2-release.sh'), 'readonly CANDIDATE_SHA="${1:-}"\n');
   mkdirSync(releaseDirectory, { recursive: true });
   mkdirSync(runtimeDirectory);
   mkdirSync(join(appRoot, 'config'));
