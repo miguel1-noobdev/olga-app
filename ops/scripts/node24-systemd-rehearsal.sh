@@ -50,9 +50,9 @@ if [[ -n ${REHEARSAL_APP_ROOT:-}${REHEARSAL_CALLS:-}${REHEARSAL_CHILD_LOG:-}${RE
   fail environment
 fi
 if [[ -n ${REHEARSAL_TEST_BIN:-} ]]; then
-  PATH="$REHEARSAL_TEST_BIN:/usr/bin:/bin"
+  PATH="$REHEARSAL_TEST_BIN:/usr/sbin:/usr/bin:/bin"
 else
-  PATH=/usr/bin:/bin
+  PATH=/usr/sbin:/usr/bin:/bin
 fi
 export PATH
 

@@ -75,6 +75,7 @@ rollback="$2"
 candidate_dir="$REHEARSAL_APP_ROOT/releases/$candidate"
 rollback_dir="$REHEARSAL_APP_ROOT/releases/$rollback"
 printf 'activate:%s:%s:%s\\n' "$REHEARSAL_SCENARIO" "$candidate" "$rollback" >> "$REHEARSAL_CALLS"
+if [[ \${FAKE_ACTIVATION_MODE:-} == require-runuser-path && "$PATH" != "$REHEARSAL_TEST_BIN:/usr/sbin:/usr/bin:/bin" ]]; then exit 1; fi
 if [[ \${FAKE_ACTIVATION_MODE:-} == slow ]]; then trap 'printf "terminated\\n" >> "$REHEARSAL_CALLS"; exit 143' TERM; sleep 30; fi
 restore() { ln -sfnT "$rollback_dir" "$REHEARSAL_APP_ROOT/current"; printf 'activation=failed; rollback=passed\\n' >&2; }
 ln -sfnT "$candidate_dir" "$REHEARSAL_APP_ROOT/current"
@@ -169,6 +170,12 @@ describe('disposable Node 24 systemd rehearsal', () => {
 
     expect(result.status).not.toBe(0);
     expect(result.stderr).toBe('rehearsal=failed stage=environment\n');
+  });
+
+  it('provides the system runuser directory to activation', () => {
+    const attempt = run('positive', { FAKE_ACTIVATION_MODE: 'require-runuser-path' });
+
+    expect(attempt.result.status, attempt.result.stderr).toBe(0);
   });
 
   it('terminates and reaps an activation that never switches the release link', () => {
