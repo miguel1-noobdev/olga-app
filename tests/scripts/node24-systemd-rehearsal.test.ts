@@ -88,7 +88,14 @@ case "$REHEARSAL_SCENARIO" in
     exit 1
     ;;
   interruption)
-    trap 'restore; exit 143' TERM INT
+    (
+      trap 'printf "interruption-child=terminated\\n" >> "$REHEARSAL_CALLS"; exit 0' TERM INT
+      printf 'interruption-child=ready\\n' >> "$REHEARSAL_CALLS"
+      sleep 1
+    ) &
+    child_pid=$!
+    until grep -Fx 'interruption-child=ready' "$REHEARSAL_CALLS" >/dev/null 2>&1; do sleep 0.01; done
+    trap 'exit 1' TERM INT
     trap restore EXIT
     while :; do sleep 1; done
     ;;
@@ -136,7 +143,9 @@ describe('disposable Node 24 systemd rehearsal', () => {
     expect(attempt.calls).toEqual([
       `handoff:${candidateSha}`,
       `activate:${scenario}:${candidateSha}:${rollbackSha}`,
+      ...(scenario === 'interruption' ? ['interruption-child=ready'] : []),
     ]);
+    if (scenario === 'interruption') expect(attempt.calls).not.toContain('interruption-child=terminated');
     expect(attempt.result.stderr).not.toContain('must-not-appear');
     expect(attempt.result.stderr).toContain(`rehearsal=passed transaction=${transactionId} scenario=${scenario}`);
     expect(attempt.result.stderr).toContain('final_executable_identity=true final_cwd_identity=true');

@@ -12,11 +12,11 @@ function position(fragment: string) {
 }
 
 describe('GitHub-hosted Node 24 systemd rehearsal', () => {
-  it('runs the initial scenarios on fresh Ubuntu 24.04 VMs', () => {
+  it('runs every scenario on a fresh Ubuntu 24.04 VM', () => {
     expect(workflow).toContain('runs-on: ubuntu-24.04');
     expect(workflow).toContain('github.event.pull_request.head.repo.full_name == github.repository');
     expect(workflow).toContain('persist-credentials: false');
-    expect(workflow).toContain('scenario: [positive, health-failure]');
+    expect(workflow).toContain('scenario: [positive, health-failure, interruption]');
     expect(workflow).toContain('branches: [test/issue-71-node24-systemd-rehearsal]');
     expect(workflow).toContain('workflow_dispatch:');
   });
@@ -79,6 +79,7 @@ describe('GitHub-hosted Node 24 systemd rehearsal', () => {
     expect(runbook).toContain('### GitHub-hosted Node runtime rehearsal');
     expect(runbook).toContain('Never substitute personal WSL or the production VPS');
     expect(runbook).toContain('node24-systemd-receipt-<scenario>');
+    expect(runbook).toContain('| `interruption` | Only the activation shell receives TERM; its EXIT handler restores the declared Node 20 release/runtime. |');
     expect(runbook).toContain('does not authorize production deployment');
   });
 });
