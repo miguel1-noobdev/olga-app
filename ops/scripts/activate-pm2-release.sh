@@ -59,7 +59,8 @@ validate_runtime_file() {
   canonical="$(realpath -- "$path" 2>/dev/null)" || die "Node $runtime runtime path is invalid."
   [[ "$canonical" == "$path" ]] || die "Node $runtime runtime path is not canonical."
   metadata="$(stat -c '%U %a' "$path" 2>/dev/null)" || die "Node $runtime $label metadata is unavailable."
-  [[ "${metadata%% *}" == root ]] && mode_permissions "${metadata##* }" || die "Node $runtime $label metadata is invalid."
+  [[ "${metadata%% *}" == root ]] || die "Node $runtime $label metadata is invalid."
+  mode_permissions "${metadata##* }" || die "Node $runtime $label metadata is invalid."
   [[ "${runtime_mode:1}" != *[2367]* ]] || die "Node $runtime $label is writable."
 }
 
@@ -67,7 +68,8 @@ load_runtime() {
   local metadata node_line node_version_line npm_line npm_version_line node20_line node20_version_line node20_pm2_line node20_pm2_version_line pm2_line pm2_version_line run_as_line home_line
   [[ -f "$RUNTIME_CONFIG" && ! -L "$RUNTIME_CONFIG" && -r "$RUNTIME_CONFIG" ]] || die 'Node 24 runtime configuration is unavailable.'
   metadata="$(stat -c '%U %a' "$RUNTIME_CONFIG" 2>/dev/null)" || die 'Node 24 runtime configuration metadata is unavailable.'
-  [[ "${metadata%% *}" == root ]] && mode_permissions "${metadata##* }" || die 'Node 24 runtime configuration metadata is invalid.'
+  [[ "${metadata%% *}" == root ]] || die 'Node 24 runtime configuration metadata is invalid.'
+  mode_permissions "${metadata##* }" || die 'Node 24 runtime configuration metadata is invalid.'
   [[ "${runtime_mode:1}" != *[2367]* ]] || die 'Node 24 runtime configuration is writable.'
   {
     IFS= read -r node_line && IFS= read -r node_version_line && IFS= read -r npm_line && IFS= read -r npm_version_line &&
@@ -205,6 +207,7 @@ if ! [[ "$(stat -c '%a' "$SECRETS_FILE")" == "600" ]]; then
 fi
 
 set -a
+# shellcheck source=/dev/null
 if ! . "$SECRETS_FILE" >/dev/null 2>&1; then
   set +a
   die 'Production secrets file could not be loaded.'
