@@ -30,8 +30,10 @@ readonly HEALTH_TIMEOUT_SECONDS="${HEALTH_TIMEOUT_SECONDS:-30}"
 readonly HEALTH_RETRY_INTERVAL_SECONDS=1
 
 activation_started=0
+active_pm2_pid=""
 current_tmp=""
 restore_tmp=""
+exec {rollback_output_fd}>&2
 
 die() {
   printf '%s\n' "$1" >&2
@@ -57,7 +59,8 @@ validate_runtime_file() {
   canonical="$(realpath -- "$path" 2>/dev/null)" || die "Node $runtime runtime path is invalid."
   [[ "$canonical" == "$path" ]] || die "Node $runtime runtime path is not canonical."
   metadata="$(stat -c '%U %a' "$path" 2>/dev/null)" || die "Node $runtime $label metadata is unavailable."
-  [[ "${metadata%% *}" == root ]] && mode_permissions "${metadata##* }" || die "Node $runtime $label metadata is invalid."
+  [[ "${metadata%% *}" == root ]] || die "Node $runtime $label metadata is invalid."
+  mode_permissions "${metadata##* }" || die "Node $runtime $label metadata is invalid."
   [[ "${runtime_mode:1}" != *[2367]* ]] || die "Node $runtime $label is writable."
 }
 
@@ -65,7 +68,8 @@ load_runtime() {
   local metadata node_line node_version_line npm_line npm_version_line node20_line node20_version_line node20_pm2_line node20_pm2_version_line pm2_line pm2_version_line run_as_line home_line
   [[ -f "$RUNTIME_CONFIG" && ! -L "$RUNTIME_CONFIG" && -r "$RUNTIME_CONFIG" ]] || die 'Node 24 runtime configuration is unavailable.'
   metadata="$(stat -c '%U %a' "$RUNTIME_CONFIG" 2>/dev/null)" || die 'Node 24 runtime configuration metadata is unavailable.'
-  [[ "${metadata%% *}" == root ]] && mode_permissions "${metadata##* }" || die 'Node 24 runtime configuration metadata is invalid.'
+  [[ "${metadata%% *}" == root ]] || die 'Node 24 runtime configuration metadata is invalid.'
+  mode_permissions "${metadata##* }" || die 'Node 24 runtime configuration metadata is invalid.'
   [[ "${runtime_mode:1}" != *[2367]* ]] || die 'Node 24 runtime configuration is writable.'
   {
     IFS= read -r node_line && IFS= read -r node_version_line && IFS= read -r npm_line && IFS= read -r npm_version_line &&
@@ -99,15 +103,29 @@ load_runtime() {
 }
 
 run_node24_pm2() {
+  local status=0
   PM2_NODE_BIN="$NODE24_BIN" PM2_CWD="$1"; shift
   export PM2_HOME PM2_NODE_BIN PM2_CWD
-  runuser --preserve-environment --user "$PM2_RUN_AS" -- "$NODE24_BIN" "$NODE24_PM2_CLI" "$@"
+  /usr/bin/setsid /usr/bin/timeout --signal=TERM --kill-after=5s 30s \
+    runuser --preserve-environment --user "$PM2_RUN_AS" -- /usr/bin/env ACTIVATION_CONTROLLER_PID="$$" \
+    "$NODE24_BIN" "$NODE24_PM2_CLI" "$@" &
+  active_pm2_pid=$!
+  wait "$active_pm2_pid" || status=$?
+  active_pm2_pid=""
+  return "$status"
 }
 
 run_node20_pm2() {
+  local status=0
   PM2_NODE_BIN="$NODE20_BIN" PM2_CWD="$1"; shift
   export PM2_HOME PM2_NODE_BIN PM2_CWD
-  runuser --preserve-environment --user "$PM2_RUN_AS" -- "$NODE20_BIN" "$NODE20_PM2_CLI" "$@"
+  /usr/bin/setsid /usr/bin/timeout --signal=TERM --kill-after=5s 30s \
+    runuser --preserve-environment --user "$PM2_RUN_AS" -- /usr/bin/env ACTIVATION_CONTROLLER_PID="$$" \
+    "$NODE20_BIN" "$NODE20_PM2_CLI" "$@" &
+  active_pm2_pid=$!
+  wait "$active_pm2_pid" || status=$?
+  active_pm2_pid=""
+  return "$status"
 }
 
 wait_for_health() {
@@ -119,9 +137,20 @@ wait_for_health() {
   done
 }
 
+interrupt_activation() {
+  local status="$1"
+  trap - TERM INT
+  if [[ -n "$active_pm2_pid" ]]; then
+    kill -TERM -- "-$active_pm2_pid" 2>/dev/null || true
+    wait "$active_pm2_pid" 2>/dev/null || true
+    active_pm2_pid=""
+  fi
+  exit "$status"
+}
+
 rollback() {
   local status=$? recovery=passed rollback_pid stable_pid
-  trap - EXIT
+  trap - EXIT TERM INT
   set +e
 
   if (( activation_started == 1 )); then
@@ -142,7 +171,7 @@ rollback() {
       [[ "$(readlink -f "/proc/$rollback_pid/cwd" 2>/dev/null)" != "$ROLLBACK_DIR" ]]; then
       recovery=failed
     fi
-    printf 'activation=failed; rollback=%s\n' "$recovery" >&2
+    printf 'activation=failed; rollback=%s\n' "$recovery" >&"$rollback_output_fd"
   fi
 
   rm -f "$current_tmp" "$restore_tmp"
@@ -150,6 +179,8 @@ rollback() {
 }
 
 trap rollback EXIT
+trap 'interrupt_activation 143' TERM
+trap 'interrupt_activation 130' INT
 
 if (( $# != 2 )) || ! [[ "$CANDIDATE_SHA" =~ ^[0-9a-f]{40}$ && "$ROLLBACK_SHA" =~ ^[0-9a-f]{40}$ ]] || [[ "$CANDIDATE_SHA" == "$ROLLBACK_SHA" ]]; then
   die 'Distinct full 40-character lowercase candidate and rollback Git SHAs are required.'
@@ -176,6 +207,7 @@ if ! [[ "$(stat -c '%a' "$SECRETS_FILE")" == "600" ]]; then
 fi
 
 set -a
+# shellcheck source=/dev/null
 if ! . "$SECRETS_FILE" >/dev/null 2>&1; then
   set +a
   die 'Production secrets file could not be loaded.'

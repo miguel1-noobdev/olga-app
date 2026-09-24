@@ -10,6 +10,7 @@ const rollbackSha = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
 const temporaryDirectories: string[] = [];
 
 type CandidateOptions = {
+  activationSignal?: 'INT' | 'TERM';
   candidateDeleteFails?: boolean;
   candidateStartFails?: boolean;
   currentTarget?: 'candidate' | 'rollback';
@@ -56,6 +57,7 @@ function runCandidate(options: CandidateOptions = {}) {
   const pm2Home = join(root, 'pm2-home');
   const secrets = join(root, 'secrets.env');
   const pm2Calls = join(root, 'pm2-calls');
+  const activationSignalSent = join(root, 'activation-signal-sent');
   const node20Pm2Calls = join(root, 'node20-pm2-calls');
   const poisonCalls = join(root, 'poison-calls');
   const mvCalls = join(root, 'mv-calls');
@@ -104,6 +106,15 @@ function runCandidate(options: CandidateOptions = {}) {
   command(bin, 'id', `case "$1" in -u) printf '0\\n' ;; candidate) exit 0 ;; *) exec /usr/bin/id "$@" ;; esac`);
   command(bin, 'runuser', `
     printf '%s\\n' "$*" >> "$RUNUSER_CALLS"
+    if [ -n "\${ACTIVATION_SIGNAL-}" ] && [ ! -f "$ACTIVATION_SIGNAL_SENT" ]; then
+      for argument in "$@"; do
+        if [ "$argument" = start ]; then
+          : > "$ACTIVATION_SIGNAL_SENT"
+          kill -"$ACTIVATION_SIGNAL" "\${ACTIVATION_CONTROLLER_PID:-$PPID}"
+          break
+        fi
+      done
+    fi
     while [ "$1" != '--' ]; do shift; done
     shift
     exec "$@"
@@ -168,6 +179,7 @@ function runCandidate(options: CandidateOptions = {}) {
     encoding: 'utf8',
     env: {
       NODE_ENV: 'test', APP_ROOT: appRoot, NODE24_BIN: join(poison, 'node'), PATH: `${bin}:${poison}:/usr/bin:/bin`,
+      ACTIVATION_SIGNAL: options.activationSignal ?? '', ACTIVATION_SIGNAL_SENT: activationSignalSent,
       CANDIDATE_DELETE_FAIL: options.candidateDeleteFails ? '1' : '', CANDIDATE_START_FAIL: options.candidateStartFails ? '1' : '',
       PM2_CALLS: pm2Calls, PM2_CLI: pm2Cli, PM2_PIDS: options.pm2Pids ?? '4242,4242', PID_DIAGNOSTIC: options.pidDiagnostic ?? '',
       PM2_REPORTED_VERSION: options.pm2Version ?? '5.4.3', NODE_REPORTED_VERSION: 'v24.13.1', NODE20_REPORTED_VERSION: options.node20Version ?? 'v20.19.6',
@@ -301,7 +313,7 @@ describe('PM2 release activation script', () => {
     expect(attempt.poisonUsed()).toBe(false);
     expect(attempt.pm2Calls().map((call) => call.split('|')[2])).toEqual(['describe', 'delete', 'start', 'pid', 'pid']);
     for (const call of attempt.pm2Calls()) expect(call.split('|').slice(0, 2)).toEqual([attempt.node24, attempt.releaseDir]);
-    expect(attempt.runuserCalls()).toContain(`--user candidate -- ${attempt.node24} ${attempt.pm2Cli} describe botanica-ob`);
+    expect(attempt.runuserCalls()).toContain(`--user candidate -- /usr/bin/env ACTIVATION_CONTROLLER_PID=`);
   });
 
   it('suppresses configured path diagnostics from failed PM2 PID queries', () => {
@@ -367,6 +379,17 @@ describe('PM2 release activation script', () => {
     expect(attempt.currentTarget()).toBe(attempt.rollbackDir);
     expect(attempt.poisonUsed()).toBe(false);
     expect(attempt.pm2Calls().map((call) => call.split('|')[2])).toEqual(['describe', 'delete', 'start', 'delete']);
+    expect(attempt.node20Pm2Calls().map((call) => call.split('|')[2])).toEqual(['start', 'pid', 'pid']);
+    for (const call of attempt.node20Pm2Calls()) expect(call.split('|').slice(0, 2)).toEqual([attempt.node20, attempt.rollbackDir]);
+  });
+
+  it.each(['TERM', 'INT'] as const)('reaps an active PM2 child and restores the declared Node 20 rollback after %s', (activationSignal) => {
+    const attempt = runCandidate({ activationSignal });
+
+    expect(attempt.result.status, attempt.result.stderr).not.toBe(0);
+    expect(attempt.currentTarget()).toBe(attempt.rollbackDir);
+    expect(attempt.result.stderr).toBe('activation=failed; rollback=passed\n');
+    expect(attempt.result.stderr.match(/activation=failed; rollback=passed/g)).toHaveLength(1);
     expect(attempt.node20Pm2Calls().map((call) => call.split('|')[2])).toEqual(['start', 'pid', 'pid']);
     for (const call of attempt.node20Pm2Calls()) expect(call.split('|').slice(0, 2)).toEqual([attempt.node20, attempt.rollbackDir]);
   });

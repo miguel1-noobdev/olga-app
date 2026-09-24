@@ -160,7 +160,7 @@ else
     kill_candidate_processes "$activation_pid" &
     fault_pid=$!
   else
-    kill -TERM -- "-$activation_pid" 2>/dev/null || fail interruption
+    kill -TERM "$activation_pid" 2>/dev/null || fail interruption
   fi
   if wait "$activation_pid"; then activation_status=0; else activation_status=$?; fi
   activation_pid=""

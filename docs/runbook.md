@@ -87,12 +87,13 @@ The workflow uses Node.js 24 LTS and the `npm` cache.
 
 1. Confirm each matrix job proves `systemd` is PID 1 and rejects WSL or a container runtime before provisioning.
 2. Review the pinned Node 20, Node 24, and PM2 versions in the workflow.
-3. Require the two enabled fresh-VM scenarios to pass:
+3. Require all three fresh-VM scenarios to pass:
 
    | Scenario | Required final state |
    |----------|----------------------|
    | `positive` | Candidate is current, healthy, and running through configured Node 24. |
    | `health-failure` | Candidate health is disrupted externally; rollback is current, healthy, and running through configured Node 20. |
+   | `interruption` | Only the activation shell receives TERM; its EXIT handler restores the declared Node 20 release/runtime. |
 
 4. Download `node24-systemd-receipt-<scenario>` for each job. Every artifact contains one sanitized line with the transaction identifier, exact SHAs and versions, timestamps, stage outcomes, identity booleans, HTTP status, and rollback result.
 
