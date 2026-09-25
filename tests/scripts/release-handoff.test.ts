@@ -7,6 +7,10 @@ import { afterEach, describe, expect, it } from 'vitest';
 const scriptPath = resolve(process.cwd(), 'ops/scripts/handoff-release.sh');
 const prepareScriptPath = resolve(process.cwd(), 'ops/scripts/prepare-release.sh');
 const releaseSha = '835dd149c0ab2b3b4646d625adaefb63a0df3183';
+const canonicalActivationIdentity = [
+  'readonly CANDIDATE_SHA="${1:-}"',
+  'readonly ROLLBACK_SHA="${2:-}"',
+].join('\n');
 const temporaryDirectories: string[] = [];
 type ReceiptReplacement = Partial<Record<'releaseDir' | 'owner' | 'group' | 'mode', string>>;
 
@@ -98,7 +102,7 @@ function runPreparationHandoff(options: { expectedGroup?: string; expectedOwner?
   cpSync(prepareScriptPath, join(appRoot, 'ops', 'scripts', 'prepare-release.sh'));
   mkdirSync(join(archiveSource, 'ops', 'scripts'), { recursive: true });
   writeFileSync(join(archiveSource, 'package.json'), '{"scripts":{"build":"true"}}\n');
-  writeFileSync(join(archiveSource, 'ops', 'scripts', 'activate-pm2-release.sh'), 'readonly CANDIDATE_SHA="${1:-}"\n');
+  writeFileSync(join(archiveSource, 'ops', 'scripts', 'activate-pm2-release.sh'), `${canonicalActivationIdentity}\n`);
   mkdirSync(releaseDirectory, { recursive: true });
   mkdirSync(runtimeDirectory);
   mkdirSync(join(appRoot, 'config'));
@@ -217,7 +221,9 @@ describe('POSIX release handoff', () => {
 
     expect(attempt.result.status, attempt.result.stderr).toBe(0);
     expect(readFileSync(join(attempt.releaseDirectory, 'package.json'), 'utf8')).toContain('"build"');
-    expect(existsSync(join(attempt.releaseDirectory, 'ops', 'scripts', 'activate-pm2-release.sh'))).toBe(true);
+    const activationScript = join(attempt.releaseDirectory, 'ops', 'scripts', 'activate-pm2-release.sh');
+    expect(existsSync(activationScript)).toBe(true);
+    expect(readFileSync(activationScript, 'utf8')).toBe(`${canonicalActivationIdentity}\n`);
   });
 
   it('forwards policy values to the isolated remote preparer without shell injection', () => {

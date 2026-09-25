@@ -50,24 +50,31 @@ Production data MUST use authenticated persistent storage, remain reachable only
 
 ### Requirement: Gated release and rollback
 
-Each release MUST use an immutable validated version and pass build, configuration, DNS/TLS, health, backup/restore, role-smoke, and release-identity gates before activation. The committed SHA, immutable release directory SHA, activation script SHA, and `current` symlink target MUST be the same full SHA. Any mismatch or preflight failure MUST stop the handoff before `current` or PM2 changes. Rollback MUST restore the prior verified compatible version without crossing an unapproved data change.
+Each release MUST use an immutable validated version and pass build, configuration, DNS/TLS, health, backup/restore, role-smoke, and release-identity gates before activation. Before mutation, the candidate identity MUST contain the same full SHA for the reviewed commit, immutable candidate release directory, and candidate activation argument. The rollback identity MUST contain the same full SHA for the pre-activation `current` target and declared rollback argument; it MUST differ from the candidate SHA and resolve to an immutable verified compatible release. After successful activation, `current` MUST resolve to the candidate SHA. Any candidate or rollback identity mismatch or preflight failure MUST stop the handoff before `current` or PM2 changes. Rollback MUST restore the declared verified compatible release without crossing an unapproved data change.
 
 #### Scenario: Release passes all gates
 - GIVEN all required evidence is current and passing
+- AND the candidate and rollback identities are valid
 - WHEN the release is activated
-- THEN the validated version serves through HTTPS
-- AND the committed SHA, release SHA, activation-script SHA, and `current` target are recorded as the same value
+- THEN the validated candidate version serves through HTTPS
+- AND before mutation, the candidate identity values are equal and the rollback identity values are equal but distinct from the candidate SHA
+- AND after successful activation, `current` resolves to the candidate SHA
 
-#### Scenario: Release identity mismatch
-- GIVEN any of the committed SHA, immutable release SHA, activation script SHA, or `current` target differs
+#### Scenario: Candidate or rollback identity mismatch
+- GIVEN a candidate identity value differs, or the pre-activation `current` target and declared rollback argument differ, match the candidate SHA, or do not resolve to an immutable verified compatible release
 - WHEN the release preflight runs
 - THEN activation is rejected before any symlink or PM2 change
 - AND the mismatch is recorded without secrets
 
-#### Scenario: Release or rollback failure
-- GIVEN a gate fails or the new version is unhealthy
+#### Scenario: Pre-activation gate failure
+- GIVEN a required gate fails before release mutation
+- WHEN the release is rejected
+- THEN `current` and PM2 remain unchanged, and the failure is recorded
+
+#### Scenario: Post-activation failure
+- GIVEN release mutation has begun and the new version is unhealthy
 - WHEN release recovery is initiated
-- THEN the prior verified compatible version is restored, traffic is revalidated, and the failure is recorded
+- THEN `current` is restored to the declared verified compatible rollback release, traffic is revalidated, and the failure is recorded
 
 ### Requirement: Production evidence
 
@@ -99,22 +106,21 @@ The remote release handoff wrapper MUST be POSIX-compatible. It MUST not run Bas
 - AND it does not invoke `runuser`
 - AND a failed check stops the handoff
 
-### Requirement: Receipt-only managed-release preflight
+### Requirement: Optional receipt-only managed-release diagnostic
 
-Receipt-only mode MUST accept only an approved non-secret endpoint selector and owner/group/mode comparison policy. It MUST make exactly one non-mutating remote query to derive the active managed release and effective root, validate the canonical immutable release relationship and policy, and emit a sanitized receipt with `release`, `execution_class`, `connection_count`, `identity`, `metadata`, `effective_root`, `transfer`, `preparation`, and `activation`. `execution_class=remote_command_failure` MUST identify a nonzero SSH exit, `execution_class=invalid_remote_output` MUST identify a successful SSH exit with invalid managed-release output, and `execution_class=success` MUST identify valid remote execution and output. It MUST not archive, transfer, prepare, activate, manage services, retry, infer unobserved G.1/G.2 evidence, or classify an external caller-side capture failure. Missing selector or policy MUST fail locally; malformed, ambiguous, or mismatched query output MUST fail closed after at most one query.
+Receipt-only mode is an optional, non-mutating diagnostic; it is not a deployment gate. When invoked, it MUST accept only an approved non-secret endpoint selector and owner/group/mode comparison policy. It MUST make exactly one non-mutating remote query to derive the active managed release and effective root, validate the canonical immutable release relationship and policy, and emit a sanitized receipt with `release`, `execution_class`, `connection_count`, `identity`, `metadata`, `effective_root`, `transfer`, `preparation`, and `activation`. `execution_class=remote_command_failure` MUST identify a nonzero SSH exit, `execution_class=invalid_remote_output` MUST identify a successful SSH exit with invalid managed-release output, and `execution_class=success` MUST identify valid remote execution and output.
 
-#### Scenario: authorized receipt-only attempt has no captured receipt
+It MUST not archive, transfer, prepare, activate, manage services, retry, infer unobserved release evidence, or classify an external caller-side capture failure. Missing selector or policy MUST fail locally; malformed, ambiguous, or mismatched query output MUST fail closed after at most one query. Diagnostic absence or failure MUST make no production-state claim and MUST NOT authorize mutation.
 
-- **GIVEN** corrected merges are present and one authorized ordinary receipt-only command is invoked
-- **WHEN** that command exits nonzero and no sanitized stderr receipt is captured
-- **THEN** G.2 is inconclusive and NO-GO, with no retry
-- **AND THEN** the record MUST NOT infer remote failure or success, transfer, preparation, archive handling, activation, `current`, PM2, HTTPS, or deployment status
-- **AND THEN** any later G.2 claim requires one captured sanitized receipt containing `release`, `execution_class`, `connection_count`, `identity`, `metadata`, `effective_root`, `transfer`, `preparation`, and `activation`
-- **AND THEN** the record MUST link the external executor/capture boundary defect in [Gentle AI #3180](https://github.com/gentle-ai/gentle-ai/issues/3180)
-
-#### Scenario: Receipt-only preflight establishes bounded evidence
+#### Scenario: Receipt-only diagnostic establishes bounded evidence
 - GIVEN an approved selector and complete comparison policy
-- WHEN receipt-only preflight runs
+- WHEN the optional receipt-only diagnostic runs
 - THEN one remote query derives the active release and effective root
 - AND the receipt reports `connection_count=1`, the applicable `execution_class`, identity and metadata outcomes, and `transfer=absent`, `preparation=absent`, and `activation=absent`
 - AND reviewed commit, activation-script SHA, `current` target, and runtime health remain explicitly unverified unless separately evidenced
+
+#### Scenario: Receipt-only diagnostic is absent or fails
+- GIVEN the optional diagnostic is not run or does not produce a valid receipt
+- WHEN an operator evaluates production state or activation authority
+- THEN the diagnostic makes no production-state claim
+- AND it does not authorize transfer, preparation, activation, service management, or any other mutation

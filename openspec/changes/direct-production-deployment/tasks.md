@@ -1,110 +1,40 @@
 # Tasks: Direct Production Deployment
 
-## Current State
+## Operating Model
 
-The current G.2 operational state is **inconclusive and NO-GO**. After corrected merges, one authorized ordinary receipt-only command was invoked once and exited nonzero, but no sanitized stderr receipt was captured. This does not establish a remote failure or success, or any result about transfer, preparation, archive handling, activation, `current`, PM2, HTTPS, or deployment. There was no retry. The external executor/capture boundary defect is reported in [Gentle AI #3180](https://github.com/gentle-ai/gentle-ai/issues/3180). Historical operational assertions without the required captured receipt are unverified.
+These three operational milestones replace the former granular delivery ceremony. They retain the safety outcomes while giving the operator one clear progression.
 
-The latest reconciliation is documentation-only: it records no new deployment or native-attempt execution and preserves only evidence-supported task boxes. The next runtime action is prohibited until the release-identity gate, POSIX handoff contract, and incomplete evidence are reconciled.
+### Completed repository foundations
 
-## Review Workload Forecast
+- [x] Reviewed dependency and Node.js 24 LTS runtime baseline, reviewed authentication policy, safe health/PM2 configuration, protected provisioning scripts, and local four-role denial coverage.
+- [x] POSIX release preparation and activation contracts with focused local checks for identity, ownership, runtime selection, preparation, and rollback guards.
 
-| Field | Value |
-|---|---|
-| Estimated changed lines | 900–1,250 across 16 independently merged PRs |
-| 400-line budget risk | High |
-| Chained PRs recommended | Yes |
-| Suggested split | PR 1: Step 1 → PR 16: Step 16; each targets the previous stack entry and merges to `main` before the next starts |
-| Delivery strategy | chained single-step PRs |
-| Chain strategy | stacked-to-main |
+Repository evidence does not establish VPS state. Every unchecked milestone below requires current, timestamped, sanitized operational evidence for one candidate SHA.
 
-Decision needed before apply: No
-Chained PRs recommended: Yes
-Chain strategy: stacked-to-main
-400-line budget risk: High
+## Milestone 1 — Host readiness
 
-## Mandatory Work-Unit Delivery Policy
+- [ ] Create application, immutable-release, configuration, and log directories with verified ownership and permissions; record the Node.js 24 LTS, npm, and PM2 runtime versions.
+- [ ] Run MongoDB as authenticated persistent storage on loopback only; prove an authenticated loopback connection and external-network refusal.
+- [ ] Configure backups and prove an isolated restore before production data is accepted.
+- [ ] Provision protected Admin and Olga accounts through reviewed scripts and root-only secrets; prove their login flows without recording credentials.
+- [ ] Set authoritative DNS and configure Nginx for HTTPS with a loopback-only application upstream; issue and validate TLS.
 
-Each canonical Step 1–16 is one independent work unit and one conventional-commit PR. For every step: complete its stated RED → GREEN work, run its focused evidence and runtime harness, push to GitHub, open the PR against the previous stack entry, verify it, and merge the stack to `main` before starting the next step. No multi-step or unreviewed out-of-sequence PRs are permitted.
+**Stop / rollback:** Any missing or failed readiness check is NO-GO. Do not transfer a candidate, alter `current`, or manage PM2. Revert only the affected host configuration to its prior known-safe state.
 
-| Unit | Likely PR | Focused test command | Runtime harness | Rollback boundary |
-|---|---|---|---|---|
-| 1 | PR 1 → `main` | Step 1 test/build/typecheck/audit | Clean checkout | Manifest/lockfile |
-| 2 | PR 2 → PR 1 | Step 2 compatibility regressions | Local app | Atomic dependency revert |
-| 3 | PR 3 → PR 2 | `tests/auth/**` | Login endpoint | Auth options |
-| 4 | PR 4 → PR 3 | `tests/health/**` | Loopback probe | Health/PM2 files |
-| 5 | PR 5 → PR 4 | `tests/scripts/**` | Disposable Mongo | Scripts |
-| 6 | PR 6 → PR 5 | `tests/http/**` | Local authenticated Mongo | Policy files/tests |
-| 7 | PR 7 → PR 6 | Ownership/permission verification | `sudo -u migue` file check | Deployment directories |
-| 8 | PR 8 → PR 7 | Version verification | Node/npm/PM2 versions | Toolchain/packages |
-| 9 | PR 9 → PR 8 | Mongo deployment validation | Auth loopback/external rejection | Mongo service/data volume |
-| 10 | PR 10 → PR 9 | Backup-to-restore integrity | Isolated Mongo restore | Backup configuration |
-| 11 | PR 11 → PR 10 | Step 6 HTTP suite | Protected script input | Created accounts |
-| 12 | PR 12 → PR 11 | Public DNS lookup | Authoritative/public lookup | DNS record |
-| 13 | PR 13 → PR 12 | TLS verification | TLS handshake | Nginx site/certificate |
-| 14 | PR 14 → PR 13 | Health endpoint check | Loopback `curl` | Prior release/PM2 reload |
-| 15 | PR 15 → PR 14 | Redirect/callback/login checks | Public HTTPS requests | Nginx enablement |
-| 16 | PR 16 → PR 15 | Production `tests/http/**` | Production evidence checklist | Prior verified release |
+## Milestone 2 — Candidate preparation and activation
 
-## Canonical Deployment Sequence
+- [ ] Establish separate candidate and rollback identities before activation. Candidate: the reviewed commit SHA, immutable candidate release-directory SHA, and candidate activation argument must match exactly. Rollback: the pre-activation `current` target and declared rollback argument must match each other, differ from the candidate SHA, and identify an immutable verified release.
+- [ ] Prepare and seal the candidate with the fixed Node.js 24 runtime configuration. Retain the verified rollback release as the declared rollback target.
+- [ ] Before any mutation, verify POSIX-compatible handoff behavior, remote identity, release-path owner/group/mode, root-only secret checks, build validation, and loopback health.
+- [ ] After explicit operator approval, run only the root-owned activation script. It must atomically replace `current` and manage PM2. After successful activation, verify and record that `current` resolves to the candidate full SHA, then prove loopback health plus a stable process PID and working directory.
 
-### Step 1: Clean dependencies; validate install, build, tests, typecheck, audit
-- [x] 1.1 RED: add/update dependency-baseline tests at `tests/dependencies/**`; prove failures for unsupported install/build/typecheck/audit states.
-- [x] 1.2 GREEN: clean `package.json` and `package-lock.json`; run `npm ci`, tests, typecheck, build, and `npm audit`. Harness: clean checkout. Rollback: manifest and lockfile.
+**Stop / rollback:** A missing SHA, mismatch, mutable release, failed preflight, failed health check, or unstable process stops before `current` or PM2 changes. If the candidate becomes unhealthy after activation, atomically restore the retained verified release, restart it through the approved runtime, and revalidate loopback traffic. Do not cross an unapproved data change.
 
-### Step 2: Update Next.js, NextAuth, and vulnerable dependencies without blind jumps
-- [x] 2.1 RED: add compatibility regression tests in `tests/auth/**` and `tests/dependencies/**` before each reviewed version increment.
-- [x] 2.2 GREEN: update reviewed versions in `package.json`/lockfile incrementally; rerun Step 1 evidence. Harness: local app. Rollback: atomic dependency revert.
+## Milestone 3 — Public acceptance
 
-### Step 3: Disable Google OAuth unless complete credentials exist
-- [x] 3.1 RED: test `tests/auth/**` produces no Google provider both with valid Google credentials and with Google credentials absent.
-- [x] 3.2 GREEN: configure `src/lib/auth/options.ts` to register only `CredentialsProvider` regardless of Google credentials. Harness: login endpoint. Rollback: auth options.
+- [ ] Confirm public HTTPS redirect, TLS certificate validity, callbacks, and login behavior for anonymous visitors, subscriber, Olga, and Admin, including their required denial cases.
+- [ ] Review release-aligned, sanitized PM2 and Nginx logs; confirm backup status, an isolated restore record, ACME test diagnosis, and TLS-renewal evidence.
+- [ ] Remove temporary protected credentials and retain only non-secret evidence of cleanup.
+- [ ] Record a named operator's explicit acceptance decision for the candidate SHA.
 
-### Step 4: Add safe healthcheck and PM2 configuration
-- [x] 4.1 RED: test safe health `200` and dependency-failure `503` without secrets in `tests/health/**`.
-- [x] 4.2 GREEN: implement/confirm `src/app/api/health/route.ts` and add `ops/pm2/ecosystem.config.cjs`. Harness: loopback probe. Rollback: health and PM2 files.
-
-### Step 5: Harden creation/seed scripts so they never target the wrong database
-- [x] 5.1 RED: test environment/database allowlist rejection in `tests/scripts/**`.
-- [x] 5.2 GREEN: harden creation/seed scripts under `scripts/**`. Harness: disposable Mongo only. Rollback: scripts.
-
-### Step 6: Add real HTTP tests for anonymous, subscriber, Olga, and Admin roles
-- [x] 6.1 RED: add four-role and cross-role-denial HTTP tests in `tests/http/**`.
-- [x] 6.2 GREEN: correct auth/route policy files required by failing tests. Harness: local authenticated Mongo. Rollback: policy files and tests.
-
-### Step 7: Create VPS app/release/log directories owned by `migue`
-- [ ] 7.1 Operational ownership/permissions status is unverified in this reconciliation; do not infer it from the uncaptured G.2 attempt. Harness: `sudo -u migue` create-file check. Rollback: deployment directories.
-
-### Step 8: Install Node.js 24 LTS, npm, PM2
-- [ ] 8.1 Operational Node/npm/PM2 status is unverified in this reconciliation; do not infer it from the uncaptured G.2 attempt. Harness: `node --version`, `npm --version`, `pm2 --version`. Rollback: packages/toolchain.
-
-### Step 9: Create private authenticated persistent MongoDB
-- [ ] 9.1 Operational deployment validation status is unverified in this reconciliation; do not infer it from the uncaptured G.2 attempt.
-- [ ] 9.2 Operational Mongo binding, authentication, and persistence status is unverified in this reconciliation; do not infer it from the uncaptured G.2 attempt. Harness: authenticated loopback connect plus external rejection. Rollback: Mongo service/data volume.
-
-### Step 10: Configure backups and prove restore before real data
-- [ ] 10.1 Operational backup/restore status is unverified in this reconciliation; do not infer it from the uncaptured G.2 attempt. Harness: backup-to-restore integrity check. Rollback: backup configuration.
-
-### Step 11: Create Admin and Olga using reviewed scripts without exposing credentials
-- [ ] 11.1 Run hardened scripts with protected input; verify each role can log in. Harness: Step 6 HTTP suite. Rollback: created accounts.
-
-### Step 12: Restore DNS `botanicaob.duckdns.org` to `212.227.149.125`
-- [ ] 12.1 Operational DNS status is unverified in this reconciliation; do not infer it from the uncaptured G.2 attempt. Harness: authoritative/public lookup. Rollback: DNS record.
-
-### Step 13: Configure Nginx and issue TLS with acme.sh
-- [ ] 13.1 Operational Nginx/TLS success is unverified in this reconciliation; do not infer it from the uncaptured G.2 attempt. A future authorized operational check requires its own captured, sanitized evidence. Harness: TLS handshake. Rollback: Nginx site/certificate.
-
-### Step 14: Publish the app with PM2 on `127.0.0.1:3000`
-- [ ] 14.1 Operational release, `current`, PM2, and loopback-health success are unverified in this reconciliation; do not infer them from the uncaptured G.2 attempt. Harness: `curl 127.0.0.1:3000/api/health`. Rollback: prior release and PM2 reload.
-
-### Blocking reconciliation gate: candidate release handoff
-- [ ] G.1 Record the same full SHA for the reviewed commit, sealed release directory, versioned activation script, and `current` target before activation. The receipt-only fields `release`, `connection_count`, `identity`, `metadata`, and `effective_root` do not establish the other identities; they remain unverified until separately evidenced. Any mismatch stops before symlink or PM2 changes.
-- [ ] G.2 is inconclusive and NO-GO. The one authorized ordinary receipt-only attempt after corrected merges exited nonzero without a captured sanitized stderr receipt; no remote result is inferred and no retry occurred. A later claim requires one captured sanitized receipt containing `release`, `execution_class`, `connection_count`, `identity`, `metadata`, `effective_root`, `transfer`, `preparation`, and `activation`. Receipt-only mode never establishes activation evidence. See [Gentle AI #3180](https://github.com/gentle-ai/gentle-ai/issues/3180) for the external executor/capture boundary defect.
-- [ ] G.3 Capture non-secret, release-aligned evidence for all role logins and denials, ACME test diagnosis, PM2/Nginx log review, and credential cleanup. A failure or missing record is NO-GO.
-
-### Step 15: Connect Nginx, force HTTPS, validate callbacks/login
-- [ ] 15.1 RED: execute HTTPS redirect, callback, and login checks before enabling public proxy.
-- [ ] 15.2 GREEN: enable Nginx proxy/HTTPS redirect; rerun checks. Harness: public HTTPS requests. Rollback: Nginx enablement.
-
-### Step 16: Run full smoke test for visitor, subscriber, Olga, Admin; review logs, backups, TLS renewal
-- [ ] 16.1 Run `tests/http/**` against production for all four roles and denial cases; inspect PM2/Nginx logs.
-- [ ] 16.2 Prove backup status and acme.sh renewal dry run. Harness: production evidence checklist. Rollback: prior verified release; NO-GO on any failure.
+**Stop / rollback:** A failed, missing, ambiguous, or unsanitized acceptance record is NO-GO. Keep the prior verified release serving, or roll back atomically to it if activation occurred. Do not claim public acceptance until every item passes.

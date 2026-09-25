@@ -8,6 +8,10 @@ const scriptPath = resolve(process.cwd(), 'ops/scripts/prepare-release.sh');
 const releaseSha = '835dd149c0ab2b3b4646d625adaefb63a0df3183';
 const nodeVersion = 'v24.13.1';
 const npmVersion = '11.10.0';
+const canonicalActivationIdentity = [
+  'readonly CANDIDATE_SHA="${1:-}"',
+  'readonly ROLLBACK_SHA="${2:-}"',
+].join('\n');
 const temporaryDirectories: string[] = [];
 type GuardCase =
   | [stage: string, environment: Record<string, string>, setup: (target: string) => void, stat: undefined]
@@ -35,6 +39,15 @@ function temporaryDirectory() {
 function command(directory: string, name: string, source: string) {
   writeFileSync(join(directory, name), `#!/bin/sh\n${source}`);
   chmodSync(join(directory, name), 0o755);
+}
+
+function archiveWithActivationIdentity(identity: string) {
+  return `/bin/mkdir -p "$RELEASE_DIR/ops/scripts"
+printf 'release\\n' > "$RELEASE_DIR/app.txt"
+cat > "$RELEASE_DIR/ops/scripts/activate-pm2-release.sh" <<'ACTIVATION_IDENTITY'
+${identity}
+ACTIVATION_IDENTITY
+`;
 }
 
 function run(
@@ -118,7 +131,7 @@ function run(
 *) exit 96 ;;
       esac
     `,
-    tar: `/bin/mkdir -p "$RELEASE_DIR/ops/scripts"\nprintf 'release\\n' > "$RELEASE_DIR/app.txt"\nprintf 'readonly CANDIDATE_SHA="\${1:-}"\\n' > "$RELEASE_DIR/ops/scripts/activate-pm2-release.sh"\n`,
+    tar: archiveWithActivationIdentity(canonicalActivationIdentity),
   };
   for (const [name, source] of Object.entries({ ...defaults, ...commandOverrides })) command(bin, name, source);
     const result = spawnSync('/usr/bin/unshare', ['-Ur', '-m', '/bin/sh', '-ceu', `
@@ -189,7 +202,7 @@ describe('local POSIX release preparation', () => {
     expect(entries).not.toContain('.env.example');
   });
 
-    it('selects the configured runtime explicitly, prepares, and seals the exact candidate', () => {
+    it('accepts the canonical activation identity, prepares, and seals the exact candidate', () => {
       const { npmCli, result, runtimeCalls, runtimeDirectory, target } = run();
       const nodeBin = join(runtimeDirectory, 'node');
       const shadowBin = join(temporaryDirectory(), 'node_modules', '.bin');
@@ -228,8 +241,10 @@ describe('local POSIX release preparation', () => {
         `${runtimeDirectory}:${shadowBin}||--version`,
       ]);
       expect(readFileSync(join(target, 'app.txt'), 'utf8')).toBe('release\n');
-      expect(existsSync(join(target, 'ops', 'scripts', 'activate-pm2-release.sh'))).toBe(true);
-      for (const path of [target, join(target, 'app.txt'), join(target, 'ops'), join(target, 'ops', 'scripts'), join(target, 'ops', 'scripts', 'activate-pm2-release.sh')]) {
+      const activationScript = join(target, 'ops', 'scripts', 'activate-pm2-release.sh');
+      expect(existsSync(activationScript)).toBe(true);
+      expect(readFileSync(activationScript, 'utf8')).toBe(`${canonicalActivationIdentity}\n`);
+      for (const path of [target, join(target, 'app.txt'), join(target, 'ops'), join(target, 'ops', 'scripts'), activationScript]) {
         expect(statSync(path).mode & 0o222, `${path} must be sealed`).toBe(0);
       }
     });
@@ -339,11 +354,14 @@ describe('local POSIX release preparation', () => {
     record(run(environment, commands).result, stage, status);
   });
 
-  it('records a late activation identity failure without activating', () => {
-    const { result, target } = run({}, {
-      tar: 'mkdir -p "$RELEASE_DIR/ops/scripts"\nprintf "readonly CANDIDATE_SHA=\\\"wrong\\\"\\n" > "$RELEASE_DIR/ops/scripts/activate-pm2-release.sh"\n',
-    });
+  it.each([
+    ['wrong candidate identity', 'readonly CANDIDATE_SHA="wrong"'],
+    ['legacy identity interface', 'readonly RELEASE_ID="${1:-}"'],
+    ['partial identity interface', 'readonly CANDIDATE_SHA="${1:-}"'],
+  ])('rejects a %s at activation_identity before sealing', (_name, identity) => {
+    const { result, target } = run({}, { tar: archiveWithActivationIdentity(identity) });
+
     record(result, 'activation_identity', 1);
-    expect(existsSync(join(target, 'app.txt'))).toBe(false);
+    expect(statSync(join(target, 'app.txt')).mode & 0o222).not.toBe(0);
   });
 });
