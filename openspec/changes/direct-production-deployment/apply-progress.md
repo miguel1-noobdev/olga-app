@@ -1,10 +1,12 @@
 # Apply Progress — Direct Production Deployment
 
 Change: `direct-production-deployment`
-Pass: documentation-only deployment-contract reconciliation.
-Scope: documentation and OpenSpec artifacts only; no source, tests, operations, VPS, Git, deployment, or native lifecycle changes.
+Initial reconciliation pass: documentation-only deployment-contract reconciliation.
+Scope of that pass only: documentation and OpenSpec artifacts; no source, tests, operations, VPS, deployment, or native lifecycle changes. Later local correction sections below record separate source and test work units, not part of that initial pass.
 
 ## Chronological Record
+
+This is historical incident evidence only. It does not define the current activation contract and is not a mandatory gate for activation.
 
 1. **Repository evidence:** Existing implementation and focused-test records remain repository evidence only; this pass does not convert them into remote operational evidence.
 2. **G.2 attempted receipt-only command:** After corrected merges, one authorized ordinary receipt-only command was invoked once and exited nonzero. No sanitized stderr receipt was captured. There was no retry.
@@ -25,13 +27,14 @@ Scope: documentation and OpenSpec artifacts only; no source, tests, operations, 
 
 ## Deployment Contract Reconciliation
 
-The next runtime action is prohibited. It may resume only after every gate below is reconciled for one full candidate SHA:
+The current activation contract is the reduced three-milestone operator path in `tasks.md` and `docs/runbook.md`. It applies to one full candidate SHA. The historical G.2 record below is not an activation contract or a mandatory activation gate.
 
-1. The reviewed commit SHA, sealed release-directory SHA, activation-script `RELEASE_ID`, and `current` symlink target match exactly.
-2. The remote handoff wrapper is POSIX-compatible, explicitly verifies SSH identity and release-path ownership/mode, avoids non-root `runuser`, and propagates every preflight failure.
-3. Timestamped, non-secret evidence is release-aligned and complete for role logins and denials, ACME test diagnosis, PM2/Nginx logs, backup/recovery, and credential cleanup.
+1. The candidate identity requires the reviewed commit SHA, immutable candidate release-directory SHA, and candidate activation argument to match exactly.
+2. Before mutation, `current` must resolve to a distinct declared rollback SHA that identifies an immutable verified release.
+3. After successful activation, record that `current` resolves to the candidate SHA.
+4. The remote handoff wrapper is POSIX-compatible, explicitly verifies SSH identity and release-path ownership/mode, avoids non-root `runuser`, and propagates every preflight failure.
 
-A failed, missing, ambiguous, or mismatched gate stops before activation. It does not switch `current`, invoke PM2, retry, or claim deployment of the candidate SHA.
+A failed, missing, ambiguous, or mismatched pre-activation identity or required milestone check stops before activation. It does not switch `current`, invoke PM2, retry, or claim deployment of the candidate SHA. A receipt-only diagnostic remains optional and non-authorizing; it cannot satisfy a milestone or authorize mutation.
 
 ### G.2 evidence facts
 
@@ -54,9 +57,9 @@ A failed, missing, ambiguous, or mismatched gate stops before activation. It doe
 
 ## Current Status
 
-- **Operational status:** G.2 is inconclusive and NO-GO; historical operational assertions without the required captured receipt are unverified.
-- **Blocking before the next runtime action:** G.1–G.3, 11.1, 12.1, 13.1, 14.1, 15.1, 15.2, 16.1, and 16.2.
-- **Next phase:** `sdd-verify` after the remaining tasks are completed; archive remains blocked until verification evidence exists.
+- **Operational status:** Runtime state remains unverified. The historical G.2 incident is inconclusive and does not define the active activation contract.
+- **Active blockers:** Complete and record evidence for Milestone 1 (Host readiness), Milestone 2 (Candidate preparation and activation), and Milestone 3 (Public acceptance).
+- **Next phase:** `sdd-verify` after the three reduced milestones are completed; archive remains blocked until verification evidence exists.
 
 ## Replaced operational assertions
 

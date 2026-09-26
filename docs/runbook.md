@@ -151,38 +151,60 @@ If delivery or access checks fail, stop activation and restore the prior release
 
 ## Production deployment contract
 
-### G.2 evidence status and freeze
+### Reduced operator path
 
-**NO-GO:** G.2 is inconclusive. After the corrected merges, one authorized ordinary receipt-only command was invoked once and exited nonzero. No sanitized stderr receipt was captured. The absence of that captured receipt means this record cannot determine the remote outcome, the receipt fields, or whether the command reached the remote executor. It does not imply remote failure or success, transfer, preparation, archive handling, activation, a `current` target, PM2 state, HTTPS state, or deployment status. There was no retry.
+Work one candidate SHA through these three milestones. Each requires timestamped, sanitized evidence and an explicit operator decision. A failed, missing, ambiguous, or unsanitized check is NO-GO; do not advance to the next milestone.
 
-The external executor/capture boundary defect is publicly reported in [Gentle AI #3180](https://github.com/gentle-ai/gentle-ai/issues/3180). Do not restore historical operational claims from this missing receipt.
+#### 1. Host readiness
 
-A later G.2 claim requires one captured, sanitized receipt for the authorized receipt-only attempt containing exactly these contract fields: `release`, `execution_class`, `connection_count`, `identity`, `metadata`, `effective_root`, `transfer`, `preparation`, and `activation`. Until that evidence exists, release identity, remote identity, owner/group/mode comparison, preflight outcome, and the absence of transfer, preparation, and activation are all unverified.
+1. Verify application, immutable-release, configuration, and log directories with their intended ownership and permissions; record Node.js 24 LTS, npm, and PM2 versions.
+2. Run MongoDB as authenticated persistent storage on loopback only. Prove authenticated loopback access and public-network refusal.
+3. Prove backup and isolated restore before accepting production data.
+4. Provision protected Admin and Olga accounts with root-only secrets and reviewed scripts; retain no credentials in evidence.
+5. Confirm authoritative DNS, Nginx HTTPS, a loopback-only application upstream, and valid TLS.
+
+Failure leaves production activation untouched. Revert only the affected host configuration to its prior known-safe state.
+
+#### 2. Candidate preparation and activation
+
+1. Select one reviewed full SHA and complete the release identity gate below.
+2. Prepare and seal an immutable release with the fixed runtime configuration. Retain the prior verified compatible release as the declared rollback target.
+3. Verify the POSIX handoff contract, root-only secret-file checks, build result, and loopback health before mutation.
+4. After explicit operator approval, use only the root-owned activation script to atomically update `current` and manage PM2. After successful activation, verify and record that `current` resolves to the candidate full SHA, then confirm loopback health and stable process identity.
+
+A mismatch, preflight failure, mutable release, failed health check, or unstable process stops before `current` or PM2 changes. If the candidate becomes unhealthy after activation, atomically restore the retained release and revalidate loopback traffic. Do not cross an unapproved data change.
+
+#### 3. Public acceptance
+
+1. Confirm HTTPS redirect, certificate validity, callbacks, and login behavior for anonymous visitors, subscriber, Olga, and Admin, including denial cases.
+2. Review sanitized, release-aligned PM2 and Nginx logs; confirm backup status, isolated restore evidence, ACME test diagnosis, and TLS-renewal evidence.
+3. Remove temporary protected credentials and retain only non-secret proof of cleanup.
+4. Record a named operator's explicit public-acceptance decision for the candidate SHA.
+
+A failed or incomplete acceptance record is NO-GO. Keep the prior verified release serving, or atomically roll back to it if activation occurred. Do not claim public acceptance until every item passes.
 
 ### Release identity gate
 
-Activation is permitted only when all four identities match exactly:
+Activation requires two separate identities:
 
 | Identity | Required value |
 |---|---|
-| Committed SHA | The reviewed Git commit selected for deployment. |
-| Immutable release SHA | The full commit SHA naming the sealed release directory. |
-| Activation argument | The full candidate SHA supplied to the reviewed, versioned activation script. |
-| `current` symlink target | The sealed release directory named by that same full SHA. |
+| Candidate | The reviewed commit SHA, immutable candidate release-directory SHA, and candidate activation argument are the same full SHA. |
+| Rollback | The pre-activation `current` target and declared rollback argument are the same full SHA, distinct from the candidate SHA, and name an immutable verified release. |
 
-The operator records all four non-secret values before activation. A mismatch, missing value, unresolved symlink, mutable release content, or failed preflight is a hard failure: do not switch `current`, start or reload PM2, retry, or continue to later gates.
+The operator records both non-secret SHA values before activation. A mismatch, missing value, unresolved symlink, mutable release content, or failed preflight is a hard failure: do not switch `current`, start or reload PM2, retry, or continue to later gates.
 
-### Required gate order
+### Activation controls
 
-All gates precede activation and each must produce timestamped, non-secret evidence for the same candidate SHA:
+For the selected candidate SHA and its distinct declared rollback SHA, the operator must record these checks before activation:
 
-1. Confirm the four release identities and the release directory ownership, mode, and immutable content checks.
-2. Run the reviewed build and focused validation for that committed SHA.
-3. Check the activation script's interpreter and syntax with the interpreter named in its shebang; never execute Bash syntax through `sh`.
-4. Validate secret-file existence, root ownership, mode `0600`, required variable presence, and runtime identity without printing values.
-5. Verify DNS, TLS, loopback health, database/backup recovery, and the ACME test result. Diagnose a failed ACME test before activation; a non-root Nginx validation that cannot read the private key is inconclusive, not passing evidence.
-6. Capture release-aligned PM2 and Nginx diagnostics, then prove anonymous, subscriber, productora, and admin flows plus their denial cases.
-7. Only after every gate passes may the root-only activation script atomically replace `current` and manage PM2. Re-run loopback and public acceptance checks against the activated SHA.
+1. The candidate identity, rollback identity, release-directory ownership and mode, and immutable-content checks.
+2. The reviewed build and focused validation.
+3. The activation script's interpreter and syntax using its shebang interpreter; never run Bash syntax through `sh`.
+4. Secret-file existence, root ownership, mode `0600`, required-variable presence, and runtime identity without printing values.
+5. DNS, TLS, loopback health, database backup/recovery, and the ACME test result. Diagnose a failed ACME test before activation; a non-root Nginx check unable to read the private key is inconclusive, not passing.
+
+Only after these checks pass and approval is recorded may the root-only activation script atomically replace `current` and manage PM2. After successful activation, verify and record that `current` resolves to the candidate SHA before re-running loopback and public-acceptance checks against that SHA.
 
 ### Versioned POSIX release handoff
 
@@ -192,13 +214,17 @@ Before any transfer, the wrapper must explicitly record and verify the remote SS
 
 The handoff must name the full candidate SHA in its release directory and preserve the prior `current` target for rollback. It stops at the first failure and records the failed gate, command class, timestamp, remote identity, and non-secret metadata. It does not retry or activate a different SHA.
 
-For a non-mutating receipt-only preflight, invoke the wrapper without archive standard input. `HANDOFF_RECEIPT_ONLY=1` accepts an approved non-secret endpoint selector plus owner/group/mode policy; it derives the active managed release and effective root within its single remote query, then validates the canonical lowercase 40-character SHA, immutable release relationship, and metadata policy. Do not supply a candidate SHA or remote root for this mode:
+#### Optional receipt-only diagnostic
+
+This optional diagnostic is not part of the deployment gate and does not authorize mutation. It may inspect a managed release without archive standard input. `HANDOFF_RECEIPT_ONLY=1` accepts an approved non-secret endpoint selector plus owner/group/mode policy; it derives the active managed release and effective root within one remote query, then validates the canonical lowercase 40-character SHA, immutable release relationship, and metadata policy. Do not supply a candidate SHA or remote root for this mode:
 
 ```bash
 HANDOFF_RECEIPT_ONLY=1 RECEIPT_ENDPOINT_SELECTOR=<approved-selector> EXPECTED_RELEASE_OWNER=<owner> EXPECTED_RELEASE_GROUP=<group> EXPECTED_RELEASE_MODE=<mode> /bin/sh ops/scripts/handoff-release.sh
 ```
 
-The receipt is a sanitized `key=value` record. `release` is the active SHA derived from the managed process; `connection_count=1` proves the query budget; `identity` and `metadata` report matched or failed comparisons; `effective_root=derived` means the root was derived without printing it. `execution_class=remote_command_failure` means the one SSH command exited nonzero; `execution_class=invalid_remote_output` means it exited successfully but did not return a valid managed-release record; `execution_class=success` means the remote command and its managed-release record were valid; and `execution_class=not_attempted` means local input validation stopped before the query. `transfer=absent`, `preparation=absent`, and `activation=absent` are explicit non-mutation evidence. Missing selector or policy fails before remote work; malformed, ambiguous, or mismatched discovery fails closed after that one query. A receipt has no fields for the reviewed commit, activation-script SHA, `current` target, PM2 state, serving health, or caller-side capture: those G.1/G.2 facts and external capture remain unverified until their separate named evidence exists.
+The receipt is a sanitized `key=value` record. `release` is the active SHA derived from the managed process; `connection_count=1` proves the query budget; `identity` and `metadata` report matched or failed comparisons; `effective_root=derived` means the root was derived without printing it. `execution_class=remote_command_failure` means the one SSH command exited nonzero; `execution_class=invalid_remote_output` means it exited successfully but did not return a valid managed-release record; `execution_class=success` means the remote command and its managed-release record were valid; and `execution_class=not_attempted` means local input validation stopped before the query. `transfer=absent`, `preparation=absent`, and `activation=absent` are explicit non-mutation evidence. Missing selector or policy fails before remote work; malformed, ambiguous, or mismatched discovery fails closed after that one query.
+
+A diagnostic receipt has no fields for the reviewed commit, activation-script SHA, `current` target, PM2 state, serving health, or caller-side capture. Its absence or failure makes no production-state claim and cannot authorize transfer, preparation, activation, service management, or any other mutation.
 
 `ops/scripts/prepare-release.sh` is the POSIX (`/bin/sh`) preparation stage. Production runtime selection comes only from the fixed-shape, non-secret runtime configuration `${APP_ROOT}/config/node24-runtime.conf` file (`/srv/botanica-ob/config/node24-runtime.conf` when production `APP_ROOT=/srv/botanica-ob`) with exactly this shape:
 
@@ -231,7 +257,7 @@ sudo /srv/botanica-ob/releases/<full-candidate-sha>/ops/scripts/activate-pm2-rel
 
 Candidate activation fully validates the fixed Node 24 and Node 20 runtime pairs before mutation and invokes candidate PM2 only through Node 24. `current` must resolve to the declared immutable rollback release; after a candidate failure, it deletes through Node 24, atomically restores that link, then starts and proves the rollback through Node 20 (`rollback=passed` requires loopback HTTP 200 and a stable Node 20 PID/cwd; otherwise `rollback=failed`).
 
-The focused local sandbox tests cover the successful preparation path; every pre-extraction guard; late writability failure; activation-ID rejection; and exact failures from `id`, `stat`, extraction, install, build, and sealing. They do not prove a remote handoff, VPS build or sealing, rollback, G.2, or any later runtime gate. G.2 remains NO-GO until a later authorized receipt-only attempt produces the complete captured non-secret receipt named above.
+The focused local sandbox tests cover the successful preparation path; every pre-extraction guard; late writability failure; activation-ID rejection; and exact failures from `id`, `stat`, extraction, install, build, and sealing. They do not prove a remote handoff, VPS build or sealing, rollback, or any runtime gate.
 
 ### One-time credential handling and evidence
 
@@ -257,6 +283,5 @@ Evidence may include timestamps, command names, exit statuses, HTTP statuses, SH
 
 ## Remaining operational gaps
 
-- G.2 is inconclusive because the single authorized receipt-only attempt exited nonzero without a captured sanitized stderr receipt. It is NO-GO; no remote operational outcome may be asserted.
-- Release identity, remote identity, ownership/mode comparison, and non-mutation fields remain unverified until a captured receipt contains the required contract fields.
+- Host readiness, candidate preparation/activation, and public-acceptance evidence remain pending; do not make a production-state claim without the applicable milestone evidence.
 - No centralized log aggregation or alerting.
