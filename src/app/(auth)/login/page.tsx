@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import LoginForm from '@/components/auth/login-form';
 import { getDefaultRedirectForRole } from '@/lib/auth/role-redirect';
+import { getGoogleOAuthConfig } from '@/lib/auth/google';
 
 export default async function LoginPage() {
   const session = await getServerSession(authOptions);
@@ -22,7 +23,7 @@ export default async function LoginPage() {
         </div>
 
         {/* Form Card */}
-        <LoginForm />
+        <LoginForm googleEnabled={Boolean(getGoogleOAuthConfig())} />
 
         {/* Back to Home */}
         <div className="mt-4 text-center">

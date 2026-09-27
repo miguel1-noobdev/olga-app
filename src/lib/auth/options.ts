@@ -78,7 +78,7 @@ export const authOptions: NextAuthOptions = {
       const email = normalizeGoogleEmail(profile.email);
       const existingUser = await repo.findByEmail(email);
       if (existingUser) {
-        return false;
+        return '/login?error=AccountInUse';
       }
 
       const createdUser = await repo.create({

@@ -60,7 +60,7 @@ describe('authOptions Google signIn callback', () => {
     expect(dbUser).toBeNull();
   });
 
-  it('denies email-only matching without explicit linking', async () => {
+  it('returns an account-in-use redirect without linking an existing credentials account', async () => {
     enableGoogle();
     const repo = createUserRepository();
     await repo.create({
@@ -74,13 +74,19 @@ describe('authOptions Google signIn callback', () => {
 
     const result = await signIn({
       user: { email: 'existing@example.com', name: 'Existing' },
-      account: { provider: 'google', type: 'oauth' },
+      account: {
+        provider: 'google',
+        type: 'oauth',
+        providerAccountId: 'google-existing',
+      },
+      profile: { email: 'existing@example.com', email_verified: true },
     } as any);
 
-    expect(result).toBe(false);
+    expect(result).toBe('/login?error=AccountInUse');
 
     const dbUser = await repo.findByEmail('existing@example.com');
     expect(dbUser!.role).toBe('admin');
+    expect(await IdentityModel.countDocuments()).toBe(0);
   });
 
   it('signs in an existing identity without changing its role', async () => {

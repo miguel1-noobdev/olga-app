@@ -8,7 +8,11 @@ import { sanitizeCallbackUrl } from '@/lib/auth/sanitize-callback-url';
 import { performCredentialsLogin } from '@/lib/auth/credentials-login';
 import { getDefaultRedirectForRole } from '@/lib/auth/role-redirect';
 
-function LoginFormInner() {
+interface LoginFormProps {
+  googleEnabled?: boolean;
+}
+
+function LoginFormInner({ googleEnabled = false }: LoginFormProps) {
   const searchParams = useSearchParams();
 
   const [email, setEmail] = useState('');
@@ -22,7 +26,11 @@ function LoginFormInner() {
   const callbackUrl = sanitizeCallbackUrl(searchParams.get('callbackUrl'));
 
   useEffect(() => {
-    if (errorParam === 'CredentialsSignin') {
+    if (errorParam === 'AccountInUse') {
+      setError(
+        'Ese correo ya está asociado a una cuenta. Iniciá sesión con email y contraseña.',
+      );
+    } else if (errorParam === 'CredentialsSignin') {
       setError('Credenciales inválidas. Verificá tu email y contraseña.');
     } else if (errorParam) {
       setError('Error de autenticación. Intentá de nuevo.');
@@ -66,6 +74,18 @@ function LoginFormInner() {
     } catch {
       setError('Ocurrió un error. Intentá de nuevo.');
     } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function handleGoogleSignIn() {
+    setError('');
+    setIsLoading(true);
+
+    try {
+      await signIn('google', { callbackUrl });
+    } catch {
+      setError('Ocurrió un error. Intentá de nuevo.');
       setIsLoading(false);
     }
   }
@@ -140,6 +160,27 @@ function LoginFormInner() {
 
       </form>
 
+      {googleEnabled && (
+        <>
+          <div className="my-6 flex items-center gap-3" aria-hidden="true">
+            <span className="h-px flex-1 bg-surface-border" />
+            <span className="text-sm text-on-surface-variant">o</span>
+            <span className="h-px flex-1 bg-surface-border" />
+          </div>
+          <button
+            type="button"
+            onClick={handleGoogleSignIn}
+            disabled={isLoading}
+            className="w-full rounded-lg border border-surface-border bg-surface px-4 py-3
+                       font-medium text-on-surface transition-colors hover:bg-surface-variant
+                       focus:outline-none focus:ring-2 focus:ring-primary/50
+                       disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Continuar con Google
+          </button>
+        </>
+      )}
+
       {/* Register Link */}
       <div className="mt-6 text-center">
         <p className="text-sm text-on-surface-variant">
@@ -156,10 +197,10 @@ function LoginFormInner() {
   );
 }
 
-export default function LoginForm() {
+export default function LoginForm({ googleEnabled = false }: LoginFormProps) {
   return (
     <Suspense fallback={<div className="glass-card p-8 text-center text-on-surface-variant">Cargando...</div>}>
-      <LoginFormInner />
+      <LoginFormInner googleEnabled={googleEnabled} />
     </Suspense>
   );
 }

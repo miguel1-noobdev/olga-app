@@ -51,12 +51,40 @@ describe('LoginForm component', () => {
     expect(registerLink).toHaveAttribute('href', '/register');
   });
 
-  it('does not render a Google sign-in affordance', () => {
+  it('does not render a Google sign-in affordance when Google is disabled', () => {
     render(<LoginForm />);
 
     expect(screen.queryByRole('button', { name: /google/i })).not.toBeInTheDocument();
     expect(screen.queryByText(/continuar con google/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/^o$/i)).not.toBeInTheDocument();
+  });
+
+  it('starts Google sign-in with the sanitized callback when Google is enabled', async () => {
+    useSearchParamsMock.mockReturnValue(
+      new URLSearchParams({ callbackUrl: '/jardin-digital/lavanda' }),
+    );
+    signInMock.mockResolvedValue(undefined);
+    const user = userEvent.setup();
+
+    render(<LoginForm googleEnabled />);
+    await user.click(screen.getByRole('button', { name: 'Continuar con Google' }));
+
+    expect(signInMock).toHaveBeenCalledTimes(1);
+    expect(signInMock).toHaveBeenCalledWith('google', {
+      callbackUrl: '/jardin-digital/lavanda',
+    });
+  });
+
+  it('shows the account-in-use notice returned by Google sign-in', () => {
+    useSearchParamsMock.mockReturnValue(new URLSearchParams({ error: 'AccountInUse' }));
+
+    render(<LoginForm googleEnabled />);
+
+    expect(
+      screen.getByText(
+        'Ese correo ya está asociado a una cuenta. Iniciá sesión con email y contraseña.',
+      ),
+    ).toBeInTheDocument();
   });
 
   it('shows error when fields are empty on submit', async () => {
