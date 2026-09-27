@@ -179,7 +179,7 @@ describe('Google linking HTTP contract', () => {
     expect(linkedUser.role).toBe('productora');
   });
 
-  it('denies OAuth sign-in when a verified Google email only matches a local account', async () => {
+  it('redirects an existing local email without linking a Google identity', async () => {
     await createUserRepository().create({
       email: 'local@example.test',
       password: 'local-password',
@@ -193,7 +193,7 @@ describe('Google linking HTTP contract', () => {
       profile: { email: 'local@example.test', email_verified: true },
     } as never);
 
-    expect(result).toBe(false);
+    expect(result).toBe('/login?error=AccountInUse');
     await expect(IdentityModel.findOne({
       provider: 'google',
       providerAccountId: 'google-account-2',
