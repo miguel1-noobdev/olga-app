@@ -46,3 +46,6 @@ img/WhatsApp Image*.jpeg
 .vscode/
 .idea/
 *.swp
+
+# Local Pi runtime state
+.atl/
