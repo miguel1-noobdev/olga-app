@@ -255,9 +255,21 @@ After every preceding gate has passed, activate only the prepared candidate with
 sudo /srv/botanica-ob/releases/<full-candidate-sha>/ops/scripts/activate-pm2-release.sh <full-candidate-sha> <full-rollback-sha>
 ```
 
-Candidate activation fully validates the fixed Node 24 and Node 20 runtime pairs before mutation and invokes candidate PM2 only through Node 24. `current` must resolve to the declared immutable rollback release; after a candidate failure, it deletes through Node 24, atomically restores that link, then starts and proves the rollback through Node 20 (`rollback=passed` requires loopback HTTP 200 and a stable Node 20 PID/cwd; otherwise `rollback=failed`).
+Candidate activation fully validates the fixed Node 24 and Node 20 runtime pairs before mutation and invokes candidate PM2 only through Node 24. `current` must resolve to the declared immutable rollback release; after a candidate failure, it deletes through Node 24, atomically restores that link, then starts and proves the rollback through Node 20 (`rollback=passed` requires loopback HTTP 200 and a stable Node 20 PID/executable/cwd; otherwise `rollback=failed`).
 
-The focused local sandbox tests cover the successful preparation path; every pre-extraction guard; late writability failure; activation-ID rejection; and exact failures from `id`, `stat`, extraction, install, build, and sealing. They do not prove a remote handoff, VPS build or sealing, rollback, or any runtime gate.
+#### Post-success release rollback
+
+If public OAuth acceptance fails after a successful activation, first disable `GOOGLE_OAUTH_ENABLED` in the protected secrets file through the approved operator procedure without printing or recording secret values. Then invoke the root-only activation script from the expected-current immutable release:
+
+```bash
+sudo /srv/botanica-ob/releases/<full-expected-current-sha>/ops/scripts/activate-pm2-release.sh --rollback <full-expected-current-sha> <full-target-old-sha>
+```
+
+The expected-current SHA must match the exact immutable release currently served; the distinct target-old SHA must identify the immutable release to restore. Before mutation, this mode validates root execution, both releases, `current`, and the pinned root-owned Node 24/Node 20 runtime configuration. It deletes the serving PM2 app through Node 24, atomically changes `current`, starts the target through Node 20, and requires loopback HTTP 200 plus a stable Node 20 PID, executable, and working directory. It verifies that `current` remains a symlink resolving exactly to the target immediately after startup and again after health and process proof. The sanitized UTC receipt includes both SHAs and the exit status. If rollback fails after mutation begins, the script attempts to restore and prove the expected-current candidate with the same `current` checks; an uncertain outcome is never reported as success.
+
+This code rollback does not edit protected secrets, toggle Google OAuth, or change MongoDB identities, account roles, credentials, or other data. Disabling the OAuth flag is a separate operator action performed before the rollback command; do not reverse database identity or role changes as part of release rollback.
+
+The focused local sandbox tests cover successful preparation, rollback success and recovery failures, pre-extraction guards, late writability failure, activation-ID rejection, and exact failures from `id`, `stat`, extraction, install, build, and sealing. They do not prove a remote handoff, VPS build or sealing, production rollback, or any production runtime gate.
 
 ### One-time credential handling and evidence
 

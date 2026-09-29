@@ -21,6 +21,26 @@ describe('PM2 immutable release activation', () => {
     }
   });
 
+  it('requires distinct full lowercase expected-current and target-old SHAs for explicit rollback', () => {
+    for (const arguments_ of [
+      ['--rollback'],
+      ['--rollback', candidateSha],
+      ['--rollback', candidateSha, candidateSha],
+      ['--rollback', 'A'.repeat(40), rollbackSha],
+      ['--rollback', candidateSha, rollbackSha, 'extra'],
+    ]) {
+      const result = run(...arguments_);
+
+      expect(result.status, result.stderr).toBe(1);
+      expect(result.stderr).toContain('Distinct full 40-character lowercase expected-current and target-old Git SHAs are required.');
+    }
+
+    const valid = run('--rollback', candidateSha, rollbackSha);
+
+    expect(valid.status, valid.stderr).toBe(1);
+    expect(valid.stderr).toContain(`Prepared immutable release is unavailable: ${candidateSha}`);
+  });
+
   it('derives the candidate target from its valid caller-supplied SHA and rejects an unprepared release', () => {
     const result = run(candidateSha, rollbackSha);
 

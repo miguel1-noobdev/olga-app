@@ -16,6 +16,12 @@ if [[ -n ${APP_ROOT:-} && "$APP_ROOT" != "$PRODUCTION_APP_ROOT" ]] && ! is_unpri
 fi
 
 readonly APP_ROOT="${APP_ROOT:-$PRODUCTION_APP_ROOT}"
+activation_mode=activation
+argument_count=$#
+if [[ "${1:-}" == '--rollback' ]]; then
+  activation_mode=rollback
+  set -- "${2:-}" "${3:-}"
+fi
 readonly CANDIDATE_SHA="${1:-}"
 readonly ROLLBACK_SHA="${2:-}"
 readonly RELEASE_DIR="$APP_ROOT/releases/$CANDIDATE_SHA"
@@ -30,9 +36,13 @@ readonly HEALTH_TIMEOUT_SECONDS="${HEALTH_TIMEOUT_SECONDS:-30}"
 readonly HEALTH_RETRY_INTERVAL_SECONDS=1
 
 activation_started=0
+post_success_rollback_started=0
 active_pm2_pid=""
 current_tmp=""
 restore_tmp=""
+recovery_tmp=""
+receipt_expected_current_sha=unverified
+receipt_target_old_sha=unverified
 exec {rollback_output_fd}>&2
 
 die() {
@@ -148,6 +158,94 @@ interrupt_activation() {
   exit "$status"
 }
 
+verify_node_process() {
+  local runtime="$1" release_dir="$2" node_bin process_pid stable_pid
+  if [[ "$runtime" == 24 ]]; then
+    node_bin="$NODE24_BIN"
+    if ! process_pid="$(run_node24_pm2 "$release_dir" pid "$PM2_APP" 2>/dev/null)"; then return 1; fi
+  else
+    node_bin="$NODE20_BIN"
+    if ! process_pid="$(run_node20_pm2 "$release_dir" pid "$PM2_APP" 2>/dev/null)"; then return 1; fi
+  fi
+  [[ "$process_pid" =~ ^[1-9][0-9]*$ ]] || return 1
+  sleep "$HEALTH_RETRY_INTERVAL_SECONDS"
+  if [[ "$runtime" == 24 ]]; then
+    if ! stable_pid="$(run_node24_pm2 "$release_dir" pid "$PM2_APP" 2>/dev/null)"; then return 1; fi
+  else
+    if ! stable_pid="$(run_node20_pm2 "$release_dir" pid "$PM2_APP" 2>/dev/null)"; then return 1; fi
+  fi
+  [[ "$stable_pid" == "$process_pid" ]] &&
+    [[ "$(readlink -f "/proc/$process_pid/exe" 2>/dev/null)" == "$node_bin" ]] &&
+    [[ "$(readlink -f "/proc/$process_pid/cwd" 2>/dev/null)" == "$release_dir" ]]
+}
+
+current_resolves_to() {
+  [[ -L "$CURRENT_LINK" && "$(realpath -- "$CURRENT_LINK" 2>/dev/null)" == "$1" ]]
+}
+
+write_post_success_rollback_receipt() {
+  local outcome="$1" status="$2" recovery="$3" timestamp recovery_field=""
+  timestamp="$(date -u '+%Y-%m-%dT%H:%M:%SZ' 2>/dev/null)" || timestamp=1970-01-01T00:00:00Z
+  [[ -z "$recovery" ]] || recovery_field=" recovery=$recovery"
+  printf 'rollback=%s expected_current_sha=%s target_sha=%s timestamp=%s status=%s%s\n' \
+    "$outcome" "$receipt_expected_current_sha" "$receipt_target_old_sha" "$timestamp" "$status" "$recovery_field" \
+    >&"$rollback_output_fd"
+}
+
+recover_expected_current_candidate() {
+  local recovery=passed
+  run_node24_pm2 "$RELEASE_DIR" delete "$PM2_APP" >/dev/null 2>&1 || recovery=failed
+  recovery_tmp="$APP_ROOT/.current.recovery.$$"
+  if ! rm -f "$recovery_tmp" || ! ln -s "$RELEASE_DIR" "$recovery_tmp" || ! mv -Tf "$recovery_tmp" "$CURRENT_LINK" ||
+    [[ "$(realpath -- "$CURRENT_LINK" 2>/dev/null)" != "$RELEASE_DIR" ]]; then
+    recovery=failed
+  fi
+  if current_resolves_to "$RELEASE_DIR"; then
+    run_node24_pm2 "$RELEASE_DIR" start "$PM2_CONFIG" --only "$PM2_APP" --update-env >/dev/null 2>&1 || recovery=failed
+    current_resolves_to "$RELEASE_DIR" || recovery=failed
+    wait_for_health || recovery=failed
+    verify_node_process 24 "$RELEASE_DIR" || recovery=failed
+    current_resolves_to "$RELEASE_DIR" || recovery=failed
+  else
+    recovery=failed
+  fi
+  rm -f "$recovery_tmp" || recovery=failed
+  [[ "$recovery" == passed ]]
+}
+
+rollback_post_success() {
+  local status=$? recovery=not-needed
+  trap - EXIT TERM INT
+  set +e
+  (( status != 0 )) || status=1
+  if (( post_success_rollback_started == 1 )); then
+    recovery=failed
+    recover_expected_current_candidate && recovery=passed
+  fi
+  [[ -z "$current_tmp" ]] || rm -f "$current_tmp" || recovery=failed
+  [[ -z "$recovery_tmp" ]] || rm -f "$recovery_tmp" || recovery=failed
+  write_post_success_rollback_receipt failed "$status" "$recovery"
+  exit "$status"
+}
+
+run_post_success_rollback() {
+  post_success_rollback_started=1
+  run_node24_pm2 "$RELEASE_DIR" delete "$PM2_APP" >/dev/null 2>&1
+  current_tmp="$APP_ROOT/.current.post-rollback.$$"
+  rm -f "$current_tmp"
+  ln -s "$ROLLBACK_DIR" "$current_tmp"
+  mv -Tf "$current_tmp" "$CURRENT_LINK"
+  current_resolves_to "$ROLLBACK_DIR" || die 'Current release did not switch to the requested rollback target.'
+  run_node20_pm2 "$ROLLBACK_DIR" start "$ROLLBACK_DIR/ops/pm2/ecosystem.config.cjs" --only "$PM2_APP" --update-env >/dev/null 2>&1
+  current_resolves_to "$ROLLBACK_DIR" || die 'Current release changed during rollback.'
+  wait_for_health || die 'Post-success rollback health check failed.'
+  verify_node_process 20 "$ROLLBACK_DIR" || die 'Post-success rollback process identity is not stable.'
+  current_resolves_to "$ROLLBACK_DIR" || die 'Current release changed during rollback.'
+  rm -f "$current_tmp"
+  write_post_success_rollback_receipt passed 0 ''
+  trap - EXIT TERM INT
+}
+
 rollback() {
   local status=$? recovery=passed rollback_pid stable_pid
   trap - EXIT TERM INT
@@ -178,11 +276,23 @@ rollback() {
   exit "$status"
 }
 
-trap rollback EXIT
+if [[ "$activation_mode" == rollback ]]; then
+  trap rollback_post_success EXIT
+else
+  trap rollback EXIT
+fi
 trap 'interrupt_activation 143' TERM
 trap 'interrupt_activation 130' INT
 
-if (( $# != 2 )) || ! [[ "$CANDIDATE_SHA" =~ ^[0-9a-f]{40}$ && "$ROLLBACK_SHA" =~ ^[0-9a-f]{40}$ ]] || [[ "$CANDIDATE_SHA" == "$ROLLBACK_SHA" ]]; then
+if [[ "$activation_mode" == rollback ]]; then
+  if (( argument_count != 3 )) || ! [[ "$CANDIDATE_SHA" =~ ^[0-9a-f]{40}$ && "$ROLLBACK_SHA" =~ ^[0-9a-f]{40}$ ]] ||
+    [[ "$CANDIDATE_SHA" == "$ROLLBACK_SHA" ]]; then
+    die 'Distinct full 40-character lowercase expected-current and target-old Git SHAs are required.'
+  fi
+  receipt_expected_current_sha="$CANDIDATE_SHA"
+  receipt_target_old_sha="$ROLLBACK_SHA"
+elif (( argument_count != 2 )) || ! [[ "$CANDIDATE_SHA" =~ ^[0-9a-f]{40}$ && "$ROLLBACK_SHA" =~ ^[0-9a-f]{40}$ ]] ||
+  [[ "$CANDIDATE_SHA" == "$ROLLBACK_SHA" ]]; then
   die 'Distinct full 40-character lowercase candidate and rollback Git SHAs are required.'
 fi
 [[ "$HEALTH_TIMEOUT_SECONDS" =~ ^[0-9]+$ ]] || die 'Health timeout is invalid.'
@@ -191,6 +301,9 @@ validate_release "$CANDIDATE_SHA" "$RELEASE_DIR"
 validate_release "$ROLLBACK_SHA" "$ROLLBACK_DIR"
 
 if ! [[ "$(id -u)" == "0" ]]; then
+  if [[ "$activation_mode" == rollback ]]; then
+    die 'Rollback must run as root.'
+  fi
   die 'Activation must run as root.'
 fi
 
@@ -239,6 +352,14 @@ for required_var in "${required_vars[@]}"; do
     die "Required production variable is missing: $required_var"
   fi
 done
+
+if [[ "$activation_mode" == rollback ]]; then
+  if ! [[ -L "$CURRENT_LINK" ]] || [[ "$(realpath -- "$CURRENT_LINK" 2>/dev/null)" != "$RELEASE_DIR" ]]; then
+    die 'Current release does not match expected current SHA.'
+  fi
+  run_post_success_rollback
+  exit 0
+fi
 
 if ! [[ -L "$CURRENT_LINK" ]] || [[ "$(realpath -- "$CURRENT_LINK" 2>/dev/null)" != "$ROLLBACK_DIR" ]]; then
   die 'Current release does not match declared rollback SHA.'

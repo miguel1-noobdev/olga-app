@@ -76,6 +76,26 @@ Each release MUST use an immutable validated version and pass build, configurati
 - WHEN release recovery is initiated
 - THEN `current` is restored to the declared verified compatible rollback release, traffic is revalidated, and the failure is recorded
 
+### Requirement: Explicit post-success release rollback
+After a successful activation, an authorized operator MAY invoke the root-only activation script as `--rollback <expected-current-sha> <target-old-sha>`. Before mutation, the script MUST validate distinct full lowercase SHA identities, root execution, both immutable releases, that `current` resolves exactly to the expected-current release, and the configured root-owned pinned Node 24 and Node 20 runtimes. It MUST delete the serving PM2 app through Node 24, atomically switch `current` to the target-old release, start it through Node 20, and require loopback HTTP 200 plus a stable PID, executable, and working directory. It MUST verify that `current` remains a symlink resolving exactly to the selected release after startup and again after health and process proof, for both target-old rollback and expected-current recovery. Every outcome MUST emit a sanitized UTC receipt containing both SHAs and the exit status. If rollback fails after mutation begins, it MUST attempt to restore and prove the expected-current release and MUST NOT report rollback success when the outcome is uncertain. This mode MUST NOT mutate protected secrets, Google OAuth configuration, MongoDB identities, account roles, credentials, or other application data.
+
+#### Scenario: Operator rolls back a successful release
+- GIVEN the expected-current and target-old releases are distinct, immutable, and valid
+- AND `current` resolves exactly to the expected-current release
+- AND the root-owned pinned runtime checks pass
+- WHEN the root-only activation script is invoked with `--rollback <expected-current-sha> <target-old-sha>`
+- THEN the serving app is deleted through Node 24, `current` is atomically switched to target-old, and target-old is started through Node 20
+- AND rollback is reported as passed only after loopback HTTP 200 and stable Node 20 PID, executable, and working directory are proved
+- AND the sanitized UTC receipt contains both exact SHAs and status
+- AND secrets, OAuth configuration, MongoDB identities, and account roles remain unchanged
+
+#### Scenario: Post-success rollback fails after mutation begins
+- GIVEN explicit rollback has begun
+- WHEN the target-old release cannot start or fails health or process-identity proof
+- THEN the command returns nonzero and attempts to restore and prove the expected-current release
+- AND the receipt reports rollback failure and the recovery result without exposing secrets
+- AND it does not claim that either release is serving successfully unless that state was proved
+
 ### Requirement: Production evidence
 
 The deployment record MUST include passing, timestamped, release-aligned, non-secret evidence for anonymous access, subscriber access, productora access, admin access, privileged provisioning, denial cases, health, database recovery, ACME test diagnosis, release, and rollback. Temporary protected credentials MUST be cleaned up with non-secret evidence of removal.
