@@ -6,6 +6,15 @@ import { afterEach, describe, expect, it } from 'vitest';
 
 const scriptPath = resolve(process.cwd(), 'ops/scripts/prepare-release.sh');
 const releaseSha = '835dd149c0ab2b3b4646d625adaefb63a0df3183';
+const candidateSha = 'a'.repeat(40);
+const candidateSha64 = 'a'.repeat(64);
+const rollbackSha64 = 'b'.repeat(64);
+const legacyActivationSource = [
+  '#!/usr/bin/env bash',
+  'set -Eeuo pipefail',
+  `readonly RELEASE_ID="${releaseSha}"`,
+  'printf "activation=passed release=%s\\n" "$RELEASE_ID"',
+].join('\n');
 const nodeVersion = 'v24.13.1';
 const npmVersion = '11.10.0';
 const canonicalActivationIdentity = [
@@ -41,13 +50,17 @@ function command(directory: string, name: string, source: string) {
   chmodSync(join(directory, name), 0o755);
 }
 
-function archiveWithActivationIdentity(identity: string) {
+function archiveWithActivationSource(source: string, delimiter = 'ACTIVATION_SOURCE') {
   return `/bin/mkdir -p "$RELEASE_DIR/ops/scripts"
 printf 'release\\n' > "$RELEASE_DIR/app.txt"
-cat > "$RELEASE_DIR/ops/scripts/activate-pm2-release.sh" <<'ACTIVATION_IDENTITY'
-${identity}
-ACTIVATION_IDENTITY
+cat > "$RELEASE_DIR/ops/scripts/activate-pm2-release.sh" <<'${delimiter}'
+${source}
+${delimiter}
 `;
+}
+
+function archiveWithActivationIdentity(identity: string) {
+  return archiveWithActivationSource(identity, 'ACTIVATION_IDENTITY');
 }
 
 function run(
@@ -57,7 +70,7 @@ function run(
   runtime: RuntimeOptions = {},
 ) {
   const root = temporaryDirectory();
-  const target = join(root, 'releases', releaseSha);
+  const target = join(root, 'releases', options.RELEASE_SHA ?? releaseSha);
   const bin = join(root, 'bin');
   const runtimeDirectory = join(root, 'runtime');
   const realNode = join(runtimeDirectory, 'node-real');
@@ -158,6 +171,9 @@ function run(
       PATH: `${join(root, 'ambient-bin')}:${bin}`,
       RELEASE_DIR: target,
       RELEASE_SHA: options.RELEASE_SHA ?? releaseSha,
+      RELEASE_ROLE: '',
+      CANDIDATE_SHA: '',
+      ROLLBACK_SHA: '',
       RUNTIME_CALLS: runtimeCalls,
       SCRIPT: scriptPath,
       ...options,
@@ -363,5 +379,62 @@ describe('local POSIX release preparation', () => {
 
     record(result, 'activation_identity', 1);
     expect(statSync(join(target, 'app.txt')).mode & 0o222).not.toBe(0);
+  });
+
+  it('keeps the default preparer strict and preserves legacy activation bytes', () => {
+    const { result, target } = run({}, { tar: archiveWithActivationSource(legacyActivationSource) });
+    const activationScript = join(target, 'ops', 'scripts', 'activate-pm2-release.sh');
+
+    record(result, 'activation_identity', 1);
+    expect(readFileSync(activationScript, 'utf8')).toBe(`${legacyActivationSource}\n`);
+  });
+
+  it('accepts legacy-baseline preparation only for a bound rollback baseline', () => {
+    const { result, target } = run({
+      CANDIDATE_SHA: candidateSha,
+      RELEASE_ROLE: 'legacy-baseline',
+      ROLLBACK_SHA: releaseSha,
+    }, { tar: archiveWithActivationSource(legacyActivationSource) });
+    const activationScript = join(target, 'ops', 'scripts', 'activate-pm2-release.sh');
+
+    expect(result.status, result.stderr).toBe(0);
+    expect(result.stderr).toMatch(/preparation=passed .*stage=sealed status=0/);
+    expect(readFileSync(activationScript, 'utf8')).toBe(`${legacyActivationSource}\n`);
+  });
+
+  it('accepts full 64-character SHA bindings for a legacy baseline', () => {
+    const legacySource64 = legacyActivationSource.replace(releaseSha, rollbackSha64);
+    const { result, target } = run({
+      CANDIDATE_SHA: candidateSha64,
+      RELEASE_ROLE: 'legacy-baseline',
+      RELEASE_SHA: rollbackSha64,
+      ROLLBACK_SHA: rollbackSha64,
+    }, { tar: archiveWithActivationSource(legacySource64) });
+
+    expect(result.status, result.stderr).toBe(0);
+    expect(result.stderr).toMatch(new RegExp(`preparation=passed release=${rollbackSha64} .*stage=sealed status=0`));
+    expect(readFileSync(join(target, 'ops', 'scripts', 'activate-pm2-release.sh'), 'utf8')).toBe(`${legacySource64}\n`);
+  });
+
+  it.each([
+    ['missing candidate SHA', { CANDIDATE_SHA: '' }],
+    ['missing rollback SHA', { ROLLBACK_SHA: '' }],
+    ['malformed candidate SHA', { CANDIDATE_SHA: 'not-a-sha' }],
+    ['uppercase candidate SHA', { CANDIDATE_SHA: 'A'.repeat(40) }],
+    ['malformed rollback SHA', { ROLLBACK_SHA: 'not-a-sha' }],
+    ['malformed release SHA', { RELEASE_SHA: 'not-a-sha' }],
+    ['unknown release role', { RELEASE_ROLE: 'candidate' }],
+    ['candidate equal to rollback SHA', { CANDIDATE_SHA: releaseSha }],
+    ['release SHA different from rollback SHA', { ROLLBACK_SHA: candidateSha }],
+  ])('rejects legacy-baseline preparation with a %s binding', (_name, overrides) => {
+    const { result } = run({
+      CANDIDATE_SHA: candidateSha,
+      RELEASE_ROLE: 'legacy-baseline',
+      ROLLBACK_SHA: releaseSha,
+      ...overrides,
+    }, { tar: archiveWithActivationSource(legacyActivationSource) });
+
+    expect(result.status, result.stderr).not.toBe(0);
+    expect(result.stderr).toMatch(/preparation=failed .*stage=input status=/);
   });
 });

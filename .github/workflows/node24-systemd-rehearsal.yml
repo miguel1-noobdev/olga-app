@@ -171,7 +171,9 @@ jobs:
         shell: bash
         run: |
           sudo install -d -o botanica-deploy -g botanica-runtime -m 750 "$APP_ROOT/releases/$ROLLBACK_SHA"
-          RELEASE_SHA="$ROLLBACK_SHA" REMOTE_HOST="botanica-deploy@localhost" REMOTE_APP_ROOT="$APP_ROOT" \
+          RELEASE_ROLE=legacy-baseline \
+            CANDIDATE_SHA="$CANDIDATE_SHA" ROLLBACK_SHA="$ROLLBACK_SHA" \
+            RELEASE_SHA="$ROLLBACK_SHA" REMOTE_HOST="botanica-deploy@localhost" REMOTE_APP_ROOT="$APP_ROOT" \
             EXPECTED_RELEASE_OWNER=botanica-deploy EXPECTED_RELEASE_GROUP=botanica-runtime EXPECTED_RELEASE_MODE=750 \
             /bin/sh "$APP_ROOT/ops/scripts/handoff-release.sh"
           sudo ln -s "$APP_ROOT/releases/$ROLLBACK_SHA" "$APP_ROOT/current"
