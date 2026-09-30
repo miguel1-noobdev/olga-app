@@ -14,6 +14,13 @@ type CandidateOptions = {
   candidateDeleteFails?: boolean;
   candidateStartFails?: boolean;
   currentTarget?: 'candidate' | 'rollback';
+  currentLinkDrift?: boolean;
+  recoveryCurrentLinkDrift?: boolean;
+  mutableRollbackRelease?: boolean;
+  node24Version?: string;
+  secretsUnavailable?: boolean;
+  rootUid?: string;
+  rollbackMode?: boolean;
   healthTimeout?: string;
   packageSymlink?: boolean;
   node20Path?: string;
@@ -39,6 +46,15 @@ function command(directory: string, name: string, source: string) {
 
 function run(...arguments_: string[]) {
   return spawnSync('bash', [scriptPath, ...arguments_], { encoding: 'utf8' });
+}
+
+function expectRollbackReceipt(stderr: string, outcome: 'passed' | 'failed', status: number, recovery?: 'passed' | 'failed' | 'not-needed') {
+  const receipt = stderr.trimEnd().split('\n').at(-1) ?? '';
+  const recoveryField = recovery ? ` recovery=${recovery}` : '';
+
+  expect(receipt).toMatch(
+    new RegExp(`^rollback=${outcome} expected_current_sha=${releaseSha} target_sha=${rollbackSha} timestamp=\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z status=${status}${recoveryField}$`),
+  );
 }
 
 function runCandidate(options: CandidateOptions = {}) {
@@ -79,6 +95,7 @@ function runCandidate(options: CandidateOptions = {}) {
     printf '%s|%s|%s\\n' "$PM2_NODE_BIN" "$PM2_CWD" "$2" >> "$PM2_CALLS"
     if [ "$2" = delete ] && [ "\${CANDIDATE_DELETE_FAIL-}" = 1 ]; then exit 43; fi
     if [ "$2" = start ] && [ "\${CANDIDATE_START_FAIL-}" = 1 ]; then exit 42; fi
+    if [ "$2" = start ] && [ "\${RECOVERY_CURRENT_LINK_DRIFT-}" = 1 ]; then /usr/bin/ln -sfnT "$TARGET_OLD_RELEASE" "$CURRENT_LINK"; fi
     if [ "$2" = pid ]; then
       if [ -n "\${PID_DIAGNOSTIC-}" ]; then printf '%s\n' "$PID_DIAGNOSTIC" >&2; exit 33; fi
       calls=0; [ ! -f "$PID_CALLS" ] || calls=$(cat "$PID_CALLS")
@@ -92,6 +109,7 @@ function runCandidate(options: CandidateOptions = {}) {
     if [ "$2" = '--version' ]; then printf '%s\\n' "$NODE20_PM2_REPORTED_VERSION"; exit 0; fi
     printf '%s|%s|%s\\n' "$PM2_NODE_BIN" "$PM2_CWD" "$2" >> "$NODE20_PM2_CALLS"
     if [ "$2" = start ] && [ "\${ROLLBACK_START_FAIL-}" = 1 ]; then exit 86; fi
+    if [ "$2" = start ] && [ "\${CURRENT_LINK_DRIFT-}" = 1 ]; then /usr/bin/ln -sfnT "$EXPECTED_CURRENT_RELEASE" "$CURRENT_LINK"; fi
     if [ "$2" = pid ]; then
       calls=0; [ ! -f "$NODE20_PID_CALLS" ] || calls=$(cat "$NODE20_PID_CALLS")
       calls=$((calls + 1)); printf '%s' "$calls" > "$NODE20_PID_CALLS"
@@ -103,7 +121,7 @@ function runCandidate(options: CandidateOptions = {}) {
   writeFileSync(pm2Cli, '// PM2 CLI fixture\n');
   chmodSync(pm2Cli, 0o444);
   for (const name of ['node', 'pm2']) command(poison, name, `printf 'poison\\n' >> "$POISON_CALLS"; exit 99`);
-  command(bin, 'id', `case "$1" in -u) printf '0\\n' ;; candidate) exit 0 ;; *) exec /usr/bin/id "$@" ;; esac`);
+  command(bin, 'id', `case "$1" in -u) printf '%s\\n' "\${ROOT_UID-0}" ;; candidate) exit 0 ;; *) exec /usr/bin/id "$@" ;; esac`);
   command(bin, 'runuser', `
     printf '%s\\n' "$*" >> "$RUNUSER_CALLS"
     if [ -n "\${ACTIVATION_SIGNAL-}" ] && [ ! -f "$ACTIVATION_SIGNAL_SENT" ]; then
@@ -166,30 +184,39 @@ function runCandidate(options: CandidateOptions = {}) {
   }
   chmodSync(ecosystem, 0o444);
   chmodSync(rollbackEcosystem, 0o444);
+  if (options.mutableRollbackRelease) chmodSync(rollbackEcosystem, 0o644);
   for (const directory of [releaseDir, rollbackDir]) {
     chmodSync(directory, 0o555);
     chmodSync(join(directory, 'ops'), 0o555);
     chmodSync(join(directory, 'ops', 'pm2'), 0o555);
   }
-  symlinkSync(options.currentTarget === 'candidate' ? releaseDir : rollbackDir, join(appRoot, 'current'));
+  const currentRelease = options.currentTarget === 'candidate' || (options.rollbackMode && options.currentTarget !== 'rollback')
+    ? releaseDir
+    : rollbackDir;
+  symlinkSync(currentRelease, join(appRoot, 'current'));
   writeFileSync(secrets, 'MONGODB_URI=mongodb://fixture\nNEXTAUTH_SECRET=test\nNEXTAUTH_URL=http://127.0.0.1:3000\nINTERNAL_ACCOUNT_CHECK_ORIGIN=http://127.0.0.1:3000\n');
   chmodSync(secrets, 0o600);
 
-  const result = spawnSync('/usr/bin/unshare', ['-Ur', '/bin/bash', scriptPath, releaseSha, rollbackSha], {
+  const activationArguments = options.rollbackMode ? ['--rollback', releaseSha, rollbackSha] : [releaseSha, rollbackSha];
+  const result = spawnSync('/usr/bin/unshare', ['-Ur', '/bin/bash', scriptPath, ...activationArguments], {
     encoding: 'utf8',
     env: {
       NODE_ENV: 'test', APP_ROOT: appRoot, NODE24_BIN: join(poison, 'node'), PATH: `${bin}:${poison}:/usr/bin:/bin`,
       ACTIVATION_SIGNAL: options.activationSignal ?? '', ACTIVATION_SIGNAL_SENT: activationSignalSent,
       CANDIDATE_DELETE_FAIL: options.candidateDeleteFails ? '1' : '', CANDIDATE_START_FAIL: options.candidateStartFails ? '1' : '',
       PM2_CALLS: pm2Calls, PM2_CLI: pm2Cli, PM2_PIDS: options.pm2Pids ?? '4242,4242', PID_DIAGNOSTIC: options.pidDiagnostic ?? '',
-      PM2_REPORTED_VERSION: options.pm2Version ?? '5.4.3', NODE_REPORTED_VERSION: 'v24.13.1', NODE20_REPORTED_VERSION: options.node20Version ?? 'v20.19.6',
+      PM2_REPORTED_VERSION: options.pm2Version ?? '5.4.3', NODE_REPORTED_VERSION: options.node24Version ?? 'v24.13.1', NODE20_REPORTED_VERSION: options.node20Version ?? 'v20.19.6',
+      ROOT_UID: options.rootUid ?? '0',
       NODE20_PM2_CLI: node20Pm2Cli, NODE20_PM2_CALLS: node20Pm2Calls, NODE20_PM2_REPORTED_VERSION: options.node20Pm2Version ?? '5.4.3',
       ROLLBACK_START_FAIL: options.rollbackStartFails ? '1' : '', ROLLBACK_LINK_RESTORE_FAIL: options.rollbackLinkRestoreFails ? '1' : '',
+      CURRENT_LINK_DRIFT: options.currentLinkDrift ? '1' : '', CURRENT_LINK: join(appRoot, 'current'), EXPECTED_CURRENT_RELEASE: releaseDir,
+      RECOVERY_CURRENT_LINK_DRIFT: options.recoveryCurrentLinkDrift ? '1' : '', TARGET_OLD_RELEASE: rollbackDir,
       ROLLBACK_PIDS: options.rollbackPids ?? '5252,5252', PID_CALLS: pidCalls, NODE20_PID_CALLS: node20PidCalls,
       MV_CALLS: mvCalls, POISON_CALLS: poisonCalls, CANDIDATE_PROC_CWD: options.procCwd ?? releaseDir,
       CANDIDATE_PROC_EXE: options.procExe ?? node24, ROLLBACK_PROC_CWD: options.rollbackProcCwd ?? rollbackDir,
       ROLLBACK_PROC_EXE: options.rollbackProcExe ?? node20, RUNUSER_CALLS: runuserCalls,
-      SECRETS_FILE: secrets, HEALTH_TIMEOUT_SECONDS: options.healthTimeout ?? (options.rollbackHealthStatus ? '0' : undefined),
+      SECRETS_FILE: options.secretsUnavailable ? join(root, 'unavailable-secrets.env') : secrets,
+      HEALTH_TIMEOUT_SECONDS: options.healthTimeout ?? (options.rollbackHealthStatus ? '0' : undefined),
       CURL_STATUS: options.rollbackHealthStatus ?? '200',
     },
   });
@@ -282,6 +309,108 @@ describe('PM2 release activation script', () => {
     expect(source).not.toMatch(
       /printf[^\n]*(MONGO_INITDB_ROOT_USERNAME|MONGO_INITDB_ROOT_PASSWORD|MONGODB_URI|NEXTAUTH_SECRET|NEXTAUTH_URL|INTERNAL_ACCOUNT_CHECK_ORIGIN)/,
     );
+  });
+
+  it('rolls a successfully activated release back only after validating and proving the old runtime', () => {
+    const attempt = runCandidate({ rollbackMode: true });
+
+    expect(attempt.result.status, attempt.result.stderr).toBe(0);
+    expect(attempt.result.stderr).toMatch(/^rollback=passed expected_current_sha=.* target_sha=.* timestamp=.* status=0\n$/);
+    expectRollbackReceipt(attempt.result.stderr, 'passed', 0);
+    expect(attempt.currentTarget()).toBe(attempt.rollbackDir);
+    expect(attempt.pm2Calls().map((call) => call.split('|')[2])).toEqual(['delete']);
+    expect(attempt.node20Pm2Calls().map((call) => call.split('|')[2])).toEqual(['start', 'pid', 'pid']);
+    for (const call of attempt.pm2Calls()) expect(call.split('|').slice(0, 2)).toEqual([attempt.node24, attempt.releaseDir]);
+    for (const call of attempt.node20Pm2Calls()) expect(call.split('|').slice(0, 2)).toEqual([attempt.node20, attempt.rollbackDir]);
+  });
+
+  it('does not report rollback success if current drifts while the target release starts', () => {
+    const attempt = runCandidate({ rollbackMode: true, currentLinkDrift: true });
+
+    expect(attempt.result.status, attempt.result.stderr).toBe(1);
+    expect(attempt.result.stderr).toContain('Current release changed during rollback.');
+    expectRollbackReceipt(attempt.result.stderr, 'failed', 1, 'passed');
+    expect(attempt.currentTarget()).toBe(attempt.releaseDir);
+  });
+
+  it('requires the protected runtime secrets before rollback mutation without printing their values', () => {
+    const attempt = runCandidate({ rollbackMode: true, secretsUnavailable: true });
+
+    expect(attempt.result.status, attempt.result.stderr).toBe(1);
+    expect(attempt.result.stderr).toContain('Production secrets file is unavailable.');
+    expectRollbackReceipt(attempt.result.stderr, 'failed', 1, 'not-needed');
+    expect(attempt.currentTarget()).toBe(attempt.releaseDir);
+    expect(attempt.pm2Calls()).toEqual([]);
+    expect(attempt.node20Pm2Calls()).toEqual([]);
+  });
+
+  it('rejects a stale current link or runtime drift before changing PM2 or current in rollback mode', () => {
+    for (const [options, message] of [
+      [{ rollbackMode: true, currentTarget: 'rollback' }, 'Current release does not match expected current SHA.'],
+      [{ rollbackMode: true, mutableRollbackRelease: true }, 'Prepared release contains writable files.'],
+      [{ rollbackMode: true, rootUid: '1000' }, 'Rollback must run as root.'],
+      [{ rollbackMode: true, node24Version: 'v24.13.0' }, 'Node 24 runtime version drift.'],
+      [{ rollbackMode: true, node20Version: 'v20.19.5' }, 'Node 20 runtime version drift.'],
+      [{ rollbackMode: true, node20Pm2Version: '5.4.2' }, 'Node 20 PM2 version drift.'],
+    ] as const) {
+      const attempt = runCandidate(options);
+
+      expect(attempt.result.status, attempt.result.stderr).toBe(1);
+      expect(attempt.result.stderr).toContain(message);
+      expectRollbackReceipt(attempt.result.stderr, 'failed', 1, 'not-needed');
+      expect(attempt.currentTarget()).toBe(options.currentTarget === 'rollback' ? attempt.rollbackDir : attempt.releaseDir);
+      expect(attempt.pm2Calls()).toEqual([]);
+      expect(attempt.node20Pm2Calls()).toEqual([]);
+    }
+  });
+
+  it.each([
+    [{ rollbackMode: true, rollbackHealthStatus: '503' }, 'Post-success rollback health check failed.', 'failed'],
+    [{ rollbackMode: true, rollbackPids: '5252,5253' }, 'Post-success rollback process identity is not stable.', 'passed'],
+    [{ rollbackMode: true, rollbackProcExe: '/tmp/not-node20' }, 'Post-success rollback process identity is not stable.', 'passed'],
+    [{ rollbackMode: true, rollbackProcCwd: '/tmp/not-the-old-release' }, 'Post-success rollback process identity is not stable.', 'passed'],
+  ] as const)('recovers the expected-current release when rollback health or process proof fails', (options, message, recovery) => {
+    const attempt = runCandidate(options);
+
+    expect(attempt.result.status, attempt.result.stderr).toBe(1);
+    expect(attempt.result.stderr).toContain(message);
+    expectRollbackReceipt(attempt.result.stderr, 'failed', 1, recovery);
+    expect(attempt.currentTarget()).toBe(attempt.releaseDir);
+  });
+
+  it('does not report candidate recovery as passed if current drifts while the candidate starts', () => {
+    const attempt = runCandidate({ rollbackMode: true, rollbackPids: '5252,5253', recoveryCurrentLinkDrift: true });
+
+    expect(attempt.result.status, attempt.result.stderr).toBe(1);
+    expect(attempt.result.stderr).toContain('Post-success rollback process identity is not stable.');
+    expectRollbackReceipt(attempt.result.stderr, 'failed', 1, 'failed');
+    expect(attempt.currentTarget()).toBe(attempt.rollbackDir);
+  });
+
+  it('attempts candidate recovery and reports uncertainty when stopping the serving process fails', () => {
+    const attempt = runCandidate({ rollbackMode: true, candidateDeleteFails: true });
+
+    expect(attempt.result.status, attempt.result.stderr).toBe(43);
+    expectRollbackReceipt(attempt.result.stderr, 'failed', 43, 'failed');
+    expect(attempt.currentTarget()).toBe(attempt.releaseDir);
+  });
+
+  it('recovers the expected-current candidate and reports rollback failure when the old release cannot start', () => {
+    const attempt = runCandidate({ rollbackMode: true, rollbackStartFails: true });
+
+    expect(attempt.result.status, attempt.result.stderr).toBe(86);
+    expectRollbackReceipt(attempt.result.stderr, 'failed', 86, 'passed');
+    expect(attempt.currentTarget()).toBe(attempt.releaseDir);
+    expect(attempt.pm2Calls().map((call) => call.split('|')[2])).toEqual(['delete', 'delete', 'start', 'pid', 'pid']);
+    expect(attempt.node20Pm2Calls().map((call) => call.split('|')[2])).toEqual(['start']);
+  });
+
+  it('does not claim rollback success when candidate recovery cannot be verified', () => {
+    const attempt = runCandidate({ rollbackMode: true, rollbackStartFails: true, candidateStartFails: true });
+
+    expect(attempt.result.status, attempt.result.stderr).toBe(86);
+    expectRollbackReceipt(attempt.result.stderr, 'failed', 86, 'failed');
+    expect(attempt.currentTarget()).toBe(attempt.releaseDir);
   });
 
   it('switches current atomically and rolls PM2 and current back on failure', () => {
