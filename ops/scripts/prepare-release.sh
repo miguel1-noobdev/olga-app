@@ -48,17 +48,41 @@ mode_permissions() {
   esac
 }
 
+is_full_sha() {
+  case "${#1}" in 40|64) ;; *) return 1 ;; esac
+  case "$1" in ''|*[!0123456789abcdef]*) return 1 ;; esac
+  return 0
+}
+
 app_root=${APP_ROOT-}
 expected_owner=${EXPECTED_RELEASE_OWNER-}
 expected_group=${EXPECTED_RELEASE_GROUP-}
 expected_mode=${EXPECTED_RELEASE_MODE-750}
+release_role=${RELEASE_ROLE-}
+candidate_sha=${CANDIDATE_SHA-}
+rollback_sha=${ROLLBACK_SHA-}
 runtime_config="$app_root/config/node24-runtime.conf"
 
-if [ "${#release}" -ne 40 ] || [ -z "$app_root" ] || [ -z "$expected_owner" ] || [ -z "$expected_group" ]; then
+if [ -z "$app_root" ] || [ -z "$expected_owner" ] || [ -z "$expected_group" ]; then
   release=unverified
   fail input 1
 fi
-case "$release" in *[!0123456789abcdef]*) release=unverified; fail input 1 ;; esac
+case "$release_role" in
+  '')
+    if [ "${#release}" -ne 40 ]; then release=unverified; fail input 1; fi
+    case "$release" in *[!0123456789abcdef]*) release=unverified; fail input 1 ;; esac
+    ;;
+  legacy-baseline)
+    if ! is_full_sha "$candidate_sha" || ! is_full_sha "$rollback_sha" || ! is_full_sha "$release"; then
+      release=unverified
+      fail input 1
+    fi
+    if [ "$release" != "$rollback_sha" ] || [ "$candidate_sha" = "$rollback_sha" ]; then fail input 1; fi
+    ;;
+  *)
+    fail input 1
+    ;;
+esac
 
 release_dir="$app_root/releases/$release"
 activation_script="$release_dir/ops/scripts/activate-pm2-release.sh"
@@ -155,7 +179,8 @@ if tar -xf - -C "$release_dir" >/dev/null 2>&1; then :; else fail archive_extrac
 cd "$release_dir" 2>/dev/null || fail workdir $?
 if "$node24_bin" "$node24_npm_cli" ci >/dev/null 2>&1; then :; else fail install $?; fi
 if "$node24_bin" "$node24_npm_cli" run build >/dev/null 2>&1; then :; else fail build $?; fi
-if grep -Fx "readonly CANDIDATE_SHA=\"\${1:-}\"" "$activation_script" >/dev/null 2>&1 &&
+if [ "$release_role" = legacy-baseline ]; then :
+elif grep -Fx "readonly CANDIDATE_SHA=\"\${1:-}\"" "$activation_script" >/dev/null 2>&1 &&
   grep -Fx "readonly ROLLBACK_SHA=\"\${2:-}\"" "$activation_script" >/dev/null 2>&1; then :; else fail activation_identity $?; fi
 if chmod -R a-w "$release_dir" >/dev/null 2>&1; then :; else fail seal $?; fi
 stage=sealed

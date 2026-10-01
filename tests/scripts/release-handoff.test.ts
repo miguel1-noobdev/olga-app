@@ -7,6 +7,15 @@ import { afterEach, describe, expect, it } from 'vitest';
 const scriptPath = resolve(process.cwd(), 'ops/scripts/handoff-release.sh');
 const prepareScriptPath = resolve(process.cwd(), 'ops/scripts/prepare-release.sh');
 const releaseSha = '835dd149c0ab2b3b4646d625adaefb63a0df3183';
+const candidateSha = 'a'.repeat(40);
+const candidateSha64 = 'a'.repeat(64);
+const rollbackSha64 = 'b'.repeat(64);
+const legacyActivationSource = [
+  '#!/usr/bin/env bash',
+  'set -Eeuo pipefail',
+  `readonly RELEASE_ID="${releaseSha}"`,
+  'printf "activation=passed release=%s\\n" "$RELEASE_ID"',
+].join('\n');
 const canonicalActivationIdentity = [
   'readonly CANDIDATE_SHA="${1:-}"',
   'readonly ROLLBACK_SHA="${2:-}"',
@@ -56,6 +65,9 @@ function run(options: Record<string, string> = {}) {
     env: {
       ...process.env,
       RELEASE_SHA: releaseSha,
+      RELEASE_ROLE: '',
+      CANDIDATE_SHA: '',
+      ROLLBACK_SHA: '',
       REMOTE_HOST: 'handoff.test',
       REMOTE_APP_ROOT: '/srv/botanica-ob',
       EXPECTED_RELEASE_OWNER: 'handoff-user',
@@ -84,12 +96,22 @@ function run(options: Record<string, string> = {}) {
   };
 }
 
-function runPreparationHandoff(options: { expectedGroup?: string; expectedOwner?: string; preflightFailure?: string; targetContains?: string } = {}) {
+function runPreparationHandoff(options: {
+  activationSource?: string;
+  candidateSha?: string;
+  expectedGroup?: string;
+  expectedOwner?: string;
+  preflightFailure?: string;
+  releaseRole?: string;
+  rollbackSha?: string;
+  targetContains?: string;
+} = {}) {
   const root = temporaryDirectory();
   const appRoot = join(root, 'app');
   const archiveSource = join(root, 'archive-source');
   const bin = join(root, 'bin');
   const archiveCalls = join(root, 'archive-calls');
+  const remotePreparationCommandPath = join(root, 'remote-preparation-command');
   const releaseDirectory = join(appRoot, 'releases', releaseSha);
   const runtimeDirectory = join(root, 'runtime');
   const nodeBin = join(runtimeDirectory, 'node');
@@ -102,7 +124,10 @@ function runPreparationHandoff(options: { expectedGroup?: string; expectedOwner?
   cpSync(prepareScriptPath, join(appRoot, 'ops', 'scripts', 'prepare-release.sh'));
   mkdirSync(join(archiveSource, 'ops', 'scripts'), { recursive: true });
   writeFileSync(join(archiveSource, 'package.json'), '{"scripts":{"build":"true"}}\n');
-  writeFileSync(join(archiveSource, 'ops', 'scripts', 'activate-pm2-release.sh'), `${canonicalActivationIdentity}\n`);
+  writeFileSync(
+    join(archiveSource, 'ops', 'scripts', 'activate-pm2-release.sh'),
+    options.activationSource ?? `${canonicalActivationIdentity}\n`,
+  );
   mkdirSync(releaseDirectory, { recursive: true });
   mkdirSync(runtimeDirectory);
   mkdirSync(join(appRoot, 'config'));
@@ -139,6 +164,9 @@ function runPreparationHandoff(options: { expectedGroup?: string; expectedOwner?
   command(bin, 'ssh', `
     if [ "\${MOCK_PREFLIGHT_FAILURE-0}" -ne 0 ]; then exit "$MOCK_PREFLIGHT_FAILURE"; fi
     case "$2" in
+      *"prepare-release.sh"*) printf '%s' "$2" > "$REMOTE_PREPARATION_COMMAND" ;;
+    esac
+    case "$2" in
       *"stat -c"*) printf '%s\\n' "$EXPECTED_RELEASE_OWNER" "$EXPECTED_RELEASE_GROUP" "$EXPECTED_RELEASE_OWNER:$EXPECTED_RELEASE_GROUP 750" ;;
       *) env -i PATH="$PATH" unshare -Ur /bin/sh -c "$2" ;;
     esac
@@ -156,14 +184,24 @@ function runPreparationHandoff(options: { expectedGroup?: string; expectedOwner?
       MOCK_PREFLIGHT_FAILURE: options.preflightFailure ?? '0',
       PATH: `${bin}:${process.env.PATH}`,
       RELEASE_SHA: releaseSha,
+      RELEASE_ROLE: '',
+      CANDIDATE_SHA: '',
+      ROLLBACK_SHA: '',
       REMOTE_APP_ROOT: appRoot,
       REMOTE_HOST: 'handoff.test',
+      REMOTE_PREPARATION_COMMAND: remotePreparationCommandPath,
+      ...(options.releaseRole === undefined ? {} : { RELEASE_ROLE: options.releaseRole }),
+      ...(options.candidateSha === undefined ? {} : { CANDIDATE_SHA: options.candidateSha }),
+      ...(options.rollbackSha === undefined ? {} : { ROLLBACK_SHA: options.rollbackSha }),
     },
   });
 
   return {
     archiveCalls: () => existsSync(archiveCalls) ? readFileSync(archiveCalls, 'utf8').trim().split('\n').filter(Boolean).length : 0,
     releaseDirectory,
+    remotePreparationCommand: () => existsSync(remotePreparationCommandPath)
+      ? readFileSync(remotePreparationCommandPath, 'utf8')
+      : '',
     result,
   };
 }
@@ -197,6 +235,51 @@ describe('POSIX release handoff', () => {
     expect(attempt.archiveCalls()).toBe(1);
   });
 
+  it('accepts a valid 64-character legacy-baseline SHA tuple', () => {
+    const attempt = run({
+      CANDIDATE_SHA: candidateSha64,
+      RELEASE_ROLE: 'legacy-baseline',
+      RELEASE_SHA: rollbackSha64,
+      ROLLBACK_SHA: rollbackSha64,
+    });
+
+    expect(attempt.result.status, attempt.result.stderr).toBe(0);
+    expect(attempt.result.stderr).toContain(`release=${rollbackSha64}`);
+    expect(attempt.sshCalls()).toBe(2);
+    expect(attempt.archiveCalls()).toBe(1);
+  });
+
+  it.each([
+    ['missing candidate SHA', { CANDIDATE_SHA: '' }],
+    ['missing rollback SHA', { ROLLBACK_SHA: '' }],
+    ['malformed candidate SHA', { CANDIDATE_SHA: 'not-a-sha' }],
+    ['malformed rollback SHA', { ROLLBACK_SHA: 'not-a-sha' }],
+    ['malformed release SHA', { RELEASE_SHA: 'not-a-sha' }],
+    ['candidate equal to rollback SHA', { CANDIDATE_SHA: releaseSha }],
+    ['release SHA different from rollback SHA', { ROLLBACK_SHA: 'b'.repeat(40) }],
+  ])('rejects a legacy-baseline %s before SSH or archive work', (_name, overrides) => {
+    const attempt = run({
+      CANDIDATE_SHA: candidateSha,
+      RELEASE_ROLE: 'legacy-baseline',
+      ROLLBACK_SHA: releaseSha,
+      ...overrides,
+    });
+
+    expect(attempt.result.status, attempt.result.stderr).not.toBe(0);
+    expect(attempt.result.stderr).toContain('stage=input');
+    expect(attempt.sshCalls()).toBe(0);
+    expect(attempt.archiveCalls()).toBe(0);
+  });
+
+  it('rejects unknown release roles before SSH or archive work', () => {
+    const attempt = run({ RELEASE_ROLE: 'unknown' });
+
+    expect(attempt.result.status, attempt.result.stderr).not.toBe(0);
+    expect(attempt.result.stderr).toContain('stage=input');
+    expect(attempt.sshCalls()).toBe(0);
+    expect(attempt.archiveCalls()).toBe(0);
+  });
+
   it('treats an apostrophe-bearing remote app root as a literal preflight path', () => {
     const remoteAppRoot = join(temporaryDirectory(), "app' ; false #");
     const owner = spawnSync('id', ['-un'], { encoding: 'utf8' }).stdout.trim();
@@ -224,6 +307,39 @@ describe('POSIX release handoff', () => {
     const activationScript = join(attempt.releaseDirectory, 'ops', 'scripts', 'activate-pm2-release.sh');
     expect(existsSync(activationScript)).toBe(true);
     expect(readFileSync(activationScript, 'utf8')).toBe(`${canonicalActivationIdentity}\n`);
+  });
+
+  it('keeps the default handoff strict and leaves legacy archive bytes unchanged', () => {
+    const legacyBytes = `${legacyActivationSource}\n`;
+    const attempt = runPreparationHandoff({ activationSource: legacyBytes });
+    const activationScript = join(attempt.releaseDirectory, 'ops', 'scripts', 'activate-pm2-release.sh');
+    const remoteCommand = attempt.remotePreparationCommand();
+
+    expect(attempt.result.status, attempt.result.stderr).not.toBe(0);
+    expect(attempt.result.stderr).toContain('stage=activation_identity');
+    expect(readFileSync(activationScript, 'utf8')).toBe(legacyBytes);
+    expect(remoteCommand).not.toContain('RELEASE_ROLE=');
+    expect(remoteCommand).not.toContain('CANDIDATE_SHA=');
+    expect(remoteCommand).not.toContain('ROLLBACK_SHA=');
+  });
+
+  it('forwards the legacy-baseline role and its bound SHA tuple only when selected', () => {
+    const legacyBytes = `${legacyActivationSource}\n`;
+    const attempt = runPreparationHandoff({
+      activationSource: legacyBytes,
+      candidateSha,
+      releaseRole: 'legacy-baseline',
+      rollbackSha: releaseSha,
+    });
+    const remoteCommand = attempt.remotePreparationCommand();
+    const activationScript = join(attempt.releaseDirectory, 'ops', 'scripts', 'activate-pm2-release.sh');
+
+    expect(attempt.result.status, attempt.result.stderr).toBe(0);
+    expect(remoteCommand).toContain("RELEASE_ROLE='legacy-baseline'");
+    expect(remoteCommand).toContain(`CANDIDATE_SHA='${candidateSha}'`);
+    expect(remoteCommand).toContain(`ROLLBACK_SHA='${releaseSha}'`);
+    expect(remoteCommand).toContain(`RELEASE_SHA='${releaseSha}'`);
+    expect(readFileSync(activationScript, 'utf8')).toBe(legacyBytes);
   });
 
   it('forwards policy values to the isolated remote preparer without shell injection', () => {
