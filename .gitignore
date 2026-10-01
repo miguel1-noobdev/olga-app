@@ -49,3 +49,6 @@ img/WhatsApp Image*.jpeg
 
 # Local Pi runtime state
 .atl/
+
+# Local Engram memory archive
+.engram/
