@@ -2,7 +2,7 @@
 
 ## Technical Approach
 
-Use application-readiness and VPS-readiness gates. Build from the lockfile, provision secrets outside Git, and run behind Nginx. Keep authenticated MongoDB on loopback. Expose only email/password authentication in this release; Google OAuth remains unavailable even with configured credentials. Release is **NO-GO** unless dependency, auth, TLS, database, backup/restore, and four-role smoke evidence pass.
+Use application-readiness and VPS-readiness gates. Build from the lockfile, provision secrets outside Git, and run behind Nginx. Keep authenticated MongoDB on loopback. Preserve email/password authentication and offer Google sign-in only when `GOOGLE_OAUTH_ENABLED` is exactly `true` and both `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are nonblank after trimming. Accept only verified identities, create new accounts as `suscriptora`, preserve the role of already-linked accounts, and forbid automatic email linking or merging. This documents existing application behavior only; production Google OAuth activation remains postponed, and this document change does not authorize or perform it. Enabling `GOOGLE_OAUTH_ENABLED` in production requires separate explicit project-owner release approval and passing evidence for every retained NO-GO gate. Release remains **NO-GO** unless dependency, auth, exact-SHA, TLS/ACME, database, backup/restore, rollback, and four-role smoke evidence pass.
 
 ## Architecture Decisions
 
@@ -11,8 +11,8 @@ Use application-readiness and VPS-readiness gates. Build from the lockfile, prov
 | Application runtime | PM2 runs `next start` from `/srv/botanica-ob/current`; releases use commit-addressed directories. | Coolify or container | Matches the VPS target and supports atomic symlink rollback. |
 | Database topology | Mongo 7 in Docker, persistent and authenticated, published only to `127.0.0.1:27017`; app uses a least-privilege user. | Unauthenticated or public Mongo | Protects user, article, plant, and laboratory data. |
 | Health semantics | Unauthenticated `/api/health` returns bounded `200` only when app service and authenticated Mongo ping succeed; no secrets or role data. `/api/admin/health` remains private diagnostics. | Reusing the admin endpoint | Probes need no session and disclose no operational details. |
-| Google OAuth release policy | `src/lib/auth/options.ts` imports and registers only `CredentialsProvider`; Google registration and OAuth callback handling are absent, regardless of Google credentials. | Credential-gated or callback-validated activation | Makes the boundary source-enforced; activation requires a future application release. |
-| Secrets boundary | A root-readable secret file or manager supplies `MONGODB_URI`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, and `INTERNAL_ACCOUNT_CHECK_ORIGIN`; Google variables are ignored. | `.env` in Git or command-line passwords | Prevents secret exposure without letting configuration alter supported authentication. |
+| Google OAuth release policy | Google sign-in requires the literal enable flag and both nonblank-after-trimming credentials; identity and account handling follow the `user-auth` contract, including the `AccountInUse` manual password fallback. | Ungated Google availability, automatic email linking/merging, or role changes on linked sign-in | Keeps provider availability configuration-gated while preserving account and role boundaries. |
+| Secrets boundary | A root-readable secret file or manager supplies `MONGODB_URI`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `INTERNAL_ACCOUNT_CHECK_ORIGIN`, `GOOGLE_OAUTH_ENABLED`, `GOOGLE_CLIENT_ID`, and `GOOGLE_CLIENT_SECRET`. | `.env` in Git or command-line secrets | Keeps sensitive configuration outside Git; Google sign-in still requires the explicit enable flag and both nonblank credentials. |
 | Release identity | The committed SHA, sealed release directory SHA, activation-script `RELEASE_ID`, and `current` symlink target must be identical before activation. | Activating a script or symlink that names a different revision | Prevents a build, script, and serving release from drifting apart. |
 | Release handoff | A POSIX-compatible SSH wrapper verifies identity and ownership, then invokes the versioned root-only activation script through its shebang. | Bash syntax through `sh`, non-root `runuser`, or masked preflight errors | Keeps the transport layer portable and stops privilege or shell failures before activation. |
 
@@ -31,7 +31,7 @@ Release flow: reconcile the committed SHA, sealed release SHA, activation-script
 | File/resource | Action | Purpose |
 |---|---|---|
 | `package.json`, `package-lock.json` | Modify | Remediate dependencies and add release, smoke, backup/restore commands. |
-| `src/lib/auth/options.ts`, `src/middleware.ts`, `src/lib/db/connect.ts` | Modify | Credentials-only source, secrets, fail-closed auth, authenticated URI validation. |
+| `src/lib/auth/options.ts`, `src/proxy.ts`, `src/lib/db/connect.ts` | Modify | Gated Google and email/password auth policy, secrets, fail-closed roles, authenticated URI validation. |
 | `src/app/api/health/route.ts` | Create | Public liveness/readiness contract. |
 | `src/app/api/admin/health/route.ts`, `src/lib/admin/health/*` | Modify | Keep diagnostics private and align probe semantics. |
 | `docker-compose.yml` | Modify | Persistent authenticated Mongo with loopback binding. |
@@ -43,11 +43,11 @@ Release flow: reconcile the committed SHA, sealed release SHA, activation-script
 
 ## Interfaces / Contracts
 
-`GET /api/health` returns `{ status: "ok" }` with `200` only when readiness passes; otherwise `{ status: "unavailable" }` with `503`, bounded timeout, `Cache-Control: no-store`, and no internal error text. Auth providers contain credentials only; Google variables MUST NOT add a provider or make Google sign-in accepted. Backups include timestamp, release/database metadata, restricted permissions, and restore-and-ping evidence. The release record includes the matching committed SHA, release directory SHA, activation-script SHA, and `current` target. One-time credential handling records only owner/mode, command status, cleanup status, and other non-secret metadata.
+`GET /api/health` returns `{ status: "ok" }` with `200` only when readiness passes; otherwise `{ status: "unavailable" }` with `503`, bounded timeout, `Cache-Control: no-store`, and no internal error text. Google sign-in follows the `user-auth` contract: the literal enable flag and both credentials nonblank after trimming are required, and email/password remains available. Account identity, role, collision, and linking behavior is defined by that contract. Backups include timestamp, release/database metadata, restricted permissions, and restore-and-ping evidence. The release record includes the matching committed SHA, release directory SHA, activation-script SHA, and `current` target. One-time credential handling records only owner/mode, command status, cleanup status, and other non-secret metadata.
 
 ## Testing Strategy
 
-Unit tests cover environment validation, Google policy, health mapping, and rollback safety. The Google-policy test sets valid Google credentials, imports the configuration fresh, asserts a credentials-only provider list, and asserts no Google sign-in path is accepted. Source review verifies `src/lib/auth/options.ts` has no Google registration or credential-gated branch. Integration tests use authenticated Mongo for persistence, restore, and provisioning. Smoke tests cover all four roles and cross-role denial; release tests cover immutable packaging, secret exclusion, health gates, atomic switch, and rollback.
+Unit tests cover trimmed credential validation, Google policy, health mapping, and rollback safety. Google-policy tests verify the literal `GOOGLE_OAUTH_ENABLED=true` gate plus nonblank-after-trimming `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`, while email/password remains available when Google is disabled or incompletely configured. Identity tests cover the `user-auth` contract, including verified identities, `suscriptora`-only creation, linked-role preservation, and manual password fallback for `AccountInUse` without auto-switching or credential prefill. Integration tests use authenticated Mongo for persistence, restore, and provisioning. Smoke tests cover all four roles and cross-role denial; release tests cover immutable packaging, secret exclusion, health gates, atomic switch, and rollback.
 
 ## Threat Matrix
 

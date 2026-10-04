@@ -2,6 +2,8 @@
 
 ## MODIFIED Requirements
 
+Release context: This delta describes the existing application contract; it does not approve or perform production Google OAuth activation. Activation remains postponed, and enabling `GOOGLE_OAUTH_ENABLED` in production requires separate explicit project-owner release approval and passing evidence for every retained NO-GO gate. This release context is not a runtime approval mechanism.
+
 ### Requirement: Email and password registration
 
 The system MUST allow a visitor to register with a unique email and a password of at least 8 characters. Every public registration MUST create a `suscriptora` account; privileged roles MUST NOT be selected through public registration.
@@ -25,18 +27,42 @@ The system MUST allow a visitor to register with a unique email and a password o
 
 ### Requirement: Google OAuth sign-in
 
-The system MUST keep Google OAuth unavailable for this release, regardless of whether Google credentials are present. Email/password MUST remain the only supported sign-in method; enabling Google OAuth is deferred to a future application release.
-(Previously: Google OAuth was available when production explicitly enabled it and provider credentials, callback settings, and validation passed.)
+The system MUST offer Google sign-in only when `GOOGLE_OAUTH_ENABLED` is exactly `true` and both `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are nonblank after trimming; otherwise Google sign-in MUST remain unavailable. Email/password sign-in MUST remain available. The system MUST accept only verified Google identities. A newly accepted Google identity MUST create an account with role `suscriptora` only. An already-linked Google identity MUST sign in to the same account without changing its role. The system MUST NOT automatically link or merge identities by email. If a verified Google identity's email matches an existing credentials account but that Google identity is not linked, the system MUST deny sign-in through `/login?error=AccountInUse` without creating or linking an identity or changing the account or its role. The same login form MUST offer manual password sign-in; it MUST NOT automatically switch providers or prefill credentials. Explicit account linking MUST remain unavailable and out of scope for this release.
+(Previously: Google OAuth was unavailable for this release regardless of whether credentials were present.)
 
-#### Scenario: Provider disabled
-- GIVEN the application is running this release
-- WHEN a visitor attempts Google sign-in
-- THEN no Google authentication path is offered or accepted
-
-#### Scenario: Credentials do not enable provider
-- GIVEN valid Google OAuth credentials are present in production configuration
+#### Scenario: Provider enabled with complete configuration
+- GIVEN `GOOGLE_OAUTH_ENABLED` is exactly `true` and both `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are nonblank after trimming
 - WHEN the authentication providers are initialized
-- THEN Google OAuth remains unavailable and email/password remains the only supported sign-in method
+- THEN Google sign-in is offered and email/password sign-in remains available
+
+#### Scenario: Provider disabled or configuration incomplete
+- GIVEN `GOOGLE_OAUTH_ENABLED` is not exactly `true`, or either credential is missing or blank after trimming
+- WHEN the authentication providers are initialized
+- THEN Google sign-in is unavailable and email/password sign-in remains available
+
+#### Scenario: New verified Google identity
+- GIVEN Google sign-in is enabled and a verified Google identity is not already linked and its email is not registered
+- WHEN the identity signs in
+- THEN a new account is created with role `suscriptora`
+
+#### Scenario: Already-linked Google identity
+- GIVEN Google sign-in is enabled and the verified Google identity is already linked to an account
+- WHEN the identity signs in
+- THEN the same account is authenticated and its role is unchanged
+
+#### Scenario: Google email matches an unlinked credentials account
+- GIVEN Google sign-in is enabled and a verified Google identity's email matches an existing credentials account without an existing link
+- WHEN the identity attempts to sign in
+- THEN sign-in is denied through `/login?error=AccountInUse`
+- AND no Google identity is created or linked
+- AND the existing account and its role are unchanged
+- AND the same login form offers manual password sign-in
+- AND no provider switch or credential prefill occurs automatically
+
+#### Scenario: Unverified Google identity
+- GIVEN Google sign-in is enabled but the Google identity is not verified
+- WHEN the identity attempts to sign in
+- THEN sign-in is denied and no account or identity is created
 
 ### Requirement: First-user-admin rule
 
