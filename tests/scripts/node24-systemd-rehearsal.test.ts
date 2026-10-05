@@ -78,15 +78,8 @@ printf 'activate:%s:%s:%s\\n' "$REHEARSAL_SCENARIO" "$candidate" "$rollback" >> 
 if [[ \${FAKE_ACTIVATION_MODE:-} == require-runuser-path && "$PATH" != "$REHEARSAL_TEST_BIN:/usr/sbin:/usr/bin:/bin" ]]; then exit 1; fi
 if [[ \${FAKE_ACTIVATION_MODE:-} == slow ]]; then trap 'printf "terminated\\n" >> "$REHEARSAL_CALLS"; exit 143' TERM; sleep 30; fi
 restore() { ln -sfnT "$rollback_dir" "$REHEARSAL_APP_ROOT/current"; printf 'activation=failed; rollback=passed\\n' >&2; }
-ln -sfnT "$candidate_dir" "$REHEARSAL_APP_ROOT/current"
 case "$REHEARSAL_SCENARIO" in
-  positive) exit 0 ;;
-  health-failure)
-    trap restore EXIT
-    (cd "$candidate_dir" && sleep 30) &
-    wait $!
-    exit 1
-    ;;
+  health-failure) trap restore EXIT ;;
   interruption)
     (
       trap 'printf "interruption-child=terminated\\n" >> "$REHEARSAL_CALLS"; exit 0' TERM INT
@@ -97,6 +90,28 @@ case "$REHEARSAL_SCENARIO" in
     until grep -Fx 'interruption-child=ready' "$REHEARSAL_CALLS" >/dev/null 2>&1; do sleep 0.01; done
     trap 'exit 1' TERM INT
     trap restore EXIT
+    ;;
+esac
+if [[ \${FAKE_ACTIVATION_MODE:-} == publication-barrier ]]; then
+  mkfifo "$REHEARSAL_APP_ROOT/publication-barrier"
+  exec 9<> "$REHEARSAL_APP_ROOT/publication-barrier"
+  printf 'publication-barrier=ready\\n' >> "$REHEARSAL_CALLS"
+fi
+ln -sfnT "$candidate_dir" "$REHEARSAL_APP_ROOT/current"
+if [[ \${FAKE_ACTIVATION_MODE:-} == publication-barrier ]]; then
+  # No writer releases this FIFO: only driver TERM may complete activation.
+  # A missing signal expires without a success receipt or a blocked fixture.
+  read -r -t 5 -u 9 || { trap - EXIT; exit 98; }
+  exit 99
+fi
+case "$REHEARSAL_SCENARIO" in
+  positive) exit 0 ;;
+  health-failure)
+    (cd "$candidate_dir" && sleep 30) &
+    wait $!
+    exit 1
+    ;;
+  interruption)
     while :; do sleep 1; done
     ;;
 esac
@@ -154,6 +169,18 @@ describe('disposable Node 24 systemd rehearsal', () => {
         ? join(attempt.appRoot, 'releases', candidateSha)
         : join(attempt.appRoot, 'releases', rollbackSha),
     );
+  });
+
+  it('recovers when TERM arrives at the held publication boundary', () => {
+    const attempt = run('interruption', { FAKE_ACTIVATION_MODE: 'publication-barrier' });
+
+    expect(attempt.calls).toContain('publication-barrier=ready');
+    expect(attempt.result.status, attempt.result.stderr).toBe(0);
+    expect(attempt.result.stderr).toContain(`rehearsal=passed transaction=${transactionId} scenario=interruption`);
+    expect(attempt.result.stderr).toContain('activation=failed-as-planned');
+    expect(attempt.result.stderr).toContain('final_executable_identity=true final_cwd_identity=true health=200 rollback_result=passed');
+    expect(attempt.result.stderr).not.toContain('must-not-appear');
+    expect(readlinkSync(join(attempt.appRoot, 'current'))).toBe(join(attempt.appRoot, 'releases', rollbackSha));
   });
 
   it.each([
