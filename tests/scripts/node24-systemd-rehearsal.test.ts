@@ -77,7 +77,11 @@ rollback_dir="$REHEARSAL_APP_ROOT/releases/$rollback"
 printf 'activate:%s:%s:%s\\n' "$REHEARSAL_SCENARIO" "$candidate" "$rollback" >> "$REHEARSAL_CALLS"
 if [[ \${FAKE_ACTIVATION_MODE:-} == require-runuser-path && "$PATH" != "$REHEARSAL_TEST_BIN:/usr/sbin:/usr/bin:/bin" ]]; then exit 1; fi
 if [[ \${FAKE_ACTIVATION_MODE:-} == slow ]]; then trap 'printf "terminated\\n" >> "$REHEARSAL_CALLS"; exit 143' TERM; sleep 30; fi
-restore() { ln -sfnT "$rollback_dir" "$REHEARSAL_APP_ROOT/current"; printf 'activation=failed; rollback=passed\\n' >&2; }
+restore() {
+  ln -sfnT "$rollback_dir" "$REHEARSAL_APP_ROOT/current"
+  if [[ \${FAKE_RECOVERY_OUTPUT+x} ]]; then printf '%s' "$FAKE_RECOVERY_OUTPUT" >&2; else printf 'activation=failed; rollback=passed\\n' >&2; fi
+  if [[ \${FAKE_REMOVE_CHILD_LOG:-} == 1 ]]; then rm -f -- "$REHEARSAL_CHILD_LOG"; fi
+}
 case "$REHEARSAL_SCENARIO" in
   health-failure) trap restore EXIT ;;
   interruption)
@@ -109,7 +113,7 @@ case "$REHEARSAL_SCENARIO" in
   health-failure)
     (cd "$candidate_dir" && sleep 30) &
     wait $!
-    exit 1
+    exit "\${FAKE_CHILD_STATUS:-1}"
     ;;
   interruption)
     while :; do sleep 1; done
@@ -123,8 +127,7 @@ SCRIPT
   const result = spawnSync('/usr/bin/unshare', ['-Ur', '/bin/bash', scriptPath, scenario, candidateSha, rollbackSha, transactionId], {
     encoding: 'utf8',
     env: {
-      ...process.env,
-      PATH: `${fakeBin}:/usr/bin:/bin`,
+      NODE_ENV: 'test', PATH: `${fakeBin}:/usr/bin:/bin`,
       REHEARSAL_APP_ROOT: appRoot,
       REHEARSAL_CALLS: calls,
       REHEARSAL_CHILD_LOG: childLog,
@@ -149,6 +152,15 @@ afterEach(() => temporaryDirectories.splice(0).forEach((directory) => {
   spawnSync('/bin/chmod', ['-R', 'u+w', directory]);
   rmSync(directory, { recursive: true, force: true });
 }));
+
+function expectRecoveryDiagnostic(attempt: ReturnType<typeof run>, fields: string) {
+  const line = `rehearsal=failed stage=recovery-output ${fields} recovery_http=unknown recovery_poll_status=unknown recovery_identity=unknown`;
+  expect(attempt.result.status).toBe(1);
+  expect(attempt.result.stderr).toBe(`${line}\n`);
+  expect(line).toMatch(/^[\x20-\x7e]+$/);
+  expect(line.length).toBeLessThanOrEqual(512);
+  expect(line).not.toMatch(/secret|mongodb|localhost|username|password|\/srv\/|environment=/i);
+}
 
 describe('disposable Node 24 systemd rehearsal', () => {
   it.each(['positive', 'health-failure', 'interruption'] as const)('executes the real ordered boundary for %s', (scenario) => {
@@ -190,7 +202,7 @@ describe('disposable Node 24 systemd rehearsal', () => {
   ])('rejects %s before handoff', (_case, candidate, rollback) => {
     const result = spawnSync('/usr/bin/unshare', ['-Ur', '/bin/bash', scriptPath, 'positive', candidate, rollback, transactionId], {
       encoding: 'utf8',
-      env: { ...process.env, REHEARSAL_PID1: 'systemd', REHEARSAL_VIRTUALIZATION: 'microsoft' },
+      env: { NODE_ENV: 'test', PATH: '/usr/bin:/bin', REHEARSAL_PID1: 'systemd', REHEARSAL_VIRTUALIZATION: 'microsoft' },
     });
 
     expect(result.status).not.toBe(0);
@@ -201,7 +213,7 @@ describe('disposable Node 24 systemd rehearsal', () => {
   it('rejects test overrides outside an unprivileged user namespace', () => {
     const result = spawnSync('/bin/bash', [scriptPath, 'positive', candidateSha, rollbackSha, transactionId], {
       encoding: 'utf8',
-      env: { ...process.env, REHEARSAL_APP_ROOT: temporaryDirectory() },
+      env: { NODE_ENV: 'test', PATH: '/usr/bin:/bin', REHEARSAL_APP_ROOT: temporaryDirectory() },
     });
 
     expect(result.status).not.toBe(0);
@@ -228,5 +240,145 @@ describe('disposable Node 24 systemd rehearsal', () => {
     expect(attempt.result.status).not.toBe(0);
     expect(attempt.result.stderr).toContain('stage=environment');
     expect(attempt.calls).toEqual([]);
+  });
+
+  describe('recovery-output diagnostics', () => {
+    const probeCases: [string, string][] = [
+      ['503:1:true\n', '503 1 true'], ['000:7:false\n', '000 7 false'],
+      ['unknown:28:true\n', 'unknown 28 true'], ['200:255:false\n', '200 255 false'],
+      ['503:256:true\n', 'unknown unknown unknown'], ['099:1:true\n', 'unknown unknown unknown'],
+      ['503:01:true\n', 'unknown unknown unknown'], ['503:1:private-sentinel\n', 'unknown unknown unknown'],
+      ['503:1:true extra\n', 'unknown unknown unknown'], ['503:1:true', 'unknown unknown unknown'],
+      ['503:1:true\r\n', 'unknown unknown unknown'], ['503:1:true\nactivation=failed; rollback=failed\n', 'unknown unknown unknown'],
+      ['503:1:true\nrecovery_failed_check=health\n', 'unknown unknown unknown'],
+      ['503:1:true\nrecovery_health_probe=503:1:true\n', 'unknown unknown unknown'],
+      [`503:1:true\n${'x'.repeat(70_000)}\n`, 'unknown unknown unknown'],
+    ];
+    it.each(probeCases)('decodes only one complete bounded health tuple (%s)', (tuple, expected) => {
+      const attempt = run('health-failure', { FAKE_CHILD_STATUS: '23',
+        FAKE_RECOVERY_OUTPUT: `recovery_failed_check=health\nactivation=failed; rollback=failed\nrecovery_health_probe=${tuple}` });
+      const [http, status, identity] = expected.split(' ');
+      expect(attempt.result.status).toBe(1);
+      expect(attempt.result.stderr).toMatch(new RegExp(` recovery_http=${http} recovery_poll_status=${status} recovery_identity=${identity}\\n$`));
+      expect(attempt.result.stderr).toContain('child_status=23');
+      expect(attempt.result.stdout).toBe('');
+      expect(attempt.result.stderr).not.toMatch(/private-sentinel|secret|mongodb|localhost|username|password|\/srv\/|environment=/i);
+      expect(attempt.result.stderr.length).toBeLessThanOrEqual(512);
+      expect(existsSync(join(attempt.appRoot, '..', 'child-log'))).toBe(false);
+    });
+    it.each(['node24_delete', 'link_restore', 'node20_start', 'health', 'process_identity'])('D6 maps the exact fixed recovery label %s without exposing child output', (label) => {
+      const attempt = run('health-failure', {
+        FAKE_RECOVERY_OUTPUT: `recovery_failed_check=${label}\nactivation=failed; rollback=failed\nsecret=must-not-appear mongodb://localhost /srv/private\n`,
+        FAKE_CHILD_STATUS: '42',
+      });
+
+      expectRecoveryDiagnostic(attempt, `child_status=42 reported_rollback=failed error_code=recovery_${label}_failed`);
+      expect(attempt.result.stdout).toBe('');
+      expect(existsSync(join(attempt.appRoot, '..', 'child-log'))).toBe(false);
+    });
+
+    it.each([
+      ['missing', '', 'failed'],
+      ['duplicate', 'recovery_failed_check=health\nrecovery_failed_check=health\n', 'failed'],
+      ['conflicting labels', 'recovery_failed_check=health\nrecovery_failed_check=node20_start\n', 'failed'],
+      ['unknown value', 'recovery_failed_check=private-command\n', 'failed'],
+      ['malformed', 'recovery_failed_check=health \n', 'failed'],
+      ['prefixed', 'private recovery_failed_check=health\n', 'failed'],
+      ['unsafe', 'recovery_failed_check=/srv/private mongodb://password\n', 'failed'],
+      ['valid plus malformed', 'recovery_failed_check=health\nrecovery_failed_check=health extra\n', 'failed'],
+      ['conflicting old diagnostic', 'recovery_failed_check=health\nPost-success rollback health check failed.\n', 'failed'],
+      ['control', 'recovery_failed_check=health\r\n', 'unrecognized'],
+      ['oversized', `recovery_failed_check=health\n${'x'.repeat(70_000)}\n`, 'unrecognized'],
+    ])('D6 keeps %s recovery attribution unknown', (_case, labels, receipt) => {
+      const attempt = run('health-failure', {
+        FAKE_RECOVERY_OUTPUT: `${labels}activation=failed; rollback=failed\n`,
+        FAKE_CHILD_STATUS: '42',
+      });
+
+      expectRecoveryDiagnostic(attempt, `child_status=42 reported_rollback=${receipt} error_code=unknown`);
+      expect(attempt.result.stdout).toBe('');
+    });
+    it.each([
+      ['missing receipt', '', 'absent'],
+      ['malformed receipt', 'activation=failed; rollback=failed \n', 'unrecognized'],
+      ['duplicate receipt', 'activation=failed; rollback=failed\nactivation=failed; rollback=failed\n', 'failed'],
+      ['conflicting receipt', 'activation=failed; rollback=failed\nactivation=failed; rollback=invalid\n', 'unrecognized'],
+    ])('D6 rejects label attribution with %s', (_case, receipts, classification) => {
+      const attempt = run('health-failure', {
+        FAKE_RECOVERY_OUTPUT: `recovery_failed_check=health\n${receipts}`,
+        FAKE_CHILD_STATUS: '42',
+      });
+
+      expectRecoveryDiagnostic(attempt, `child_status=42 reported_rollback=${classification} error_code=unknown`);
+    });
+
+    it('reports the waited child status, failed receipt, and exact safe producer code', () => {
+      const attempt = run('health-failure', {
+        FAKE_RECOVERY_OUTPUT: [
+          'Post-success rollback health check failed.',
+          'activation=failed; rollback=failed',
+          'secret=must-not-appear mongodb://localhost:27017 /srv/private username=password',
+          '',
+        ].join('\n'),
+        FAKE_CHILD_STATUS: '23',
+      });
+
+      expectRecoveryDiagnostic(attempt, 'child_status=23 reported_rollback=failed error_code=post_success_rollback_health_failed');
+    });
+
+    it.each([
+      ['absent receipt', 'private diagnostic output\n', 'absent'],
+      ['malformed receipt', 'activation=failed; rollback=failed \n', 'unrecognized'],
+    ])('classifies an %s without exposing child output', (_case, output, receipt) => {
+      const attempt = run('health-failure', {
+        FAKE_RECOVERY_OUTPUT: output,
+        FAKE_CHILD_STATUS: '7',
+      });
+
+      expectRecoveryDiagnostic(attempt, `child_status=7 reported_rollback=${receipt} error_code=unknown`);
+      expect(attempt.result.stderr).not.toContain('private diagnostic output');
+    });
+
+    it('rejects CR and control bytes instead of normalizing an exact receipt', () => {
+      const attempt = run('health-failure', {
+        FAKE_RECOVERY_OUTPUT: 'activation=failed; rollback=passed\r\npassword=private\x01\n',
+        FAKE_CHILD_STATUS: '11',
+      });
+
+      expectRecoveryDiagnostic(attempt, 'child_status=11 reported_rollback=unrecognized error_code=unknown');
+      expect(attempt.result.stderr).not.toContain('private');
+    });
+
+    it('fails closed when multiple known producer messages make the error ambiguous', () => {
+      const attempt = run('health-failure', {
+        FAKE_RECOVERY_OUTPUT: [
+          'Post-success rollback health check failed.',
+          'Current release does not match declared rollback SHA.',
+          '',
+        ].join('\n'),
+        FAKE_CHILD_STATUS: '13',
+      });
+
+      expectRecoveryDiagnostic(attempt, 'child_status=13 reported_rollback=absent error_code=unknown');
+    });
+
+    it('bounds oversized child output and uses unknown classifications', () => {
+      const attempt = run('health-failure', {
+        FAKE_RECOVERY_OUTPUT: `Post-success rollback health check failed.\nactivation=failed; rollback=failed\n${'x'.repeat(70_000)}`,
+        FAKE_CHILD_STATUS: '17',
+      });
+
+      expectRecoveryDiagnostic(attempt, 'child_status=17 reported_rollback=unrecognized error_code=unknown');
+    });
+
+    it('keeps a missing child log to the original single failure line', () => {
+      const attempt = run('health-failure', {
+        FAKE_RECOVERY_OUTPUT: 'secret must-not-appear\n',
+        FAKE_REMOVE_CHILD_LOG: '1',
+        FAKE_CHILD_STATUS: '19',
+      });
+
+      expectRecoveryDiagnostic(attempt, 'child_status=19 reported_rollback=absent error_code=unknown');
+    });
   });
 });

@@ -19,6 +19,82 @@ fail() {
   exit 1
 }
 
+recovery_output_failure() {
+  local child_status="$1" reported_rollback=unrecognized error_code=unknown facts
+  local recovery_http=unknown recovery_poll_status=unknown recovery_identity=unknown
+  if [[ ! -e "$child_log" && ! -L "$child_log" ]]; then
+    reported_rollback=absent
+  elif [[ -f "$child_log" && -r "$child_log" ]]; then
+    facts="$(LC_ALL=C head -c 65537 -- "$child_log" 2>/dev/null | LC_ALL=C awk -v complete="$(tail -c 1 -- "$child_log" 2>/dev/null | wc -l)" '
+      {
+        bytes += length($0) + 1
+        if (bytes > 65536) oversized = 1
+        if ($0 ~ /[[:cntrl:]]/) control = 1
+
+        candidate = ""
+        if (index($0, "activation=failed; rollback=") > 0) {
+          candidate = "unrecognized"
+          if ($0 == "activation=failed; rollback=passed") candidate = "passed"
+          if ($0 == "activation=failed; rollback=failed") candidate = "failed"
+          if (receipt_count == 0) receipt = candidate
+          else if (receipt != candidate) receipt = "unrecognized"
+          receipt_count++
+        }
+
+        if (index($0, "recovery_failed_check") > 0) {
+          label_count++
+          label_code = "unknown"
+          if ($0 == "recovery_failed_check=node24_delete") label_code = "recovery_node24_delete_failed"
+          if ($0 == "recovery_failed_check=link_restore") label_code = "recovery_link_restore_failed"
+          if ($0 == "recovery_failed_check=node20_start") label_code = "recovery_node20_start_failed"
+          if ($0 == "recovery_failed_check=health") label_code = "recovery_health_failed"
+          if ($0 == "recovery_failed_check=process_identity") label_code = "recovery_process_identity_failed"
+        }
+
+        if (index($0, "recovery_health_probe") > 0) {
+          probe_count++
+          if ($0 ~ /^recovery_health_probe=(000|[1-5][0-9][0-9]|unknown):(0|[1-9][0-9]?|1[0-9][0-9]|2[0-4][0-9]|25[0-5]):(true|false)$/) {
+            split(substr($0, 23), probe, ":")
+            probe_valid = 1
+          }
+        }
+
+        code = "unknown"
+        if ($0 == "Post-success rollback health check failed.") code = "post_success_rollback_health_failed"
+        if ($0 == "Current release does not match declared rollback SHA.") code = "declared_rollback_mismatch"
+        if (code != "unknown") {
+          if (known_count == 0) error = code
+          else if (error != code) error = "unknown"
+          known_count++
+        }
+      }
+      END {
+        if (oversized || control) {
+          print "unrecognized unknown unknown unknown unknown"
+          exit
+        }
+        if (receipt_count == 0) receipt = "absent"
+        if (known_count == 0) error = "unknown"
+        if (label_count > 0) {
+          error = "unknown"
+          if (label_count == 1 && known_count == 0 && receipt_count == 1 && receipt == "failed") error = label_code
+        }
+        http = poll = identity = "unknown"
+        if (complete == 1 && probe_count == 1 && probe_valid && receipt_count == 1 && receipt == "failed" &&
+            label_count == 1 && label_code != "unknown" && known_count == 0) {
+          http = probe[1]; poll = probe[2]; identity = probe[3]
+        }
+        print receipt, error, http, poll, identity
+      }
+    ')" || facts='unrecognized unknown unknown unknown unknown'
+    read -r reported_rollback error_code recovery_http recovery_poll_status recovery_identity <<< "$facts"
+  fi
+  # These output classifications prove neither rollback completion nor root cause.
+  printf 'rehearsal=failed stage=recovery-output child_status=%s reported_rollback=%s error_code=%s recovery_http=%s recovery_poll_status=%s recovery_identity=%s\n' \
+    "$child_status" "$reported_rollback" "$error_code" "$recovery_http" "$recovery_poll_status" "$recovery_identity" >&2
+  exit 1
+}
+
 is_unprivileged_user_namespace() {
   local inside_uid outside_uid range
   read -r inside_uid outside_uid range < /proc/self/uid_map || return 1
@@ -166,7 +242,7 @@ else
   activation_pid=""
   [[ "$activation_status" != 0 ]] || fail activation
   if [[ -n "$fault_pid" ]]; then wait "$fault_pid"; fault_pid=""; fi
-  grep -Fx 'activation=failed; rollback=passed' "$child_log" >/dev/null 2>&1 || fail recovery-output
+  grep -Fx 'activation=failed; rollback=passed' "$child_log" >/dev/null 2>&1 || recovery_output_failure "$activation_status"
   link_matches "$rollback_dir" || fail recovery-link
   activation_result=failed-as-planned
   rollback_result=passed

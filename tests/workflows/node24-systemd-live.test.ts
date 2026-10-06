@@ -16,9 +16,21 @@ describe('GitHub-hosted Node 24 systemd rehearsal', () => {
     expect(workflow).toContain('runs-on: ubuntu-24.04');
     expect(workflow).toContain('github.event.pull_request.head.repo.full_name == github.repository');
     expect(workflow).toContain('persist-credentials: false');
-    expect(workflow).toContain('scenario: [positive, health-failure, interruption]');
+    expect(workflow).toContain(`fromJSON(github.event_name == 'workflow_dispatch' && inputs.scenario_scope == 'recovery' && '["health-failure","interruption"]' || '["positive","health-failure","interruption"]')`);
     expect(workflow).toContain('branches: [test/issue-71-node24-systemd-rehearsal]');
     expect(workflow).toContain('workflow_dispatch:');
+  });
+
+  it.each([
+    ['workflow_dispatch', 'recovery', 2], ['workflow_dispatch', 'all', 3],
+    ['workflow_dispatch', '', 3], ['workflow_dispatch', 'other', 3], ['pull_request', 'recovery', 3],
+  ])('selects the bounded matrix for %s/%s', (event, scope, count) => {
+    expect(workflow).toMatch(/scenario_scope:\s+description:[^\n]+\s+type: choice\s+default: all\s+options: \[all, recovery\]/);
+    const expression = workflow.match(/scenario: \$\{\{ fromJSON\((.+)\) \}\}/)?.[1];
+    expect(expression).toBeDefined();
+    const evaluate = new Function('event', 'scope', `return ${expression?.replace('github.event_name', 'event').replace('inputs.scenario_scope', 'scope')}`);
+    const scenarios: string[] = JSON.parse(evaluate(event, scope));
+    expect(scenarios).toEqual(count === 2 ? ['health-failure', 'interruption'] : ['positive', 'health-failure', 'interruption']);
   });
 
   it('proves the systemd PID 1 and non-container environment before provisioning', () => {
