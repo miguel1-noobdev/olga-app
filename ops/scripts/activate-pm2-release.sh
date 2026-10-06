@@ -41,6 +41,8 @@ active_pm2_pid=""
 current_tmp=""
 restore_tmp=""
 recovery_tmp=""
+prestart_describe_output=""
+prestart_app_present=0
 receipt_expected_current_sha=unverified
 receipt_target_old_sha=unverified
 exec {rollback_output_fd}>&2
@@ -135,6 +137,22 @@ run_node20_pm2() {
   active_pm2_pid=$!
   wait "$active_pm2_pid" || status=$?
   active_pm2_pid=""
+  return "$status"
+}
+
+describe_prestart_app() {
+  local status=0 output
+  # Keep the PM2 wrapper in the controller shell so cancellation owns its child.
+  prestart_describe_output="$(mktemp "$APP_ROOT/.pm2-prestart.XXXXXX")"
+  run_node24_pm2 "$RELEASE_DIR" describe "$PM2_APP" >"$prestart_describe_output" 2>&1 || status=$?
+  output="$(<"$prestart_describe_output")"
+  rm -f "$prestart_describe_output"
+  prestart_describe_output=""
+  if (( status == 0 )); then
+    prestart_app_present=1
+    return 0
+  fi
+  [[ "$output" == "[PM2][WARN] $PM2_APP doesn't exist" ]] && return 0
   return "$status"
 }
 
@@ -286,7 +304,7 @@ rollback() {
     printf 'activation=failed; rollback=%s\n' "$recovery" >&"$rollback_output_fd"
   fi
 
-  rm -f "$current_tmp" "$restore_tmp"
+  rm -f "$current_tmp" "$restore_tmp" "$prestart_describe_output"
   exit "$status"
 }
 
@@ -379,7 +397,7 @@ if ! [[ -L "$CURRENT_LINK" ]] || [[ "$(realpath -- "$CURRENT_LINK" 2>/dev/null)"
   die 'Current release does not match declared rollback SHA.'
 fi
 
-run_node24_pm2 "$RELEASE_DIR" describe "$PM2_APP" >/dev/null 2>&1 || true
+describe_prestart_app
 
 current_tmp="$APP_ROOT/.current.$$"
 rm -f "$current_tmp"
@@ -387,7 +405,9 @@ ln -s "$RELEASE_DIR" "$current_tmp"
 activation_started=1
 mv -Tf "$current_tmp" "$CURRENT_LINK"
 
-run_node24_pm2 "$RELEASE_DIR" delete "$PM2_APP" >/dev/null 2>&1 || true
+if (( prestart_app_present == 1 )); then
+  run_node24_pm2 "$RELEASE_DIR" delete "$PM2_APP" >/dev/null 2>&1
+fi
 run_node24_pm2 "$RELEASE_DIR" start "$PM2_CONFIG" --only "$PM2_APP" --update-env >/dev/null 2>&1
 
 wait_for_health || die 'Loopback health check failed before readiness deadline.'
