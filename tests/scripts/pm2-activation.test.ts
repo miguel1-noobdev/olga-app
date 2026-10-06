@@ -11,6 +11,9 @@ const temporaryDirectories: string[] = [];
 
 type CandidateOptions = {
   activationSignal?: 'INT' | 'TERM';
+  activationSignalCommand?: 'describe' | 'start';
+  prestartDescribeFailure?: 'absent' | 'unknown' | 'wrong-app' | 'mixed';
+  prestartDeleteFails?: boolean;
   candidateDeleteFails?: boolean;
   candidateStartFails?: boolean;
   currentTarget?: 'candidate' | 'rollback';
@@ -75,6 +78,7 @@ function runCandidate(options: CandidateOptions = {}) {
   const secrets = join(root, 'secrets.env');
   const pm2Calls = join(root, 'pm2-calls');
   const activationSignalSent = join(root, 'activation-signal-sent');
+  const candidateStarted = join(root, 'candidate-started');
   const node20Pm2Calls = join(root, 'node20-pm2-calls');
   const poisonCalls = join(root, 'poison-calls');
   const mvCalls = join(root, 'mv-calls');
@@ -94,8 +98,22 @@ function runCandidate(options: CandidateOptions = {}) {
     if [ "$1" != "$PM2_CLI" ]; then exit 97; fi
     if [ "$2" = '--version' ]; then printf '%s\\n' "$PM2_REPORTED_VERSION"; exit 0; fi
     printf '%s|%s|%s\\n' "$PM2_NODE_BIN" "$PM2_CWD" "$2" >> "$PM2_CALLS"
-    if [ "$2" = delete ] && [ "\${CANDIDATE_DELETE_FAIL-}" = 1 ]; then exit 43; fi
-    if [ "$2" = start ] && [ "\${CANDIDATE_START_FAIL-}" = 1 ]; then exit 42; fi
+    if [ "$2" = describe ]; then
+      case "\${PRESTART_DESCRIBE_FAILURE-}" in
+        absent) printf "%s\\n" "[PM2][WARN] botanica-ob doesn't exist" >&2; exit 44 ;;
+        unknown) printf '%s\\n' 'private-pm2-diagnostic' >&2; exit 45 ;;
+        wrong-app) printf "%s\\n" "[PM2][WARN] another-app doesn't exist" >&2; exit 46 ;;
+        mixed) printf "%s\\n" "[PM2][WARN] botanica-ob doesn't exist" 'private-pm2-diagnostic' >&2; exit 47 ;;
+      esac
+    fi
+    if [ "$2" = delete ]; then
+      if [ "\${PRESTART_DELETE_FAIL-}" = 1 ] && [ ! -f "$CANDIDATE_STARTED" ]; then printf '%s\\n' 'private-pm2-diagnostic' >&2; exit 48; fi
+      if [ "\${CANDIDATE_DELETE_FAIL-}" = 1 ] && { [ -f "$CANDIDATE_STARTED" ] || [ "\${ROLLBACK_MODE-}" = 1 ]; }; then exit 43; fi
+    fi
+    if [ "$2" = start ]; then
+      : > "$CANDIDATE_STARTED"
+      if [ "\${CANDIDATE_START_FAIL-}" = 1 ]; then exit 42; fi
+    fi
     if [ "$2" = start ] && [ "\${RECOVERY_CURRENT_LINK_DRIFT-}" = 1 ]; then /usr/bin/ln -sfnT "$TARGET_OLD_RELEASE" "$CURRENT_LINK"; fi
     if [ "$2" = pid ]; then
       if [ -n "\${PID_DIAGNOSTIC-}" ]; then printf '%s\n' "$PID_DIAGNOSTIC" >&2; exit 33; fi
@@ -127,7 +145,9 @@ function runCandidate(options: CandidateOptions = {}) {
     printf '%s\\n' "$*" >> "$RUNUSER_CALLS"
     if [ -n "\${ACTIVATION_SIGNAL-}" ] && [ ! -f "$ACTIVATION_SIGNAL_SENT" ]; then
       for argument in "$@"; do
-        if [ "$argument" = start ]; then
+        if [ "$argument" = "$ACTIVATION_SIGNAL_COMMAND" ]; then
+          # Mark the attempted candidate start even when the controller cancels it.
+          [ "$argument" != start ] || : > "$CANDIDATE_STARTED"
           : > "$ACTIVATION_SIGNAL_SENT"
           kill -"$ACTIVATION_SIGNAL" "\${ACTIVATION_CONTROLLER_PID:-$PPID}"
           break
@@ -204,6 +224,9 @@ function runCandidate(options: CandidateOptions = {}) {
     env: {
       NODE_ENV: 'test', APP_ROOT: appRoot, NODE24_BIN: join(poison, 'node'), PATH: `${bin}:${poison}:/usr/bin:/bin`,
       ACTIVATION_SIGNAL: options.activationSignal ?? '', ACTIVATION_SIGNAL_SENT: activationSignalSent,
+      ACTIVATION_SIGNAL_COMMAND: options.activationSignalCommand ?? 'start', CANDIDATE_STARTED: candidateStarted,
+      PRESTART_DESCRIBE_FAILURE: options.prestartDescribeFailure ?? '', PRESTART_DELETE_FAIL: options.prestartDeleteFails ? '1' : '',
+      ROLLBACK_MODE: options.rollbackMode ? '1' : '',
       CANDIDATE_DELETE_FAIL: options.candidateDeleteFails ? '1' : '', CANDIDATE_START_FAIL: options.candidateStartFails ? '1' : '',
       PM2_CALLS: pm2Calls, PM2_CLI: pm2Cli, PM2_PIDS: options.pm2Pids ?? '4242,4242', PID_DIAGNOSTIC: options.pidDiagnostic ?? '',
       PM2_REPORTED_VERSION: options.pm2Version ?? '5.4.3', NODE_REPORTED_VERSION: options.node24Version ?? 'v24.13.1', NODE20_REPORTED_VERSION: options.node20Version ?? 'v20.19.6',
@@ -444,6 +467,65 @@ describe('PM2 release activation script', () => {
     expect(attempt.pm2Calls().map((call) => call.split('|')[2])).toEqual(['describe', 'delete', 'start', 'pid', 'pid']);
     for (const call of attempt.pm2Calls()) expect(call.split('|').slice(0, 2)).toEqual([attempt.node24, attempt.releaseDir]);
     expect(attempt.runuserCalls()).toContain(`--user candidate -- /usr/bin/env ACTIVATION_CONTROLLER_PID=`);
+  });
+
+  it('PM2 prestart deletes a proven present app before starting the candidate', () => {
+    const attempt = runCandidate();
+
+    expect(attempt.result.status, attempt.result.stderr).toBe(0);
+    expect(attempt.result.stdout).toBe(`activation=passed release=${releaseSha}\n`);
+    expect(attempt.result.stderr).toBe('');
+    expect(attempt.pm2Calls().map((call) => call.split('|')[2])).toEqual(['describe', 'delete', 'start', 'pid', 'pid']);
+    expect(attempt.node20Pm2Calls()).toEqual([]);
+    expect(attempt.currentTarget()).toBe(attempt.releaseDir);
+  });
+
+  it('PM2 prestart skips deletion only for the exact trusted absence warning', () => {
+    const attempt = runCandidate({ prestartDescribeFailure: 'absent' });
+
+    expect(attempt.result.status, attempt.result.stderr).toBe(0);
+    expect(attempt.result.stdout).toBe(`activation=passed release=${releaseSha}\n`);
+    expect(attempt.result.stderr).toBe('');
+    expect(attempt.pm2Calls().map((call) => call.split('|')[2])).toEqual(['describe', 'start', 'pid', 'pid']);
+    expect(attempt.node20Pm2Calls()).toEqual([]);
+    expect(attempt.currentTarget()).toBe(attempt.releaseDir);
+  });
+
+  it.each([
+    ['unknown', 45], ['wrong-app', 46], ['mixed', 47],
+  ] as const)('PM2 prestart preserves describe failure %s without deletion or start', (prestartDescribeFailure, status) => {
+    const attempt = runCandidate({ prestartDescribeFailure });
+
+    expect(attempt.result.status).toBe(status);
+    expect(attempt.result.stdout).toBe('');
+    expect(attempt.result.stderr).toBe('');
+    expect(attempt.pm2Calls().map((call) => call.split('|')[2])).toEqual(['describe']);
+    expect(attempt.node20Pm2Calls()).toEqual([]);
+    expect(attempt.mvCalls()).toEqual([]);
+    expect(attempt.currentTarget()).toBe(attempt.rollbackDir);
+  });
+
+  it('PM2 prestart preserves deletion failure before candidate start despite a later recovery error', () => {
+    const attempt = runCandidate({ prestartDeleteFails: true, rollbackStartFails: true });
+
+    expect(attempt.result.status).toBe(48);
+    expect(attempt.result.stdout).toBe('');
+    expect(attempt.result.stderr).toBe('recovery_failed_check=node24_delete\nactivation=failed; rollback=failed\n');
+    expect(attempt.pm2Calls().map((call) => call.split('|')[2])).toEqual(['describe', 'delete', 'delete']);
+    expect(attempt.node20Pm2Calls().map((call) => call.split('|')[2])).toEqual(['start', 'pid', 'pid']);
+    expect(attempt.currentTarget()).toBe(attempt.rollbackDir);
+  });
+
+  it.each(['TERM', 'INT'] as const)('PM2 prestart owns describe cancellation after %s', (activationSignal) => {
+    const attempt = runCandidate({ activationSignal, activationSignalCommand: 'describe' });
+
+    expect(attempt.result.status).toBe(activationSignal === 'TERM' ? 143 : 130);
+    expect(attempt.result.stdout).toBe('');
+    expect(attempt.result.stderr).toBe('');
+    expect(attempt.pm2Calls().every((call) => call.split('|')[2] === 'describe')).toBe(true);
+    expect(attempt.node20Pm2Calls()).toEqual([]);
+    expect(attempt.mvCalls()).toEqual([]);
+    expect(attempt.currentTarget()).toBe(attempt.rollbackDir);
   });
 
   it('suppresses configured path diagnostics from failed PM2 PID queries', () => {
