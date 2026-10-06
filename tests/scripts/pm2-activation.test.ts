@@ -523,28 +523,68 @@ describe('PM2 release activation script', () => {
     for (const call of attempt.node20Pm2Calls()) expect(call.split('|').slice(0, 2)).toEqual([attempt.node20, attempt.rollbackDir]);
   });
 
+  it.each([
+    ['node24_delete', { candidateDeleteFails: true }],
+    ['link_restore', { rollbackLinkRestoreFails: true }],
+    ['node20_start', { rollbackStartFails: true }],
+    ['health', { rollbackHealthStatus: '503' }],
+    ['process_identity', { rollbackPids: '5252,5253' }],
+    ['process_identity', { rollbackProcExe: '/private/not-node20' }],
+    ['process_identity', { rollbackProcCwd: '/private/not-rollback' }],
+    ['node24_delete', { candidateDeleteFails: true, rollbackLinkRestoreFails: true, rollbackStartFails: true, rollbackHealthStatus: '503', rollbackPids: '5252,5253' }],
+    ['link_restore', { rollbackLinkRestoreFails: true, rollbackStartFails: true, rollbackHealthStatus: '503' }],
+    ['node20_start', { rollbackStartFails: true, rollbackHealthStatus: '503', rollbackPids: '5252,5253' }],
+    ['health', { rollbackHealthStatus: '503', rollbackPids: '5252,5253' }],
+  ] satisfies [string, CandidateOptions][])('D6 attributes only the first failed recovery check: %s (%j)', (label, options) => {
+    const attempt = runCandidate({ candidateStartFails: true, ...options });
+
+    expect(attempt.result.status).toBe(42);
+    expect(attempt.result.stdout).toBe('');
+    expect(attempt.result.stderr).toBe(`recovery_failed_check=${label}\nactivation=failed; rollback=failed\n`);
+    expect(attempt.currentTarget()).toBe(options.rollbackLinkRestoreFails ? attempt.releaseDir : attempt.rollbackDir);
+    expect(attempt.node20Pm2Calls().map((call) => call.split('|')[2])).toEqual(['start', 'pid', 'pid']);
+    expect(attempt.result.stderr).not.toContain('/private/');
+  });
+
+  it('D6 preserves TERM status when recovery also fails', () => {
+    const attempt = runCandidate({ activationSignal: 'TERM', candidateDeleteFails: true });
+
+    expect(attempt.result.status).toBe(143);
+    expect(attempt.result.stderr).toBe('recovery_failed_check=node24_delete\nactivation=failed; rollback=failed\n');
+    expect(attempt.currentTarget()).toBe(attempt.rollbackDir);
+  });
+
+  it('D6 emits no failure label for successful recovery and preserves the original status', () => {
+    const attempt = runCandidate({ candidateStartFails: true });
+
+    expect(attempt.result.status).toBe(42);
+    expect(attempt.result.stderr).toBe('activation=failed; rollback=passed\n');
+    expect(attempt.result.stdout).toBe('');
+    expect(attempt.currentTarget()).toBe(attempt.rollbackDir);
+  });
+
   it('reports rollback-link restoration failure without hiding the candidate failure', () => {
     const attempt = runCandidate({ candidateStartFails: true, rollbackLinkRestoreFails: true });
 
     expect(attempt.result.status, attempt.result.stderr).toBe(42);
-    expect(attempt.result.stderr).toBe('activation=failed; rollback=failed\n');
+    expect(attempt.result.stderr).toBe('recovery_failed_check=link_restore\nactivation=failed; rollback=failed\n');
     expect(attempt.currentTarget()).toBe(attempt.releaseDir);
     expect(attempt.mvCalls().some((call) => call.includes('/.current.rollback.'))).toBe(true);
   });
 
   it('reports failed recovery when stop, start, health, or rollback process identity verification fails', () => {
-    for (const options of [
-      { candidateDeleteFails: true },
-      { rollbackStartFails: true },
-      { rollbackHealthStatus: '503' },
-      { rollbackPids: '5252,5253' },
-      { rollbackProcExe: '/tmp/not-node20' },
-      { rollbackProcCwd: '/tmp/not-the-rollback' },
-    ]) {
+    for (const [label, options] of [
+      ['node24_delete', { candidateDeleteFails: true }],
+      ['node20_start', { rollbackStartFails: true }],
+      ['health', { rollbackHealthStatus: '503' }],
+      ['process_identity', { rollbackPids: '5252,5253' }],
+      ['process_identity', { rollbackProcExe: '/tmp/not-node20' }],
+      ['process_identity', { rollbackProcCwd: '/tmp/not-the-rollback' }],
+    ] satisfies [string, CandidateOptions][]) {
       const attempt = runCandidate({ candidateStartFails: true, ...options });
 
       expect(attempt.result.status, attempt.result.stderr).toBe(42);
-      expect(attempt.result.stderr).toBe('activation=failed; rollback=failed\n');
+      expect(attempt.result.stderr).toBe(`recovery_failed_check=${label}\nactivation=failed; rollback=failed\n`);
       expect(attempt.currentTarget()).toBe(attempt.rollbackDir);
     }
   }, 15_000);

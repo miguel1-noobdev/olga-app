@@ -40,6 +40,16 @@ recovery_output_failure() {
           receipt_count++
         }
 
+        if (index($0, "recovery_failed_check") > 0) {
+          label_count++
+          label_code = "unknown"
+          if ($0 == "recovery_failed_check=node24_delete") label_code = "recovery_node24_delete_failed"
+          if ($0 == "recovery_failed_check=link_restore") label_code = "recovery_link_restore_failed"
+          if ($0 == "recovery_failed_check=node20_start") label_code = "recovery_node20_start_failed"
+          if ($0 == "recovery_failed_check=health") label_code = "recovery_health_failed"
+          if ($0 == "recovery_failed_check=process_identity") label_code = "recovery_process_identity_failed"
+        }
+
         code = "unknown"
         if ($0 == "Post-success rollback health check failed.") code = "post_success_rollback_health_failed"
         if ($0 == "Current release does not match declared rollback SHA.") code = "declared_rollback_mismatch"
@@ -56,6 +66,10 @@ recovery_output_failure() {
         }
         if (receipt_count == 0) receipt = "absent"
         if (known_count == 0) error = "unknown"
+        if (label_count > 0) {
+          error = "unknown"
+          if (label_count == 1 && known_count == 0 && receipt_count == 1 && receipt == "failed") error = label_code
+        }
         print receipt, error
       }
     ')" || facts='unrecognized unknown'

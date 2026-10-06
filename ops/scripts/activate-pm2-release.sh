@@ -247,20 +247,21 @@ run_post_success_rollback() {
 }
 
 rollback() {
-  local status=$? recovery=passed rollback_pid stable_pid
+  local status=$? recovery=passed rollback_pid stable_pid first_failure=""
   trap - EXIT TERM INT
   set +e
 
   if (( activation_started == 1 )); then
-    run_node24_pm2 "$RELEASE_DIR" delete "$PM2_APP" >/dev/null 2>&1 || recovery=failed
+    run_node24_pm2 "$RELEASE_DIR" delete "$PM2_APP" >/dev/null 2>&1 || { recovery=failed; first_failure=node24_delete; }
     restore_tmp="$APP_ROOT/.current.rollback.$$"
     if ! rm -f "$restore_tmp" || ! ln -s "$ROLLBACK_DIR" "$restore_tmp" || ! mv -Tf "$restore_tmp" "$CURRENT_LINK" ||
       [[ "$(realpath -- "$CURRENT_LINK" 2>/dev/null)" != "$ROLLBACK_DIR" ]]; then
       recovery=failed
+      first_failure="${first_failure:-link_restore}"
     fi
     run_node20_pm2 "$ROLLBACK_DIR" start "$ROLLBACK_DIR/ops/pm2/ecosystem.config.cjs" --only "$PM2_APP" --update-env \
-      >/dev/null 2>&1 || recovery=failed
-    wait_for_health || recovery=failed
+      >/dev/null 2>&1 || { recovery=failed; first_failure="${first_failure:-node20_start}"; }
+    wait_for_health || { recovery=failed; first_failure="${first_failure:-health}"; }
     rollback_pid="$(run_node20_pm2 "$ROLLBACK_DIR" pid "$PM2_APP" 2>/dev/null)"
     sleep "$HEALTH_RETRY_INTERVAL_SECONDS"
     stable_pid="$(run_node20_pm2 "$ROLLBACK_DIR" pid "$PM2_APP" 2>/dev/null)"
@@ -268,6 +269,10 @@ rollback() {
       [[ "$(readlink -f "/proc/$rollback_pid/exe" 2>/dev/null)" != "$NODE20_BIN" ]] ||
       [[ "$(readlink -f "/proc/$rollback_pid/cwd" 2>/dev/null)" != "$ROLLBACK_DIR" ]]; then
       recovery=failed
+      first_failure="${first_failure:-process_identity}"
+    fi
+    if [[ -n "$first_failure" ]]; then
+      printf 'recovery_failed_check=%s\n' "$first_failure" >&"$rollback_output_fd"
     fi
     printf 'activation=failed; rollback=%s\n' "$recovery" >&"$rollback_output_fd"
   fi

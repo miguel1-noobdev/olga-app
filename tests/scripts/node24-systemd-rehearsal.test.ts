@@ -244,6 +244,52 @@ describe('disposable Node 24 systemd rehearsal', () => {
   });
 
   describe('recovery-output diagnostics', () => {
+    it.each(['node24_delete', 'link_restore', 'node20_start', 'health', 'process_identity'])('D6 maps the exact fixed recovery label %s without exposing child output', (label) => {
+      const attempt = run('health-failure', {
+        FAKE_RECOVERY_OUTPUT: `recovery_failed_check=${label}\nactivation=failed; rollback=failed\nsecret=must-not-appear mongodb://localhost /srv/private\n`,
+        FAKE_CHILD_STATUS: '42',
+      });
+
+      expectRecoveryDiagnostic(attempt, `child_status=42 reported_rollback=failed error_code=recovery_${label}_failed`);
+      expect(attempt.result.stdout).toBe('');
+      expect(existsSync(join(attempt.appRoot, '..', 'child-log'))).toBe(false);
+    });
+
+    it.each([
+      ['missing', '', 'failed'],
+      ['duplicate', 'recovery_failed_check=health\nrecovery_failed_check=health\n', 'failed'],
+      ['conflicting labels', 'recovery_failed_check=health\nrecovery_failed_check=node20_start\n', 'failed'],
+      ['unknown value', 'recovery_failed_check=private-command\n', 'failed'],
+      ['malformed', 'recovery_failed_check=health \n', 'failed'],
+      ['prefixed', 'private recovery_failed_check=health\n', 'failed'],
+      ['unsafe', 'recovery_failed_check=/srv/private mongodb://password\n', 'failed'],
+      ['valid plus malformed', 'recovery_failed_check=health\nrecovery_failed_check=health extra\n', 'failed'],
+      ['conflicting old diagnostic', 'recovery_failed_check=health\nPost-success rollback health check failed.\n', 'failed'],
+      ['control', 'recovery_failed_check=health\r\n', 'unrecognized'],
+      ['oversized', `recovery_failed_check=health\n${'x'.repeat(70_000)}\n`, 'unrecognized'],
+    ])('D6 keeps %s recovery attribution unknown', (_case, labels, receipt) => {
+      const attempt = run('health-failure', {
+        FAKE_RECOVERY_OUTPUT: `${labels}activation=failed; rollback=failed\n`,
+        FAKE_CHILD_STATUS: '42',
+      });
+
+      expectRecoveryDiagnostic(attempt, `child_status=42 reported_rollback=${receipt} error_code=unknown`);
+      expect(attempt.result.stdout).toBe('');
+    });
+    it.each([
+      ['missing receipt', '', 'absent'],
+      ['malformed receipt', 'activation=failed; rollback=failed \n', 'unrecognized'],
+      ['duplicate receipt', 'activation=failed; rollback=failed\nactivation=failed; rollback=failed\n', 'failed'],
+      ['conflicting receipt', 'activation=failed; rollback=failed\nactivation=failed; rollback=invalid\n', 'unrecognized'],
+    ])('D6 rejects label attribution with %s', (_case, receipts, classification) => {
+      const attempt = run('health-failure', {
+        FAKE_RECOVERY_OUTPUT: `recovery_failed_check=health\n${receipts}`,
+        FAKE_CHILD_STATUS: '42',
+      });
+
+      expectRecoveryDiagnostic(attempt, `child_status=42 reported_rollback=${classification} error_code=unknown`);
+    });
+
     it('reports the waited child status, failed receipt, and exact safe producer code', () => {
       const attempt = run('health-failure', {
         FAKE_RECOVERY_OUTPUT: [
