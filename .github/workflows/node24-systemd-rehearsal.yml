@@ -15,6 +15,11 @@ on:
         description: Full rollback commit SHA
         required: true
         type: string
+      scenario_scope:
+        description: All acceptance scenarios or recovery-only diagnostics
+        type: choice
+        default: all
+        options: [all, recovery]
 
 permissions:
   contents: read
@@ -31,7 +36,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        scenario: [positive, health-failure, interruption]
+        scenario: ${{ fromJSON(github.event_name == 'workflow_dispatch' && inputs.scenario_scope == 'recovery' && '["health-failure","interruption"]' || '["positive","health-failure","interruption"]') }}
     services:
       mongo:
         image: mongo:8.0

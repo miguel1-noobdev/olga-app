@@ -105,6 +105,10 @@ A failed or missing scenario is **NO-GO** for issue #71. Passing this rehearsal 
 
 After the workflow exists on the default branch, `workflow_dispatch` accepts one full lowercase rollback commit SHA. The selected workflow ref supplies the candidate SHA. Both commits must exist, be distinct, and remain available to `git archive`; otherwise the run stops before provisioning.
 
+`scenario_scope` defaults to `all`. Only an explicit manual `recovery` selection runs just `health-failure` and `interruption`; it avoids repeating positive during diagnosis but does not satisfy issue #116's final three-scenario gate on the same candidate. With separate execution permission, use `gh workflow run node24-systemd-rehearsal.yml --ref <candidate-branch> -f rollback_sha=<full-rollback-sha> -f scenario_scope=recovery`.
+
+Recovery-output failures include `recovery_http`, `recovery_poll_status`, and `recovery_identity` (unknown when the private tuple is invalid or unavailable). The status is the last failed **whole poll condition**, not necessarily curl's exit: curl success with non-200 yields 1. Identity reports the subsequent existing stable-PID/executable/cwd predicate, not the origin of the HTTP response. These facts add no request or readiness gate and do not establish the runtime cause.
+
 ## Auth reality
 
 - **Email and password** is the only login path exposed to end users in the UI.

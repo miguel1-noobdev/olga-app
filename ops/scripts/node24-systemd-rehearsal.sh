@@ -21,10 +21,11 @@ fail() {
 
 recovery_output_failure() {
   local child_status="$1" reported_rollback=unrecognized error_code=unknown facts
+  local recovery_http=unknown recovery_poll_status=unknown recovery_identity=unknown
   if [[ ! -e "$child_log" && ! -L "$child_log" ]]; then
     reported_rollback=absent
   elif [[ -f "$child_log" && -r "$child_log" ]]; then
-    facts="$(LC_ALL=C head -c 65537 -- "$child_log" 2>/dev/null | LC_ALL=C awk '
+    facts="$(LC_ALL=C head -c 65537 -- "$child_log" 2>/dev/null | LC_ALL=C awk -v complete="$(tail -c 1 -- "$child_log" 2>/dev/null | wc -l)" '
       {
         bytes += length($0) + 1
         if (bytes > 65536) oversized = 1
@@ -50,6 +51,14 @@ recovery_output_failure() {
           if ($0 == "recovery_failed_check=process_identity") label_code = "recovery_process_identity_failed"
         }
 
+        if (index($0, "recovery_health_probe") > 0) {
+          probe_count++
+          if ($0 ~ /^recovery_health_probe=(000|[1-5][0-9][0-9]|unknown):(0|[1-9][0-9]?|1[0-9][0-9]|2[0-4][0-9]|25[0-5]):(true|false)$/) {
+            split(substr($0, 23), probe, ":")
+            probe_valid = 1
+          }
+        }
+
         code = "unknown"
         if ($0 == "Post-success rollback health check failed.") code = "post_success_rollback_health_failed"
         if ($0 == "Current release does not match declared rollback SHA.") code = "declared_rollback_mismatch"
@@ -61,7 +70,7 @@ recovery_output_failure() {
       }
       END {
         if (oversized || control) {
-          print "unrecognized unknown"
+          print "unrecognized unknown unknown unknown unknown"
           exit
         }
         if (receipt_count == 0) receipt = "absent"
@@ -70,14 +79,19 @@ recovery_output_failure() {
           error = "unknown"
           if (label_count == 1 && known_count == 0 && receipt_count == 1 && receipt == "failed") error = label_code
         }
-        print receipt, error
+        http = poll = identity = "unknown"
+        if (complete == 1 && probe_count == 1 && probe_valid && receipt_count == 1 && receipt == "failed" &&
+            label_count == 1 && label_code != "unknown" && known_count == 0) {
+          http = probe[1]; poll = probe[2]; identity = probe[3]
+        }
+        print receipt, error, http, poll, identity
       }
-    ')" || facts='unrecognized unknown'
-    read -r reported_rollback error_code <<< "$facts"
+    ')" || facts='unrecognized unknown unknown unknown unknown'
+    read -r reported_rollback error_code recovery_http recovery_poll_status recovery_identity <<< "$facts"
   fi
   # These output classifications prove neither rollback completion nor root cause.
-  printf 'rehearsal=failed stage=recovery-output child_status=%s reported_rollback=%s error_code=%s\n' \
-    "$child_status" "$reported_rollback" "$error_code" >&2
+  printf 'rehearsal=failed stage=recovery-output child_status=%s reported_rollback=%s error_code=%s recovery_http=%s recovery_poll_status=%s recovery_identity=%s\n' \
+    "$child_status" "$reported_rollback" "$error_code" "$recovery_http" "$recovery_poll_status" "$recovery_identity" >&2
   exit 1
 }
 

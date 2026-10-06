@@ -32,6 +32,7 @@ type CandidateOptions = {
   procCwd?: string;
   procExe?: string;
   rollbackHealthStatus?: string;
+  curlExit?: string;
   rollbackLinkRestoreFails?: boolean;
   rollbackPids?: string;
   rollbackProcCwd?: string;
@@ -146,7 +147,7 @@ function runCandidate(options: CandidateOptions = {}) {
     done
     exec /usr/bin/mv "$@"
   `);
-  command(bin, 'curl', `printf '%s' "$CURL_STATUS"`);
+  command(bin, 'curl', `printf '%s' "$CURL_STATUS"; exit "\${CURL_EXIT:-0}"`);
   command(bin, 'readlink', `
     case "$2" in
       /proc/5252/exe) printf '%s\\n' "$ROLLBACK_PROC_EXE" ;;
@@ -217,7 +218,7 @@ function runCandidate(options: CandidateOptions = {}) {
       ROLLBACK_PROC_EXE: options.rollbackProcExe ?? node20, RUNUSER_CALLS: runuserCalls,
       SECRETS_FILE: options.secretsUnavailable ? join(root, 'unavailable-secrets.env') : secrets,
       HEALTH_TIMEOUT_SECONDS: options.healthTimeout ?? (options.rollbackHealthStatus ? '0' : undefined),
-      CURL_STATUS: options.rollbackHealthStatus ?? '200',
+      CURL_STATUS: options.rollbackHealthStatus ?? '200', CURL_EXIT: options.curlExit ?? '0',
     },
   });
   for (const directory of [releaseDir, rollbackDir]) {
@@ -523,6 +524,69 @@ describe('PM2 release activation script', () => {
     for (const call of attempt.node20Pm2Calls()) expect(call.split('|').slice(0, 2)).toEqual([attempt.node20, attempt.rollbackDir]);
   });
 
+  it('pins legacy bare-node app selection only inside the Node20 command environment', () => {
+    const root = mkdtempSync(join(tmpdir(), 'botanica-legacy-interpreter-'));
+    temporaryDirectories.push(root);
+    const node20Directory = join(root, 'node20');
+    const ambientDirectory = join(root, 'ambient');
+    mkdirSync(node20Directory);
+    mkdirSync(ambientDirectory);
+    // PM2 5.4.3 defaults legacy JS apps to bare node and spawns with caller env.
+    command(node20Directory, 'node', `
+      if [ "$1" = legacy-cli ]; then printf 'cli=node20\\n'; exec node legacy-app; fi
+      printf 'app=node20\\n'
+    `);
+    command(ambientDirectory, 'node', `printf 'app=wrong-node\\n'`);
+    command(root, 'node24', `printf 'node24_path=%s\\n' "$PATH"`);
+    command(ambientDirectory, 'runuser', `while [ "$1" != -- ]; do shift; done; shift; exec "$@"`);
+    const source = readFileSync(scriptPath, 'utf8');
+    const wrappers = [24, 20].map((runtime) => source.match(new RegExp(`run_node${runtime}_pm2\\(\\) \\{[\\s\\S]*?\\n\\}`))?.[0]);
+    wrappers.forEach((wrapper) => expect(wrapper).toBeDefined());
+    const incomingPath = `${ambientDirectory}:/usr/bin:/bin`;
+    const result = spawnSync('/bin/bash', ['-c', `${wrappers.join('\n')}
+      run_node20_pm2 synthetic-rollback start
+      printf 'caller_path=%s\\n' "$PATH"
+      run_node24_pm2 synthetic-candidate start
+    `], { encoding: 'utf8', env: {
+      NODE_ENV: 'test', PATH: incomingPath, NODE20_BIN: join(node20Directory, 'node'),
+      NODE20_PM2_CLI: 'legacy-cli', NODE24_BIN: join(root, 'node24'), NODE24_PM2_CLI: 'candidate-cli',
+      PM2_RUN_AS: 'synthetic', PM2_HOME: root,
+    } });
+    expect(result.status).toBe(0);
+    expect(result.stdout).toBe(`cli=node20\napp=node20\ncaller_path=${incomingPath}\nnode24_path=${incomingPath}\n`);
+    expect(result.stderr).toBe('');
+  });
+
+  it('resets failed poll metadata between candidate and rollback waits without extra polls', () => {
+    const helper = readFileSync(scriptPath, 'utf8').match(/wait_for_health\(\) \{[\s\S]*?\n\}/)?.[0];
+    expect(helper).toBeDefined();
+    const result = spawnSync('/bin/bash', ['-c', `${helper}
+      HEALTH_TIMEOUT_SECONDS=0; HEALTH_URL=synthetic; HEALTH_RETRY_INTERVAL_SECONDS=0
+      curl() { printf 503; }; wait_for_health || :
+      printf '%s:%s\\n' "$last_failed_health_http" "$last_failed_health_poll_status"
+      curl() { printf 200; }; wait_for_health
+      printf '%s:%s\\n' "$last_failed_health_http" "$last_failed_health_poll_status"
+    `], { encoding: 'utf8', env: { NODE_ENV: 'test', PATH: '/usr/bin:/bin' } });
+    expect(result.status).toBe(0);
+    expect(result.stdout).toBe('503:1\nunknown:unknown\n');
+    expect(result.stderr).toBe('');
+  });
+
+  const healthProbeCases: [CandidateOptions, string, number][] = [
+    [{ rollbackHealthStatus: '503', candidateStartFails: false }, '503:1:true', 1],
+    [{ rollbackHealthStatus: '000', curlExit: '7' }, '000:7:true', 42],
+    [{ rollbackHealthStatus: 'private-sentinel', curlExit: '28' }, 'unknown:28:true', 42],
+    [{ rollbackHealthStatus: '503', activationSignal: 'TERM', rollbackPids: '5252,5253' }, '503:1:false', 143],
+  ];
+  it.each(healthProbeCases)('retains the failed compound poll and later identity (%j)', (options, probe, status) => {
+    const attempt = runCandidate({ candidateStartFails: true, ...options });
+    expect(attempt.result.status).toBe(status);
+    const originalError = status === 1 ? 'Loopback health check failed before readiness deadline.\n' : '';
+    expect(attempt.result.stderr).toBe(`${originalError}recovery_health_probe=${probe}\nrecovery_failed_check=health\nactivation=failed; rollback=failed\n`);
+    expect(attempt.result.stdout).toBe('');
+    expect(attempt.result.stderr).not.toContain('private-sentinel');
+  });
+
   const recoveryFailureCases: [string, CandidateOptions][] = [
     ['node24_delete', { candidateDeleteFails: true }],
     ['link_restore', { rollbackLinkRestoreFails: true }],
@@ -542,7 +606,8 @@ describe('PM2 release activation script', () => {
 
     expect(attempt.result.status).toBe(42);
     expect(attempt.result.stdout).toBe('');
-    expect(attempt.result.stderr).toBe(`recovery_failed_check=${label}\nactivation=failed; rollback=failed\n`);
+    const probe = options.rollbackHealthStatus ? `recovery_health_probe=503:1:${options.rollbackPids ? 'false' : 'true'}\n` : '';
+    expect(attempt.result.stderr).toBe(`${probe}recovery_failed_check=${label}\nactivation=failed; rollback=failed\n`);
     expect(attempt.currentTarget()).toBe(options.rollbackLinkRestoreFails ? attempt.releaseDir : attempt.rollbackDir);
     expect(attempt.node20Pm2Calls().map((call) => call.split('|')[2])).toEqual(['start', 'pid', 'pid']);
     expect(attempt.result.stderr).not.toContain('/private/');
@@ -586,7 +651,8 @@ describe('PM2 release activation script', () => {
       const attempt = runCandidate({ candidateStartFails: true, ...options });
 
       expect(attempt.result.status, attempt.result.stderr).toBe(42);
-      expect(attempt.result.stderr).toBe(`recovery_failed_check=${label}\nactivation=failed; rollback=failed\n`);
+      const probe = options.rollbackHealthStatus ? 'recovery_health_probe=503:1:true\n' : '';
+      expect(attempt.result.stderr).toBe(`${probe}recovery_failed_check=${label}\nactivation=failed; rollback=failed\n`);
       expect(attempt.currentTarget()).toBe(attempt.rollbackDir);
     }
   }, 15_000);

@@ -131,7 +131,7 @@ run_node20_pm2() {
   export PM2_HOME PM2_NODE_BIN PM2_CWD
   /usr/bin/setsid /usr/bin/timeout --signal=TERM --kill-after=5s 30s \
     runuser --preserve-environment --user "$PM2_RUN_AS" -- /usr/bin/env ACTIVATION_CONTROLLER_PID="$$" \
-    "$NODE20_BIN" "$NODE20_PM2_CLI" "$@" &
+    PATH="${NODE20_BIN%/*}:${PATH:-/usr/bin:/bin}" "$NODE20_BIN" "$NODE20_PM2_CLI" "$@" &
   active_pm2_pid=$!
   wait "$active_pm2_pid" || status=$?
   active_pm2_pid=""
@@ -140,8 +140,13 @@ run_node20_pm2() {
 
 wait_for_health() {
   local health_deadline health_status
+  last_failed_health_http=unknown
+  last_failed_health_poll_status=unknown
   health_deadline=$((SECONDS + HEALTH_TIMEOUT_SECONDS))
   until health_status="$(curl --fail --silent --show-error --max-time 5 --output /dev/null --write-out '%{http_code}' "$HEALTH_URL")" && [[ "$health_status" == "200" ]]; do
+    last_failed_health_poll_status=$?
+    last_failed_health_http=unknown
+    [[ "$health_status" =~ ^(000|[1-5][0-9]{2})$ ]] && last_failed_health_http="$health_status"
     (( SECONDS < health_deadline )) || return 1
     sleep "$HEALTH_RETRY_INTERVAL_SECONDS"
   done
@@ -247,7 +252,7 @@ run_post_success_rollback() {
 }
 
 rollback() {
-  local status=$? recovery=passed rollback_pid stable_pid first_failure=""
+  local status=$? recovery=passed rollback_pid stable_pid first_failure="" health_failed=false identity=true
   trap - EXIT TERM INT
   set +e
 
@@ -261,7 +266,7 @@ rollback() {
     fi
     run_node20_pm2 "$ROLLBACK_DIR" start "$ROLLBACK_DIR/ops/pm2/ecosystem.config.cjs" --only "$PM2_APP" --update-env \
       >/dev/null 2>&1 || { recovery=failed; first_failure="${first_failure:-node20_start}"; }
-    wait_for_health || { recovery=failed; first_failure="${first_failure:-health}"; }
+    wait_for_health || { recovery=failed; first_failure="${first_failure:-health}"; health_failed=true; }
     rollback_pid="$(run_node20_pm2 "$ROLLBACK_DIR" pid "$PM2_APP" 2>/dev/null)"
     sleep "$HEALTH_RETRY_INTERVAL_SECONDS"
     stable_pid="$(run_node20_pm2 "$ROLLBACK_DIR" pid "$PM2_APP" 2>/dev/null)"
@@ -270,6 +275,10 @@ rollback() {
       [[ "$(readlink -f "/proc/$rollback_pid/cwd" 2>/dev/null)" != "$ROLLBACK_DIR" ]]; then
       recovery=failed
       first_failure="${first_failure:-process_identity}"
+      identity=false
+    fi
+    if [[ "$health_failed" == true ]]; then
+      printf 'recovery_health_probe=%s:%s:%s\n' "$last_failed_health_http" "$last_failed_health_poll_status" "$identity" >&"$rollback_output_fd"
     fi
     if [[ -n "$first_failure" ]]; then
       printf 'recovery_failed_check=%s\n' "$first_failure" >&"$rollback_output_fd"

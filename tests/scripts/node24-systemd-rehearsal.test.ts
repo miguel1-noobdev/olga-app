@@ -127,8 +127,7 @@ SCRIPT
   const result = spawnSync('/usr/bin/unshare', ['-Ur', '/bin/bash', scriptPath, scenario, candidateSha, rollbackSha, transactionId], {
     encoding: 'utf8',
     env: {
-      ...process.env,
-      PATH: `${fakeBin}:/usr/bin:/bin`,
+      NODE_ENV: 'test', PATH: `${fakeBin}:/usr/bin:/bin`,
       REHEARSAL_APP_ROOT: appRoot,
       REHEARSAL_CALLS: calls,
       REHEARSAL_CHILD_LOG: childLog,
@@ -155,11 +154,11 @@ afterEach(() => temporaryDirectories.splice(0).forEach((directory) => {
 }));
 
 function expectRecoveryDiagnostic(attempt: ReturnType<typeof run>, fields: string) {
-  const line = `rehearsal=failed stage=recovery-output ${fields}`;
+  const line = `rehearsal=failed stage=recovery-output ${fields} recovery_http=unknown recovery_poll_status=unknown recovery_identity=unknown`;
   expect(attempt.result.status).toBe(1);
   expect(attempt.result.stderr).toBe(`${line}\n`);
   expect(line).toMatch(/^[\x20-\x7e]+$/);
-  expect(line.length).toBeLessThanOrEqual(256);
+  expect(line.length).toBeLessThanOrEqual(512);
   expect(line).not.toMatch(/secret|mongodb|localhost|username|password|\/srv\/|environment=/i);
 }
 
@@ -203,7 +202,7 @@ describe('disposable Node 24 systemd rehearsal', () => {
   ])('rejects %s before handoff', (_case, candidate, rollback) => {
     const result = spawnSync('/usr/bin/unshare', ['-Ur', '/bin/bash', scriptPath, 'positive', candidate, rollback, transactionId], {
       encoding: 'utf8',
-      env: { ...process.env, REHEARSAL_PID1: 'systemd', REHEARSAL_VIRTUALIZATION: 'microsoft' },
+      env: { NODE_ENV: 'test', PATH: '/usr/bin:/bin', REHEARSAL_PID1: 'systemd', REHEARSAL_VIRTUALIZATION: 'microsoft' },
     });
 
     expect(result.status).not.toBe(0);
@@ -214,7 +213,7 @@ describe('disposable Node 24 systemd rehearsal', () => {
   it('rejects test overrides outside an unprivileged user namespace', () => {
     const result = spawnSync('/bin/bash', [scriptPath, 'positive', candidateSha, rollbackSha, transactionId], {
       encoding: 'utf8',
-      env: { ...process.env, REHEARSAL_APP_ROOT: temporaryDirectory() },
+      env: { NODE_ENV: 'test', PATH: '/usr/bin:/bin', REHEARSAL_APP_ROOT: temporaryDirectory() },
     });
 
     expect(result.status).not.toBe(0);
@@ -244,6 +243,29 @@ describe('disposable Node 24 systemd rehearsal', () => {
   });
 
   describe('recovery-output diagnostics', () => {
+    const probeCases: [string, string][] = [
+      ['503:1:true\n', '503 1 true'], ['000:7:false\n', '000 7 false'],
+      ['unknown:28:true\n', 'unknown 28 true'], ['200:255:false\n', '200 255 false'],
+      ['503:256:true\n', 'unknown unknown unknown'], ['099:1:true\n', 'unknown unknown unknown'],
+      ['503:01:true\n', 'unknown unknown unknown'], ['503:1:private-sentinel\n', 'unknown unknown unknown'],
+      ['503:1:true extra\n', 'unknown unknown unknown'], ['503:1:true', 'unknown unknown unknown'],
+      ['503:1:true\r\n', 'unknown unknown unknown'], ['503:1:true\nactivation=failed; rollback=failed\n', 'unknown unknown unknown'],
+      ['503:1:true\nrecovery_failed_check=health\n', 'unknown unknown unknown'],
+      ['503:1:true\nrecovery_health_probe=503:1:true\n', 'unknown unknown unknown'],
+      [`503:1:true\n${'x'.repeat(70_000)}\n`, 'unknown unknown unknown'],
+    ];
+    it.each(probeCases)('decodes only one complete bounded health tuple (%s)', (tuple, expected) => {
+      const attempt = run('health-failure', { FAKE_CHILD_STATUS: '23',
+        FAKE_RECOVERY_OUTPUT: `recovery_failed_check=health\nactivation=failed; rollback=failed\nrecovery_health_probe=${tuple}` });
+      const [http, status, identity] = expected.split(' ');
+      expect(attempt.result.status).toBe(1);
+      expect(attempt.result.stderr).toMatch(new RegExp(` recovery_http=${http} recovery_poll_status=${status} recovery_identity=${identity}\\n$`));
+      expect(attempt.result.stderr).toContain('child_status=23');
+      expect(attempt.result.stdout).toBe('');
+      expect(attempt.result.stderr).not.toMatch(/private-sentinel|secret|mongodb|localhost|username|password|\/srv\/|environment=/i);
+      expect(attempt.result.stderr.length).toBeLessThanOrEqual(512);
+      expect(existsSync(join(attempt.appRoot, '..', 'child-log'))).toBe(false);
+    });
     it.each(['node24_delete', 'link_restore', 'node20_start', 'health', 'process_identity'])('D6 maps the exact fixed recovery label %s without exposing child output', (label) => {
       const attempt = run('health-failure', {
         FAKE_RECOVERY_OUTPUT: `recovery_failed_check=${label}\nactivation=failed; rollback=failed\nsecret=must-not-appear mongodb://localhost /srv/private\n`,
