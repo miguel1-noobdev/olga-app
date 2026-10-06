@@ -523,7 +523,7 @@ describe('PM2 release activation script', () => {
     for (const call of attempt.node20Pm2Calls()) expect(call.split('|').slice(0, 2)).toEqual([attempt.node20, attempt.rollbackDir]);
   });
 
-  it.each([
+  const recoveryFailureCases: [string, CandidateOptions][] = [
     ['node24_delete', { candidateDeleteFails: true }],
     ['link_restore', { rollbackLinkRestoreFails: true }],
     ['node20_start', { rollbackStartFails: true }],
@@ -535,7 +535,9 @@ describe('PM2 release activation script', () => {
     ['link_restore', { rollbackLinkRestoreFails: true, rollbackStartFails: true, rollbackHealthStatus: '503' }],
     ['node20_start', { rollbackStartFails: true, rollbackHealthStatus: '503', rollbackPids: '5252,5253' }],
     ['health', { rollbackHealthStatus: '503', rollbackPids: '5252,5253' }],
-  ] satisfies [string, CandidateOptions][])('D6 attributes only the first failed recovery check: %s (%j)', (label, options) => {
+  ];
+
+  it.each(recoveryFailureCases)('D6 attributes only the first failed recovery check: %s (%j)', (label, options) => {
     const attempt = runCandidate({ candidateStartFails: true, ...options });
 
     expect(attempt.result.status).toBe(42);
