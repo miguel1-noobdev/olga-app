@@ -43,6 +43,12 @@ shell_quote() {
   printf "'"
 }
 
+is_full_sha() {
+  case "${#1}" in 40|64) ;; *) return 1 ;; esac
+  case "$1" in ''|*[!0123456789abcdef]*) return 1 ;; esac
+  return 0
+}
+
 trap 'finish $?' 0
 
 remote_host=${REMOTE_HOST-}
@@ -131,10 +137,29 @@ if [ "${HANDOFF_RECEIPT_ONLY-}" = 1 ]; then
 fi
 
 expected_mode=${EXPECTED_RELEASE_MODE-750}
-if [ "${#release}" -ne 40 ] || [ -z "$remote_host" ] || [ -z "$remote_app_root" ] || [ -z "$expected_owner" ] || [ -z "$expected_group" ]; then
+release_role=${RELEASE_ROLE-}
+candidate_sha=${CANDIDATE_SHA-}
+rollback_sha=${ROLLBACK_SHA-}
+legacy_baseline=0
+if [ -z "$remote_host" ] || [ -z "$remote_app_root" ] || [ -z "$expected_owner" ] || [ -z "$expected_group" ]; then
   fail input 1
 fi
-case "$release" in *[!0123456789abcdef]*) fail input 1 ;; esac
+case "$release_role" in
+  '')
+    if [ "${#release}" -ne 40 ]; then fail input 1; fi
+    case "$release" in *[!0123456789abcdef]*) fail input 1 ;; esac
+    ;;
+  legacy-baseline)
+    if ! is_full_sha "$candidate_sha" || ! is_full_sha "$rollback_sha" || ! is_full_sha "$release"; then
+      fail input 1
+    fi
+    if [ "$release" != "$rollback_sha" ] || [ "$candidate_sha" = "$rollback_sha" ]; then fail input 1; fi
+    legacy_baseline=1
+    ;;
+  *)
+    fail input 1
+    ;;
+esac
 
 release_dir="$remote_app_root/releases/$release"
 release_dir_q=$(shell_quote "$release_dir") || fail preflight $?
@@ -155,7 +180,14 @@ remote_app_root_q=$(shell_quote "$remote_app_root") || fail transfer $?
 expected_owner_q=$(shell_quote "$expected_owner") || fail transfer $?
 expected_group_q=$(shell_quote "$expected_group") || fail transfer $?
 expected_mode_q=$(shell_quote "$expected_mode") || fail transfer $?
-if git archive --worktree-attributes --format=tar "$release" | ssh "$remote_host" "RELEASE_SHA=$release_q APP_ROOT=$remote_app_root_q EXPECTED_RELEASE_OWNER=$expected_owner_q EXPECTED_RELEASE_GROUP=$expected_group_q EXPECTED_RELEASE_MODE=$expected_mode_q /bin/sh $remote_app_root_q/ops/scripts/prepare-release.sh"; then :; else fail transfer $?; fi
+preparation_environment="RELEASE_SHA=$release_q APP_ROOT=$remote_app_root_q EXPECTED_RELEASE_OWNER=$expected_owner_q EXPECTED_RELEASE_GROUP=$expected_group_q EXPECTED_RELEASE_MODE=$expected_mode_q"
+if [ "$legacy_baseline" -eq 1 ]; then
+  release_role_q=$(shell_quote "$release_role") || fail transfer $?
+  candidate_sha_q=$(shell_quote "$candidate_sha") || fail transfer $?
+  rollback_sha_q=$(shell_quote "$rollback_sha") || fail transfer $?
+  preparation_environment="$preparation_environment RELEASE_ROLE=$release_role_q CANDIDATE_SHA=$candidate_sha_q ROLLBACK_SHA=$rollback_sha_q"
+fi
+if git archive --worktree-attributes --format=tar "$release" | ssh "$remote_host" "$preparation_environment /bin/sh $remote_app_root_q/ops/scripts/prepare-release.sh"; then :; else fail transfer $?; fi
 connection_count=2
 stage=transferred
 exit 0

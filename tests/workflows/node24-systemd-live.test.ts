@@ -45,6 +45,22 @@ describe('GitHub-hosted Node 24 systemd rehearsal', () => {
     expect(workflow).toContain('NODE24_BIN: /opt/botanica-runtimes/node24/bin/node');
   });
 
+  it('opts into legacy preparation only for the declared rollback baseline', () => {
+    const baselineStart = position('- name: Prepare sealed Node 20 rollback release');
+    const baselineEnd = position('- name: Start and verify Node 20 baseline');
+    const candidateStart = position('- name: Run guarded cutover rehearsal');
+    const candidateEnd = position('- name: Publish sanitized rehearsal receipt');
+    const baselinePreparation = workflow.slice(baselineStart, baselineEnd);
+    const candidatePreparation = workflow.slice(candidateStart, candidateEnd);
+
+    expect(baselinePreparation).toContain('RELEASE_ROLE=legacy-baseline');
+    expect(baselinePreparation).toContain('CANDIDATE_SHA="$CANDIDATE_SHA"');
+    expect(baselinePreparation).toContain('ROLLBACK_SHA="$ROLLBACK_SHA"');
+    expect(baselinePreparation).toContain('RELEASE_SHA="$ROLLBACK_SHA"');
+    expect(candidatePreparation).not.toContain('RELEASE_ROLE');
+    expect(workflow.match(/RELEASE_ROLE=/g)).toHaveLength(1);
+  });
+
   it('loads the root-only secret file inside the privileged baseline boundary', () => {
     expect(workflow).toContain("sudo env NODE20_BIN=\"$NODE20_BIN\" NODE20_PM2_CLI=\"$NODE20_PM2_CLI\" /bin/bash <<'BASH'");
     expect(position('/bin/bash <<\'BASH\'')).toBeLessThan(position('source /etc/botanica-ob/secrets.env'));
