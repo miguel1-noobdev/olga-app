@@ -29,6 +29,36 @@ describe('UserRepository', () => {
       expect(user.createdAt).toBeDefined();
     });
 
+    it('creates a user at a valid caller-reserved ObjectId', async () => {
+      const id = new mongoose.Types.ObjectId().toString();
+
+      const user = await repo.create({
+        id,
+        email: 'reserved-id@botanicaob.com',
+        password: 'secret123',
+      });
+
+      expect(user.id).toBe(id);
+      expect(await repo.findById(id)).toMatchObject({
+        id,
+        email: 'reserved-id@botanicaob.com',
+        accountStatus: 'active',
+        emailVerified: true,
+      });
+      expect(await repo.count()).toBe(1);
+    });
+
+    it('rejects a malformed caller-reserved ID before any user is written', async () => {
+      await expect(repo.create({
+        id: 'not-a-mongodb-object-id',
+        email: 'malformed-id@botanicaob.com',
+        password: 'secret123',
+      })).rejects.toThrow('Invalid user id');
+
+      expect(await repo.count()).toBe(0);
+      expect(await repo.findByEmail('malformed-id@botanicaob.com')).toBeNull();
+    });
+
     it('assigns suscriptora role by default', async () => {
       const user = await repo.create({ email: 'first@botanicaob.com', password: 'secret123' });
       expect(user.role).toBe('suscriptora');

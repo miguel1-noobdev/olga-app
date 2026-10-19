@@ -31,8 +31,9 @@ How to run the project locally, execute checks, and deploy to the VPS. This docu
 | `NEXTAUTH_SECRET` | At runtime | Generate with `openssl rand -base64 32` | NextAuth JWT signing secret. Login will fail without it. |
 | `NEXTAUTH_URL` | Recommended | `http://localhost:3000` | Used by NextAuth for callback URLs. |
 | `INTERNAL_ACCOUNT_CHECK_ORIGIN` | At runtime | `http://127.0.0.1:3000` | Trusted origin for middleware's persisted-account check. Use the loopback Next.js listener on the VPS, or a bare HTTPS origin. HTTP is accepted only for `localhost`, `127.0.0.1`, or `[::1]`. |
-| `GOOGLE_CLIENT_ID` | Only if enabling Google OAuth | Google Cloud Console | Google auth is wired but **not exposed in the UI**. |
-| `GOOGLE_CLIENT_SECRET` | Only if enabling Google OAuth | Google Cloud Console | Never commit this value. |
+| `GOOGLE_OAUTH_ENABLED` | Only if enabling Google OAuth | `true` | Google sign-in is available only when this flag and both Google credentials are complete. |
+| `GOOGLE_CLIENT_ID` | Only if enabling Google OAuth | Google Cloud Console | Required with the release flag to show Google sign-in. |
+| `GOOGLE_CLIENT_SECRET` | Only if enabling Google OAuth | Google Cloud Console | Required with the release flag; never commit this value. |
 
 > **Current reality:** `.env.example` provides local-safe MongoDB and loopback account-check defaults. Add NextAuth values manually for local development or production.
 
@@ -111,8 +112,10 @@ Recovery-output failures include `recovery_http`, `recovery_poll_status`, and `r
 
 ## Auth reality
 
-- **Email and password** is the only login path exposed to end users in the UI.
-- **Google OAuth** is configured in `src/lib/auth/options.ts` but intentionally **not shown in the UI**. It stays disabled until the brand owner explicitly decides to turn it on.
+- **Email and password** remains available to end users.
+- **Google OAuth** appears in the login UI only when `GOOGLE_OAUTH_ENABLED=true` and both Google credentials are complete. Otherwise the provider and its UI affordance remain unavailable.
+- A verified Google subject receives a pending reservation before a new subscriber is created. A failed or ambiguous callback creates no session; the same verified subject can retry its own pending reservation. Google never links an existing account by matching email.
+- The callback waits for the User and Identity unique indexes before provisioning. If index readiness fails, it denies the callback without creating an account or session.
 - Roles exist (`suscriptora`, `productora`, `admin`). Public registration creates only `suscriptora` accounts.
 - `productora` and `admin` are staff roles for the Laboratorio; `admin` retains staff support access to Olga's Laboratorio.
 
@@ -151,7 +154,7 @@ Identity migration is a two-step operator action. The dry run is read-only and m
 
 #### Rollback boundary
 
-If delivery or access checks fail, stop activation and restore the prior release/configuration through the deployment runbook. Disable Google by removing or setting `GOOGLE_OAUTH_ENABLED` to a non-true value, and disable the new identity routes by reverting the release rather than changing account roles. Invalidate issued tokens and sessions by deleting auth tokens and advancing each affected account's `securityVersion` through the approved operator procedure. Verify that `role`, `accountStatus`, and audit records are unchanged; never roll back by assigning or removing `admin` or `productora`.
+If delivery or access checks fail, stop activation and restore the prior release/configuration through the deployment runbook. Disable Google by removing or setting `GOOGLE_OAUTH_ENABLED` to a non-true value; this disables Google sign-in without changing pending reservations or account roles. Revert the release rather than changing account roles. Invalidate issued tokens and sessions by deleting auth tokens and advancing each affected account's `securityVersion` through the approved operator procedure. Verify that `role`, `accountStatus`, and audit records are unchanged; never roll back by assigning or removing `admin` or `productora`.
 
 ## Production deployment contract
 
