@@ -27,8 +27,28 @@ describe('Landing Navbar', () => {
     expect(screen.getByRole('link', { name: /inicio/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /productos/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /journal/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /jardin 2\.0/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /jardín 2\.0/i })).toBeInTheDocument();
   });
+
+  it.each(['desktop', 'mobile'] as const)(
+    'routes the %s Join link to the relative login path',
+    async (layout) => {
+      useSessionMock.mockReturnValue({ status: 'unauthenticated', data: null });
+
+      const user = userEvent.setup();
+      render(<Navbar />);
+
+      if (layout === 'mobile') {
+        await user.click(screen.getByRole('button', { name: /toggle menu/i }));
+      }
+
+      const joinLinks = screen.getAllByRole('link', { name: 'Únete', exact: true });
+      expect(joinLinks).toHaveLength(layout === 'mobile' ? 2 : 1);
+      for (const link of joinLinks) {
+        expect(link).toHaveAttribute('href', '/login');
+      }
+    },
+  );
 
   it('uses the local logo path without a query string', () => {
     useSessionMock.mockReturnValue({ status: 'unauthenticated', data: null });
@@ -97,7 +117,7 @@ describe('Landing Navbar', () => {
     expect(screen.getByRole('link', { name: /inicio/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /productos/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /journal/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /jardin 2\.0/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /jardín 2\.0/i })).toBeInTheDocument();
   });
 
   it('renders the Laboratorio entry in the mobile menu for productora users', async () => {
