@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto';
 import type { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
@@ -6,8 +5,7 @@ import { createUserRepository } from '@/lib/db/repository/user';
 import { connectToDatabase } from '@/lib/db/connect';
 import { authorizeWithRepository } from './authorize-credentials';
 import { getGoogleOAuthConfig, isVerifiedGoogleProfile, normalizeGoogleEmail } from './google';
-import { IdentityModel } from '@/lib/db/models/identity';
-import { ROLES } from './roles';
+import { provisionGoogleAccount } from './google-provisioning';
 
 const providers: NonNullable<NextAuthOptions['providers']> = [
   CredentialsProvider({
@@ -53,53 +51,22 @@ export const authOptions: NextAuthOptions = {
         return false;
       }
 
-      const repo = createUserRepository();
-      const providerIdentity = await IdentityModel.findOne({
-        provider: 'google',
+      const outcome = await provisionGoogleAccount({
         providerAccountId: account.providerAccountId,
+        email: normalizeGoogleEmail(profile.email),
+        repository: createUserRepository(),
       });
-
-      if (providerIdentity) {
-        const linkedUser = await repo.findById(providerIdentity.accountId);
-        if (!linkedUser || linkedUser.accountStatus !== 'active' || !linkedUser.emailVerified) {
-          return false;
-        }
-
-        Object.assign(user, {
-          id: linkedUser.id,
-          email: linkedUser.email,
-          role: linkedUser.role,
-          emailVerified: linkedUser.emailVerified,
-          securityVersion: linkedUser.securityVersion,
-        });
-        return true;
-      }
-
-      const email = normalizeGoogleEmail(profile.email);
-      const existingUser = await repo.findByEmail(email);
-      if (existingUser) {
+      if (outcome.kind === 'account_in_use') {
         return '/login?error=AccountInUse';
       }
+      if (outcome.kind === 'denied') return false;
 
-      const createdUser = await repo.create({
-        email,
-        password: randomPassword(),
-        role: ROLES.SUSCRIPTORA,
-        accountStatus: 'active',
-        emailVerified: true,
-      });
-      await IdentityModel.create({
-        accountId: createdUser.id,
-        provider: 'google',
-        providerAccountId: account.providerAccountId,
-        email,
-      });
       Object.assign(user, {
-        id: createdUser.id,
-        email: createdUser.email,
-        role: createdUser.role,
-        emailVerified: createdUser.emailVerified,
-        securityVersion: createdUser.securityVersion,
+        id: outcome.user.id,
+        email: outcome.user.email,
+        role: outcome.user.role,
+        emailVerified: outcome.user.emailVerified,
+        securityVersion: outcome.user.securityVersion,
       });
       return true;
     },
@@ -145,7 +112,3 @@ export const authOptions: NextAuthOptions = {
     strategy: 'jwt',
   },
 };
-
-function randomPassword(): string {
-  return `google-${randomUUID()}`;
-}

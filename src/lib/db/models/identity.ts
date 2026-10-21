@@ -1,12 +1,14 @@
 import mongoose, { Document, Model, Schema } from 'mongoose';
 
 export type IdentityProvider = 'credentials' | 'google';
+export type IdentityProvisioningState = 'pending' | 'active';
 
 export interface IIdentity extends Document {
   accountId: string;
   provider: IdentityProvider;
   providerAccountId: string;
   email?: string;
+  provisioningState?: IdentityProvisioningState;
   createdAt: Date;
 }
 
@@ -31,6 +33,10 @@ const IdentitySchema = new Schema<IIdentity>(
       type: String,
       lowercase: true,
       trim: true,
+    },
+    provisioningState: {
+      type: String,
+      enum: ['pending', 'active'],
     },
   },
   {

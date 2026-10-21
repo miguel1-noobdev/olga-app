@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import { isObjectIdOrHexString } from 'mongoose';
 import { ROLES } from '@/lib/auth/roles';
 import { UserModel, IUser, Role, AccountStatus } from '../models/user';
 
@@ -14,6 +15,7 @@ export interface UserRecord {
 }
 
 export interface CreateUserInput {
+  id?: string;
   email: string;
   password: string;
   role?: Role;
@@ -56,6 +58,12 @@ function validateEmail(email: string): void {
   }
 }
 
+function validateUserId(id: string | undefined): void {
+  if (id !== undefined && (typeof id !== 'string' || !isObjectIdOrHexString(id))) {
+    throw new Error('Invalid user id');
+  }
+}
+
 function toUserRecord(doc: IUser): UserRecord {
   return {
     id: doc._id.toString(),
@@ -72,6 +80,7 @@ function toUserRecord(doc: IUser): UserRecord {
 export function createUserRepository(): UserRepository {
   return {
     async create(input: CreateUserInput): Promise<UserRecord> {
+      validateUserId(input.id);
       const email = normalizeEmail(input.email);
       validateEmail(email);
       validatePassword(input.password);
@@ -87,6 +96,7 @@ export function createUserRepository(): UserRepository {
       const emailVerified = input.emailVerified ?? accountStatus !== 'pending_email';
 
       const user = await UserModel.create({
+        ...(input.id === undefined ? {} : { _id: input.id }),
         email,
         passwordHash,
         role,
