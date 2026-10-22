@@ -42,7 +42,7 @@ describe('Landing Navbar', () => {
         await user.click(screen.getByRole('button', { name: /toggle menu/i }));
       }
 
-      const joinLinks = screen.getAllByRole('link', { name: 'Únete', exact: true });
+      const joinLinks = screen.getAllByRole('link', { name: 'Únete' });
       expect(joinLinks).toHaveLength(layout === 'mobile' ? 2 : 1);
       for (const link of joinLinks) {
         expect(link).toHaveAttribute('href', '/login');
