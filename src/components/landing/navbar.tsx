@@ -10,7 +10,7 @@ const NAV_LINKS = [
   { href: '#hero', label: 'Inicio' },
   { href: '#productos', label: 'Productos' },
   { href: '/blog', label: 'Journal' },
-  { href: '/jardin-digital', label: 'Jardin 2.0' },
+  { href: '/jardin-digital', label: 'Jardín 2.0' },
 ];
 
 const SCROLL_THRESHOLD = 50;
@@ -53,7 +53,6 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
         <div className="flex items-center justify-between h-full">
-          {/* Left: Logo + site name */}
           <Link href="/" className="flex items-center gap-3 flex-shrink-0 group">
             <div
               className={`relative overflow-hidden rounded-full transition-all duration-300 ${
@@ -73,7 +72,6 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Center: Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-1">
             {NAV_LINKS.map((link) => (
               link.href.startsWith('#') ? (
@@ -104,7 +102,6 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Right: Auth Buttons / User */}
           <div className="hidden md:flex items-center space-x-3">
             {isAuthenticated ? (
               <>
@@ -134,7 +131,7 @@ export default function Navbar() {
               </>
             ) : (
               <Link
-                href="/register"
+                href="/login"
                 className="px-4 py-2 text-lg text-surface bg-primary rounded-lg hover:bg-primary/90 transition-colors"
               >
                 Únete
@@ -142,7 +139,6 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
           <button
             type="button"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -160,7 +156,6 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div className="md:hidden bg-surface border-t border-surface-border">
           <div className="px-2 pt-2 pb-3 space-y-1">
@@ -205,7 +200,7 @@ export default function Navbar() {
                 </button>
               ) : (
                 <Link
-                  href="/register"
+                  href="/login"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="block px-3 py-2 text-base text-surface bg-primary text-center rounded-lg"
                 >
