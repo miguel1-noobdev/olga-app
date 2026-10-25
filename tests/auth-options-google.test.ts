@@ -271,6 +271,63 @@ describe('authOptions Google signIn callback', () => {
     expect(await repo.count()).toBe(1);
   });
 
+  it('resumes a callback whose stale email check reaches the owned user at repository creation', async () => {
+    enableGoogle();
+    const repo = createUserRepository();
+    const accountId = new mongoose.Types.ObjectId().toString();
+    const email = 'stale-email-check@example.com';
+    const providerAccountId = 'google-stale-email-check';
+    await IdentityModel.create({
+      accountId,
+      provider: 'google',
+      providerAccountId,
+      email,
+      provisioningState: 'pending',
+    });
+
+    const emailCheckReached = deferred<void>();
+    const releaseEmailCheck = deferred<void>();
+    const target = UserModel as unknown as Record<string, (...args: unknown[]) => unknown>;
+    const originalFindOne = target.findOne.bind(UserModel);
+    let staleEmailRead = true;
+    vi.spyOn(target, 'findOne').mockImplementation((...args) => {
+      const filter = args[0] as { email?: unknown } | undefined;
+      if (!staleEmailRead || filter?.email !== email) {
+        return originalFindOne(...args) as never;
+      }
+
+      staleEmailRead = false;
+      return Promise.resolve(originalFindOne(...args)).then(async (user) => {
+        expect(user).toBeNull();
+        emailCheckReached.resolve();
+        await releaseEmailCheck.promise;
+        return user;
+      }) as never;
+    });
+
+    const delayedAttempt = signInWithGoogle(email, providerAccountId);
+    await emailCheckReached.promise;
+
+    const leadingAttempt = await signInWithGoogle(email, providerAccountId);
+
+    expect(leadingAttempt.result).toBe(true);
+    expect(await repo.findByEmail(email)).toMatchObject({ id: accountId });
+
+    releaseEmailCheck.resolve();
+    const resumedAttempt = await delayedAttempt;
+    expect(resumedAttempt.result).toBe(true);
+    expect(leadingAttempt.user.id).toBe(accountId);
+    expect(resumedAttempt.user.id).toBe(accountId);
+    expect(await repo.count()).toBe(1);
+    expect(await repo.findByEmail(email)).toMatchObject({
+      id: accountId,
+      role: 'suscriptora',
+      accountStatus: 'active',
+      emailVerified: true,
+      securityVersion: 0,
+    });
+  });
+
   it.each(['missing', 'suspended', 'unverified'] as const)(
     'denies a legacy Google identity whose account is %s without recreating or changing it',
     async (state) => {
@@ -356,6 +413,14 @@ async function signInWithGoogle(email: string, providerAccountId: string) {
     profile: { email, email_verified: true },
   } as never);
   return { result, user };
+}
+
+function deferred<T>() {
+  let resolve!: (value: T | PromiseLike<T>) => void;
+  const promise = new Promise<T>((next) => {
+    resolve = next;
+  });
+  return { promise, resolve };
 }
 
 function throwAfterCommittedModelWrite(

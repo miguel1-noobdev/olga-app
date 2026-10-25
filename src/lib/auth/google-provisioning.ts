@@ -2,7 +2,11 @@ import { randomUUID } from 'node:crypto';
 import { Types } from 'mongoose';
 import { IdentityModel, IIdentity } from '@/lib/db/models/identity';
 import { UserModel } from '@/lib/db/models/user';
-import type { UserRecord, UserRepository } from '@/lib/db/repository/user';
+import {
+  UserEmailAlreadyExistsError,
+  type UserRecord,
+  type UserRepository,
+} from '@/lib/db/repository/user';
 import { ROLES } from './roles';
 
 export type GoogleProvisioningOutcome =
@@ -98,7 +102,9 @@ async function resumeGoogleProvisioning(
           emailVerified: false,
         });
       } catch (error) {
-        if (!isDuplicateKeyError(error)) return denied;
+        if (!isDuplicateKeyError(error) && !(error instanceof UserEmailAlreadyExistsError)) {
+          return denied;
+        }
 
         user = await input.repository.findById(identity.accountId);
         if (!user) {
