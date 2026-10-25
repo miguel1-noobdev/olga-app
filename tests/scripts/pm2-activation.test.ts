@@ -78,6 +78,7 @@ function runCandidate(options: CandidateOptions = {}) {
   const secrets = join(root, 'secrets.env');
   const pm2Calls = join(root, 'pm2-calls');
   const activationSignalSent = join(root, 'activation-signal-sent');
+  const activationSignalTarget = join(root, 'activation-signal-target');
   const candidateStarted = join(root, 'candidate-started');
   const node20Pm2Calls = join(root, 'node20-pm2-calls');
   const poisonCalls = join(root, 'poison-calls');
@@ -149,7 +150,15 @@ function runCandidate(options: CandidateOptions = {}) {
           # Mark the attempted candidate start even when the controller cancels it.
           [ "$argument" != start ] || : > "$CANDIDATE_STARTED"
           : > "$ACTIVATION_SIGNAL_SENT"
-          kill -"$ACTIVATION_SIGNAL" "\${ACTIVATION_CONTROLLER_PID:-$PPID}"
+          controller_pid=''
+          for controller_argument in "$@"; do
+            case "$controller_argument" in
+              ACTIVATION_CONTROLLER_PID=*) controller_pid="\${controller_argument#ACTIVATION_CONTROLLER_PID=}" ;;
+            esac
+          done
+          [ -n "$controller_pid" ] || exit 98
+          printf '%s|%s\n' "$controller_pid" "$controller_pid" > "$ACTIVATION_SIGNAL_TARGET"
+          kill -"$ACTIVATION_SIGNAL" "$controller_pid"
           break
         fi
       done
@@ -224,7 +233,7 @@ function runCandidate(options: CandidateOptions = {}) {
     env: {
       NODE_ENV: 'test', APP_ROOT: appRoot, NODE24_BIN: join(poison, 'node'), PATH: `${bin}:${poison}:/usr/bin:/bin`,
       ACTIVATION_SIGNAL: options.activationSignal ?? '', ACTIVATION_SIGNAL_SENT: activationSignalSent,
-      ACTIVATION_SIGNAL_COMMAND: options.activationSignalCommand ?? 'start', CANDIDATE_STARTED: candidateStarted,
+      ACTIVATION_SIGNAL_TARGET: activationSignalTarget, ACTIVATION_SIGNAL_COMMAND: options.activationSignalCommand ?? 'start', CANDIDATE_STARTED: candidateStarted,
       PRESTART_DESCRIBE_FAILURE: options.prestartDescribeFailure ?? '', PRESTART_DELETE_FAIL: options.prestartDeleteFails ? '1' : '',
       ROLLBACK_MODE: options.rollbackMode ? '1' : '',
       CANDIDATE_DELETE_FAIL: options.candidateDeleteFails ? '1' : '', CANDIDATE_START_FAIL: options.candidateStartFails ? '1' : '',
@@ -251,6 +260,7 @@ function runCandidate(options: CandidateOptions = {}) {
   }
   if (options.packageSymlink) chmodSync(join(releaseDir, 'node_modules'), 0o755);
   return {
+    activationSignalTarget: () => existsSync(activationSignalTarget) ? readFileSync(activationSignalTarget, 'utf8').trim() : '',
     currentExists: () => existsSync(join(appRoot, 'current')),
     currentTarget: () => readlinkSync(join(appRoot, 'current')),
     mvCalls: () => existsSync(mvCalls) ? readFileSync(mvCalls, 'utf8').trim().split('\n').filter(Boolean) : [],
@@ -513,6 +523,21 @@ describe('PM2 release activation script', () => {
     expect(attempt.result.stderr).toBe('recovery_failed_check=node24_delete\nactivation=failed; rollback=failed\n');
     expect(attempt.pm2Calls().map((call) => call.split('|')[2])).toEqual(['describe', 'delete', 'delete']);
     expect(attempt.node20Pm2Calls().map((call) => call.split('|')[2])).toEqual(['start', 'pid', 'pid']);
+    expect(attempt.currentTarget()).toBe(attempt.rollbackDir);
+  });
+
+  it('PM2 prestart owns describe cancellation fixture delivery to the activation controller', () => {
+    const attempt = runCandidate({ activationSignal: 'TERM', activationSignalCommand: 'describe' });
+    const [target, controller] = attempt.activationSignalTarget().split('|');
+
+    expect(controller).toMatch(/^[1-9][0-9]*$/);
+    expect(target).toBe(controller);
+    expect(attempt.result.status).toBe(143);
+    expect(attempt.result.stdout).toBe('');
+    expect(attempt.result.stderr).toBe('');
+    expect(attempt.pm2Calls().every((call) => call.split('|')[2] === 'describe')).toBe(true);
+    expect(attempt.node20Pm2Calls()).toEqual([]);
+    expect(attempt.mvCalls()).toEqual([]);
     expect(attempt.currentTarget()).toBe(attempt.rollbackDir);
   });
 
