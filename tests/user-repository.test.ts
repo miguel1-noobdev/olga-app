@@ -95,7 +95,7 @@ describe('UserRepository', () => {
       await repo.create({ email: 'olga@botanicaob.com', password: 'secret123' });
       await expect(
         repo.create({ email: 'OLGA@botanicaob.com', password: 'other456' })
-      ).rejects.toThrow(/already exists|ya existe/i);
+      ).rejects.toThrow('A user with this email already exists');
     });
 
     it('rejects password shorter than 8 characters', async () => {

@@ -3,6 +3,13 @@ import { isObjectIdOrHexString } from 'mongoose';
 import { ROLES } from '@/lib/auth/roles';
 import { UserModel, IUser, Role, AccountStatus } from '../models/user';
 
+export class UserEmailAlreadyExistsError extends Error {
+  constructor() {
+    super('A user with this email already exists');
+    this.name = 'UserEmailAlreadyExistsError';
+  }
+}
+
 export interface UserRecord {
   id: string;
   email: string;
@@ -87,7 +94,7 @@ export function createUserRepository(): UserRepository {
 
       const existing = await UserModel.findOne({ email });
       if (existing) {
-        throw new Error('A user with this email already exists');
+        throw new UserEmailAlreadyExistsError();
       }
 
       const passwordHash = await bcrypt.hash(input.password, 10);
